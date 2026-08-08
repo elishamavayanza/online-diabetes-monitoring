@@ -6,7 +6,7 @@ use App\DTO\Feedback;
 use App\DTO\Request\Patient\MedicalConsentRequestDTO;
 use App\Mapper\Patient\MedicalConsentMapper;
 use App\Repository\Identity\PatientRepository;
-use App\Repository\Organization\OrganizationRepository;
+use App\Repository\Healthcare\HealthcareOrganizationRepository;
 use App\Repository\Patient\MedicalConsentRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
@@ -18,7 +18,7 @@ class MedicalConsentService
     public function __construct(
         private readonly MedicalConsentRepository $consentRepository,
         private readonly PatientRepository $patientRepository,
-        private readonly OrganizationRepository $organizationRepository,
+        private readonly HealthcareOrganizationRepository $organizationRepository,
         private readonly MedicalConsentMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService

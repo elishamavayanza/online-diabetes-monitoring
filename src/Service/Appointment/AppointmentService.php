@@ -9,7 +9,7 @@ use App\Repository\Appointment\AppointmentRepository;
 use App\Repository\Identity\PatientRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Repository\Healthcare\HealthcareOrganizationRepository;
-use App\Repository\Healthcare\FacilityRepository;
+use App\Repository\Healthcare\HealthcareFacilityRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +22,7 @@ class AppointmentService
         private readonly PatientRepository $patientRepository,
         private readonly HealthcareProfessionalRepository $professionalRepository,
         private readonly HealthcareOrganizationRepository $organizationRepository,
-        private readonly FacilityRepository $facilityRepository,
+        private readonly HealthcareFacilityRepository $facilityRepository,
         private readonly AppointmentMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService
