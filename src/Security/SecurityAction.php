@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Security;
+
+enum SecurityAction: string
+{
+    // Général
+    case VIEW = 'view';
+    case CREATE = 'create';
+    case UPDATE = 'update';
+    case DELETE = 'delete';
+
+    // Organisation
+    case MANAGE_ORGANIZATION = 'manage_organization';
+    case MANAGE_FACILITY = 'manage_facility';
+    case MANAGE_DEPARTMENT = 'manage_department';
+
+    // Utilisateurs
+    case MANAGE_USERS = 'manage_users';
+    case SUSPEND_USER = 'suspend_user';
+    case ACTIVATE_USER = 'activate_user';
+
+    // Patients
+    case VIEW_PATIENT = 'view_patient';
+    case UPDATE_PATIENT = 'update_patient';
+    case TRANSFER_PATIENT = 'transfer_patient';
+    case ARCHIVE_PATIENT = 'archive_patient';
+    case ACTIVATE_PATIENT = 'activate_patient';
+
+    // Dossier médical
+    case VIEW_MEDICAL_RECORD = 'view_medical_record';
+    case CREATE_DIAGNOSIS = 'create_diagnosis';
+    case UPDATE_DIAGNOSIS = 'update_diagnosis';
+    case CREATE_MEDICAL_NOTE = 'create_medical_note';
+
+    // Mesures
+    case RECORD_GLUCOSE = 'record_glucose';
+    case RECORD_BLOOD_PRESSURE = 'record_blood_pressure';
+    case RECORD_HBA1C = 'record_hba1c';
+    case RECORD_WEIGHT = 'record_weight';
+    case RECORD_ACTIVITY = 'record_activity';
+    case VIEW_MEASUREMENTS = 'view_measurements';
+
+    // Laboratoire
+    case VIEW_LABORATORY_RESULT = 'view_laboratory_result';
+    case UPLOAD_LABORATORY_RESULT = 'upload_laboratory_result';
+
+    // Traitement
+    case VIEW_PRESCRIPTION = 'view_prescription';
+    case CREATE_PRESCRIPTION = 'create_prescription';
+    case UPDATE_PRESCRIPTION = 'update_prescription';
+    case CANCEL_PRESCRIPTION = 'cancel_prescription';
+    case VALIDATE_PRESCRIPTION = 'validate_prescription';
+
+    // Nutrition
+    case MANAGE_FOOD = 'manage_food';
+    case MANAGE_FOOD_CATEGORY = 'manage_food_category';
+    case MANAGE_MEAL = 'manage_meal';
+    case VIEW_NUTRITION = 'view_nutrition';
+    case CREATE_NUTRITION_ADVICE = 'create_nutrition_advice';
+
+    // Rendez-vous
+    case VIEW_APPOINTMENT = 'view_appointment';
+    case CREATE_APPOINTMENT = 'create_appointment';
+    case UPDATE_APPOINTMENT = 'update_appointment';
+    case CANCEL_APPOINTMENT = 'cancel_appointment';
+    case CONFIRM_APPOINTMENT = 'confirm_appointment';
+    case REQUEST_RESCHEDULE = 'request_reschedule';
+
+    // Communication
+    case SEND_MESSAGE = 'send_message';
+    case READ_MESSAGE = 'read_message';
+    case DOWNLOAD_ATTACHMENT = 'download_attachment';
+
+    // Notifications
+    case VIEW_NOTIFICATION = 'view_notification';
+    case MARK_NOTIFICATION_READ = 'mark_notification_read';
+
+    // Audit
+    case VIEW_AUDIT_LOG = 'view_audit_log';
+    case VIEW_DATA_ACCESS_LOG = 'view_data_access_log';
+
+    // Administration
+    case MANAGE_ROLES = 'manage_roles';
+    case MANAGE_PERMISSIONS = 'manage_permissions';
+}
