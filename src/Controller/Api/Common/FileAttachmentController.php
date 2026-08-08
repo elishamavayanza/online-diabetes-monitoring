@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/v1/file-attachments', name: 'api_v1_file_attachments_')]
+#[Route('/api/file-attachments', name: 'api_file_attachments_')]
 class FileAttachmentController extends AbstractController
 {
     public function __construct(

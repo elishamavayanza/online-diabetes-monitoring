@@ -556,11 +556,13 @@ final class SecurityService implements SecurityServiceInterface
         $allowed = [
             SecurityAction::VIEW_PATIENT,
             SecurityAction::VIEW_MEDICAL_RECORD,
+            SecurityAction::CREATE_MEDICAL_RECORD,
 
             SecurityAction::CREATE_DIAGNOSIS,
             SecurityAction::UPDATE_DIAGNOSIS,
-
             SecurityAction::CREATE_MEDICAL_NOTE,
+
+            SecurityAction::MANAGE_MEDICATION,
 
             SecurityAction::RECORD_GLUCOSE,
             SecurityAction::RECORD_BLOOD_PRESSURE,

@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Mapper\Healthcare;
+
+use App\DTO\Request\Healthcare\HealthcareOrganizationRequestDTO;
+use App\DTO\Response\Healthcare\HealthcareOrganizationResponseDTO;
+use App\Entity\Healthcare\HealthcareOrganization;
+use App\Entity\Identity\Address;
+
+class HealthcareOrganizationMapper
+{
+    public function mapRequestToEntity(HealthcareOrganizationRequestDTO $dto, ?HealthcareOrganization $organization = null): HealthcareOrganization
+    {
+        $organization ??= new HealthcareOrganization();
+
+        $organization->setName($dto->name);
+        $organization->setShortName($dto->shortName);
+        $organization->setType($dto->type);
+        $organization->setEmail($dto->email);
+        $organization->setPhone($dto->phone);
+        $organization->setWebsite($dto->website);
+        $organization->setLogoUrl($dto->logoUrl);
+        $organization->setActive($dto->active);
+
+        if (!empty($dto->address)) {
+            $address = new Address(
+                street: $dto->address['street'] ?? null,
+                city: $dto->address['city'] ?? null,
+                postalCode: $dto->address['postalCode'] ?? null,
+                country: $dto->address['country'] ?? null,
+                state: $dto->address['state'] ?? null
+            );
+            $organization->setAddress($address);
+        }
+
+        return $organization;
+    }
+
+    public function mapEntityToResponse(HealthcareOrganization $organization): HealthcareOrganizationResponseDTO
+    {
+        return HealthcareOrganizationResponseDTO::fromEntity($organization);
+    }
+}

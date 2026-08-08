@@ -29,6 +29,7 @@ enum SecurityAction: string
 
     // Dossier médical
     case VIEW_MEDICAL_RECORD = 'view_medical_record';
+    case CREATE_MEDICAL_RECORD = 'create_medical_record';
     case CREATE_DIAGNOSIS = 'create_diagnosis';
     case UPDATE_DIAGNOSIS = 'update_diagnosis';
     case CREATE_MEDICAL_NOTE = 'create_medical_note';
@@ -51,6 +52,8 @@ enum SecurityAction: string
     case UPDATE_PRESCRIPTION = 'update_prescription';
     case CANCEL_PRESCRIPTION = 'cancel_prescription';
     case VALIDATE_PRESCRIPTION = 'validate_prescription';
+    case RECORD_MEDICATION_INTAKE = 'record_medication_intake';
+    case MANAGE_MEDICATION = 'manage_medication';
 
     // Nutrition
     case MANAGE_FOOD = 'manage_food';
@@ -74,11 +77,15 @@ enum SecurityAction: string
 
     // Notifications
     case VIEW_NOTIFICATION = 'view_notification';
+    case CREATE_NOTIFICATION = 'create_notification';
+
     case MARK_NOTIFICATION_READ = 'mark_notification_read';
+
 
     // Audit
     case VIEW_AUDIT_LOG = 'view_audit_log';
     case VIEW_DATA_ACCESS_LOG = 'view_data_access_log';
+    case CREATE_DATA_ACCESS_LOG = 'create_data_access_log';
 
     // Administration
     case MANAGE_ROLES = 'manage_roles';
