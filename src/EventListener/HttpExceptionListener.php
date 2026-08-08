@@ -2,7 +2,7 @@
 
 namespace App\EventListener;
 
-use App\Dto\Response\HttpErrorResponsePayload;
+use App\DTO\Response\HttpErrorResponsePayload;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
