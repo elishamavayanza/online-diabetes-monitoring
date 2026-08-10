@@ -30,9 +30,9 @@ L'API fournit des services REST sécurisés permettant notamment de gérer :
 Le projet repose sur les technologies suivantes :
 
 * PHP 8.4 ou supérieur
-* Symfony
+* Symfony 7.4
 * Doctrine ORM
-* PostgreSQL
+* MariaDB
 * Composer
 * JWT Authentication
 * NelmioApiDocBundle (OpenAPI / Swagger)
