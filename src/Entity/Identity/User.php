@@ -13,7 +13,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Table(name: 'users')]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'user_type', type: 'string')]
-#[ORM\DiscriminatorMap(['patient' => Patient::class, 'professional' => HealthcareProfessional::class])]
+#[ORM\DiscriminatorMap([
+    'patient' => Patient::class,
+    'professional' => HealthcareProfessional::class,
+    'administrator' => Administrator::class
+])]
 abstract class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Column(type: 'string', length: 180, unique: true)]

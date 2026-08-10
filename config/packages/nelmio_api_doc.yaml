@@ -10,6 +10,7 @@ nelmio_api_doc:
                     type: http
                     scheme: bearer
                     bearerFormat: JWT
+                    description: "Collez directement le token JWT (sans écrire 'Bearer ' au début, Swagger l'ajoute automatiquement)."
         security:
             - Bearer: []
     areas:

@@ -9,6 +9,7 @@ use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class HealthcareProfessionalService
@@ -17,7 +18,8 @@ class HealthcareProfessionalService
         private readonly HealthcareProfessionalRepository $repository,
         private readonly HealthcareProfessionalMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly UserPasswordHasherInterface $passwordHasher // 1. Injection du hacheur de mot de passe
     ) {}
 
     public function create(HealthcareProfessionalRequestDTO $dto): Feedback
@@ -29,6 +31,15 @@ class HealthcareProfessionalService
             $this->securityService->checkPermission(SecurityAction::MANAGE_USERS->value);
 
             $professional = $this->mapper->mapRequestToEntity($dto);
+
+            // 2. Hachage sécurisé du mot de passe transmis par le DTO
+            if (method_exists($dto, 'getPassword') && $dto->getPassword()) {
+                $hashedPassword = $this->passwordHasher->hashPassword(
+                    $professional,
+                    $dto->getPassword()
+                );
+                $professional->setPassword($hashedPassword);
+            }
 
             $this->entityManager->persist($professional);
             $this->entityManager->flush();
@@ -55,7 +66,6 @@ class HealthcareProfessionalService
         $feedback = new Feedback();
 
         try {
-            // Utilisation de l'action générique VIEW disponible dans votre enum
             $this->securityService->checkPermission(SecurityAction::VIEW->value);
 
             $professional = $this->repository->find($id);
