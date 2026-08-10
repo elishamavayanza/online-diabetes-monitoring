@@ -3,7 +3,7 @@
 namespace App\DTO\Response\Identity;
 
 use App\Entity\Identity\User;
-use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(

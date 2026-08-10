@@ -3,9 +3,7 @@
 namespace App\Controller\Api\Appointment;
 
 use App\DTO\Request\Appointment\AppointmentReminderRequestDTO;
-use App\DTO\Response\Appointment\AppointmentReminderResponseDTO;
 use App\Service\Appointment\AppointmentReminderService;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -48,7 +46,7 @@ class AppointmentReminderController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Rappel programmé avec succès.'),
-                new OA\Property(property: 'data', ref: new Model(type: App\DTO\Response\Appointment\AppointmentReminderResponseDTO::class))
+                new OA\Property(property: 'data', ref: '#/components/schemas/AppointmentReminderResponseDTO')
             ]
         )
     )]

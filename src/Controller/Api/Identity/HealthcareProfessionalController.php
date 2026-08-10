@@ -4,7 +4,6 @@ namespace App\Controller\Api\Identity;
 
 use App\DTO\Request\Identity\HealthcareProfessionalRequestDTO;
 use App\Service\Identity\HealthcareProfessionalService;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,7 +58,7 @@ class HealthcareProfessionalController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Professionnel de santé créé avec succès.'),
-                new OA\Property(property: 'data', ref: new Model(type: App\DTO\Response\Identity\HealthcareProfessionalResponseDTO::class))
+                new OA\Property(property: 'data', ref: '#/components/schemas/HealthcareProfessionalResponseDTO')
             ]
         )
     )]
@@ -94,7 +93,7 @@ class HealthcareProfessionalController extends AbstractController
             properties: [
                 new OA\Property(property: 'status', type: 'integer', example: 200),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
-                new OA\Property(property: 'data', ref: new Model(type: App\DTO\Response\Identity\HealthcareProfessionalResponseDTO::class))
+                new OA\Property(property: 'data', ref: '#/components/schemas/HealthcareProfessionalResponseDTO')
             ]
         )
     )]

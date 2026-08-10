@@ -4,7 +4,6 @@ namespace App\Controller\Api\Treatment;
 
 use App\DTO\Request\Treatment\PrescriptionRequestDTO;
 use App\Service\Treatment\PrescriptionService;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -52,7 +51,7 @@ class PrescriptionController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Prescription créée avec succès.'),
-                new OA\Property(property: 'data', ref: new Model(type: App\DTO\Response\Treatment\PrescriptionResponseDTO::class))
+                new OA\Property(property: 'data', ref: '#/components/schemas/PrescriptionResponseDTO')
             ]
         )
     )]

@@ -4,7 +4,6 @@ namespace App\Controller\Api\Notification;
 
 use App\DTO\Request\Notification\NotificationRequestDTO;
 use App\Service\Notification\NotificationService;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +50,7 @@ class NotificationController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Notification créée avec succès.'),
-                new OA\Property(property: 'data', ref: new Model(type: App\DTO\Response\Notification\NotificationResponseDTO::class))
+                new OA\Property(property: 'data', ref: '#/components/schemas/NotificationResponseDTO')
             ]
         )
     )]

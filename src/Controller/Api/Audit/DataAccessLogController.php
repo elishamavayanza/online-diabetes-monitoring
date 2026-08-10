@@ -3,8 +3,9 @@
 namespace App\Controller\Api\Audit;
 
 use App\DTO\Request\Audit\DataAccessLogRequestDTO;
+use App\DTO\Response\Audit\DataAccessLogResponseDTO;
 use App\Service\Audit\DataAccessLogService;
-use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -49,7 +50,7 @@ class DataAccessLogController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Journal d’accès enregistré avec succès.'),
-                new OA\Property(property: 'data', ref: new Model(type: App\DTO\Response\Audit\DataAccessLogResponseDTO::class))
+                new OA\Property(property: 'data', ref: new Model(type: DataAccessLogResponseDTO::class))
             ]
         )
     )]

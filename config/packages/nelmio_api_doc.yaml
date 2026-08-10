@@ -15,3 +15,46 @@ nelmio_api_doc:
     areas:
         path_patterns:
             - ^/api(?!/doc$)
+    models:
+        names:
+            - { alias: AppointmentReminderResponseDTO, type: App\DTO\Response\Appointment\AppointmentReminderResponseDTO }
+            - { alias: AppointmentResponseDTO, type: App\DTO\Response\Appointment\AppointmentResponseDTO }
+            - { alias: DataAccessLogResponseDTO, type: App\DTO\Response\Audit\DataAccessLogResponseDTO }
+            - { alias: FileAttachmentResponseDTO, type: App\DTO\Response\Common\FileAttachmentResponseDTO }
+            - { alias: ConversationParticipantResponseDTO, type: App\DTO\Response\Communication\ConversationParticipantResponseDTO }
+            - { alias: ConversationResponseDTO, type: App\DTO\Response\Communication\ConversationResponseDTO }
+            - { alias: MessageAttachmentResponseDTO, type: App\DTO\Response\Communication\MessageAttachmentResponseDTO }
+            - { alias: MessageReadReceiptResponseDTO, type: App\DTO\Response\Communication\MessageReadReceiptResponseDTO }
+            - { alias: MessageResponseDTO, type: App\DTO\Response\Communication\MessageResponseDTO }
+            - { alias: CareTeamAssignmentResponseDTO, type: App\DTO\Response\Healthcare\CareTeamAssignmentResponseDTO }
+            - { alias: DepartmentResponseDTO, type: App\DTO\Response\Healthcare\DepartmentResponseDTO }
+            - { alias: HealthcareFacilityResponseDTO, type: App\DTO\Response\Healthcare\HealthcareFacilityResponseDTO }
+            - { alias: HealthcareOrganizationResponseDTO, type: App\DTO\Response\Healthcare\HealthcareOrganizationResponseDTO }
+            - { alias: OrganizationMembershipResponseDTO, type: App\DTO\Response\Healthcare\OrganizationMembershipResponseDTO }
+            - { alias: AddressResponseDTO, type: App\DTO\Response\Identity\AddressResponseDTO }
+            - { alias: HealthcareProfessionalResponseDTO, type: App\DTO\Response\Identity\HealthcareProfessionalResponseDTO }
+            - { alias: PatientResponseDTO, type: App\DTO\Response\Identity\PatientResponseDTO }
+            - { alias: UserResponseDTO, type: App\DTO\Response\Identity\UserResponseDTO }
+            - { alias: BloodGlucoseMeasurementResponseDTO, type: App\DTO\Response\Medical\BloodGlucoseMeasurementResponseDTO }
+            - { alias: BloodPressureMeasurementResponseDTO, type: App\DTO\Response\Medical\BloodPressureMeasurementResponseDTO }
+            - { alias: DiagnosisResponseDTO, type: App\DTO\Response\Medical\DiagnosisResponseDTO }
+            - { alias: HbA1cMeasurementResponseDTO, type: App\DTO\Response\Medical\HbA1cMeasurementResponseDTO }
+            - { alias: LaboratoryResultResponseDTO, type: App\DTO\Response\Medical\LaboratoryResultResponseDTO }
+            - { alias: MedicalNoteResponseDTO, type: App\DTO\Response\Medical\MedicalNoteResponseDTO }
+            - { alias: MedicalRecordResponseDTO, type: App\DTO\Response\Medical\MedicalRecordResponseDTO }
+            - { alias: PhysicalActivityMeasurementResponseDTO, type: App\DTO\Response\Medical\PhysicalActivityMeasurementResponseDTO }
+            - { alias: WeightMeasurementResponseDTO, type: App\DTO\Response\Medical\WeightMeasurementResponseDTO }
+            - { alias: NotificationResponseDTO, type: App\DTO\Response\Notification\NotificationResponseDTO }
+            - { alias: ReminderRuleResponseDTO, type: App\DTO\Response\Notification\ReminderRuleResponseDTO }
+            - { alias: FoodCategoryResponseDTO, type: App\DTO\Response\Nutrition\FoodCategoryResponseDTO }
+            - { alias: FoodResponseDTO, type: App\DTO\Response\Nutrition\FoodResponseDTO }
+            - { alias: MealItemResponseDTO, type: App\DTO\Response\Nutrition\MealItemResponseDTO }
+            - { alias: MealResponseDTO, type: App\DTO\Response\Nutrition\MealResponseDTO }
+            - { alias: AllergyResponseDTO, type: App\DTO\Response\Patient\AllergyResponseDTO }
+            - { alias: EmergencyContactResponseDTO, type: App\DTO\Response\Patient\EmergencyContactResponseDTO }
+            - { alias: MedicalConsentResponseDTO, type: App\DTO\Response\Patient\MedicalConsentResponseDTO }
+            - { alias: MedicationIntakeResponseDTO, type: App\DTO\Response\Treatment\MedicationIntakeResponseDTO }
+            - { alias: MedicationResponseDTO, type: App\DTO\Response\Treatment\MedicationResponseDTO }
+            - { alias: PrescriptionItemResponseDTO, type: App\DTO\Response\Treatment\PrescriptionItemResponseDTO }
+            - { alias: PrescriptionResponseDTO, type: App\DTO\Response\Treatment\PrescriptionResponseDTO }
+            - { alias: PrescriptionVersionResponseDTO, type: App\DTO\Response\Treatment\PrescriptionVersionResponseDTO }
