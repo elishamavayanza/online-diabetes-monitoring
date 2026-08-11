@@ -9,22 +9,21 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Représente un message individuel échangé au sein d'une conversation
- * dans le module de communication.
+ * Représente un message individuel rédigé et envoyé au sein d'une conversation.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'communication_messages')]
 class Message extends BaseEntity
 {
     /**
-     * @var Conversation|null La conversation à laquelle appartient ce message.
+     * @var Conversation|null Le fil de discussion auquel appartient ce message.
      */
     #[ORM\ManyToOne(targetEntity: Conversation::class, inversedBy: 'messages')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Conversation $conversation = null;
 
     /**
-     * @var User|null L'utilisateur qui a rédigé et envoyé le message.
+     * @var User|null L'utilisateur (patient ou soignant) qui a rédigé et envoyé le message.
      */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -43,34 +42,28 @@ class Message extends BaseEntity
     private ?\DateTimeImmutable $sentAt = null;
 
     /**
-     * @var \DateTimeImmutable|null La date et l'heure de la dernière modification du message (null si non modifié).
+     * @var \DateTimeImmutable|null La date et l'heure de la dernière modification du message, le cas échéant.
      */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $editedAt = null;
 
     /**
-     * @var Collection<int, MessageAttachment> Les fichiers joints rattachés à ce message.
+     * @var Collection<int, MessageAttachment> La liste des fichiers joints rattachés à ce message.
      */
     #[ORM\OneToMany(mappedBy: 'message', targetEntity: MessageAttachment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $attachments;
 
     /**
-     * @var Collection<int, MessageReadReceipt> Les accusés de lecture associés à ce message.
-     */
-    #[ORM\OneToMany(mappedBy: 'message', targetEntity: MessageReadReceipt::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $readReceipts;
-
-    /**
-     * Initialise les collections de pièces jointes et d'accusés de lecture.
+     * Initialise une nouvelle instance du message avec une date d'envoi par défaut.
      */
     public function __construct()
     {
         $this->attachments = new ArrayCollection();
-        $this->readReceipts = new ArrayCollection();
+        $this->sentAt = new \DateTimeImmutable();
     }
 
     /**
-     * Récupère la conversation associée.
+     * Récupère la conversation associée au message.
      */
     public function getConversation(): ?Conversation
     {
@@ -78,7 +71,7 @@ class Message extends BaseEntity
     }
 
     /**
-     * Définit la conversation associée.
+     * Définit la conversation associée au message.
      */
     public function setConversation(?Conversation $conversation): static
     {
@@ -138,7 +131,7 @@ class Message extends BaseEntity
     }
 
     /**
-     * Récupère la date de dernière modification.
+     * Récupère la date et l'heure de modification.
      */
     public function getEditedAt(): ?\DateTimeImmutable
     {
@@ -146,7 +139,7 @@ class Message extends BaseEntity
     }
 
     /**
-     * Définit la date de dernière modification.
+     * Définit la date et l'heure de modification.
      */
     public function setEditedAt(?\DateTimeImmutable $editedAt): static
     {
@@ -155,7 +148,7 @@ class Message extends BaseEntity
     }
 
     /**
-     * Retourne la collection des pièces jointes.
+     * Récupère la collection des pièces jointes.
      *
      * @return Collection<int, MessageAttachment>
      */
@@ -177,48 +170,13 @@ class Message extends BaseEntity
     }
 
     /**
-     * Retire une pièce jointe du message.
+     * Supprime une pièce jointe du message.
      */
     public function removeAttachment(MessageAttachment $attachment): static
     {
         if ($this->attachments->removeElement($attachment)) {
             if ($attachment->getMessage() === $this) {
                 $attachment->setMessage(null);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * Retourne la collection des accusés de lecture.
-     *
-     * @return Collection<int, MessageReadReceipt>
-     */
-    public function getReadReceipts(): Collection
-    {
-        return $this->readReceipts;
-    }
-
-    /**
-     * Ajoute un accusé de lecture au message.
-     */
-    public function addReadReceipt(MessageReadReceipt $readReceipt): static
-    {
-        if (!$this->readReceipts->contains($readReceipt)) {
-            $this->readReceipts->add($readReceipt);
-            $readReceipt->setMessage($this);
-        }
-        return $this;
-    }
-
-    /**
-     * Retire un accusé de lecture du message.
-     */
-    public function removeReadReceipt(MessageReadReceipt $readReceipt): static
-    {
-        if ($this->readReceipts->removeElement($readReceipt)) {
-            if ($readReceipt->getMessage() === $this) {
-                $readReceipt->setMessage(null);
             }
         }
         return $this;

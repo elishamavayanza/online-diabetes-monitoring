@@ -1,0 +1,257 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DoctrineMigrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Auto-generated Migration: Please modify to your needs!
+ */
+final class Version20260811142233_InitialSchemaV1 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return '';
+    }
+
+    public function up(Schema $schema): void
+    {
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE TABLE appointment_appointment_reminders (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, channel VARCHAR(50) NOT NULL, scheduled_for DATETIME NOT NULL, sent_at DATETIME DEFAULT NULL, appointment_id BIGINT UNSIGNED NOT NULL, INDEX IDX_1636CECBE5B533F9 (appointment_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE appointment_appointments (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, scheduled_at DATETIME NOT NULL, duration_minutes INT NOT NULL, status VARCHAR(50) NOT NULL, reason VARCHAR(255) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, professional_id BIGINT UNSIGNED NOT NULL, organization_id BIGINT UNSIGNED NOT NULL, facility_id BIGINT UNSIGNED DEFAULT NULL, INDEX IDX_938365776B899279 (patient_id), INDEX IDX_93836577DB77003 (professional_id), INDEX IDX_9383657732C8A3DE (organization_id), INDEX IDX_93836577A7014910 (facility_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE common_file_attachments (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, filename VARCHAR(255) NOT NULL, mime_type VARCHAR(100) NOT NULL, size_bytes INT NOT NULL, caption VARCHAR(255) DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_1C28E7C96B899279 (patient_id), INDEX IDX_1C28E7C9BB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE communication_conversation_participants (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, joined_at DATETIME NOT NULL, left_at DATETIME DEFAULT NULL, conversation_id BIGINT UNSIGNED NOT NULL, user_id BIGINT UNSIGNED NOT NULL, INDEX IDX_E72B91259AC0396 (conversation_id), INDEX IDX_E72B9125A76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE communication_conversations (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, subject VARCHAR(255) NOT NULL, closed_at DATETIME DEFAULT NULL, organization_id BIGINT UNSIGNED DEFAULT NULL, created_by_id BIGINT UNSIGNED NOT NULL, INDEX IDX_6F44095232C8A3DE (organization_id), INDEX IDX_6F440952B03A8386 (created_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE communication_message_attachments (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, file_url VARCHAR(500) NOT NULL, file_name VARCHAR(255) NOT NULL, mime_type VARCHAR(150) NOT NULL, size_bytes INT NOT NULL, message_id BIGINT UNSIGNED NOT NULL, INDEX IDX_6C1C5FD537A1329 (message_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE communication_message_read_receipts (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, read_at DATETIME NOT NULL, message_id BIGINT UNSIGNED NOT NULL, participant_id BIGINT UNSIGNED NOT NULL, INDEX IDX_394F5A9A537A1329 (message_id), INDEX IDX_394F5A9A9D1C3019 (participant_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE communication_messages (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, content LONGTEXT NOT NULL, sent_at DATETIME NOT NULL, edited_at DATETIME DEFAULT NULL, conversation_id BIGINT UNSIGNED NOT NULL, sender_id BIGINT UNSIGNED NOT NULL, INDEX IDX_50C977559AC0396 (conversation_id), INDEX IDX_50C97755F624B39D (sender_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE healthcare_care_team_assignments (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, role VARCHAR(50) NOT NULL, start_date DATE NOT NULL, end_date DATE DEFAULT NULL, active TINYINT NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, professional_id BIGINT UNSIGNED NOT NULL, organization_id BIGINT UNSIGNED NOT NULL, INDEX IDX_221D998F6B899279 (patient_id), INDEX IDX_221D998FDB77003 (professional_id), INDEX IDX_221D998F32C8A3DE (organization_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE healthcare_departments (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, name VARCHAR(150) NOT NULL, specialty VARCHAR(150) DEFAULT NULL, facility_id BIGINT UNSIGNED NOT NULL, INDEX IDX_EBF5A6A8A7014910 (facility_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE healthcare_facilities (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, name VARCHAR(150) NOT NULL, phone VARCHAR(50) DEFAULT NULL, address_street VARCHAR(255) DEFAULT NULL, address_city VARCHAR(100) DEFAULT NULL, address_postal_code VARCHAR(20) DEFAULT NULL, address_country VARCHAR(100) DEFAULT NULL, organization_id BIGINT UNSIGNED NOT NULL, INDEX IDX_940F83CF32C8A3DE (organization_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE healthcare_organization_memberships (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, start_date DATE NOT NULL, end_date DATE DEFAULT NULL, status VARCHAR(50) NOT NULL, user_id BIGINT UNSIGNED NOT NULL, organization_id BIGINT UNSIGNED NOT NULL, facility_id BIGINT UNSIGNED DEFAULT NULL, department_id BIGINT UNSIGNED DEFAULT NULL, INDEX IDX_CD4C45D9A76ED395 (user_id), INDEX IDX_CD4C45D932C8A3DE (organization_id), INDEX IDX_CD4C45D9A7014910 (facility_id), INDEX IDX_CD4C45D9AE80F5DF (department_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE healthcare_organizations (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, name VARCHAR(150) NOT NULL, short_name VARCHAR(50) DEFAULT NULL, type VARCHAR(50) NOT NULL, email VARCHAR(180) DEFAULT NULL, phone VARCHAR(50) DEFAULT NULL, website VARCHAR(255) DEFAULT NULL, logo_url VARCHAR(500) DEFAULT NULL, active TINYINT NOT NULL, address_street VARCHAR(255) DEFAULT NULL, address_city VARCHAR(100) DEFAULT NULL, address_postal_code VARCHAR(20) DEFAULT NULL, address_country VARCHAR(100) DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE identity_administrators (id BIGINT UNSIGNED NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE identity_healthcare_professionals (license_number VARCHAR(100) NOT NULL, professional_type VARCHAR(50) NOT NULL, specialty VARCHAR(150) DEFAULT NULL, signature_url VARCHAR(500) DEFAULT NULL, id BIGINT UNSIGNED NOT NULL, UNIQUE INDEX UNIQ_707E3809EC7E7152 (license_number), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE identity_patients (date_of_birth DATE DEFAULT NULL, place_of_birth VARCHAR(150) DEFAULT NULL, blood_type VARCHAR(10) DEFAULT NULL, height_cm NUMERIC(5, 2) DEFAULT NULL, id BIGINT UNSIGNED NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE identity_users (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, full_name VARCHAR(150) NOT NULL, phone VARCHAR(50) DEFAULT NULL, gender VARCHAR(50) DEFAULT NULL, avatar_url VARCHAR(500) DEFAULT NULL, email VARCHAR(180) NOT NULL, password_hash VARCHAR(255) NOT NULL, locale VARCHAR(10) NOT NULL, status VARCHAR(50) NOT NULL, email_verified_at DATETIME DEFAULT NULL, last_login_at DATETIME DEFAULT NULL, address_street VARCHAR(255) DEFAULT NULL, address_city VARCHAR(100) DEFAULT NULL, address_postal_code VARCHAR(20) DEFAULT NULL, address_country VARCHAR(100) DEFAULT NULL, user_type VARCHAR(255) NOT NULL, UNIQUE INDEX UNIQ_FED8EF19E7927C74 (email), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_blood_glucose_measurements (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, value NUMERIC(5, 2) NOT NULL, unit VARCHAR(50) NOT NULL, context VARCHAR(50) NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_EDFAAB876B899279 (patient_id), INDEX IDX_EDFAAB87BB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_blood_pressure_measurements (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, systolic NUMERIC(5, 2) NOT NULL, diastolic NUMERIC(5, 2) NOT NULL, pulse NUMERIC(5, 2) DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_856686A76B899279 (patient_id), INDEX IDX_856686A7BB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_diagnoses (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, condition_name VARCHAR(150) NOT NULL, description LONGTEXT DEFAULT NULL, diagnosed_at DATETIME NOT NULL, status VARCHAR(50) NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, doctor_id BIGINT UNSIGNED NOT NULL, medical_record_id BIGINT UNSIGNED DEFAULT NULL, INDEX IDX_27171E8B6B899279 (patient_id), INDEX IDX_27171E8BBB9D6FEE (issuer_id), INDEX IDX_27171E8B87F4FB17 (doctor_id), INDEX IDX_27171E8BB88E2BB6 (medical_record_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_hba1c_measurements (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, value_percent NUMERIC(4, 2) NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_31560E46B899279 (patient_id), INDEX IDX_31560E4BB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_laboratory_results (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, test_name VARCHAR(150) NOT NULL, file_url VARCHAR(500) DEFAULT NULL, lab_name VARCHAR(150) DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_D97573466B899279 (patient_id), INDEX IDX_D9757346BB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_medical_notes (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, content LONGTEXT NOT NULL, noted_at DATETIME NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, medical_record_id BIGINT UNSIGNED NOT NULL, author_id BIGINT UNSIGNED NOT NULL, INDEX IDX_E9D57C3E6B899279 (patient_id), INDEX IDX_E9D57C3EBB9D6FEE (issuer_id), INDEX IDX_E9D57C3EB88E2BB6 (medical_record_id), INDEX IDX_E9D57C3EF675F31B (author_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_medical_records (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, status VARCHAR(50) NOT NULL, opened_at DATETIME NOT NULL, closed_at DATETIME DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, organization_id BIGINT UNSIGNED NOT NULL, INDEX IDX_2C6847786B899279 (patient_id), INDEX IDX_2C684778BB9D6FEE (issuer_id), INDEX IDX_2C68477832C8A3DE (organization_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_physical_activity_measurements (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, activity_type VARCHAR(100) NOT NULL, duration_minutes INT NOT NULL, calories_burned NUMERIC(6, 2) DEFAULT NULL, min_heart_rate NUMERIC(5, 2) DEFAULT NULL, max_heart_rate NUMERIC(5, 2) DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_9C6036466B899279 (patient_id), INDEX IDX_9C603646BB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE medical_weight_measurements (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, value_kg NUMERIC(5, 2) NOT NULL, height_cm NUMERIC(5, 2) DEFAULT NULL, bmi NUMERIC(5, 2) DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_503670AD6B899279 (patient_id), INDEX IDX_503670ADBB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE notification_notifications (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, type VARCHAR(50) NOT NULL, title VARCHAR(255) NOT NULL, body LONGTEXT NOT NULL, channel VARCHAR(50) NOT NULL, read_at DATETIME DEFAULT NULL, related_entity_type VARCHAR(150) DEFAULT NULL, related_entity_id CHAR(36) DEFAULT NULL, user_id BIGINT UNSIGNED NOT NULL, INDEX IDX_36B27A1AA76ED395 (user_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE notification_reminder_rules (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, target_type VARCHAR(50) NOT NULL, related_entity_id CHAR(36) DEFAULT NULL, cron_expression VARCHAR(100) NOT NULL, active TINYINT NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, INDEX IDX_29D135526B899279 (patient_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE nutrition_food_categories (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, label VARCHAR(150) NOT NULL, description LONGTEXT DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE nutrition_foods (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, name VARCHAR(150) NOT NULL, description LONGTEXT DEFAULT NULL, photo_url VARCHAR(500) DEFAULT NULL, calories_per100g NUMERIC(6, 2) NOT NULL, carbs_per100g NUMERIC(5, 2) NOT NULL, protein_per100g NUMERIC(5, 2) NOT NULL, fat_per100g NUMERIC(5, 2) NOT NULL, category_id BIGINT UNSIGNED NOT NULL, created_by_id BIGINT UNSIGNED DEFAULT NULL, INDEX IDX_512E688D12469DE2 (category_id), INDEX IDX_512E688DB03A8386 (created_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE nutrition_meal_items (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, portion_grams NUMERIC(6, 2) NOT NULL, bread_units NUMERIC(5, 2) DEFAULT NULL, meal_id BIGINT UNSIGNED NOT NULL, food_id BIGINT UNSIGNED NOT NULL, INDEX IDX_FC4CAD0C639666D6 (meal_id), INDEX IDX_FC4CAD0CBA8E87C4 (food_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE nutrition_meals (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, name VARCHAR(150) NOT NULL, description LONGTEXT DEFAULT NULL, meal_type VARCHAR(50) NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, INDEX IDX_8B041EFA6B899279 (patient_id), INDEX IDX_8B041EFABB9D6FEE (issuer_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE patient_allergies (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, name VARCHAR(150) NOT NULL, severity VARCHAR(50) NOT NULL, reaction LONGTEXT DEFAULT NULL, notes LONGTEXT DEFAULT NULL, diagnosed_at DATETIME NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, INDEX IDX_2B926D246B899279 (patient_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE patient_emergency_contacts (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, full_name VARCHAR(150) NOT NULL, relationship VARCHAR(100) NOT NULL, phone VARCHAR(50) NOT NULL, email VARCHAR(180) DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, INDEX IDX_1B1B72B76B899279 (patient_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE patient_medical_consents (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, consent_type VARCHAR(50) NOT NULL, granted_at DATETIME NOT NULL, revoked_at DATETIME DEFAULT NULL, document_url VARCHAR(500) DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, organization_id BIGINT UNSIGNED DEFAULT NULL, INDEX IDX_D5AB8FF56B899279 (patient_id), INDEX IDX_D5AB8FF532C8A3DE (organization_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE treatment_medication_intakes (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, measured_at DATETIME NOT NULL, source VARCHAR(50) DEFAULT NULL, notes LONGTEXT DEFAULT NULL, taken_at DATETIME NOT NULL, quantity_taken NUMERIC(6, 2) NOT NULL, status VARCHAR(50) NOT NULL, patient_id BIGINT UNSIGNED NOT NULL, issuer_id BIGINT UNSIGNED NOT NULL, prescription_item_id BIGINT UNSIGNED NOT NULL, INDEX IDX_6FC6055A6B899279 (patient_id), INDEX IDX_6FC6055ABB9D6FEE (issuer_id), INDEX IDX_6FC6055A65C37E20 (prescription_item_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE treatment_medications (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, name VARCHAR(150) NOT NULL, category VARCHAR(50) NOT NULL, description LONGTEXT DEFAULT NULL, insulin_level INT DEFAULT NULL, manufacturer VARCHAR(150) DEFAULT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE treatment_prescription_items (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, dosage VARCHAR(100) NOT NULL, quantity NUMERIC(6, 2) NOT NULL, morning TINYINT NOT NULL, noon TINYINT NOT NULL, evening TINYINT NOT NULL, instructions LONGTEXT DEFAULT NULL, prescription_id BIGINT UNSIGNED NOT NULL, medication_id BIGINT UNSIGNED NOT NULL, INDEX IDX_4F5A21AE93DB413D (prescription_id), INDEX IDX_4F5A21AE2C4DE6DA (medication_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE treatment_prescription_versions (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, version_number INT NOT NULL, changes_summary LONGTEXT DEFAULT NULL, data JSON NOT NULL, modified_at DATETIME NOT NULL, prescription_id BIGINT UNSIGNED NOT NULL, modified_by_id BIGINT UNSIGNED NOT NULL, INDEX IDX_C0EAF64A93DB413D (prescription_id), INDEX IDX_C0EAF64A99049ECE (modified_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE treatment_prescriptions (id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, start_date DATE NOT NULL, end_date DATE DEFAULT NULL, status VARCHAR(50) NOT NULL, notes LONGTEXT DEFAULT NULL, validated_at DATETIME DEFAULT NULL, patient_id BIGINT UNSIGNED NOT NULL, prescriber_id BIGINT UNSIGNED NOT NULL, organization_id BIGINT UNSIGNED NOT NULL, validated_by_id BIGINT UNSIGNED DEFAULT NULL, INDEX IDX_1825F7856B899279 (patient_id), INDEX IDX_1825F7859861216F (prescriber_id), INDEX IDX_1825F78532C8A3DE (organization_id), INDEX IDX_1825F785C69DE5E5 (validated_by_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('ALTER TABLE appointment_appointment_reminders ADD CONSTRAINT FK_1636CECBE5B533F9 FOREIGN KEY (appointment_id) REFERENCES appointment_appointments (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE appointment_appointments ADD CONSTRAINT FK_938365776B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE appointment_appointments ADD CONSTRAINT FK_93836577DB77003 FOREIGN KEY (professional_id) REFERENCES identity_healthcare_professionals (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE appointment_appointments ADD CONSTRAINT FK_9383657732C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE appointment_appointments ADD CONSTRAINT FK_93836577A7014910 FOREIGN KEY (facility_id) REFERENCES healthcare_facilities (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE common_file_attachments ADD CONSTRAINT FK_1C28E7C96B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE common_file_attachments ADD CONSTRAINT FK_1C28E7C9BB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE communication_conversation_participants ADD CONSTRAINT FK_E72B91259AC0396 FOREIGN KEY (conversation_id) REFERENCES communication_conversations (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE communication_conversation_participants ADD CONSTRAINT FK_E72B9125A76ED395 FOREIGN KEY (user_id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE communication_conversations ADD CONSTRAINT FK_6F44095232C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE communication_conversations ADD CONSTRAINT FK_6F440952B03A8386 FOREIGN KEY (created_by_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE communication_message_attachments ADD CONSTRAINT FK_6C1C5FD537A1329 FOREIGN KEY (message_id) REFERENCES communication_messages (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE communication_message_read_receipts ADD CONSTRAINT FK_394F5A9A537A1329 FOREIGN KEY (message_id) REFERENCES communication_messages (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE communication_message_read_receipts ADD CONSTRAINT FK_394F5A9A9D1C3019 FOREIGN KEY (participant_id) REFERENCES communication_conversation_participants (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE communication_messages ADD CONSTRAINT FK_50C977559AC0396 FOREIGN KEY (conversation_id) REFERENCES communication_conversations (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE communication_messages ADD CONSTRAINT FK_50C97755F624B39D FOREIGN KEY (sender_id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_care_team_assignments ADD CONSTRAINT FK_221D998F6B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_care_team_assignments ADD CONSTRAINT FK_221D998FDB77003 FOREIGN KEY (professional_id) REFERENCES identity_healthcare_professionals (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_care_team_assignments ADD CONSTRAINT FK_221D998F32C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_departments ADD CONSTRAINT FK_EBF5A6A8A7014910 FOREIGN KEY (facility_id) REFERENCES healthcare_facilities (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_facilities ADD CONSTRAINT FK_940F83CF32C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships ADD CONSTRAINT FK_CD4C45D9A76ED395 FOREIGN KEY (user_id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships ADD CONSTRAINT FK_CD4C45D932C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships ADD CONSTRAINT FK_CD4C45D9A7014910 FOREIGN KEY (facility_id) REFERENCES healthcare_facilities (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships ADD CONSTRAINT FK_CD4C45D9AE80F5DF FOREIGN KEY (department_id) REFERENCES healthcare_departments (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE identity_administrators ADD CONSTRAINT FK_BF9CE979BF396750 FOREIGN KEY (id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE identity_healthcare_professionals ADD CONSTRAINT FK_707E3809BF396750 FOREIGN KEY (id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE identity_patients ADD CONSTRAINT FK_6F2772E5BF396750 FOREIGN KEY (id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_blood_glucose_measurements ADD CONSTRAINT FK_EDFAAB876B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_blood_glucose_measurements ADD CONSTRAINT FK_EDFAAB87BB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_blood_pressure_measurements ADD CONSTRAINT FK_856686A76B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_blood_pressure_measurements ADD CONSTRAINT FK_856686A7BB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_diagnoses ADD CONSTRAINT FK_27171E8B6B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_diagnoses ADD CONSTRAINT FK_27171E8BBB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_diagnoses ADD CONSTRAINT FK_27171E8B87F4FB17 FOREIGN KEY (doctor_id) REFERENCES identity_healthcare_professionals (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_diagnoses ADD CONSTRAINT FK_27171E8BB88E2BB6 FOREIGN KEY (medical_record_id) REFERENCES medical_medical_records (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE medical_hba1c_measurements ADD CONSTRAINT FK_31560E46B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_hba1c_measurements ADD CONSTRAINT FK_31560E4BB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_laboratory_results ADD CONSTRAINT FK_D97573466B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_laboratory_results ADD CONSTRAINT FK_D9757346BB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_medical_notes ADD CONSTRAINT FK_E9D57C3E6B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_medical_notes ADD CONSTRAINT FK_E9D57C3EBB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_medical_notes ADD CONSTRAINT FK_E9D57C3EB88E2BB6 FOREIGN KEY (medical_record_id) REFERENCES medical_medical_records (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_medical_notes ADD CONSTRAINT FK_E9D57C3EF675F31B FOREIGN KEY (author_id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_medical_records ADD CONSTRAINT FK_2C6847786B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_medical_records ADD CONSTRAINT FK_2C684778BB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_medical_records ADD CONSTRAINT FK_2C68477832C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_physical_activity_measurements ADD CONSTRAINT FK_9C6036466B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_physical_activity_measurements ADD CONSTRAINT FK_9C603646BB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE medical_weight_measurements ADD CONSTRAINT FK_503670AD6B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE medical_weight_measurements ADD CONSTRAINT FK_503670ADBB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE notification_notifications ADD CONSTRAINT FK_36B27A1AA76ED395 FOREIGN KEY (user_id) REFERENCES identity_users (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE notification_reminder_rules ADD CONSTRAINT FK_29D135526B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE nutrition_foods ADD CONSTRAINT FK_512E688D12469DE2 FOREIGN KEY (category_id) REFERENCES nutrition_food_categories (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE nutrition_foods ADD CONSTRAINT FK_512E688DB03A8386 FOREIGN KEY (created_by_id) REFERENCES identity_healthcare_professionals (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE nutrition_meal_items ADD CONSTRAINT FK_FC4CAD0C639666D6 FOREIGN KEY (meal_id) REFERENCES nutrition_meals (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE nutrition_meal_items ADD CONSTRAINT FK_FC4CAD0CBA8E87C4 FOREIGN KEY (food_id) REFERENCES nutrition_foods (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE nutrition_meals ADD CONSTRAINT FK_8B041EFA6B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE nutrition_meals ADD CONSTRAINT FK_8B041EFABB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE patient_allergies ADD CONSTRAINT FK_2B926D246B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE patient_emergency_contacts ADD CONSTRAINT FK_1B1B72B76B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE patient_medical_consents ADD CONSTRAINT FK_D5AB8FF56B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE patient_medical_consents ADD CONSTRAINT FK_D5AB8FF532C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE SET NULL');
+        $this->addSql('ALTER TABLE treatment_medication_intakes ADD CONSTRAINT FK_6FC6055A6B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE treatment_medication_intakes ADD CONSTRAINT FK_6FC6055ABB9D6FEE FOREIGN KEY (issuer_id) REFERENCES identity_users (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE treatment_medication_intakes ADD CONSTRAINT FK_6FC6055A65C37E20 FOREIGN KEY (prescription_item_id) REFERENCES treatment_prescription_items (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE treatment_prescription_items ADD CONSTRAINT FK_4F5A21AE93DB413D FOREIGN KEY (prescription_id) REFERENCES treatment_prescriptions (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE treatment_prescription_items ADD CONSTRAINT FK_4F5A21AE2C4DE6DA FOREIGN KEY (medication_id) REFERENCES treatment_medications (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE treatment_prescription_versions ADD CONSTRAINT FK_C0EAF64A93DB413D FOREIGN KEY (prescription_id) REFERENCES treatment_prescriptions (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE treatment_prescription_versions ADD CONSTRAINT FK_C0EAF64A99049ECE FOREIGN KEY (modified_by_id) REFERENCES identity_healthcare_professionals (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE treatment_prescriptions ADD CONSTRAINT FK_1825F7856B899279 FOREIGN KEY (patient_id) REFERENCES identity_patients (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE treatment_prescriptions ADD CONSTRAINT FK_1825F7859861216F FOREIGN KEY (prescriber_id) REFERENCES identity_healthcare_professionals (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE treatment_prescriptions ADD CONSTRAINT FK_1825F78532C8A3DE FOREIGN KEY (organization_id) REFERENCES healthcare_organizations (id) ON DELETE RESTRICT');
+        $this->addSql('ALTER TABLE treatment_prescriptions ADD CONSTRAINT FK_1825F785C69DE5E5 FOREIGN KEY (validated_by_id) REFERENCES identity_healthcare_professionals (id) ON DELETE SET NULL');
+    }
+
+    public function down(Schema $schema): void
+    {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE appointment_appointment_reminders DROP FOREIGN KEY FK_1636CECBE5B533F9');
+        $this->addSql('ALTER TABLE appointment_appointments DROP FOREIGN KEY FK_938365776B899279');
+        $this->addSql('ALTER TABLE appointment_appointments DROP FOREIGN KEY FK_93836577DB77003');
+        $this->addSql('ALTER TABLE appointment_appointments DROP FOREIGN KEY FK_9383657732C8A3DE');
+        $this->addSql('ALTER TABLE appointment_appointments DROP FOREIGN KEY FK_93836577A7014910');
+        $this->addSql('ALTER TABLE common_file_attachments DROP FOREIGN KEY FK_1C28E7C96B899279');
+        $this->addSql('ALTER TABLE common_file_attachments DROP FOREIGN KEY FK_1C28E7C9BB9D6FEE');
+        $this->addSql('ALTER TABLE communication_conversation_participants DROP FOREIGN KEY FK_E72B91259AC0396');
+        $this->addSql('ALTER TABLE communication_conversation_participants DROP FOREIGN KEY FK_E72B9125A76ED395');
+        $this->addSql('ALTER TABLE communication_conversations DROP FOREIGN KEY FK_6F44095232C8A3DE');
+        $this->addSql('ALTER TABLE communication_conversations DROP FOREIGN KEY FK_6F440952B03A8386');
+        $this->addSql('ALTER TABLE communication_message_attachments DROP FOREIGN KEY FK_6C1C5FD537A1329');
+        $this->addSql('ALTER TABLE communication_message_read_receipts DROP FOREIGN KEY FK_394F5A9A537A1329');
+        $this->addSql('ALTER TABLE communication_message_read_receipts DROP FOREIGN KEY FK_394F5A9A9D1C3019');
+        $this->addSql('ALTER TABLE communication_messages DROP FOREIGN KEY FK_50C977559AC0396');
+        $this->addSql('ALTER TABLE communication_messages DROP FOREIGN KEY FK_50C97755F624B39D');
+        $this->addSql('ALTER TABLE healthcare_care_team_assignments DROP FOREIGN KEY FK_221D998F6B899279');
+        $this->addSql('ALTER TABLE healthcare_care_team_assignments DROP FOREIGN KEY FK_221D998FDB77003');
+        $this->addSql('ALTER TABLE healthcare_care_team_assignments DROP FOREIGN KEY FK_221D998F32C8A3DE');
+        $this->addSql('ALTER TABLE healthcare_departments DROP FOREIGN KEY FK_EBF5A6A8A7014910');
+        $this->addSql('ALTER TABLE healthcare_facilities DROP FOREIGN KEY FK_940F83CF32C8A3DE');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships DROP FOREIGN KEY FK_CD4C45D9A76ED395');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships DROP FOREIGN KEY FK_CD4C45D932C8A3DE');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships DROP FOREIGN KEY FK_CD4C45D9A7014910');
+        $this->addSql('ALTER TABLE healthcare_organization_memberships DROP FOREIGN KEY FK_CD4C45D9AE80F5DF');
+        $this->addSql('ALTER TABLE identity_administrators DROP FOREIGN KEY FK_BF9CE979BF396750');
+        $this->addSql('ALTER TABLE identity_healthcare_professionals DROP FOREIGN KEY FK_707E3809BF396750');
+        $this->addSql('ALTER TABLE identity_patients DROP FOREIGN KEY FK_6F2772E5BF396750');
+        $this->addSql('ALTER TABLE medical_blood_glucose_measurements DROP FOREIGN KEY FK_EDFAAB876B899279');
+        $this->addSql('ALTER TABLE medical_blood_glucose_measurements DROP FOREIGN KEY FK_EDFAAB87BB9D6FEE');
+        $this->addSql('ALTER TABLE medical_blood_pressure_measurements DROP FOREIGN KEY FK_856686A76B899279');
+        $this->addSql('ALTER TABLE medical_blood_pressure_measurements DROP FOREIGN KEY FK_856686A7BB9D6FEE');
+        $this->addSql('ALTER TABLE medical_diagnoses DROP FOREIGN KEY FK_27171E8B6B899279');
+        $this->addSql('ALTER TABLE medical_diagnoses DROP FOREIGN KEY FK_27171E8BBB9D6FEE');
+        $this->addSql('ALTER TABLE medical_diagnoses DROP FOREIGN KEY FK_27171E8B87F4FB17');
+        $this->addSql('ALTER TABLE medical_diagnoses DROP FOREIGN KEY FK_27171E8BB88E2BB6');
+        $this->addSql('ALTER TABLE medical_hba1c_measurements DROP FOREIGN KEY FK_31560E46B899279');
+        $this->addSql('ALTER TABLE medical_hba1c_measurements DROP FOREIGN KEY FK_31560E4BB9D6FEE');
+        $this->addSql('ALTER TABLE medical_laboratory_results DROP FOREIGN KEY FK_D97573466B899279');
+        $this->addSql('ALTER TABLE medical_laboratory_results DROP FOREIGN KEY FK_D9757346BB9D6FEE');
+        $this->addSql('ALTER TABLE medical_medical_notes DROP FOREIGN KEY FK_E9D57C3E6B899279');
+        $this->addSql('ALTER TABLE medical_medical_notes DROP FOREIGN KEY FK_E9D57C3EBB9D6FEE');
+        $this->addSql('ALTER TABLE medical_medical_notes DROP FOREIGN KEY FK_E9D57C3EB88E2BB6');
+        $this->addSql('ALTER TABLE medical_medical_notes DROP FOREIGN KEY FK_E9D57C3EF675F31B');
+        $this->addSql('ALTER TABLE medical_medical_records DROP FOREIGN KEY FK_2C6847786B899279');
+        $this->addSql('ALTER TABLE medical_medical_records DROP FOREIGN KEY FK_2C684778BB9D6FEE');
+        $this->addSql('ALTER TABLE medical_medical_records DROP FOREIGN KEY FK_2C68477832C8A3DE');
+        $this->addSql('ALTER TABLE medical_physical_activity_measurements DROP FOREIGN KEY FK_9C6036466B899279');
+        $this->addSql('ALTER TABLE medical_physical_activity_measurements DROP FOREIGN KEY FK_9C603646BB9D6FEE');
+        $this->addSql('ALTER TABLE medical_weight_measurements DROP FOREIGN KEY FK_503670AD6B899279');
+        $this->addSql('ALTER TABLE medical_weight_measurements DROP FOREIGN KEY FK_503670ADBB9D6FEE');
+        $this->addSql('ALTER TABLE notification_notifications DROP FOREIGN KEY FK_36B27A1AA76ED395');
+        $this->addSql('ALTER TABLE notification_reminder_rules DROP FOREIGN KEY FK_29D135526B899279');
+        $this->addSql('ALTER TABLE nutrition_foods DROP FOREIGN KEY FK_512E688D12469DE2');
+        $this->addSql('ALTER TABLE nutrition_foods DROP FOREIGN KEY FK_512E688DB03A8386');
+        $this->addSql('ALTER TABLE nutrition_meal_items DROP FOREIGN KEY FK_FC4CAD0C639666D6');
+        $this->addSql('ALTER TABLE nutrition_meal_items DROP FOREIGN KEY FK_FC4CAD0CBA8E87C4');
+        $this->addSql('ALTER TABLE nutrition_meals DROP FOREIGN KEY FK_8B041EFA6B899279');
+        $this->addSql('ALTER TABLE nutrition_meals DROP FOREIGN KEY FK_8B041EFABB9D6FEE');
+        $this->addSql('ALTER TABLE patient_allergies DROP FOREIGN KEY FK_2B926D246B899279');
+        $this->addSql('ALTER TABLE patient_emergency_contacts DROP FOREIGN KEY FK_1B1B72B76B899279');
+        $this->addSql('ALTER TABLE patient_medical_consents DROP FOREIGN KEY FK_D5AB8FF56B899279');
+        $this->addSql('ALTER TABLE patient_medical_consents DROP FOREIGN KEY FK_D5AB8FF532C8A3DE');
+        $this->addSql('ALTER TABLE treatment_medication_intakes DROP FOREIGN KEY FK_6FC6055A6B899279');
+        $this->addSql('ALTER TABLE treatment_medication_intakes DROP FOREIGN KEY FK_6FC6055ABB9D6FEE');
+        $this->addSql('ALTER TABLE treatment_medication_intakes DROP FOREIGN KEY FK_6FC6055A65C37E20');
+        $this->addSql('ALTER TABLE treatment_prescription_items DROP FOREIGN KEY FK_4F5A21AE93DB413D');
+        $this->addSql('ALTER TABLE treatment_prescription_items DROP FOREIGN KEY FK_4F5A21AE2C4DE6DA');
+        $this->addSql('ALTER TABLE treatment_prescription_versions DROP FOREIGN KEY FK_C0EAF64A93DB413D');
+        $this->addSql('ALTER TABLE treatment_prescription_versions DROP FOREIGN KEY FK_C0EAF64A99049ECE');
+        $this->addSql('ALTER TABLE treatment_prescriptions DROP FOREIGN KEY FK_1825F7856B899279');
+        $this->addSql('ALTER TABLE treatment_prescriptions DROP FOREIGN KEY FK_1825F7859861216F');
+        $this->addSql('ALTER TABLE treatment_prescriptions DROP FOREIGN KEY FK_1825F78532C8A3DE');
+        $this->addSql('ALTER TABLE treatment_prescriptions DROP FOREIGN KEY FK_1825F785C69DE5E5');
+        $this->addSql('DROP TABLE appointment_appointment_reminders');
+        $this->addSql('DROP TABLE appointment_appointments');
+        $this->addSql('DROP TABLE common_file_attachments');
+        $this->addSql('DROP TABLE communication_conversation_participants');
+        $this->addSql('DROP TABLE communication_conversations');
+        $this->addSql('DROP TABLE communication_message_attachments');
+        $this->addSql('DROP TABLE communication_message_read_receipts');
+        $this->addSql('DROP TABLE communication_messages');
+        $this->addSql('DROP TABLE healthcare_care_team_assignments');
+        $this->addSql('DROP TABLE healthcare_departments');
+        $this->addSql('DROP TABLE healthcare_facilities');
+        $this->addSql('DROP TABLE healthcare_organization_memberships');
+        $this->addSql('DROP TABLE healthcare_organizations');
+        $this->addSql('DROP TABLE identity_administrators');
+        $this->addSql('DROP TABLE identity_healthcare_professionals');
+        $this->addSql('DROP TABLE identity_patients');
+        $this->addSql('DROP TABLE identity_users');
+        $this->addSql('DROP TABLE medical_blood_glucose_measurements');
+        $this->addSql('DROP TABLE medical_blood_pressure_measurements');
+        $this->addSql('DROP TABLE medical_diagnoses');
+        $this->addSql('DROP TABLE medical_hba1c_measurements');
+        $this->addSql('DROP TABLE medical_laboratory_results');
+        $this->addSql('DROP TABLE medical_medical_notes');
+        $this->addSql('DROP TABLE medical_medical_records');
+        $this->addSql('DROP TABLE medical_physical_activity_measurements');
+        $this->addSql('DROP TABLE medical_weight_measurements');
+        $this->addSql('DROP TABLE notification_notifications');
+        $this->addSql('DROP TABLE notification_reminder_rules');
+        $this->addSql('DROP TABLE nutrition_food_categories');
+        $this->addSql('DROP TABLE nutrition_foods');
+        $this->addSql('DROP TABLE nutrition_meal_items');
+        $this->addSql('DROP TABLE nutrition_meals');
+        $this->addSql('DROP TABLE patient_allergies');
+        $this->addSql('DROP TABLE patient_emergency_contacts');
+        $this->addSql('DROP TABLE patient_medical_consents');
+        $this->addSql('DROP TABLE treatment_medication_intakes');
+        $this->addSql('DROP TABLE treatment_medications');
+        $this->addSql('DROP TABLE treatment_prescription_items');
+        $this->addSql('DROP TABLE treatment_prescription_versions');
+        $this->addSql('DROP TABLE treatment_prescriptions');
+    }
+}

@@ -27,9 +27,9 @@ class ReminderRule extends BaseEntity
     private ?ReminderTargetType $targetType = null;
 
     /**
-     * @var string|null L'identifiant (GUID) de l'entité liée.
+     * @var string|null L'identifiant (guid) de l'entité liée.
      */
-    #[ORM\Column(type: 'GUID', nullable: true)]
+    #[ORM\Column(type: 'guid', nullable: true)]
     private ?string $relatedEntityId = null;
 
     /**

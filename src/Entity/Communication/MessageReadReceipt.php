@@ -3,10 +3,11 @@
 namespace App\Entity\Communication;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Identity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Représente l'accusé de lecture d'un message par un participant
+ * Représente l'accusé de lecture d'un message par un utilisateur spécifique
  * au sein du module de communication.
  */
 #[ORM\Entity]
@@ -21,11 +22,11 @@ class MessageReadReceipt extends BaseEntity
     private ?Message $message = null;
 
     /**
-     * @var ConversationParticipant|null Le participant qui a lu le message.
+     * @var User|null L'utilisateur (soignant ou patient) qui a lu le message.
      */
-    #[ORM\ManyToOne(targetEntity: ConversationParticipant::class, inversedBy: 'readReceipts')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?ConversationParticipant $participant = null;
+    private ?User $user = null;
 
     /**
      * @var \DateTimeImmutable|null La date et l'heure exactes de la lecture du message.
@@ -34,7 +35,7 @@ class MessageReadReceipt extends BaseEntity
     private ?\DateTimeImmutable $readAt = null;
 
     /**
-     * Récupère le message associé.
+     * Récupère le message associé à l'accusé de lecture.
      */
     public function getMessage(): ?Message
     {
@@ -42,7 +43,7 @@ class MessageReadReceipt extends BaseEntity
     }
 
     /**
-     * Définit le message associé.
+     * Définit le message associé à l'accusé de lecture.
      */
     public function setMessage(?Message $message): static
     {
@@ -51,19 +52,19 @@ class MessageReadReceipt extends BaseEntity
     }
 
     /**
-     * Récupère le participant associé.
+     * Récupère l'utilisateur qui a lu le message.
      */
-    public function getParticipant(): ?ConversationParticipant
+    public function getUser(): ?User
     {
-        return $this->participant;
+        return $this->user;
     }
 
     /**
-     * Définit le participant associé.
+     * Définit l'utilisateur qui a lu le message.
      */
-    public function setParticipant(?ConversationParticipant $participant): static
+    public function setUser(?User $user): static
     {
-        $this->participant = $participant;
+        $this->user = $user;
         return $this;
     }
 

@@ -62,8 +62,7 @@ class CreateRootUserCommand extends Command
             $isNew = true;
             $user = new Administrator();
             $user->setEmail($email);
-            $user->setFirstName('System');
-            $user->setLastName('Root');
+            $user->setFullName('System Root');
             $user->setGender(\App\Entity\Common\Gender::OTHER); // <-- Adaptez selon votre Enum ou string (ex: 'OTHER', 'M', 'F')
             $user->setStatus(UserStatus::ACTIVE);
             $user->setEmailVerifiedAt(new \DateTimeImmutable());

@@ -10,62 +10,55 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Représente un fil de discussion ou une conversation entre plusieurs participants
- * au sein du module de communication.
+ * Représente un fil de discussion médical unique centré sur un patient
+ * et partagé avec son équipe soignante au sein de la plateforme.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'communication_conversations')]
 class Conversation extends BaseEntity
 {
     /**
-     * @var string|null Sujet principal ou titre de la conversation.
+     * @var string|null L'objet ou le titre optionnel de la conversation.
      */
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $subject = null;
 
     /**
-     * @var HealthcareOrganization|null L'organisation de santé dans le cadre de laquelle la conversation se tient.
+     * @var User|null Le patient concerné par ce fil de discussion médical.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?User $patient = null;
+
+    /**
+     * @var HealthcareOrganization|null L'organisation de santé rattachée à cette conversation.
      */
     #[ORM\ManyToOne(targetEntity: HealthcareOrganization::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?HealthcareOrganization $organization = null;
 
     /**
-     * @var User|null L'utilisateur qui a initié la conversation.
-     */
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
-    private ?User $createdBy = null;
-
-    /**
-     * @var \DateTimeImmutable|null Date et heure de fermeture de la conversation (null si active).
+     * @var \DateTimeImmutable|null La date et l'heure de clôture de la conversation, le cas échéant.
      */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $closedAt = null;
 
     /**
-     * @var Collection<int, ConversationParticipant> Liste des participants à cette conversation.
-     */
-    #[ORM\OneToMany(targetEntity: ConversationParticipant::class, mappedBy: 'conversation', cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $participants;
-
-    /**
-     * @var Collection<int, Message> Liste des messages échangés dans cette conversation.
+     * @var Collection<int, Message> La liste des messages échangés dans ce fil de discussion.
      */
     #[ORM\OneToMany(targetEntity: Message::class, mappedBy: 'conversation', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $messages;
 
     /**
-     * Initialise les collections de participants et de messages.
+     * Initialise une nouvelle instance de la conversation et sa collection de messages.
      */
     public function __construct()
     {
-        $this->participants = new ArrayCollection();
         $this->messages = new ArrayCollection();
     }
 
     /**
-     * Récupère le sujet de la conversation.
+     * Récupère l'objet de la conversation.
      */
     public function getSubject(): ?string
     {
@@ -73,16 +66,33 @@ class Conversation extends BaseEntity
     }
 
     /**
-     * Définit le sujet de la conversation.
+     * Définit l'objet de la conversation.
      */
-    public function setSubject(string $subject): static
+    public function setSubject(?string $subject): static
     {
         $this->subject = $subject;
         return $this;
     }
 
     /**
-     * Récupère l'organisation de santé rattachée.
+     * Récupère le patient associé à la conversation.
+     */
+    public function getPatient(): ?User
+    {
+        return $this->patient;
+    }
+
+    /**
+     * Définit le patient associé à la conversation.
+     */
+    public function setPatient(?User $patient): static
+    {
+        $this->patient = $patient;
+        return $this;
+    }
+
+    /**
+     * Récupère l'organisation de santé associée.
      */
     public function getOrganization(): ?HealthcareOrganization
     {
@@ -90,28 +100,11 @@ class Conversation extends BaseEntity
     }
 
     /**
-     * Définit l'organisation de santé rattachée.
+     * Définit l'organisation de santé associée.
      */
     public function setOrganization(?HealthcareOrganization $organization): static
     {
         $this->organization = $organization;
-        return $this;
-    }
-
-    /**
-     * Récupère le créateur de la conversation.
-     */
-    public function getCreatedBy(): ?User
-    {
-        return $this->createdBy;
-    }
-
-    /**
-     * Définit le créateur de la conversation.
-     */
-    public function setCreatedBy(?User $createdBy): static
-    {
-        $this->createdBy = $createdBy;
         return $this;
     }
 
@@ -133,42 +126,7 @@ class Conversation extends BaseEntity
     }
 
     /**
-     * Retourne la liste des participants.
-     *
-     * @return Collection<int, ConversationParticipant>
-     */
-    public function getParticipants(): Collection
-    {
-        return $this->participants;
-    }
-
-    /**
-     * Ajoute un participant à la conversation.
-     */
-    public function addParticipant(ConversationParticipant $participant): static
-    {
-        if (!$this->participants->contains($participant)) {
-            $this->participants->add($participant);
-            $participant->setConversation($this);
-        }
-        return $this;
-    }
-
-    /**
-     * Retire un participant de la conversation.
-     */
-    public function removeParticipant(ConversationParticipant $participant): static
-    {
-        if ($this->participants->removeElement($participant)) {
-            if ($participant->getConversation() === $this) {
-                $participant->setConversation(null);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * Retourne la liste des messages de la conversation.
+     * Récupère l'ensemble des messages du fil de discussion.
      *
      * @return Collection<int, Message>
      */
@@ -190,7 +148,7 @@ class Conversation extends BaseEntity
     }
 
     /**
-     * Retire un message de la conversation.
+     * Supprime un message de la conversation.
      */
     public function removeMessage(Message $message): static
     {
