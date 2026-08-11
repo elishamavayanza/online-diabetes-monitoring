@@ -3,6 +3,7 @@
 namespace App\Entity\Nutrition;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'nutrition_meals')]
-class Meal extends BaseEntity
+class Meal extends PatientCommonOperation
 {
     /**
      * @var string|null Le nom du repas.

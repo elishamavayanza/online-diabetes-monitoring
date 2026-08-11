@@ -3,6 +3,7 @@
 namespace App\Entity\Treatment;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'treatment_medication_intakes')]
-class MedicationIntake extends BaseEntity
+class MedicationIntake extends PatientCommonOperation
 {
     /**
      * @var PrescriptionItem|null L'élément de prescription associé à cette prise.
