@@ -5,6 +5,7 @@ namespace App\Entity\Identity;
 use App\Entity\Common\BaseEntity;
 use App\Entity\Common\Gender;
 use App\Entity\Common\UserStatus;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -48,10 +49,10 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
     protected ?UserStatus $status = UserStatus::PENDING_ACTIVATION;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    protected ?\DateTimeImmutable $emailVerifiedAt = null;
+    protected ?DateTimeImmutable $emailVerifiedAt = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    protected ?\DateTimeImmutable $lastLoginAt = null;
+    protected ?DateTimeImmutable $lastLoginAt = null;
 
     #[ORM\Embedded(class: Address::class, columnPrefix: 'address_')]
     protected ?Address $address = null;
@@ -171,23 +172,23 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
         return $this;
     }
 
-    public function getEmailVerifiedAt(): ?\DateTimeImmutable
+    public function getEmailVerifiedAt(): ?DateTimeImmutable
     {
         return $this->emailVerifiedAt;
     }
 
-    public function setEmailVerifiedAt(?\DateTimeImmutable $emailVerifiedAt): self
+    public function setEmailVerifiedAt(?DateTimeImmutable $emailVerifiedAt): self
     {
         $this->emailVerifiedAt = $emailVerifiedAt;
         return $this;
     }
 
-    public function getLastLoginAt(): ?\DateTimeImmutable
+    public function getLastLoginAt(): ?DateTimeImmutable
     {
         return $this->lastLoginAt;
     }
 
-    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): self
+    public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): self
     {
         $this->lastLoginAt = $lastLoginAt;
         return $this;

@@ -26,12 +26,12 @@ class AppointmentController extends AbstractController
 
     #[Route('', name: 'api_appointments_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Créer un nouveau rendez-vous médical',
-        description: 'Permet de planifier un rendez-vous entre un patient et un professionnel de santé dans une organisation ou un établissement de santé spécifique, avec vérification des permissions et des règles métier.'
+        description: 'Permet de planifier un rendez-vous entre un patient et un professionnel de santé dans une organisation ou un établissement de santé spécifique, avec vérification des permissions et des règles métier.',
+        summary: 'Créer un nouveau rendez-vous médical'
     )]
     #[OA\RequestBody(
-        required: true,
         description: 'Données nécessaires à la création du rendez-vous',
+        required: true,
         content: new OA\JsonContent(
             required: [
                 'patientId',
@@ -44,67 +44,67 @@ class AppointmentController extends AbstractController
             properties: [
                 new OA\Property(
                     property: 'patientId',
+                    description: 'Identifiant unique du patient',
                     type: 'string',
                     format: 'uuid',
-                    example: '4a613328-98e3-4d64-8898-0c06a3861c8f',
-                    description: 'Identifiant unique du patient'
+                    example: '4a613328-98e3-4d64-8898-0c06a3861c8f'
                 ),
                 new OA\Property(
                     property: 'professionalId',
+                    description: 'Identifiant unique du professionnel de santé',
                     type: 'string',
                     format: 'uuid',
-                    example: '7b224119-12f4-4b53-9912-1f83c2748a12',
-                    description: 'Identifiant unique du professionnel de santé'
+                    example: '7b224119-12f4-4b53-9912-1f83c2748a12'
                 ),
                 new OA\Property(
                     property: 'organizationId',
+                    description: 'Identifiant unique de l’organisation de santé',
                     type: 'string',
                     format: 'uuid',
-                    example: '1c552144-88ef-4a92-b4c4-7893a12b4e55',
-                    description: 'Identifiant unique de l’organisation de santé'
+                    example: '1c552144-88ef-4a92-b4c4-7893a12b4e55'
                 ),
                 new OA\Property(
                     property: 'facilityId',
+                    description: 'Identifiant de l’établissement',
                     type: 'string',
                     format: 'uuid',
-                    nullable: true,
                     example: '9f881245-33ee-4b11-9a21-4f88e1478c99',
-                    description: 'Identifiant de l’établissement'
+                    nullable: true
                 ),
                 new OA\Property(
                     property: 'scheduledAt',
+                    description: 'Date et heure prévues du rendez-vous',
                     type: 'string',
                     format: 'date-time',
-                    example: '2026-08-15T10:30:00Z',
-                    description: 'Date et heure prévues du rendez-vous'
+                    example: '2026-08-15T10:30:00Z'
                 ),
                 new OA\Property(
                     property: 'durationMinutes',
+                    description: 'Durée du rendez-vous en minutes',
                     type: 'integer',
-                    example: 30,
-                    description: 'Durée du rendez-vous en minutes'
+                    example: 30
                 ),
                 new OA\Property(
                     property: 'status',
+                    description: 'Statut initial du rendez-vous',
                     type: 'string',
-                    example: 'SCHEDULED',
-                    description: 'Statut initial du rendez-vous'
+                    example: 'SCHEDULED'
                 ),
                 new OA\Property(
                     property: 'reason',
+                    description: 'Motif du rendez-vous',
                     type: 'string',
-                    maxLength: 255,
-                    nullable: true,
                     example: 'Contrôle trimestriel du taux de glycémie',
-                    description: 'Motif du rendez-vous'
+                    nullable: true,
+                    maxLength: 255
                 ),
                 new OA\Property(
                     property: 'notes',
+                    description: 'Notes cliniques ou administratives additionnelles',
                     type: 'string',
-                    maxLength: 5000,
-                    nullable: true,
                     example: 'Le patient apporte ses derniers résultats d’analyse sanguine.',
-                    description: 'Notes cliniques ou administratives additionnelles'
+                    nullable: true,
+                    maxLength: 5000
                 )
             ],
             type: 'object'
@@ -114,7 +114,6 @@ class AppointmentController extends AbstractController
         response: 201,
         description: 'Rendez-vous créé avec succès',
         content: new OA\JsonContent(
-            type: 'object',
             properties: [
                 new OA\Property(
                     property: 'status',
@@ -135,7 +134,8 @@ class AppointmentController extends AbstractController
                     property: 'data',
                     ref: new Model(type: AppointmentResponseDTO::class)
                 )
-            ]
+            ],
+            type: 'object'
         )
     )]
     #[OA\Response(

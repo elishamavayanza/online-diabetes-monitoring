@@ -3,11 +3,12 @@
 namespace App\Entity\Medical;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'blood_pressure_measurements')]
-class BloodPressureMeasurement extends BaseEntity
+class BloodPressureMeasurement extends PatientCommonOperation
 {
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2)]
     private ?string $systolic = null;

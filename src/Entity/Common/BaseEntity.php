@@ -2,8 +2,9 @@
 
 namespace App\Entity\Common;
 
+use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\MappedSuperclass]
 #[ORM\HasLifecycleCallbacks]
@@ -11,67 +12,64 @@ abstract class BaseEntity
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    protected ?int $id = null;
+    #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
+    protected ?string $id = null;
 
-    #[ORM\Column(type: 'uuid', unique: true)]
-    protected ?Uuid $uuid = null;
+    #[ORM\Column(
+        name: 'created_at',
+        type: Types::DATETIME_IMMUTABLE,
+        nullable: false,
+        updatable: false
+    )]
+    protected ?DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(type: 'datetime_immutable')]
-    protected ?\DateTimeImmutable $createdAt = null;
-
-    #[ORM\Column(type: 'datetime_immutable')]
-    protected ?\DateTimeImmutable $updatedAt = null;
-
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    protected ?\DateTimeImmutable $deletedAt = null;
-
-    public function __construct()
-    {
-        $this->uuid = Uuid::v4();
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
+    #[ORM\Column(
+        name: "updated_at",
+        type: Types::DATETIME_IMMUTABLE,
+        insertable: false
+    )]
+    protected ?DateTimeImmutable $updatedAt = null;
 
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 
-    public function getId(): ?int
+    #[ORM\PrePersist]
+    public function prePersist(): void
+    {
+        if ($this->createdAt == null) {
+            $this->updatedAt = new DateTimeImmutable();
+        }
+    }
+
+    public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function getUuid(): ?Uuid
-    {
-        return $this->uuid;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function setCreatedAt(DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?DateTimeImmutable
     {
         return $this->updatedAt;
     }
 
-    public function getDeletedAt(): ?\DateTimeImmutable
+    public function setUpdatedAt(?DateTimeImmutable $updatedAt): static
     {
-        return $this->deletedAt;
-    }
-
-    public function setDeletedAt(?\DateTimeImmutable $deletedAt): self
-    {
-        $this->deletedAt = $deletedAt;
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 
-    public function isDeleted(): bool
-    {
-        return $this->deletedAt !== null;
-    }
+
 }

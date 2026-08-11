@@ -2,12 +2,12 @@
 
 namespace App\Entity\Medical;
 
-use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'laboratory_results')]
-class LaboratoryResult extends BaseEntity
+class LaboratoryResult extends PatientCommonOperation
 {
     #[ORM\Column(type: 'string', length: 150)]
     private ?string $testName = null;

@@ -2,12 +2,12 @@
 
 namespace App\Entity\Medical;
 
-use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'weight_measurements')]
-class WeightMeasurement extends BaseEntity
+class WeightMeasurement extends PatientCommonOperation
 {
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2)]
     private ?string $valueKg = null;

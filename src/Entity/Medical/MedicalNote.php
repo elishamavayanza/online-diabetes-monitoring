@@ -2,13 +2,13 @@
 
 namespace App\Entity\Medical;
 
-use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use App\Entity\Identity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'medical_notes')]
-class MedicalNote extends BaseEntity
+class MedicalNote extends PatientCommonOperation
 {
     #[ORM\ManyToOne(targetEntity: MedicalRecord::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

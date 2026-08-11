@@ -3,18 +3,16 @@
 namespace App\Entity\Medical;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use App\Entity\Identity\Patient;
 use App\Entity\Healthcare\HealthcareOrganization;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'medical_records')]
-class MedicalRecord extends BaseEntity
+class MedicalRecord extends PatientCommonOperation
 {
-    #[ORM\ManyToOne(targetEntity: Patient::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Patient $patient = null;
-
     #[ORM\ManyToOne(targetEntity: HealthcareOrganization::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?HealthcareOrganization $organization = null;
@@ -23,21 +21,10 @@ class MedicalRecord extends BaseEntity
     private ?MedicalRecordStatus $status = MedicalRecordStatus::OPEN;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $openedAt = null;
+    private ?DateTimeImmutable $openedAt = null;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $closedAt = null;
-
-    public function getPatient(): ?Patient
-    {
-        return $this->patient;
-    }
-
-    public function setPatient(?Patient $patient): self
-    {
-        $this->patient = $patient;
-        return $this;
-    }
+    private ?DateTimeImmutable $closedAt = null;
 
     public function getOrganization(): ?HealthcareOrganization
     {
@@ -61,23 +48,23 @@ class MedicalRecord extends BaseEntity
         return $this;
     }
 
-    public function getOpenedAt(): ?\DateTimeImmutable
+    public function getOpenedAt(): ?DateTimeImmutable
     {
         return $this->openedAt;
     }
 
-    public function setOpenedAt(\DateTimeImmutable $openedAt): self
+    public function setOpenedAt(DateTimeImmutable $openedAt): self
     {
         $this->openedAt = $openedAt;
         return $this;
     }
 
-    public function getClosedAt(): ?\DateTimeImmutable
+    public function getClosedAt(): ?DateTimeImmutable
     {
         return $this->closedAt;
     }
 
-    public function setClosedAt(?\DateTimeImmutable $closedAt): self
+    public function setClosedAt(?DateTimeImmutable $closedAt): self
     {
         $this->closedAt = $closedAt;
         return $this;

@@ -3,17 +3,15 @@
 namespace App\Entity\Medical;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use App\Entity\Identity\Patient;
 use App\Entity\Identity\HealthcareProfessional;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'diagnoses')]
-class Diagnosis extends BaseEntity
+class Diagnosis extends PatientCommonOperation
 {
-    #[ORM\ManyToOne(targetEntity: Patient::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?Patient $patient = null;
 
     #[ORM\ManyToOne(targetEntity: HealthcareProfessional::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]

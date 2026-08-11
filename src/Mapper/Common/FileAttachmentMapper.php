@@ -18,7 +18,7 @@ class FileAttachmentMapper
         $fileAttachment = $entity ?? new FileAttachment();
 
         $fileAttachment->setOriginalName($dto->originalName);
-        $fileAttachment->setFileName($dto->fileName);
+        $fileAttachment->setFilename($dto->fileName);
         $fileAttachment->setMimeType($dto->mimeType);
         $fileAttachment->setSizeBytes($dto->sizeBytes);
         $fileAttachment->setUrl($dto->url);

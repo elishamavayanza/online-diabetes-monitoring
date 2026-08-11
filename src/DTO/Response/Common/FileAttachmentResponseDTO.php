@@ -52,7 +52,7 @@ class FileAttachmentResponseDTO
         return new self(
             id: (string) $fileAttachment->getId(),
             originalName: $fileAttachment->getOriginalName(),
-            fileName: $fileAttachment->getFileName(),
+            fileName: $fileAttachment->getFilename(),
             mimeType: $fileAttachment->getMimeType(),
             sizeBytes: $fileAttachment->getSizeBytes(),
             url: $fileAttachment->getUrl(),

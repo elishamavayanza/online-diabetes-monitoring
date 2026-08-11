@@ -2,58 +2,33 @@
 
 namespace App\Entity\Common;
 
-use App\Entity\Identity\User;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'file_attachments')]
-class FileAttachment extends BaseEntity
+#[ORM\Table(name: 'common_file_attachments')]
+class FileAttachment extends PatientCommonOperation
 {
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string $originalName = null;
+    private ?string $filename = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private ?string $fileName = null;
-
-    #[ORM\Column(type: 'string', length: 100)]
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
     private ?string $mimeType = null;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'integer', nullable: false)]
     private ?int $sizeBytes = null;
 
-    #[ORM\Column(type: 'string', length: 500)]
-    private ?string $url = null;
 
-    #[ORM\Column(type: 'string', length: 100)]
-    private ?string $entityType = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $caption = null;
 
-    #[ORM\Column(type: 'uuid')]
-    private ?Uuid $entityId = null;
-
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $uploadedBy = null;
-
-    public function getOriginalName(): ?string
+    public function getFilename(): ?string
     {
-        return $this->originalName;
+        return $this->filename;
     }
 
-    public function setOriginalName(string $originalName): self
+    public function setFilename(string $filename): self
     {
-        $this->originalName = $originalName;
-        return $this;
-    }
-
-    public function getFileName(): ?string
-    {
-        return $this->fileName;
-    }
-
-    public function setFileName(string $fileName): self
-    {
-        $this->fileName = $fileName;
+        $this->filename = $filename;
         return $this;
     }
 
@@ -79,47 +54,15 @@ class FileAttachment extends BaseEntity
         return $this;
     }
 
-    public function getUrl(): ?string
+    public function getCaption(): ?string
     {
-        return $this->url;
+        return $this->caption;
     }
 
-    public function setUrl(string $url): self
+    public function setCaption(?string $caption): static
     {
-        $this->url = $url;
-        return $this;
-    }
+        $this->caption = $caption;
 
-    public function getEntityType(): ?string
-    {
-        return $this->entityType;
-    }
-
-    public function setEntityType(string $entityType): self
-    {
-        $this->entityType = $entityType;
-        return $this;
-    }
-
-    public function getEntityId(): ?Uuid
-    {
-        return $this->entityId;
-    }
-
-    public function setEntityId(Uuid $entityId): self
-    {
-        $this->entityId = $entityId;
-        return $this;
-    }
-
-    public function getUploadedBy(): ?User
-    {
-        return $this->uploadedBy;
-    }
-
-    public function setUploadedBy(?User $uploadedBy): self
-    {
-        $this->uploadedBy = $uploadedBy;
         return $this;
     }
 }

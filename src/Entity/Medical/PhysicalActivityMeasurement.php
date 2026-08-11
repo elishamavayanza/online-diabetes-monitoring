@@ -3,11 +3,12 @@
 namespace App\Entity\Medical;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Common\PatientCommonOperation;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'physical_activity_measurements')]
-class PhysicalActivityMeasurement extends BaseEntity
+class PhysicalActivityMeasurement extends PatientCommonOperation
 {
     #[ORM\Column(type: 'string', length: 100)]
     private ?string $activityType = null;
