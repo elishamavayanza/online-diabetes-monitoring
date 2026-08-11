@@ -8,6 +8,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * Classe abstraite de base pour les utilisateurs du système (héritant de Person),
+ * implémentant les interfaces de sécurité Symfony.
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_users')]
 #[ORM\InheritanceType('JOINED')]
@@ -19,108 +23,179 @@ use Symfony\Component\Security\Core\User\UserInterface;
 ])]
 abstract class User extends Person implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * @var string|null L'adresse e-mail de l'utilisateur (unique, sert d'identifiant de connexion).
+     */
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     protected ?string $email = null;
 
+    /**
+     * @var string|null Le hachage du mot de passe de l'utilisateur.
+     */
     #[ORM\Column(type: 'string')]
     protected ?string $passwordHash = null;
 
+    /**
+     * @var string|null La langue ou la locale préférée de l'utilisateur.
+     */
     #[ORM\Column(type: 'string', length: 10)]
     protected ?string $locale = 'fr';
 
+    /**
+     * @var UserStatus|null Le statut du compte utilisateur.
+     */
     #[ORM\Column(type: 'string', length: 50, enumType: UserStatus::class)]
     protected ?UserStatus $status = UserStatus::PENDING_ACTIVATION;
 
+    /**
+     * @var DateTimeImmutable|null La date et l'heure de vérification de l'e-mail.
+     */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     protected ?DateTimeImmutable $emailVerifiedAt = null;
 
+    /**
+     * @var DateTimeImmutable|null La date et l'heure de la dernière connexion.
+     */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     protected ?DateTimeImmutable $lastLoginAt = null;
 
+    /**
+     * Récupère l'e-mail.
+     */
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
+    /**
+     * Définit l'e-mail.
+     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
         return $this;
     }
 
+    /**
+     * Retourne l'identifiant unique de l'utilisateur pour l'authentification (requis par UserInterface).
+     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
+    /**
+     * Récupère le mot de passe (requis par PasswordAuthenticatedUserInterface).
+     */
     public function getPassword(): ?string
     {
         return $this->passwordHash;
     }
 
+    /**
+     * Définit le mot de passe.
+     */
     public function setPassword(string $password): static
     {
         $this->passwordHash = $password;
         return $this;
     }
 
+    /**
+     * Récupère le hachage du mot de passe.
+     */
     public function getPasswordHash(): ?string
     {
         return $this->passwordHash;
     }
 
+    /**
+     * Définit le hachage du mot de passe.
+     */
     public function setPasswordHash(string $passwordHash): static
     {
         $this->passwordHash = $passwordHash;
         return $this;
     }
 
+    /**
+     * Récupère la locale.
+     */
     public function getLocale(): ?string
     {
         return $this->locale;
     }
 
+    /**
+     * Définit la locale.
+     */
     public function setLocale(string $locale): static
     {
         $this->locale = $locale;
         return $this;
     }
 
+    /**
+     * Récupère le statut de l'utilisateur.
+     */
     public function getStatus(): ?UserStatus
     {
         return $this->status;
     }
 
+    /**
+     * Définit le statut de l'utilisateur.
+     */
     public function setStatus(UserStatus $status): static
     {
         $this->status = $status;
         return $this;
     }
 
+    /**
+     * Récupère la date de vérification de l'e-mail.
+     */
     public function getEmailVerifiedAt(): ?DateTimeImmutable
     {
         return $this->emailVerifiedAt;
     }
 
+    /**
+     * Définit la date de vérification de l'e-mail.
+     */
     public function setEmailVerifiedAt(?DateTimeImmutable $emailVerifiedAt): static
     {
         $this->emailVerifiedAt = $emailVerifiedAt;
         return $this;
     }
 
+    /**
+     * Récupère la date de dernière connexion.
+     */
     public function getLastLoginAt(): ?DateTimeImmutable
     {
         return $this->lastLoginAt;
     }
 
+    /**
+     * Définit la date de dernière connexion.
+     */
     public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): static
     {
         $this->lastLoginAt = $lastLoginAt;
         return $this;
     }
 
+    /**
+     * Retourne les rôles de sécurité attribués à l'utilisateur.
+     *
+     * @return array<int, string>
+     */
     abstract public function getRoles(): array;
 
+    /**
+     * Efface les données sensibles temporaires de l'utilisateur (requis par UserInterface).
+     */
     public function eraseCredentials(): void
     {
     }

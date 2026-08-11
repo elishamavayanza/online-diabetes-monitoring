@@ -10,47 +10,86 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * Représente une prescription médicale émise pour un patient.
+ */
 #[ORM\Entity]
-#[ORM\Table(name: 'prescriptions')]
+#[ORM\Table(name: 'treatment_prescriptions')]
 class Prescription extends BaseEntity
 {
+    /**
+     * @var Patient|null Le patient bénéficiant de la prescription.
+     */
     #[ORM\ManyToOne(targetEntity: Patient::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Patient $patient = null;
 
+    /**
+     * @var HealthcareProfessional|null Le professionnel de santé prescripteur.
+     */
     #[ORM\ManyToOne(targetEntity: HealthcareProfessional::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
     private ?HealthcareProfessional $prescriber = null;
 
+    /**
+     * @var HealthcareOrganization|null L'organisation de santé rattachée à la prescription.
+     */
     #[ORM\ManyToOne(targetEntity: HealthcareOrganization::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
     private ?HealthcareOrganization $organization = null;
 
+    /**
+     * @var \DateTimeInterface|null La date de début de la prescription.
+     */
     #[ORM\Column(type: 'date')]
     private ?\DateTimeInterface $startDate = null;
 
+    /**
+     * @var \DateTimeInterface|null La date de fin de la prescription.
+     */
     #[ORM\Column(type: 'date', nullable: true)]
     private ?\DateTimeInterface $endDate = null;
 
+    /**
+     * @var PrescriptionStatus|null Le statut actuel de la prescription.
+     */
     #[ORM\Column(type: 'string', length: 50, enumType: PrescriptionStatus::class)]
     private ?PrescriptionStatus $status = PrescriptionStatus::DRAFT;
 
+    /**
+     * @var string|null Notes ou instructions particulières concernant la prescription.
+     */
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
 
+    /**
+     * @var \DateTimeImmutable|null La date et l'heure de validation de la prescription.
+     */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $validatedAt = null;
 
+    /**
+     * @var HealthcareProfessional|null Le professionnel de santé ayant validé la prescription.
+     */
     #[ORM\ManyToOne(targetEntity: HealthcareProfessional::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?HealthcareProfessional $validatedBy = null;
 
+    /**
+     * @var Collection<int, PrescriptionItem> La collection des éléments composant la prescription.
+     */
     #[ORM\OneToMany(mappedBy: 'prescription', targetEntity: PrescriptionItem::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $items;
 
+    /**
+     * @var Collection<int, PrescriptionVersion> L'historique des versions de la prescription.
+     */
     #[ORM\OneToMany(mappedBy: 'prescription', targetEntity: PrescriptionVersion::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $versions;
 
+    /**
+     * Constructeur pour initialiser les collections.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -58,106 +97,162 @@ class Prescription extends BaseEntity
         $this->versions = new ArrayCollection();
     }
 
+    /**
+     * Récupère le patient.
+     */
     public function getPatient(): ?Patient
     {
         return $this->patient;
     }
 
-    public function setPatient(?Patient $patient): self
+    /**
+     * Définit le patient.
+     */
+    public function setPatient(?Patient $patient): static
     {
         $this->patient = $patient;
         return $this;
     }
 
+    /**
+     * Récupère le prescripteur.
+     */
     public function getPrescriber(): ?HealthcareProfessional
     {
         return $this->prescriber;
     }
 
-    public function setPrescriber(?HealthcareProfessional $prescriber): self
+    /**
+     * Définit le prescripteur.
+     */
+    public function setPrescriber(?HealthcareProfessional $prescriber): static
     {
         $this->prescriber = $prescriber;
         return $this;
     }
 
+    /**
+     * Récupère l'organisation.
+     */
     public function getOrganization(): ?HealthcareOrganization
     {
         return $this->organization;
     }
 
-    public function setOrganization(?HealthcareOrganization $organization): self
+    /**
+     * Définit l'organisation.
+     */
+    public function setOrganization(?HealthcareOrganization $organization): static
     {
         $this->organization = $organization;
         return $this;
     }
 
+    /**
+     * Récupère la date de début.
+     */
     public function getStartDate(): ?\DateTimeInterface
     {
         return $this->startDate;
     }
 
-    public function setStartDate(\DateTimeInterface $startDate): self
+    /**
+     * Définit la date de début.
+     */
+    public function setStartDate(\DateTimeInterface $startDate): static
     {
         $this->startDate = $startDate;
         return $this;
     }
 
+    /**
+     * Récupère la date de fin.
+     */
     public function getEndDate(): ?\DateTimeInterface
     {
         return $this->endDate;
     }
 
-    public function setEndDate(?\DateTimeInterface $endDate): self
+    /**
+     * Définit la date de fin.
+     */
+    public function setEndDate(?\DateTimeInterface $endDate): static
     {
         $this->endDate = $endDate;
         return $this;
     }
 
+    /**
+     * Récupère le statut.
+     */
     public function getStatus(): ?PrescriptionStatus
     {
         return $this->status;
     }
 
-    public function setStatus(PrescriptionStatus $status): self
+    /**
+     * Définit le statut.
+     */
+    public function setStatus(PrescriptionStatus $status): static
     {
         $this->status = $status;
         return $this;
     }
 
+    /**
+     * Récupère les notes.
+     */
     public function getNotes(): ?string
     {
         return $this->notes;
     }
 
-    public function setNotes(?string $notes): self
+    /**
+     * Définit les notes.
+     */
+    public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
         return $this;
     }
 
+    /**
+     * Récupère la date de validation.
+     */
     public function getValidatedAt(): ?\DateTimeImmutable
     {
         return $this->validatedAt;
     }
 
-    public function setValidatedAt(?\DateTimeImmutable $validatedAt): self
+    /**
+     * Définit la date de validation.
+     */
+    public function setValidatedAt(?\DateTimeImmutable $validatedAt): static
     {
         $this->validatedAt = $validatedAt;
         return $this;
     }
 
+    /**
+     * Récupère le valideur.
+     */
     public function getValidatedBy(): ?HealthcareProfessional
     {
         return $this->validatedBy;
     }
 
-    public function setValidatedBy(?HealthcareProfessional $validatedBy): self
+    /**
+     * Définit le valideur.
+     */
+    public function setValidatedBy(?HealthcareProfessional $validatedBy): static
     {
         $this->validatedBy = $validatedBy;
         return $this;
     }
 
     /**
+     * Récupère les éléments de la prescription.
+     *
      * @return Collection<int, PrescriptionItem>
      */
     public function getItems(): Collection
@@ -165,7 +260,10 @@ class Prescription extends BaseEntity
         return $this->items;
     }
 
-    public function addItem(PrescriptionItem $item): self
+    /**
+     * Ajoute un élément à la prescription.
+     */
+    public function addItem(PrescriptionItem $item): static
     {
         if (!$this->items->contains($item)) {
             $this->items->add($item);
@@ -174,7 +272,10 @@ class Prescription extends BaseEntity
         return $this;
     }
 
-    public function removeItem(PrescriptionItem $item): self
+    /**
+     * Retire un élément de la prescription.
+     */
+    public function removeItem(PrescriptionItem $item): static
     {
         if ($this->items->removeElement($item)) {
             if ($item->getPrescription() === $this) {
@@ -185,6 +286,8 @@ class Prescription extends BaseEntity
     }
 
     /**
+     * Récupère les versions de la prescription.
+     *
      * @return Collection<int, PrescriptionVersion>
      */
     public function getVersions(): Collection
@@ -192,7 +295,10 @@ class Prescription extends BaseEntity
         return $this->versions;
     }
 
-    public function addVersion(PrescriptionVersion $version): self
+    /**
+     * Ajoute une version à l'historique.
+     */
+    public function addVersion(PrescriptionVersion $version): static
     {
         if (!$this->versions->contains($version)) {
             $this->versions->add($version);
@@ -201,7 +307,10 @@ class Prescription extends BaseEntity
         return $this;
     }
 
-    public function removeVersion(PrescriptionVersion $version): self
+    /**
+     * Retire une version de l'historique.
+     */
+    public function removeVersion(PrescriptionVersion $version): static
     {
         if ($this->versions->removeElement($version)) {
             if ($version->getPrescription() === $this) {
