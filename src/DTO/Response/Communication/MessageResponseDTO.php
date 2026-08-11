@@ -12,13 +12,13 @@ use OpenApi\Attributes as OA;
 class MessageResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '9f881245-33ee-4b11-9a21-4f88e1478c99', description: 'Identifiant unique du message')]
+        #[OA\Property(type: 'string', example: '1', description: 'Identifiant unique du message')]
         public readonly string $id,
 
-        #[OA\Property(type: 'string', format: 'uuid', example: 'd3b07384-d113-4ec6-a578-832f01f4c74a', description: 'Identifiant de la conversation')]
+        #[OA\Property(type: 'string', example: '1', description: 'Identifiant de la conversation')]
         public readonly string $conversationId,
 
-        #[OA\Property(type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'Identifiant de l’expéditeur')]
+        #[OA\Property(type: 'string', example: '1', description: 'Identifiant de l’expéditeur')]
         public readonly string $senderId,
 
         #[OA\Property(type: 'string', example: 'Bonjour, les analyses de biologie du patient sont disponibles.', description: 'Contenu')]

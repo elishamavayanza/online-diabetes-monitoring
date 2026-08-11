@@ -13,11 +13,11 @@ class MessageRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: 'd3b07384-d113-4ec6-a578-832f01f4c74a', description: 'Identifiant de la conversation')]
+        #[OA\Property(type: 'string', example: '1', description: 'Identifiant de la conversation')]
         public readonly string $conversationId,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'Identifiant de l’expéditeur')]
+        #[OA\Property(type: 'string', example: '1', description: 'Identifiant de l’expéditeur')]
         public readonly string $senderId,
 
         #[Assert\NotBlank]
