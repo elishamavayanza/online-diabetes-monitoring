@@ -17,7 +17,6 @@ class FileAttachment extends PatientCommonOperation
     #[ORM\Column(type: 'integer', nullable: false)]
     private ?int $sizeBytes = null;
 
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $caption = null;
 
@@ -26,7 +25,7 @@ class FileAttachment extends PatientCommonOperation
         return $this->filename;
     }
 
-    public function setFilename(string $filename): self
+    public function setFilename(string $filename): static
     {
         $this->filename = $filename;
         return $this;
@@ -37,7 +36,7 @@ class FileAttachment extends PatientCommonOperation
         return $this->mimeType;
     }
 
-    public function setMimeType(string $mimeType): self
+    public function setMimeType(string $mimeType): static
     {
         $this->mimeType = $mimeType;
         return $this;
@@ -48,7 +47,7 @@ class FileAttachment extends PatientCommonOperation
         return $this->sizeBytes;
     }
 
-    public function setSizeBytes(int $sizeBytes): self
+    public function setSizeBytes(int $sizeBytes): static
     {
         $this->sizeBytes = $sizeBytes;
         return $this;
@@ -62,7 +61,6 @@ class FileAttachment extends PatientCommonOperation
     public function setCaption(?string $caption): static
     {
         $this->caption = $caption;
-
         return $this;
     }
 }

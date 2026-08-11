@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'messages')]
+#[ORM\Table(name: 'communication_messages')]
 class Message extends BaseEntity
 {
     #[ORM\ManyToOne(targetEntity: Conversation::class, inversedBy: 'messages')]

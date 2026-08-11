@@ -2,8 +2,6 @@
 
 namespace App\Entity\Identity;
 
-use App\Entity\Common\BaseEntity;
-use App\Entity\Common\Gender;
 use App\Entity\Common\UserStatus;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,7 +9,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'users')]
+#[ORM\Table(name: 'identity_users')]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'user_type', type: 'string')]
 #[ORM\DiscriminatorMap([
@@ -19,28 +17,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
     'professional' => HealthcareProfessional::class,
     'administrator' => Administrator::class
 ])]
-abstract class User extends BaseEntity implements UserInterface, PasswordAuthenticatedUserInterface
+abstract class User extends Person implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     protected ?string $email = null;
 
     #[ORM\Column(type: 'string')]
     protected ?string $passwordHash = null;
-
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    protected ?string $phone = null;
-
-    #[ORM\Column(type: 'string', length: 100)]
-    protected ?string $firstName = null;
-
-    #[ORM\Column(type: 'string', length: 100)]
-    protected ?string $lastName = null;
-
-    #[ORM\Column(type: 'string', length: 500, nullable: true)]
-    protected ?string $avatarUrl = null;
-
-    #[ORM\Column(type: 'string', length: 50, enumType: Gender::class)]
-    protected ?Gender $gender = null;
 
     #[ORM\Column(type: 'string', length: 10)]
     protected ?string $locale = 'fr';
@@ -54,15 +37,12 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     protected ?DateTimeImmutable $lastLoginAt = null;
 
-    #[ORM\Embedded(class: Address::class, columnPrefix: 'address_')]
-    protected ?Address $address = null;
-
     public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(string $email): static
     {
         $this->email = $email;
         return $this;
@@ -78,7 +58,7 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
         return $this->passwordHash;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(string $password): static
     {
         $this->passwordHash = $password;
         return $this;
@@ -89,64 +69,9 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
         return $this->passwordHash;
     }
 
-    public function setPasswordHash(string $passwordHash): self
+    public function setPasswordHash(string $passwordHash): static
     {
         $this->passwordHash = $passwordHash;
-        return $this;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(?string $phone): self
-    {
-        $this->phone = $phone;
-        return $this;
-    }
-
-    public function getFirstName(): ?string
-    {
-        return $this->firstName;
-    }
-
-    public function setFirstName(string $firstName): self
-    {
-        $this->firstName = $firstName;
-        return $this;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
-    }
-
-    public function setLastName(string $lastName): self
-    {
-        $this->lastName = $lastName;
-        return $this;
-    }
-
-    public function getAvatarUrl(): ?string
-    {
-        return $this->avatarUrl;
-    }
-
-    public function setAvatarUrl(?string $avatarUrl): self
-    {
-        $this->avatarUrl = $avatarUrl;
-        return $this;
-    }
-
-    public function getGender(): ?Gender
-    {
-        return $this->gender;
-    }
-
-    public function setGender(?Gender $gender): self
-    {
-        $this->gender = $gender;
         return $this;
     }
 
@@ -155,7 +80,7 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
         return $this->locale;
     }
 
-    public function setLocale(string $locale): self
+    public function setLocale(string $locale): static
     {
         $this->locale = $locale;
         return $this;
@@ -166,7 +91,7 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
         return $this->status;
     }
 
-    public function setStatus(UserStatus $status): self
+    public function setStatus(UserStatus $status): static
     {
         $this->status = $status;
         return $this;
@@ -177,7 +102,7 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
         return $this->emailVerifiedAt;
     }
 
-    public function setEmailVerifiedAt(?DateTimeImmutable $emailVerifiedAt): self
+    public function setEmailVerifiedAt(?DateTimeImmutable $emailVerifiedAt): static
     {
         $this->emailVerifiedAt = $emailVerifiedAt;
         return $this;
@@ -188,20 +113,9 @@ abstract class User extends BaseEntity implements UserInterface, PasswordAuthent
         return $this->lastLoginAt;
     }
 
-    public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): self
+    public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): static
     {
         $this->lastLoginAt = $lastLoginAt;
-        return $this;
-    }
-
-    public function getAddress(): ?Address
-    {
-        return $this->address;
-    }
-
-    public function setAddress(?Address $address): self
-    {
-        $this->address = $address;
         return $this;
     }
 

@@ -5,6 +5,7 @@ namespace App\Entity\Identity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Embeddable]
+#[ORM\Table(name: 'identity_adresses')]
 class Address
 {
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

@@ -5,7 +5,7 @@ namespace App\Entity\Identity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'administrators')]
+#[ORM\Table(name: 'identity_administrators')]
 class Administrator extends User
 {
     public function getRoles(): array

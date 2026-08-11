@@ -6,7 +6,7 @@ use App\Entity\Common\BaseEntity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'departments')]
+#[ORM\Table(name: 'healthcare_departments')]
 class Department extends BaseEntity
 {
     #[ORM\ManyToOne(targetEntity: HealthcareFacility::class, inversedBy: 'departments')]

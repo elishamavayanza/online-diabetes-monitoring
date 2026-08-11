@@ -24,24 +24,31 @@ abstract class BaseEntity
     protected ?DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(
-        name: "updated_at",
+        name: 'updated_at',
         type: Types::DATETIME_IMMUTABLE,
+        nullable: true,
         insertable: false
     )]
     protected ?DateTimeImmutable $updatedAt = null;
+
+    #[ORM\PrePersist]
+    public function prePersist(): void
+    {
+        $now = new DateTimeImmutable();
+
+        if ($this->createdAt === null) {
+            $this->createdAt = $now;
+        }
+
+        if ($this->updatedAt === null) {
+            $this->updatedAt = $now;
+        }
+    }
 
     #[ORM\PreUpdate]
     public function updateTimestamps(): void
     {
         $this->updatedAt = new DateTimeImmutable();
-    }
-
-    #[ORM\PrePersist]
-    public function prePersist(): void
-    {
-        if ($this->createdAt == null) {
-            $this->updatedAt = new DateTimeImmutable();
-        }
     }
 
     public function getId(): ?string
@@ -70,6 +77,4 @@ abstract class BaseEntity
         $this->updatedAt = $updatedAt;
         return $this;
     }
-
-
 }

@@ -6,7 +6,7 @@ use App\Entity\Common\BaseEntity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'message_attachments')]
+#[ORM\Table(name: 'communication_message_attachments')]
 class MessageAttachment extends BaseEntity
 {
     #[ORM\ManyToOne(targetEntity: Message::class, inversedBy: 'attachments')]

@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'conversations')]
+#[ORM\Table(name: 'communication_conversations')]
 class Conversation extends BaseEntity
 {
     #[ORM\Column(type: 'string', length: 255)]

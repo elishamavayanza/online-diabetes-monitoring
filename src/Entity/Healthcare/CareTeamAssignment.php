@@ -8,7 +8,7 @@ use App\Entity\Identity\HealthcareProfessional;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'care_team_assignments')]
+#[ORM\Table(name: 'healthcare_care_team_assignments')]
 class CareTeamAssignment extends BaseEntity
 {
     #[ORM\ManyToOne(targetEntity: Patient::class)]

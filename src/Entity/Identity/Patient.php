@@ -5,7 +5,7 @@ namespace App\Entity\Identity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'patients')]
+#[ORM\Table(name: 'identity_patients')]
 class Patient extends User
 {
     #[ORM\Column(type: 'date', nullable: true)]
