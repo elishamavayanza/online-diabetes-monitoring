@@ -30,14 +30,9 @@ class HealthcareProfessionalRequestDTO
         public readonly ?string $phone,
 
         #[Assert\NotBlank]
-        #[Assert\Length(max: 100)]
-        #[OA\Property(type: 'string', maxLength: 100, example: 'Jean', description: 'Prénom')]
-        public readonly string $firstName,
-
-        #[Assert\NotBlank]
-        #[Assert\Length(max: 100)]
-        #[OA\Property(type: 'string', maxLength: 100, example: 'Mukendi', description: 'Nom')]
-        public readonly string $lastName,
+        #[Assert\Length(max: 150)]
+        #[OA\Property(type: 'string', maxLength: 150, example: 'Dr. Jean Mukendi', description: 'Nom complet')]
+        public readonly string $fullName,
 
         #[Assert\Url]
         #[Assert\Length(max: 500)]

@@ -14,7 +14,7 @@ use OpenApi\Attributes as OA;
 class PatientResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'Identifiant unique')]
+        #[OA\Property(type: 'string', example: '1', description: 'Identifiant unique')]
         public readonly string $id,
 
         #[OA\Property(type: 'string', format: 'email', example: 'patient.marie@gmail.com', description: 'E-mail')]
@@ -23,11 +23,8 @@ class PatientResponseDTO
         #[OA\Property(type: 'string', nullable: true, example: '+243998887766', description: 'Téléphone')]
         public readonly ?string $phone,
 
-        #[OA\Property(type: 'string', example: 'Marie', description: 'Prénom')]
-        public readonly string $firstName,
-
-        #[OA\Property(type: 'string', example: 'Zawadi', description: 'Nom')]
-        public readonly string $lastName,
+        #[OA\Property(type: 'string', example: 'Marie Zawadi', description: 'Nom complet')]
+        public readonly string $fullName,
 
         #[OA\Property(type: 'string', format: 'uri', nullable: true, example: 'https://storage.diabcare.com/avatars/marie.jpg', description: 'Avatar URL')]
         public readonly ?string $avatarUrl,
@@ -83,8 +80,7 @@ class PatientResponseDTO
             id: (string) $patient->getId(),
             email: $patient->getEmail(),
             phone: $patient->getPhone(),
-            firstName: $patient->getFirstName(),
-            lastName: $patient->getLastName(),
+            fullName: $patient->getFullName(),
             avatarUrl: $patient->getAvatarUrl(),
             gender: $patient->getGender(),
             locale: $patient->getLocale() ?? 'fr',

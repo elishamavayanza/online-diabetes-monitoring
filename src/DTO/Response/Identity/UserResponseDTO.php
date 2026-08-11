@@ -13,7 +13,7 @@ use OpenApi\Attributes as OA;
 class UserResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'Identifiant unique')]
+        #[OA\Property(type: 'string', example: '1', description: 'Identifiant unique')]
         public readonly string $id,
 
         #[OA\Property(type: 'string', format: 'email', example: 'user@diabcare.com', description: 'E-mail')]
@@ -22,11 +22,8 @@ class UserResponseDTO
         #[OA\Property(type: 'string', nullable: true, example: '+243990000000', description: 'Téléphone')]
         public readonly ?string $phone,
 
-        #[OA\Property(type: 'string', example: 'Jean', description: 'Prénom')]
-        public readonly string $firstName,
-
-        #[OA\Property(type: 'string', example: 'Mukendi', description: 'Nom')]
-        public readonly string $lastName,
+        #[OA\Property(type: 'string', example: 'Jean Mukendi', description: 'Nom complet')]
+        public readonly string $fullName,
 
         #[OA\Property(type: 'string', format: 'uri', nullable: true, example: 'https://storage.diabcare.com/avatars/default.jpg', description: 'Avatar URL')]
         public readonly ?string $avatarUrl,
@@ -59,13 +56,12 @@ class UserResponseDTO
             id: (string) $user->getId(),
             email: $user->getEmail(),
             phone: $user->getPhone(),
-            firstName: $user->getFirstName(),
-            lastName: $user->getLastName(),
+            fullName: $user->getFullName(),
             avatarUrl: $user->getAvatarUrl(),
             gender: $user->getGender()?->value,
             locale: $user->getLocale(),
             status: $user->getStatus()?->value ?? '',
-            address: AddressResponseDTO::fromEntity($user->getAddress()),
+            address: $user->getAddress() ? AddressResponseDTO::fromEntity($user->getAddress()) : null,
             roles: $user->getRoles(),
             createdAt: $user->getCreatedAt(),
             updatedAt: $user->getUpdatedAt()
