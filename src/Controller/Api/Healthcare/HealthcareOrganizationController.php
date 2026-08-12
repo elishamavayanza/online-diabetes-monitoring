@@ -23,12 +23,12 @@ class HealthcareOrganizationController extends AbstractController
 
     #[Route('', name: 'api_healthcare_organizations_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Créer une organisation de santé',
-        description: 'Permet d’enregistrer une nouvelle entité ou structure organisationnelle de santé dans le système.'
+        description: 'Permet d’enregistrer une nouvelle entité ou structure organisationnelle de santé dans le système.',
+        summary: 'Créer une organisation de santé'
     )]
     #[OA\RequestBody(
-        required: true,
         description: 'Paramètres de l’organisation de santé',
+        required: true,
         content: new OA\JsonContent(
             ref: new Model(type: HealthcareOrganizationRequestDTO::class)
         )
@@ -56,7 +56,45 @@ class HealthcareOrganizationController extends AbstractController
     public function create(#[MapRequestPayload] HealthcareOrganizationRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->create($dto);
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_healthcare_organizations_update', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(
+        description: 'Permet de mettre à jour les informations d’une organisation existante.',
+        summary: 'Modifier une organisation de santé'
+    )]
+    public function update(string $id, #[MapRequestPayload] HealthcareOrganizationRequestDTO $dto): JsonResponse
+    {
+        $feedback = $this->service->update($id, $dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_healthcare_organizations_delete', methods: ['DELETE'])]
+    #[OA\Delete(
+        description: 'Permet de supprimer définitivement une organisation de santé.',
+        summary: 'Supprimer une organisation de santé'
+    )]
+    public function delete(string $id): JsonResponse
+    {
+        $feedback = $this->service->delete($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}/suspend', name: 'api_healthcare_organizations_suspend', methods: ['PATCH'])]
+    #[OA\Patch(
+        description: 'Permet de désactiver/suspendre une organisation de santé.',
+        summary: 'Suspendre une organisation de santé'
+    )]
+    public function suspend(string $id): JsonResponse
+    {
+        $feedback = $this->service->suspend($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
     }

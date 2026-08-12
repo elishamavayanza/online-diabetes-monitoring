@@ -22,7 +22,7 @@ class HealthcareOrganizationRequestDTO
         public readonly ?string $shortName,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'HOSPITAL_NETWORK', description: 'Type d’organisation')]
+        #[OA\Property(type: 'string', example: 'NETWORK', description: 'Type d’organisation')]
         public readonly mixed $type,
 
         #[Assert\Email]

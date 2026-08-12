@@ -14,6 +14,9 @@ class Feedback implements \JsonSerializable
     private array $errors = [];
     private array $warnings = [];
 
+    private mixed $data = null;
+
+
     public function getFlush(): ?string
     {
         return $this->flush;
@@ -90,6 +93,17 @@ class Feedback implements \JsonSerializable
         return $this;
     }
 
+    public function getData(): mixed
+    {
+        return $this->data;
+    }
+
+    public function setData(mixed $data): self
+    {
+        $this->data = $data;
+        return $this;
+    }
+
     public function bind(iterable $violations): self
     {
         foreach ($violations as $violation) {
@@ -134,6 +148,7 @@ class Feedback implements \JsonSerializable
             'status' => $this->status,
             'errors' => $this->errors,
             'warnings' => $this->warnings,
+            'data' => $this->data,
         ];
     }
 }

@@ -38,6 +38,9 @@ class Address
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $country = null;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $state = null;
+
     /**
      * Récupère la rue.
      */
@@ -105,4 +108,16 @@ class Address
         $this->country = $country;
         return $this;
     }
+
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function setState(?string $state): static
+    {
+        $this->state = $state;
+        return $this;
+    }
+
 }

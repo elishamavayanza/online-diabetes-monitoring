@@ -15,7 +15,9 @@ class HealthcareOrganizationMapper
 
         $organization->setName($dto->name);
         $organization->setShortName($dto->shortName);
-        $organization->setType($dto->type);
+        if ($dto->type) {
+            $organization->setType(\App\Entity\Healthcare\OrganizationType::from($dto->type));
+        }
         $organization->setEmail($dto->email);
         $organization->setPhone($dto->phone);
         $organization->setWebsite($dto->website);
@@ -23,13 +25,13 @@ class HealthcareOrganizationMapper
         $organization->setActive($dto->active);
 
         if (!empty($dto->address)) {
-            $address = new Address(
-                street: $dto->address['street'] ?? null,
-                city: $dto->address['city'] ?? null,
-                postalCode: $dto->address['postalCode'] ?? null,
-                country: $dto->address['country'] ?? null,
-                state: $dto->address['state'] ?? null
-            );
+            $address = new Address();
+            $address->setStreet($dto->address['street'] ?? null);
+            $address->setCity($dto->address['city'] ?? null);
+            $address->setPostalCode($dto->address['postalCode'] ?? null);
+            $address->setCountry($dto->address['country'] ?? null);
+            $address->setState($dto->address['state'] ?? null);
+
             $organization->setAddress($address);
         }
 

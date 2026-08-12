@@ -1,0 +1,71 @@
+flowchart TB
+
+    ADMIN[" ADMINISTRATEUR"]
+
+    subgraph ORGANIZATION[" ORGANISATION DE SANTÉ"]
+        ORG["Organisation"]
+        FACILITY["Établissement de santé"]
+        DEPARTMENT["Département / Service"]
+        ROLES["Rôles & Permissions"]
+    end
+
+    subgraph USERS[" UTILISATEURS"]
+        DOCTOR[" MÉDECIN"]
+        PATIENT[" PATIENT"]
+    end
+
+    subgraph CARE[" PRISE EN CHARGE"]
+        ASSIGNMENT["Affectation médecin ↔ patient"]
+        RECORD[" Dossier médical"]
+    end
+
+    subgraph MEDICAL_DATA[" DONNÉES MÉDICALES"]
+        GLUCOSE["Glycémie"]
+        PRESSURE["Tension artérielle"]
+        WEIGHT["Poids"]
+        ACTIVITY["Activité physique"]
+        HBA1C["HbA1c"]
+        LAB["Résultats de laboratoire"]
+        DIAGNOSIS["Diagnostic"]
+        NOTES["Notes médicales"]
+    end
+
+    ADMIN -->|Crée| ORG
+    ADMIN -->|Crée / active| FACILITY
+    ADMIN -->|Configure| DEPARTMENT
+    ADMIN -->|Configure| ROLES
+    ADMIN -->|Crée / gère| DOCTOR
+
+    ORG --> FACILITY
+    FACILITY --> DEPARTMENT
+    ORG --> ROLES
+
+    DOCTOR -->|Est affecté| ASSIGNMENT
+    PATIENT -->|Est pris en charge| ASSIGNMENT
+
+    ASSIGNMENT --> RECORD
+
+    PATIENT -->|Consulte| RECORD
+    PATIENT -->|Enregistre| GLUCOSE
+    PATIENT -->|Enregistre| PRESSURE
+    PATIENT -->|Enregistre| WEIGHT
+    PATIENT -->|Enregistre| ACTIVITY
+    PATIENT -->|Enregistre| HBA1C
+    PATIENT -->|Consulte| LAB
+
+    GLUCOSE --> RECORD
+    PRESSURE --> RECORD
+    WEIGHT --> RECORD
+    ACTIVITY --> RECORD
+    HBA1C --> RECORD
+    LAB --> RECORD
+
+    DOCTOR -->|Consulte| RECORD
+    DOCTOR -->|Pose| DIAGNOSIS
+    DOCTOR -->|Ajoute| NOTES
+
+    DIAGNOSIS --> RECORD
+    NOTES --> RECORD
+
+    RECORD -->|Résultats| PATIENT
+    RECORD -->|Données médicales| DOCTOR

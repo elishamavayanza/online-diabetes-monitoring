@@ -1,0 +1,46 @@
+flowchart TD
+
+    ADMIN[" ADMIN"]
+
+    ADMIN --> A1["Créer l'organisation"]
+    ADMIN --> A2["Créer / activer la structure de santé"]
+    ADMIN --> A3["Créer les professionnels de santé"]
+    ADMIN --> A4["Configurer les rôles et permissions"]
+
+    A1 --> MEDECIN[" MÉDECIN"]
+    A2 --> MEDECIN
+    A3 --> MEDECIN
+    A4 --> MEDECIN
+
+    MEDECIN --> M1["Recevoir / être affecté à un patient"]
+    MEDECIN --> M2["Consulter le dossier médical"]
+    MEDECIN --> M3["Poser un diagnostic"]
+    MEDECIN --> M4["Ajouter des notes médicales"]
+    MEDECIN --> M5["Consulter les mesures"]
+
+    M1 --> PATIENT[" PATIENT"]
+
+    PATIENT --> P1["Compléter son profil"]
+    PATIENT --> P2["Consulter son dossier médical"]
+    PATIENT --> P3["Enregistrer une glycémie"]
+    PATIENT --> P4["Enregistrer une tension artérielle"]
+    PATIENT --> P5["Enregistrer son poids"]
+    PATIENT --> P6["Enregistrer une activité physique"]
+    PATIENT --> P7["Enregistrer son HbA1c"]
+    PATIENT --> P8["Consulter ses résultats"]
+
+    P2 --> MEDICAL[" DOSSIER MÉDICAL"]
+    P3 --> MEDICAL
+    P4 --> MEDICAL
+    P5 --> MEDICAL
+    P6 --> MEDICAL
+    P7 --> MEDICAL
+
+    MEDICAL --> M2
+    MEDICAL --> M5
+
+    M3 --> DIAGNOSIS[" Diagnostic"]
+    M4 --> NOTES[" Notes médicales"]
+
+    DIAGNOSIS --> MEDICAL
+    NOTES --> MEDICAL
