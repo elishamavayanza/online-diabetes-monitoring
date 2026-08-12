@@ -26,7 +26,7 @@ class JWTCreatedSubscriber implements EventSubscriberInterface
         $payload = $event->getData();
 
         // Ajout des informations personnalisées
-        $payload['fullName'] = $user->getFirstName() . ' ' . $user->getLastName();
+        $payload['fullname'] = $user->getFullName();
         $payload['roles'] = $user->getRoles();
 
         // Si vous avez une méthode getPermissions() dans votre entité ou votre logique métier
