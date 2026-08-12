@@ -6,6 +6,7 @@ use App\Entity\Nutrition\Food;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'FoodResponseDTO',
     title: 'FoodResponseDTO',
     description: 'Structure de réponse pour un aliment'
 )]

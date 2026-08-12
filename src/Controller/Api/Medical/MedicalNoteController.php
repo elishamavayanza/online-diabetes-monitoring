@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Medical;
 
 use App\DTO\Request\Medical\MedicalNoteRequestDTO;
+use App\DTO\Response\Medical\MedicalNoteResponseDTO;
 use App\Service\Medical\MedicalNoteService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,14 +30,7 @@ class MedicalNoteController extends AbstractController
         required: true,
         description: 'Paramètres de la note médicale',
         content: new OA\JsonContent(
-            required: ['medicalRecordId', 'authorId', 'content', 'notedAt'],
-            properties: [
-                new OA\Property(property: 'medicalRecordId', type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID du dossier médical'),
-                new OA\Property(property: 'authorId', type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'ID de l’auteur (professionnel de santé)'),
-                new OA\Property(property: 'content', type: 'string', example: 'Patient stable, bonne observance du traitement.', description: 'Contenu textuel de la note'),
-                new OA\Property(property: 'notedAt', type: 'string', format: 'date-time', example: '2026-08-10T10:00:00Z', description: 'Date et heure de la prise de note')
-            ],
-            type: 'object'
+            ref: new Model(type: MedicalNoteRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -46,7 +41,7 @@ class MedicalNoteController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Note médicale créée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MedicalNoteResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MedicalNoteResponseDTO::class))
             ]
         )
     )]

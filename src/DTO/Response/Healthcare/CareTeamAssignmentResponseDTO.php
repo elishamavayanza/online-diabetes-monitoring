@@ -6,6 +6,7 @@ use App\Entity\Healthcare\CareTeamAssignment;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'CareTeamAssignmentResponseDTO',
     title: 'CareTeamAssignmentResponseDTO',
     description: 'Structure des données renvoyées pour une affectation d’équipe de soins'
 )]

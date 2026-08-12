@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Common;
 
 use App\DTO\Request\Common\FileAttachmentRequestDTO;
+use App\DTO\Response\Common\FileAttachmentResponseDTO;
 use App\Service\Common\FileAttachmentService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,18 +30,7 @@ class FileAttachmentController extends AbstractController
         required: true,
         description: 'Métadonnées du fichier à enregistrer',
         content: new OA\JsonContent(
-            required: ['originalName', 'fileName', 'mimeType', 'sizeBytes', 'url', 'entityType', 'entityId', 'uploadedById'],
-            properties: [
-                new OA\Property(property: 'originalName', type: 'string', maxLength: 255, example: 'resultats_analyse_sang.pdf', description: 'Nom original du fichier fourni par l’utilisateur'),
-                new OA\Property(property: 'fileName', type: 'string', maxLength: 255, example: '68f02a11b24e4_resultats.pdf', description: 'Nom unique sécurisé du fichier sur le serveur ou le stockage distant'),
-                new OA\Property(property: 'mimeType', type: 'string', maxLength: 100, example: 'application/pdf', description: 'Type MIME du fichier'),
-                new OA\Property(property: 'sizeBytes', type: 'integer', example: 1048576, description: 'Taille du fichier en octets'),
-                new OA\Property(property: 'url', type: 'string', format: 'uri', maxLength: 500, example: 'https://storage.diabcare.com/uploads/2026/08/68f02a11b24e4_resultats.pdf', description: 'URL d’accès direct au fichier'),
-                new OA\Property(property: 'entityType', type: 'string', maxLength: 100, example: 'MedicalRecord', description: 'Type de l’entité métier liée au fichier'),
-                new OA\Property(property: 'entityId', type: 'string', format: 'uuid', example: 'd3b07384-d113-4ec6-a578-832f01f4c74a', description: 'Identifiant unique de l’entité liée'),
-                new OA\Property(property: 'uploadedById', type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'Identifiant de l’utilisateur ayant téléversé le fichier')
-            ],
-            type: 'object'
+            ref: new Model(type: FileAttachmentRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -50,7 +41,7 @@ class FileAttachmentController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Pièce jointe enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/FileAttachmentResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: FileAttachmentResponseDTO::class))
             ]
         )
     )]
@@ -89,7 +80,7 @@ class FileAttachmentController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 200),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Succès'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/FileAttachmentResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: FileAttachmentResponseDTO::class))
             ]
         )
     )]

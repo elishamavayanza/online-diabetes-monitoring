@@ -6,6 +6,7 @@ use App\Entity\Patient\MedicalConsent;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'MedicalConsentResponseDTO',
     title: 'MedicalConsentResponseDTO',
     description: 'Structure de réponse pour un consentement médical'
 )]

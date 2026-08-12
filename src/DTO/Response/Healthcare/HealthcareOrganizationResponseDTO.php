@@ -6,6 +6,7 @@ use App\Entity\Healthcare\HealthcareOrganization;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'HealthcareOrganizationResponseDTO',
     title: 'HealthcareOrganizationResponseDTO',
     description: 'Structure des données renvoyées pour une organisation de santé'
 )]

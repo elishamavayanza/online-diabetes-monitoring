@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Medical;
 
 use App\DTO\Request\Medical\LaboratoryResultRequestDTO;
+use App\DTO\Response\Medical\LaboratoryResultResponseDTO;
 use App\Service\Medical\LaboratoryResultService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,13 +37,7 @@ class LaboratoryResultController extends AbstractController
         required: true,
         description: 'Paramètres du résultat de laboratoire',
         content: new OA\JsonContent(
-            required: ['testName'],
-            properties: [
-                new OA\Property(property: 'testName', type: 'string', maxLength: 150, example: 'Glycémie à jeun / Bilan lipidique', description: 'Nom de l’examen'),
-                new OA\Property(property: 'fileUrl', type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://storage.diabcare.com/labs/result-123.pdf', description: 'URL du fichier de résultat'),
-                new OA\Property(property: 'labName', type: 'string', maxLength: 150, nullable: true, example: 'Laboratoire Central Goma', description: 'Nom du laboratoire')
-            ],
-            type: 'object'
+            ref: new Model(type: LaboratoryResultRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -52,7 +48,7 @@ class LaboratoryResultController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Résultat de laboratoire ajouté avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/LaboratoryResultResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: LaboratoryResultResponseDTO::class))
             ]
         )
     )]

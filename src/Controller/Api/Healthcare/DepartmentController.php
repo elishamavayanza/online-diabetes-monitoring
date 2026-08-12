@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Healthcare;
 
 use App\DTO\Request\Healthcare\DepartmentRequestDTO;
+use App\DTO\Response\Healthcare\DepartmentResponseDTO;
 use App\Service\Healthcare\DepartmentService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,13 +30,7 @@ class DepartmentController extends AbstractController
         required: true,
         description: 'Paramètres du département',
         content: new OA\JsonContent(
-            required: ['facilityId', 'name'],
-            properties: [
-                new OA\Property(property: 'facilityId', type: 'string', format: 'uuid', example: '11bb22cc-33ee-4ff1-8811-9a8877665544', description: 'Identifiant unique de l’établissement de santé rattaché'),
-                new OA\Property(property: 'name', type: 'string', maxLength: 150, example: 'Cardiologie', description: 'Nom du département'),
-                new OA\Property(property: 'specialty', type: 'string', maxLength: 150, nullable: true, example: 'Cardiologie interventionnelle', description: 'Spécialité médicale associée (optionnel)')
-            ],
-            type: 'object'
+            ref: new Model(type: DepartmentRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -45,7 +41,7 @@ class DepartmentController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Département créé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/DepartmentResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: DepartmentResponseDTO::class))
             ]
         )
     )]

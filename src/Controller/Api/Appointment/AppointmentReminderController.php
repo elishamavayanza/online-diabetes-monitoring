@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Appointment;
 
 use App\DTO\Request\Appointment\AppointmentReminderRequestDTO;
+use App\DTO\Response\Appointment\AppointmentReminderResponseDTO;
 use App\Service\Appointment\AppointmentReminderService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,14 +30,7 @@ class AppointmentReminderController extends AbstractController
         required: true,
         description: 'Paramètres de configuration du rappel',
         content: new OA\JsonContent(
-            required: ['appointmentId', 'channel', 'scheduledFor'],
-            properties: [
-                new OA\Property(property: 'appointmentId', type: 'string', format: 'uuid', example: '4a613328-98e3-4d64-8898-0c06a3861c8f', description: 'Identifiant unique du rendez-vous associé'),
-                new OA\Property(property: 'channel', type: 'string', example: 'SMS', description: 'Canal de diffusion du rappel (SMS, EMAIL, PUSH)'),
-                new OA\Property(property: 'scheduledFor', type: 'string', format: 'date-time', example: '2026-08-14T09:00:00Z', description: 'Date et heure prévues pour l’envoi du rappel'),
-                new OA\Property(property: 'sentAt', type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date et heure effective d’envoi (généralement nul à la création)')
-            ],
-            type: 'object'
+            ref: new Model(type: AppointmentReminderRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -46,7 +41,7 @@ class AppointmentReminderController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Rappel programmé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/AppointmentReminderResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: AppointmentReminderResponseDTO::class))
             ]
         )
     )]

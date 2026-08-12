@@ -30,26 +30,7 @@ class HealthcareProfessionalController extends AbstractController
         required: true,
         description: 'Paramètres du professionnel de santé',
         content: new OA\JsonContent(
-            required: ['email', 'password', 'firstName', 'lastName', 'gender', 'licenseNumber', 'professionalType'],
-            properties: [
-                new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 180, example: 'dr.jean@diabcare.com', description: 'Adresse e-mail unique'),
-                new OA\Property(property: 'password', type: 'string', minLength: 8, example: 'SecurePassword123!', description: 'Mot de passe utilisateur'),
-                new OA\Property(property: 'phone', type: 'string', maxLength: 50, nullable: true, example: '+243990000000', description: 'Téléphone'),
-                new OA\Property(property: 'firstName', type: 'string', maxLength: 100, example: 'Jean', description: 'Prénom'),
-                new OA\Property(property: 'lastName', type: 'string', maxLength: 100, example: 'Mukendi', description: 'Nom de famille'),
-                new OA\Property(property: 'avatarUrl', type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://storage.diabcare.com/avatars/jean.jpg', description: 'URL de l’avatar'),
-                new OA\Property(property: 'gender', type: 'string', example: 'MALE', description: 'Genre (MALE, FEMALE, OTHER)'),
-                new OA\Property(property: 'locale', type: 'string', maxLength: 10, example: 'fr', description: 'Langue / Locale'),
-                new OA\Property(property: 'licenseNumber', type: 'string', maxLength: 100, example: 'ORD-MED-2026-99', description: 'Numéro d’ordre / de licence professionnelle'),
-                new OA\Property(property: 'professionalType', type: 'string', example: 'DOCTOR', description: 'Type de professionnel (DOCTOR, NURSE, etc.)'),
-                new OA\Property(property: 'specialty', type: 'string', maxLength: 150, nullable: true, example: 'Endocrinologie et Diabétologie', description: 'Spécialité médicale'),
-                new OA\Property(property: 'signatureUrl', type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://storage.diabcare.com/sigs/jean.png', description: 'URL de la signature électronique'),
-                new OA\Property(property: 'street', type: 'string', maxLength: 255, nullable: true, example: '12 Avenue de la Paix', description: 'Rue'),
-                new OA\Property(property: 'city', type: 'string', maxLength: 100, nullable: true, example: 'Goma', description: 'Ville'),
-                new OA\Property(property: 'postalCode', type: 'string', maxLength: 20, nullable: true, example: '00243', description: 'Code postal'),
-                new OA\Property(property: 'country', type: 'string', maxLength: 100, nullable: true, example: 'RDC', description: 'Pays')
-            ],
-            type: 'object'
+            ref: new Model(type: HealthcareProfessionalRequestDTO::class)
         )
     )]
     #[OA\Response(

@@ -6,6 +6,7 @@ use App\Entity\Healthcare\Department;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'DepartmentResponseDTO',
     title: 'DepartmentResponseDTO',
     description: 'Structure des données renvoyées pour un département médical'
 )]

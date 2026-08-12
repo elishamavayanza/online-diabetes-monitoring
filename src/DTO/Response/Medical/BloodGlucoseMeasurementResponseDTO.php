@@ -6,6 +6,7 @@ use App\Entity\Medical\BloodGlucoseMeasurement;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'BloodGlucoseMeasurementResponseDTO',
     title: 'BloodGlucoseMeasurementResponseDTO',
     description: 'Structure de réponse pour une mesure de glycémie'
 )]

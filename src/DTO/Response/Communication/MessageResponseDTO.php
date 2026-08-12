@@ -6,6 +6,7 @@ use App\Entity\Communication\Message;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'MessageResponseDTO',
     title: 'MessageResponseDTO',
     description: 'Structure des données renvoyées pour un message'
 )]

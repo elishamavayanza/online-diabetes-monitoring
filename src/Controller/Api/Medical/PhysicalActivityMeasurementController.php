@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Medical;
 
 use App\DTO\Request\Medical\PhysicalActivityMeasurementRequestDTO;
+use App\DTO\Response\Medical\PhysicalActivityMeasurementResponseDTO;
 use App\Service\Medical\PhysicalActivityMeasurementService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,15 +37,7 @@ class PhysicalActivityMeasurementController extends AbstractController
         required: true,
         description: 'Paramètres de l’activité physique',
         content: new OA\JsonContent(
-            required: ['activityType', 'durationMinutes'],
-            properties: [
-                new OA\Property(property: 'activityType', type: 'string', maxLength: 100, example: 'Marche rapide', description: 'Type d’activité'),
-                new OA\Property(property: 'durationMinutes', type: 'integer', example: 45, description: 'Durée en minutes'),
-                new OA\Property(property: 'caloriesBurned', type: 'string', nullable: true, example: '250.50', description: 'Calories brûlées (kcal)'),
-                new OA\Property(property: 'minHeartRate', type: 'string', nullable: true, example: '95', description: 'Fréquence cardiaque minimale (bpm)'),
-                new OA\Property(property: 'maxHeartRate', type: 'string', nullable: true, example: '135', description: 'Fréquence cardiaque maximale (bpm)')
-            ],
-            type: 'object'
+            ref: new Model(type: PhysicalActivityMeasurementRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -54,7 +48,7 @@ class PhysicalActivityMeasurementController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Activité physique enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/PhysicalActivityMeasurementResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: PhysicalActivityMeasurementResponseDTO::class))
             ]
         )
     )]

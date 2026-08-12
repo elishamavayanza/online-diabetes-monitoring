@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Treatment;
 
 use App\DTO\Request\Treatment\MedicationRequestDTO;
+use App\DTO\Response\Treatment\MedicationResponseDTO;
 use App\Service\Treatment\MedicationService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,15 +30,7 @@ class MedicationController extends AbstractController
         required: true,
         description: 'Paramètres du médicament',
         content: new OA\JsonContent(
-            required: ['name', 'category'],
-            properties: [
-                new OA\Property(property: 'name', type: 'string', maxLength: 150, example: 'Paracétamol 500mg', description: 'Nom du médicament'),
-                new OA\Property(property: 'category', type: 'string', example: 'ANALGESIC', description: 'Catégorie du médicament'),
-                new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'Antalgique et antipyrétique.', description: 'Description'),
-                new OA\Property(property: 'insulinLevel', type: 'integer', minimum: 0, nullable: true, example: 0, description: 'Niveau d’insuline associé (le cas échéant)'),
-                new OA\Property(property: 'manufacturer', type: 'string', maxLength: 150, nullable: true, example: 'PharmaLab', description: 'Fabricant')
-            ],
-            type: 'object'
+            ref: new Model(type: MedicationRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -47,7 +41,7 @@ class MedicationController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Médicament créé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MedicationResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MedicationResponseDTO::class))
             ]
         )
     )]

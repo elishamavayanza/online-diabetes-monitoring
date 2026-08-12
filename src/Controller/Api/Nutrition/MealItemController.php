@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Nutrition;
 
 use App\DTO\Request\Nutrition\MealItemRequestDTO;
+use App\DTO\Response\Nutrition\MealItemResponseDTO;
 use App\Service\Nutrition\MealItemService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,14 +30,7 @@ class MealItemController extends AbstractController
         required: true,
         description: 'Paramètres de l’élément de repas',
         content: new OA\JsonContent(
-            required: ['mealId', 'foodId', 'portionGrams'],
-            properties: [
-                new OA\Property(property: 'mealId', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID du repas concerné'),
-                new OA\Property(property: 'foodId', type: 'string', format: 'uuid', example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID de l’aliment'),
-                new OA\Property(property: 'portionGrams', type: 'string', example: '150.00', description: 'Portion en grammes (g)'),
-                new OA\Property(property: 'breadUnits', type: 'string', nullable: true, example: '1.25', description: 'Unités Pain (UP) optionnelles')
-            ],
-            type: 'object'
+            ref: new Model(type: MealItemRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -46,7 +41,7 @@ class MealItemController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Élément de repas ajouté avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MealItemResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MealItemResponseDTO::class))
             ]
         )
     )]

@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Notification;
 
 use App\DTO\Request\Notification\NotificationRequestDTO;
+use App\DTO\Response\Notification\NotificationResponseDTO;
 use App\Service\Notification\NotificationService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,18 +30,7 @@ class NotificationController extends AbstractController
         required: true,
         description: 'Paramètres de la notification',
         content: new OA\JsonContent(
-            required: ['userId', 'type', 'title', 'body', 'channel'],
-            properties: [
-                new OA\Property(property: 'userId', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID de l’utilisateur destinataire'),
-                new OA\Property(property: 'type', type: 'string', example: 'ALERT', description: 'Type de notification (ex: ALERT, REMINDER, INFO)'),
-                new OA\Property(property: 'title', type: 'string', maxLength: 255, example: 'Rappel de glycémie', description: 'Titre de la notification'),
-                new OA\Property(property: 'body', type: 'string', example: 'Il est l’heure de mesurer votre glycémie à jeun.', description: 'Contenu du message'),
-                new OA\Property(property: 'channel', type: 'string', example: 'PUSH', description: 'Canal d’envoi (ex: PUSH, SMS, EMAIL)'),
-                new OA\Property(property: 'readAt', type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de lecture (optionnel)'),
-                new OA\Property(property: 'relatedEntityType', type: 'string', maxLength: 150, nullable: true, example: 'BloodGlucoseMeasurement', description: 'Type d’entité liée'),
-                new OA\Property(property: 'relatedEntityId', type: 'string', format: 'uuid', nullable: true, example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID de l’entité liée')
-            ],
-            type: 'object'
+            ref: new Model(type: NotificationRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -50,7 +41,7 @@ class NotificationController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Notification créée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/NotificationResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: NotificationResponseDTO::class))
             ]
         )
     )]

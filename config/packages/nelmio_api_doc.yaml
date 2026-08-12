@@ -20,9 +20,7 @@ nelmio_api_doc:
         names:
             - { alias: AppointmentReminderResponseDTO, type: App\DTO\Response\Appointment\AppointmentReminderResponseDTO }
             - { alias: AppointmentResponseDTO, type: App\DTO\Response\Appointment\AppointmentResponseDTO }
-            - { alias: DataAccessLogResponseDTO, type: App\DTO\Response\Audit\DataAccessLogResponseDTO }
             - { alias: FileAttachmentResponseDTO, type: App\DTO\Response\Common\FileAttachmentResponseDTO }
-            - { alias: ConversationParticipantResponseDTO, type: App\DTO\Response\Communication\ConversationParticipantResponseDTO }
             - { alias: ConversationResponseDTO, type: App\DTO\Response\Communication\ConversationResponseDTO }
             - { alias: MessageAttachmentResponseDTO, type: App\DTO\Response\Communication\MessageAttachmentResponseDTO }
             - { alias: MessageReadReceiptResponseDTO, type: App\DTO\Response\Communication\MessageReadReceiptResponseDTO }

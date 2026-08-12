@@ -6,6 +6,7 @@ use App\Entity\Medical\BloodPressureMeasurement;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'BloodPressureMeasurementResponseDTO',
     title: 'BloodPressureMeasurementResponseDTO',
     description: 'Structure de réponse pour une mesure de tension artérielle'
 )]

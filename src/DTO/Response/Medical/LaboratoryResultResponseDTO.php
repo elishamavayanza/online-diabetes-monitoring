@@ -6,13 +6,14 @@ use App\Entity\Medical\LaboratoryResult;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'LaboratoryResultResponseDTO',
     title: 'LaboratoryResultResponseDTO',
     description: 'Structure de réponse pour un résultat de laboratoire'
 )]
 class LaboratoryResultResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '44cc3322-1100-9988-7766-554433221100', description: 'Identifiant unique')]
+        #[OA\Property(type: 'string', format: 'uuid', example: '99aa8877-6655-4433-2211-001122334455', description: 'Identifiant unique')]
         public readonly string $id,
 
         #[OA\Property(type: 'string', example: 'Bilan lipidique complet', description: 'Nom de l’examen')]

@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Communication;
 
 use App\DTO\Request\Communication\MessageRequestDTO;
+use App\DTO\Response\Communication\MessageResponseDTO;
 use App\Service\Communication\MessageService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,15 +30,7 @@ class MessageController extends AbstractController
         required: true,
         description: 'Paramètres du message à envoyer',
         content: new OA\JsonContent(
-            required: ['conversationId', 'senderId', 'content', 'sentAt'],
-            properties: [
-                new OA\Property(property: 'conversationId', type: 'string', format: 'uuid', example: 'd3b07384-d113-4ec6-a578-832f01f4c74a', description: 'Identifiant unique de la conversation cible'),
-                new OA\Property(property: 'senderId', type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'Identifiant unique de l’utilisateur expéditeur'),
-                new OA\Property(property: 'content', type: 'string', example: 'Bonjour, les analyses de biologie du patient sont disponibles.', description: 'Contenu textuel du message'),
-                new OA\Property(property: 'sentAt', type: 'string', format: 'date-time', example: '2026-08-10T11:30:00Z', description: 'Date et heure d’envoi effectif du message'),
-                new OA\Property(property: 'editedAt', type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date et heure de la dernière modification du message')
-            ],
-            type: 'object'
+            ref: new Model(type: MessageRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -47,7 +41,7 @@ class MessageController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Message envoyé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MessageResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MessageResponseDTO::class))
             ]
         )
     )]

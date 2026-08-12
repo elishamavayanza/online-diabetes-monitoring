@@ -6,6 +6,7 @@ use App\Entity\Treatment\Prescription;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'PrescriptionResponseDTO',
     title: 'PrescriptionResponseDTO',
     description: 'Structure de réponse pour une prescription'
 )]

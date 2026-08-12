@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Nutrition;
 
 use App\DTO\Request\Nutrition\FoodCategoryRequestDTO;
+use App\DTO\Response\Nutrition\FoodCategoryResponseDTO;
 use App\Service\Nutrition\FoodCategoryService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/v1/food-categories')]
+#[Route('/api/food-categories')]
 #[OA\Tag(name: 'Nutrition - Food Categories', description: 'Gestion des catégories d’aliments')]
 class FoodCategoryController extends AbstractController
 {
@@ -28,12 +30,7 @@ class FoodCategoryController extends AbstractController
         required: true,
         description: 'Paramètres de la catégorie d’aliments',
         content: new OA\JsonContent(
-            required: ['label'],
-            properties: [
-                new OA\Property(property: 'label', type: 'string', maxLength: 150, example: 'Fruits et Légumes', description: 'Libellé de la catégorie'),
-                new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'Aliments riches en vitamines et fibres.', description: 'Description détaillée')
-            ],
-            type: 'object'
+            ref: new Model(type: FoodCategoryRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -44,7 +41,7 @@ class FoodCategoryController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Catégorie créée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/FoodCategoryResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: FoodCategoryResponseDTO::class))
             ]
         )
     )]

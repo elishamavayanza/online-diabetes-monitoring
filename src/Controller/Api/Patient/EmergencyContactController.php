@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Patient;
 
 use App\DTO\Request\Patient\EmergencyContactRequestDTO;
+use App\DTO\Response\Patient\EmergencyContactResponseDTO;
 use App\Service\Patient\EmergencyContactService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,15 +30,7 @@ class EmergencyContactController extends AbstractController
         required: true,
         description: 'Paramètres du contact d’urgence',
         content: new OA\JsonContent(
-            required: ['patientId', 'fullName', 'relationship', 'phone'],
-            properties: [
-                new OA\Property(property: 'patientId', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID du patient'),
-                new OA\Property(property: 'fullName', type: 'string', maxLength: 150, example: 'Marie Dupont', description: 'Nom complet du contact'),
-                new OA\Property(property: 'relationship', type: 'string', maxLength: 100, example: 'Conjointe', description: 'Lien de parenté / relation'),
-                new OA\Property(property: 'phone', type: 'string', maxLength: 50, example: '+243900000000', description: 'Numéro de téléphone'),
-                new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 180, nullable: true, example: 'marie.dupont@example.com', description: 'Adresse email')
-            ],
-            type: 'object'
+            ref: new Model(type: EmergencyContactRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -47,7 +41,7 @@ class EmergencyContactController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Contact d’urgence créé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/EmergencyContactResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: EmergencyContactResponseDTO::class))
             ]
         )
     )]

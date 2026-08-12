@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Medical;
 
 use App\DTO\Request\Medical\WeightMeasurementRequestDTO;
+use App\DTO\Response\Medical\WeightMeasurementResponseDTO;
 use App\Service\Medical\WeightMeasurementService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,12 +37,7 @@ class WeightMeasurementController extends AbstractController
         required: true,
         description: 'Paramètres de la mesure pondérale',
         content: new OA\JsonContent(
-            required: ['valueKg'],
-            properties: [
-                new OA\Property(property: 'valueKg', type: 'string', example: '75.50', description: 'Poids en kilogrammes (kg)'),
-                new OA\Property(property: 'heightCm', type: 'string', nullable: true, example: '175.00', description: 'Taille en centimètres (cm)')
-            ],
-            type: 'object'
+            ref: new Model(type: WeightMeasurementRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -51,7 +48,7 @@ class WeightMeasurementController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Mesure de poids enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/WeightMeasurementResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: WeightMeasurementResponseDTO::class))
             ]
         )
     )]

@@ -6,6 +6,7 @@ use App\Entity\Healthcare\OrganizationMembership;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'OrganizationMembershipResponseDTO',
     title: 'OrganizationMembershipResponseDTO',
     description: 'Structure des données renvoyées pour une adhésion à une organisation'
 )]

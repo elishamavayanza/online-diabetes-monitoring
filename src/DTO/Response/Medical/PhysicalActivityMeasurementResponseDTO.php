@@ -6,6 +6,7 @@ use App\Entity\Medical\PhysicalActivityMeasurement;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'PhysicalActivityMeasurementResponseDTO',
     title: 'PhysicalActivityMeasurementResponseDTO',
     description: 'Structure de réponse pour une mesure d’activité physique'
 )]

@@ -3,6 +3,8 @@
 namespace App\Controller\Api\Medical;
 
 use App\DTO\Request\Medical\BloodGlucoseMeasurementRequestDTO;
+use App\DTO\Response\Medical\BloodGlucoseMeasurementResponseDTO;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use App\Service\Medical\BloodGlucoseMeasurementService;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,13 +37,7 @@ class BloodGlucoseMeasurementController extends AbstractController
         required: true,
         description: 'Paramètres de la mesure de glycémie',
         content: new OA\JsonContent(
-            required: ['value', 'unit', 'context'],
-            properties: [
-                new OA\Property(property: 'value', type: 'string', example: '1.26', description: 'Valeur de la glycémie'),
-                new OA\Property(property: 'unit', type: 'string', example: 'g/L', description: 'Unité de mesure (ex: g/L, mmol/L)'),
-                new OA\Property(property: 'context', type: 'string', example: 'FASTING', description: 'Contexte de la mesure (ex: FASTING, POSTPRANDIAL)')
-            ],
-            type: 'object'
+            ref: new Model(type: BloodGlucoseMeasurementRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -52,7 +48,7 @@ class BloodGlucoseMeasurementController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Mesure de glycémie enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/BloodGlucoseMeasurementResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: BloodGlucoseMeasurementResponseDTO::class))
             ]
         )
     )]

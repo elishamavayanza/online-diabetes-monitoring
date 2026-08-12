@@ -6,6 +6,7 @@ use App\Entity\Appointment\AppointmentReminder;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'AppointmentReminderResponseDTO',
     title: 'AppointmentReminderResponseDTO',
     description: 'Structure des données renvoyées pour un rappel de rendez-vous'
 )]

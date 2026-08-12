@@ -6,6 +6,7 @@ use App\Entity\Medical\WeightMeasurement;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'WeightMeasurementResponseDTO',
     title: 'WeightMeasurementResponseDTO',
     description: 'Structure de réponse pour une mesure de poids'
 )]

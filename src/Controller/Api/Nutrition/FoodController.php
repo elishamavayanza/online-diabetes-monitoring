@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Nutrition;
 
 use App\DTO\Request\Nutrition\FoodRequestDTO;
+use App\DTO\Response\Nutrition\FoodResponseDTO;
 use App\Service\Nutrition\FoodService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,19 +30,7 @@ class FoodController extends AbstractController
         required: true,
         description: 'Paramètres de l’aliment',
         content: new OA\JsonContent(
-            required: ['categoryId', 'name', 'caloriesPer100g', 'carbsPer100g', 'proteinPer100g', 'fatPer100g'],
-            properties: [
-                new OA\Property(property: 'categoryId', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID de la catégorie d’aliments'),
-                new OA\Property(property: 'name', type: 'string', maxLength: 150, example: 'Pomme', description: 'Nom de l’aliment'),
-                new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'Fruit frais croquant.', description: 'Description de l’aliment'),
-                new OA\Property(property: 'photoUrl', type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://example.com/images/apple.jpg', description: 'URL de l’image'),
-                new OA\Property(property: 'caloriesPer100g', type: 'string', example: '52.00', description: 'Calories pour 100g (kcal)'),
-                new OA\Property(property: 'carbsPer100g', type: 'string', example: '14.00', description: 'Glucides pour 100g (g)'),
-                new OA\Property(property: 'proteinPer100g', type: 'string', example: '0.30', description: 'Protéines pour 100g (g)'),
-                new OA\Property(property: 'fatPer100g', type: 'string', example: '0.20', description: 'Lipides pour 100g (g)'),
-                new OA\Property(property: 'createdById', type: 'string', format: 'uuid', nullable: true, example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID de l’utilisateur créateur (optionnel)')
-            ],
-            type: 'object'
+            ref: new Model(type: FoodRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -51,7 +41,7 @@ class FoodController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Aliment créé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/FoodResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: FoodResponseDTO::class))
             ]
         )
     )]

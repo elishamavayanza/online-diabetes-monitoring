@@ -7,6 +7,7 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Uid\Uuid;
 
 #[OA\Schema(
+    schema: 'FileAttachmentResponseDTO',
     title: 'FileAttachmentResponseDTO',
     description: 'Structure des données renvoyées pour une pièce jointe'
 )]
@@ -51,7 +52,7 @@ class FileAttachmentResponseDTO
     {
         return new self(
             id: (string) $fileAttachment->getId(),
-            originalName: $fileAttachment->getOriginalName(),
+            originalName: $fileAttachment->getOriginalName() ?? '',
             fileName: $fileAttachment->getFilename(),
             mimeType: $fileAttachment->getMimeType(),
             sizeBytes: $fileAttachment->getSizeBytes(),

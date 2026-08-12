@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Medical;
 
 use App\DTO\Request\Medical\BloodPressureMeasurementRequestDTO;
+use App\DTO\Response\Medical\BloodPressureMeasurementResponseDTO;
 use App\Service\Medical\BloodPressureMeasurementService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,13 +37,7 @@ class BloodPressureMeasurementController extends AbstractController
         required: true,
         description: 'Paramètres de la pression artérielle',
         content: new OA\JsonContent(
-            required: ['systolic', 'diastolic'],
-            properties: [
-                new OA\Property(property: 'systolic', type: 'string', example: '120', description: 'Pression systolique (mmHg)'),
-                new OA\Property(property: 'diastolic', type: 'string', example: '80', description: 'Pression diastolique (mmHg)'),
-                new OA\Property(property: 'pulse', type: 'string', nullable: true, example: '72', description: 'Fréquence cardiaque / pouls (bpm)')
-            ],
-            type: 'object'
+            ref: new Model(type: BloodPressureMeasurementRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -52,7 +48,7 @@ class BloodPressureMeasurementController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Mesure enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/BloodPressureMeasurementResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: BloodPressureMeasurementResponseDTO::class))
             ]
         )
     )]

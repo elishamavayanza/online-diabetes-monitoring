@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Treatment;
 
 use App\DTO\Request\Treatment\MedicationIntakeRequestDTO;
+use App\DTO\Response\Treatment\MedicationIntakeResponseDTO;
 use App\Service\Treatment\MedicationIntakeService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,14 +30,7 @@ class MedicationIntakeController extends AbstractController
         required: true,
         description: 'Paramètres de la prise',
         content: new OA\JsonContent(
-            required: ['prescriptionItemId', 'takenAt', 'quantityTaken', 'status'],
-            properties: [
-                new OA\Property(property: 'prescriptionItemId', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID de l’élément de prescription'),
-                new OA\Property(property: 'takenAt', type: 'string', format: 'date-time', example: '2026-08-10T08:00:00Z', description: 'Date et heure de la prise'),
-                new OA\Property(property: 'quantityTaken', type: 'string', example: '1.00', description: 'Quantité prise'),
-                new OA\Property(property: 'status', type: 'string', example: 'TAKEN', description: 'Statut de la prise (ex: TAKEN, MISSED, SKIPPED)')
-            ],
-            type: 'object'
+            ref: new Model(type: MedicationIntakeRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -46,7 +41,7 @@ class MedicationIntakeController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Prise enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MedicationIntakeResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MedicationIntakeResponseDTO::class))
             ]
         )
     )]

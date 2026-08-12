@@ -6,6 +6,7 @@ use App\Entity\Notification\Notification;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'NotificationResponseDTO',
     title: 'NotificationResponseDTO',
     description: 'Structure de réponse pour une notification'
 )]

@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Healthcare;
 
 use App\DTO\Request\Healthcare\HealthcareFacilityRequestDTO;
+use App\DTO\Response\Healthcare\HealthcareFacilityResponseDTO;
 use App\Service\Healthcare\HealthcareFacilityService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,26 +30,7 @@ class HealthcareFacilityController extends AbstractController
         required: true,
         description: 'Paramètres de l’établissement de santé',
         content: new OA\JsonContent(
-            required: ['organizationId', 'name'],
-            properties: [
-                new OA\Property(property: 'organizationId', type: 'string', format: 'uuid', example: '88a123ff-44ee-4111-8899-7a6543210123', description: 'Identifiant unique de l’organisation parente'),
-                new OA\Property(property: 'name', type: 'string', maxLength: 150, example: 'Hôpital Général de Référence de DiabCare', description: 'Nom de l’établissement'),
-                new OA\Property(
-                    property: 'address',
-                    type: 'object',
-                    nullable: true,
-                    description: 'Adresse physique de l’établissement',
-                    properties: [
-                        new OA\Property(property: 'street', type: 'string', example: '12 Avenue de la Santé'),
-                        new OA\Property(property: 'city', type: 'string', example: 'Goma'),
-                        new OA\Property(property: 'state', type: 'string', example: 'Nord-Kivu'),
-                        new OA\Property(property: 'postalCode', type: 'string', example: '00243'),
-                        new OA\Property(property: 'country', type: 'string', example: 'RDC')
-                    ]
-                ),
-                new OA\Property(property: 'phone', type: 'string', maxLength: 50, nullable: true, example: '+243990000000', description: 'Numéro de téléphone principal')
-            ],
-            type: 'object'
+            ref: new Model(type: HealthcareFacilityRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -58,7 +41,7 @@ class HealthcareFacilityController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Établissement de santé créé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/HealthcareFacilityResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: HealthcareFacilityResponseDTO::class))
             ]
         )
     )]

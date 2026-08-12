@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Nutrition;
 
 use App\DTO\Request\Nutrition\MealRequestDTO;
+use App\DTO\Response\Nutrition\MealResponseDTO;
 use App\Service\Nutrition\MealService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,13 +30,7 @@ class MealController extends AbstractController
         required: true,
         description: 'Paramètres du repas',
         content: new OA\JsonContent(
-            required: ['name', 'mealType'],
-            properties: [
-                new OA\Property(property: 'name', type: 'string', maxLength: 150, example: 'Déjeuner équilibré', description: 'Nom du repas'),
-                new OA\Property(property: 'description', type: 'string', maxLength: 5000, nullable: true, example: 'Repas riche en protéines et légumes.', description: 'Description détaillée du repas'),
-                new OA\Property(property: 'mealType', type: 'string', example: 'LUNCH', description: 'Type de repas (ex: BREAKFAST, LUNCH, DINNER, SNACK)')
-            ],
-            type: 'object'
+            ref: new Model(type: MealRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -45,7 +41,7 @@ class MealController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Repas créé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MealResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MealResponseDTO::class))
             ]
         )
     )]

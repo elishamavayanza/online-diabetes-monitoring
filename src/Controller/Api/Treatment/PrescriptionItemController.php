@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Treatment;
 
 use App\DTO\Request\Treatment\PrescriptionItemRequestDTO;
+use App\DTO\Response\Treatment\PrescriptionItemResponseDTO;
 use App\Service\Treatment\PrescriptionItemService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,18 +30,7 @@ class PrescriptionItemController extends AbstractController
         required: true,
         description: 'Paramètres de l’élément de prescription',
         content: new OA\JsonContent(
-            required: ['prescriptionId', 'medicationId', 'dosage', 'quantity', 'morning', 'noon', 'evening'],
-            properties: [
-                new OA\Property(property: 'prescriptionId', type: 'string', format: 'uuid', example: '99001122-3344-5566-7788-99aabbccddeev', description: 'ID de la prescription'),
-                new OA\Property(property: 'medicationId', type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID du médicament'),
-                new OA\Property(property: 'dosage', type: 'string', maxLength: 100, example: '1 comprimé', description: 'Posologie'),
-                new OA\Property(property: 'quantity', type: 'string', example: '1.00', description: 'Quantité totale prescrite'),
-                new OA\Property(property: 'morning', type: 'boolean', example: true, description: 'Prise le matin'),
-                new OA\Property(property: 'noon', type: 'boolean', example: false, description: 'Prise le midi'),
-                new OA\Property(property: 'evening', type: 'boolean', example: true, description: 'Prise le soir'),
-                new OA\Property(property: 'instructions', type: 'string', maxLength: 5000, nullable: true, example: 'À prendre avec un grand verre d’eau.', description: 'Instructions spécifiques')
-            ],
-            type: 'object'
+            ref: new Model(type: PrescriptionItemRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -50,7 +41,7 @@ class PrescriptionItemController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Élément ajouté avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/PrescriptionItemResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: PrescriptionItemResponseDTO::class))
             ]
         )
     )]

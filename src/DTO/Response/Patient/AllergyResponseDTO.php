@@ -6,6 +6,7 @@ use App\Entity\Patient\Allergy;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'AllergyResponseDTO',
     title: 'AllergyResponseDTO',
     description: 'Structure de réponse pour une allergie'
 )]

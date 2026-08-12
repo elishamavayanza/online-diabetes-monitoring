@@ -6,6 +6,7 @@ use App\Entity\Healthcare\HealthcareFacility;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'HealthcareFacilityResponseDTO',
     title: 'HealthcareFacilityResponseDTO',
     description: 'Structure des données renvoyées pour un établissement de santé'
 )]
@@ -18,7 +19,7 @@ class HealthcareFacilityResponseDTO
         #[OA\Property(type: 'string', format: 'uuid', example: '88a123ff-44ee-4111-8899-7a6543210123', description: 'Identifiant de l’organisation')]
         public readonly string $organizationId,
 
-        #[OA\Property(type: 'string', example: 'Hôpital Général de Référence de DiabCare', description: 'Nom')]
+        #[OA\Property(type: 'string', example: 'Hôpital Général de Référence', description: 'Nom')]
         public readonly string $name,
 
         #[OA\Property(type: 'object', nullable: true, description: 'Adresse structurée')]

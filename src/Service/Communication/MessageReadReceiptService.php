@@ -18,7 +18,6 @@ class MessageReadReceiptService
     public function __construct(
         private readonly MessageReadReceiptRepository $repository,
         private readonly MessageRepository $messageRepository,
-        private readonly ConversationParticipantRepository $participantRepository,
         private readonly MessageReadReceiptMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService

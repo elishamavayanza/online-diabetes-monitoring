@@ -6,6 +6,7 @@ use App\Entity\Medical\MedicalNote;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'MedicalNoteResponseDTO',
     title: 'MedicalNoteResponseDTO',
     description: 'Structure de réponse pour une note médicale'
 )]

@@ -6,6 +6,7 @@ use App\Entity\Patient\EmergencyContact;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'EmergencyContactResponseDTO',
     title: 'EmergencyContactResponseDTO',
     description: 'Structure de réponse pour un contact d’urgence'
 )]

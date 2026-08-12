@@ -6,6 +6,7 @@ use App\Entity\Communication\MessageAttachment;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'MessageAttachmentResponseDTO',
     title: 'MessageAttachmentResponseDTO',
     description: 'Structure des données renvoyées pour une pièce jointe de message'
 )]

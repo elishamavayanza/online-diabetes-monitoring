@@ -6,6 +6,7 @@ use App\Entity\Medical\MedicalRecord;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'MedicalRecordResponseDTO',
     title: 'MedicalRecordResponseDTO',
     description: 'Structure de réponse pour un dossier médical'
 )]

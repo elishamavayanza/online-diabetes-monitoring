@@ -18,7 +18,7 @@ class HealthcareFacilityRequestDTO
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, example: 'Hôpital Général de Référence de DiabCare', description: 'Nom de l’établissement')]
+        #[OA\Property(type: 'string', maxLength: 150, example: 'Hôpital Général de Référence', description: 'Nom de l’établissement')]
         public readonly string $name,
 
         #[OA\Property(type: 'object', nullable: true, description: 'Adresse postale')]

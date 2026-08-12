@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Patient;
 
 use App\DTO\Request\Patient\AllergyRequestDTO;
+use App\DTO\Response\Patient\AllergyResponseDTO;
 use App\Service\Patient\AllergyService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,16 +30,7 @@ class AllergyController extends AbstractController
         required: true,
         description: 'Paramètres de l’allergie',
         content: new OA\JsonContent(
-            required: ['patientId', 'name', 'severity', 'diagnosedAt'],
-            properties: [
-                new OA\Property(property: 'patientId', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID du patient'),
-                new OA\Property(property: 'name', type: 'string', maxLength: 150, example: 'Pénicilline', description: 'Nom de l’allergène'),
-                new OA\Property(property: 'severity', type: 'string', example: 'SEVERE', description: 'Sévérité (ex: MILD, MODERATE, SEVERE)'),
-                new OA\Property(property: 'reaction', type: 'string', maxLength: 5000, nullable: true, example: 'Choc anaphylactique', description: 'Description de la réaction'),
-                new OA\Property(property: 'notes', type: 'string', maxLength: 5000, nullable: true, example: 'Éviter toute administration future.', description: 'Notes additionnelles'),
-                new OA\Property(property: 'diagnosedAt', type: 'string', format: 'date-time', example: '2026-08-10T10:00:00Z', description: 'Date du diagnostic')
-            ],
-            type: 'object'
+            ref: new Model(type: AllergyRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -48,7 +41,7 @@ class AllergyController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Allergie créée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/AllergyResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: AllergyResponseDTO::class))
             ]
         )
     )]

@@ -6,6 +6,7 @@ use App\Entity\Medical\HbA1cMeasurement;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'HbA1cMeasurementResponseDTO',
     title: 'HbA1cMeasurementResponseDTO',
     description: 'Structure de réponse pour une mesure d’HbA1c'
 )]

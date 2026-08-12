@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Healthcare;
 
 use App\DTO\Request\Healthcare\HealthcareOrganizationRequestDTO;
+use App\DTO\Response\Healthcare\HealthcareOrganizationResponseDTO;
 use App\Service\Healthcare\HealthcareOrganizationService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,31 +30,7 @@ class HealthcareOrganizationController extends AbstractController
         required: true,
         description: 'Paramètres de l’organisation de santé',
         content: new OA\JsonContent(
-            required: ['name', 'type', 'active'],
-            properties: [
-                new OA\Property(property: 'name', type: 'string', maxLength: 150, example: 'DiabCare Health Group', description: 'Nom complet de l’organisation'),
-                new OA\Property(property: 'shortName', type: 'string', maxLength: 50, nullable: true, example: 'DHG', description: 'Nom court ou acronyme'),
-                new OA\Property(property: 'type', type: 'string', example: 'HOSPITAL_NETWORK', description: 'Type d’organisation de santé'),
-                new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 180, nullable: true, example: 'contact@diabcare.com', description: 'Adresse e-mail principale'),
-                new OA\Property(property: 'phone', type: 'string', maxLength: 50, nullable: true, example: '+243990000000', description: 'Téléphone principal'),
-                new OA\Property(property: 'website', type: 'string', format: 'uri', maxLength: 255, nullable: true, example: 'https://www.diabcare.com', description: 'Site Web institutionnel'),
-                new OA\Property(property: 'logoUrl', type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://storage.diabcare.com/logos/dhg.png', description: 'URL du logo de l’organisation'),
-                new OA\Property(
-                    property: 'address',
-                    type: 'object',
-                    nullable: true,
-                    description: 'Adresse physique du siège',
-                    properties: [
-                        new OA\Property(property: 'street', type: 'string', example: '12 Avenue de la Santé'),
-                        new OA\Property(property: 'city', type: 'string', example: 'Goma'),
-                        new OA\Property(property: 'state', type: 'string', example: 'Nord-Kivu'),
-                        new OA\Property(property: 'postalCode', type: 'string', example: '00243'),
-                        new OA\Property(property: 'country', type: 'string', example: 'RDC')
-                    ]
-                ),
-                new OA\Property(property: 'active', type: 'boolean', example: true, description: 'Statut actif de l’organisation')
-            ],
-            type: 'object'
+            ref: new Model(type: HealthcareOrganizationRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -63,7 +41,7 @@ class HealthcareOrganizationController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Organisation de santé créée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/HealthcareOrganizationResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: HealthcareOrganizationResponseDTO::class))
             ]
         )
     )]

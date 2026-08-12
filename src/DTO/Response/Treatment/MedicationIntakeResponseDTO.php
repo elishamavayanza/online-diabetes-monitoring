@@ -6,6 +6,7 @@ use App\Entity\Treatment\MedicationIntake;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'MedicationIntakeResponseDTO',
     title: 'MedicationIntakeResponseDTO',
     description: 'Structure de réponse pour une prise de médicament'
 )]

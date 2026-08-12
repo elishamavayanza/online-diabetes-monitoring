@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Patient;
 
 use App\DTO\Request\Patient\MedicalConsentRequestDTO;
+use App\DTO\Response\Patient\MedicalConsentResponseDTO;
 use App\Service\Patient\MedicalConsentService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,16 +30,7 @@ class MedicalConsentController extends AbstractController
         required: true,
         description: 'Paramètres du consentement',
         content: new OA\JsonContent(
-            required: ['patientId', 'consentType', 'grantedAt'],
-            properties: [
-                new OA\Property(property: 'patientId', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID du patient'),
-                new OA\Property(property: 'organizationId', type: 'string', format: 'uuid', nullable: true, example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID de l’organisation (optionnel)'),
-                new OA\Property(property: 'consentType', type: 'string', example: 'DATA_SHARING', description: 'Type de consentement'),
-                new OA\Property(property: 'grantedAt', type: 'string', format: 'date-time', example: '2026-08-10T10:00:00Z', description: 'Date d’octroi du consentement'),
-                new OA\Property(property: 'revokedAt', type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de révocation (optionnel)'),
-                new OA\Property(property: 'documentUrl', type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://example.com/consents/doc.pdf', description: 'Lien vers le document signé')
-            ],
-            type: 'object'
+            ref: new Model(type: MedicalConsentRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -48,7 +41,7 @@ class MedicalConsentController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Consentement médical créé avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MedicalConsentResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MedicalConsentResponseDTO::class))
             ]
         )
     )]

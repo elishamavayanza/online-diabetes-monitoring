@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Communication;
 
 use App\DTO\Request\Communication\MessageReadReceiptRequestDTO;
+use App\DTO\Response\Communication\MessageReadReceiptResponseDTO;
 use App\Service\Communication\MessageReadReceiptService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,13 +30,7 @@ class MessageReadReceiptController extends AbstractController
         required: true,
         description: 'Paramètres de l’accusé de lecture',
         content: new OA\JsonContent(
-            required: ['messageId', 'participantId', 'readAt'],
-            properties: [
-                new OA\Property(property: 'messageId', type: 'string', format: 'uuid', example: '9f881245-33ee-4b11-9a21-4f88e1478c99', description: 'Identifiant unique du message lu'),
-                new OA\Property(property: 'participantId', type: 'string', format: 'uuid', example: '88a123ff-44ee-4111-8899-7a6543210123', description: 'Identifiant unique du participant ayant lu le message'),
-                new OA\Property(property: 'readAt', type: 'string', format: 'date-time', example: '2026-08-10T11:32:00Z', description: 'Date et heure exactes de la lecture')
-            ],
-            type: 'object'
+            ref: new Model(type: MessageReadReceiptRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -45,7 +41,7 @@ class MessageReadReceiptController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Accusé de lecture enregistré avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/MessageReadReceiptResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: MessageReadReceiptResponseDTO::class))
             ]
         )
     )]

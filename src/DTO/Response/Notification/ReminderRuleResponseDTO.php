@@ -6,6 +6,7 @@ use App\Entity\Notification\ReminderRule;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'ReminderRuleResponseDTO',
     title: 'ReminderRuleResponseDTO',
     description: 'Structure de réponse pour une règle de rappel'
 )]

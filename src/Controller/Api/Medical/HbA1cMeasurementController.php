@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Medical;
 
 use App\DTO\Request\Medical\HbA1cMeasurementRequestDTO;
+use App\DTO\Response\Medical\HbA1cMeasurementResponseDTO;
 use App\Service\Medical\HbA1cMeasurementService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,11 +37,7 @@ class HbA1cMeasurementController extends AbstractController
         required: true,
         description: 'Paramètres de la mesure d’HbA1c',
         content: new OA\JsonContent(
-            required: ['valuePercent'],
-            properties: [
-                new OA\Property(property: 'valuePercent', type: 'string', example: '6.5', description: 'Valeur de l’HbA1c en pourcentage (%)')
-            ],
-            type: 'object'
+            ref: new Model(type: HbA1cMeasurementRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -50,7 +48,7 @@ class HbA1cMeasurementController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Mesure d’HbA1c enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/HbA1cMeasurementResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: HbA1cMeasurementResponseDTO::class))
             ]
         )
     )]

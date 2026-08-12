@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Treatment;
 
 use App\DTO\Request\Treatment\PrescriptionVersionRequestDTO;
+use App\DTO\Response\Treatment\PrescriptionVersionResponseDTO;
 use App\Service\Treatment\PrescriptionVersionService;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,16 +30,7 @@ class PrescriptionVersionController extends AbstractController
         required: true,
         description: 'Paramètres de la version',
         content: new OA\JsonContent(
-            required: ['prescriptionId', 'versionNumber', 'data', 'modifiedById', 'modifiedAt'],
-            properties: [
-                new OA\Property(property: 'prescriptionId', type: 'string', format: 'uuid', example: '99001122-3344-5566-7788-99aabbccddeev', description: 'ID de la prescription'),
-                new OA\Property(property: 'versionNumber', type: 'integer', minimum: 1, example: 2, description: 'Numéro de version'),
-                new OA\Property(property: 'changesSummary', type: 'string', maxLength: 5000, nullable: true, example: 'Ajustement de la posologie du soir.', description: 'Résumé des modifications'),
-                new OA\Property(property: 'data', type: 'object', example: ['key' => 'value'], description: 'Données sérialisées de la version'),
-                new OA\Property(property: 'modifiedById', type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID de l’auteur de la modification'),
-                new OA\Property(property: 'modifiedAt', type: 'string', format: 'date-time', example: '2026-08-10T11:00:00Z', description: 'Date de la modification')
-            ],
-            type: 'object'
+            ref: new Model(type: PrescriptionVersionRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -48,7 +41,7 @@ class PrescriptionVersionController extends AbstractController
                 new OA\Property(property: 'status', type: 'integer', example: 201),
                 new OA\Property(property: 'error', type: 'boolean', example: false),
                 new OA\Property(property: 'message', type: 'string', example: 'Version enregistrée avec succès.'),
-                new OA\Property(property: 'data', ref: '#/components/schemas/PrescriptionVersionResponseDTO')
+                new OA\Property(property: 'data', ref: new Model(type: PrescriptionVersionResponseDTO::class))
             ]
         )
     )]

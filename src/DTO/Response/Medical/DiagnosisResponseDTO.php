@@ -6,6 +6,7 @@ use App\Entity\Medical\Diagnosis;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
+    schema: 'DiagnosisResponseDTO',
     title: 'DiagnosisResponseDTO',
     description: 'Structure de réponse pour un diagnostic médical'
 )]
