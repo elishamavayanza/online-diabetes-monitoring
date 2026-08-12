@@ -31,4 +31,21 @@ class HealthcareOrganizationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Récupère une liste paginée des organisations de santé.
+     *
+     * @return HealthcareOrganization[]
+     */
+    public function findPaginated(int $page, int $limit): array
+    {
+        $firstResult = ($page - 1) * $limit;
+
+        return $this->createQueryBuilder('ho')
+            ->orderBy('ho.id', 'DESC')
+            ->setFirstResult($firstResult)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

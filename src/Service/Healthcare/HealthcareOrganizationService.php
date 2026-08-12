@@ -21,6 +21,60 @@ class HealthcareOrganizationService
         private readonly SecurityServiceInterface $securityService
     ) {}
 
+    public function getById(string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $organization = $this->repository->find($id);
+            if (!$organization) {
+                $feedback->setErrorFlushDescription("Organisation de santé introuvable.")->autoInitFlush();
+                return $feedback;
+            }
+
+            $feedback->setData($this->mapper->mapEntityToResponse($organization))
+                ->setFlushDescription("Organisation récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function getPaginated(int $page, int $limit): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $organizations = $this->repository->findPaginated($page, $limit);
+            $total = $this->repository->count([]);
+
+            $data = array_map(
+                fn($org) => $this->mapper->mapEntityToResponse($org),
+                $organizations
+            );
+
+            // Structure paginée renvoyée dans le feedback
+            $feedback->setData([
+                'items' => $data,
+                'pagination' => [
+                    'currentPage' => $page,
+                    'limit' => $limit,
+                    'totalItems' => $total,
+                    'totalPages' => ceil($total / $limit)
+                ]
+            ])->setFlushDescription("Liste des organisations récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
     public function create(HealthcareOrganizationRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();

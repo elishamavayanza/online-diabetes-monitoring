@@ -21,6 +21,67 @@ class HealthcareOrganizationController extends AbstractController
         private readonly HealthcareOrganizationService $service
     ) {}
 
+    #[Route('', name: 'api_healthcare_organizations_list', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Permet de récupérer la liste paginée de toutes les organisations de santé.',
+        summary: 'Lister les organisations de santé avec pagination'
+    )]
+    #[OA\Parameter(
+        name: 'page',
+        description: 'Numéro de la page (par défaut 1)',
+        in: 'query',
+        required: false,
+        schema: new OA\Schema(type: 'integer', default: 1)
+    )]
+    #[OA\Parameter(
+        name: 'limit',
+        description: "Nombre d'éléments par page (par défaut 10)",
+        in: 'query',
+        required: false,
+        schema: new OA\Schema(type: 'integer', default: 10)
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Liste récupérée avec succès'
+    )]
+    public function list(\Symfony\Component\HttpFoundation\Request $request): JsonResponse
+    {
+        $page = max(1, $request->query->getInt('page', 1));
+        $limit = max(1, min(100, $request->query->getInt('limit', 10)));
+
+        $feedback = $this->service->getPaginated($page, $limit);
+        return $this->json($feedback, Response::HTTP_OK);
+    }
+
+    #[Route('/{id}', name: 'api_healthcare_organizations_show', methods: ['GET'])]
+    #[OA\Get(
+        description: "Permet de récupérer les détails d'une organisation de santé via son identifiant.",
+        summary: "Afficher une organisation de santé"
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Organisation trouvée avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Organisation récupérée avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: HealthcareOrganizationResponseDTO::class))
+            ]
+        )
+    )]
+    #[OA\Response(
+        response: 404,
+        description: 'Organisation introuvable'
+    )]
+    public function show(string $id): JsonResponse
+    {
+        $feedback = $this->service->getById($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
     #[Route('', name: 'api_healthcare_organizations_create', methods: ['POST'])]
     #[OA\Post(
         description: 'Permet d’enregistrer une nouvelle entité ou structure organisationnelle de santé dans le système.',
