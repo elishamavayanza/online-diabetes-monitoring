@@ -13,19 +13,19 @@ class HealthcareFacilityRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '88a123ff-44ee-4111-8899-7a6543210123', description: 'Identifiant de l’organisation')]
+        #[OA\Property(description: 'Identifiant de l’organisation', type: 'string', format: 'uuid', example: '1')]
         public readonly string $organizationId,
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, example: 'Hôpital Général de Référence', description: 'Nom de l’établissement')]
+        #[OA\Property(description: 'Nom de l’établissement', type: 'string', example: 'Hôpital Général de Référence', maxLength: 150)]
         public readonly string $name,
 
-        #[OA\Property(type: 'object', nullable: true, description: 'Adresse postale')]
+        #[OA\Property(description: 'Adresse postale', type: 'object', nullable: true)]
         public readonly ?array $address,
 
         #[Assert\Length(max: 50)]
-        #[OA\Property(type: 'string', maxLength: 50, nullable: true, example: '+243990000000', description: 'Téléphone')]
+        #[OA\Property(description: 'Téléphone', type: 'string', example: '+243990000000', nullable: true, maxLength: 50)]
         public readonly ?string $phone
     ) {}
 }

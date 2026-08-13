@@ -13,16 +13,16 @@ class DepartmentRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '11bb22cc-33ee-4ff1-8811-9a8877665544', description: 'Identifiant de l’établissement')]
+        #[OA\Property(description: 'Identifiant de l’établissement', type: 'string', format: 'uuid', example: '1')]
         public readonly string $facilityId,
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, example: 'Cardiologie', description: 'Nom du département')]
+        #[OA\Property(description: 'Nom du département', type: 'string', example: 'Cardiologie', maxLength: 150)]
         public readonly string $name,
 
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, nullable: true, example: 'Cardiologie interventionnelle', description: 'Spécialité')]
+        #[OA\Property(description: 'Spécialité', type: 'string', example: 'Cardiologie interventionnelle', nullable: true, maxLength: 150)]
         public readonly ?string $specialty
     ) {}
 }
