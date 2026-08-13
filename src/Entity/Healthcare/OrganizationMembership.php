@@ -17,7 +17,7 @@ class OrganizationMembership extends BaseEntity
     /**
      * @var User|null L'utilisateur concerné par l'adhésion.
      */
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'organizationMemberships')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
@@ -43,16 +43,16 @@ class OrganizationMembership extends BaseEntity
     private ?Department $department = null;
 
     /**
-     * @var \DateTimeInterface|null La date de début de l'adhésion.
+     * @var \DateTimeImmutable|null La date de début de l'adhésion.
      */
-    #[ORM\Column(type: 'date')]
-    private ?\DateTimeInterface $startDate = null;
+    #[ORM\Column(type: 'date_immutable')]
+    private ?\DateTimeImmutable $startDate = null;
 
     /**
-     * @var \DateTimeInterface|null La date de fin de l'adhésion (null si toujours active).
+     * @var \DateTimeImmutable|null La date de fin de l'adhésion (null si toujours active).
      */
-    #[ORM\Column(type: 'date', nullable: true)]
-    private ?\DateTimeInterface $endDate = null;
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $endDate = null;
 
     /**
      * @var MembershipStatus|null Le statut actuel de l'adhésion.

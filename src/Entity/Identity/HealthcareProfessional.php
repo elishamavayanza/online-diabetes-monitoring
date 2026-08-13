@@ -111,10 +111,15 @@ class HealthcareProfessional extends User
      */
     public function getRoles(): array
     {
-        return match ($this->professionalType) {
+        $professionalRole = match ($this->professionalType) {
             ProfessionalType::CLINICIAN => [Role::ROLE_CLINICIAN->value],
             ProfessionalType::NUTRITIONIST => [Role::ROLE_NUTRITIONIST->value],
             default => [],
         };
+
+        return array_values(array_unique([
+            ...parent::getRoles(),
+            ...$professionalRole,
+        ]));
     }
 }

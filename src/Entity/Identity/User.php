@@ -3,7 +3,11 @@
 namespace App\Entity\Identity;
 
 use App\Entity\Common\UserStatus;
+use App\Entity\Healthcare\OrganizationMembership;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -58,6 +62,19 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
      */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     protected ?DateTimeImmutable $lastLoginAt = null;
+
+    /** @var list<string> */
+    #[ORM\Column(type: Types::JSON)]
+    protected array $roles = [];
+
+    /** @var Collection<int, OrganizationMembership> */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: OrganizationMembership::class)]
+    protected Collection $organizationMemberships;
+
+    public function __construct()
+    {
+        $this->organizationMemberships = new ArrayCollection();
+    }
 
     /**
      * Récupère l'e-mail.
@@ -191,7 +208,46 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
      *
      * @return array<int, string>
      */
-    abstract public function getRoles(): array;
+    public function getRoles(): array
+    {
+        return array_values(array_unique($this->roles));
+    }
+
+    /**
+     * @param list<string> $roles
+     */
+    public function setRoles(array $roles): static
+    {
+        $this->roles = array_values(array_unique($roles));
+        return $this;
+    }
+
+    public function addRole(string $role): static
+    {
+        if (!in_array($role, $this->roles, true)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrganizationMembership>
+     */
+    public function getOrganizationMemberships(): Collection
+    {
+        return $this->organizationMemberships;
+    }
+
+    public function addOrganizationMembership(OrganizationMembership $membership): static
+    {
+        if (!$this->organizationMemberships->contains($membership)) {
+            $this->organizationMemberships->add($membership);
+            $membership->setUser($this);
+        }
+
+        return $this;
+    }
 
     /**
      * Efface les données sensibles temporaires de l'utilisateur (requis par UserInterface).

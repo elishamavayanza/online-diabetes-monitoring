@@ -111,6 +111,9 @@ class Patient extends User
      */
     public function getRoles(): array
     {
-        return [Role::ROLE_PATIENT->value];
+        return array_values(array_unique([
+            ...parent::getRoles(),
+            Role::ROLE_PATIENT->value,
+        ]));
     }
 }

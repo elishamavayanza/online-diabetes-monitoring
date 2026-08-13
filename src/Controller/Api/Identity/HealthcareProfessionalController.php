@@ -21,14 +21,31 @@ class HealthcareProfessionalController extends AbstractController
         private readonly HealthcareProfessionalService $professionalService
     ) {}
 
+    #[Route('', name: 'api_professionals_list', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Permet de récupérer la liste de tous les professionnels de santé actifs.',
+        summary: 'Lister les professionnels de santé'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Liste des professionnels récupérée avec succès'
+    )]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function list(): JsonResponse
+    {
+        $feedback = $this->professionalService->getAll();
+
+        return $this->json($feedback, Response::HTTP_OK);
+    }
+
     #[Route('', name: 'api_professionals_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Créer un professionnel de santé',
-        description: 'Permet d’inscrire un nouveau professionnel de santé dans le système avec ses informations personnelles et professionnelles.'
+        description: 'Permet d’inscrire un nouveau professionnel de santé dans le système avec ses informations personnelles et professionnelles.',
+        summary: 'Créer un professionnel de santé'
     )]
     #[OA\RequestBody(
-        required: true,
         description: 'Paramètres du professionnel de santé',
+        required: true,
         content: new OA\JsonContent(
             ref: new Model(type: HealthcareProfessionalRequestDTO::class)
         )
@@ -52,15 +69,15 @@ class HealthcareProfessionalController extends AbstractController
     ): JsonResponse {
         $feedback = $this->professionalService->create($dto);
 
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
 
         return $this->json($feedback, $status);
     }
 
     #[Route('/{id}', name: 'api_professionals_get_by_id', methods: ['GET'])]
     #[OA\Get(
-        summary: 'Récupérer un professionnel de santé par son ID',
-        description: 'Permet d’obtenir les détails complets d’un professionnel de santé à partir de son identifiant unique.'
+        description: 'Permet d’obtenir les détails complets d’un professionnel de santé à partir de son identifiant unique.',
+        summary: 'Récupérer un professionnel de santé par son ID'
     )]
     #[OA\Parameter(
         name: 'id',
@@ -86,7 +103,52 @@ class HealthcareProfessionalController extends AbstractController
     {
         $feedback = $this->professionalService->getById($id);
 
-        $status = $feedback->hasError() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_professionals_update', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(
+        description: 'Permet de mettre à jour les informations d’un professionnel de santé existant.',
+        summary: 'Modifier un professionnel de santé'
+    )]
+    #[OA\Patch(
+        description: 'Permet de mettre à jour les informations d’un professionnel de santé existant.',
+        summary: 'Modifier partiellement un professionnel de santé'
+    )]
+    #[OA\RequestBody(
+        description: 'Paramètres du professionnel de santé',
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: HealthcareProfessionalRequestDTO::class)
+        )
+    )]
+    #[OA\Response(response: 200, description: 'Professionnel de santé mis à jour avec succès')]
+    #[OA\Response(response: 400, description: 'Données de la requête invalides ou professionnel introuvable')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function update(
+        string $id,
+        #[MapRequestPayload] HealthcareProfessionalRequestDTO $dto
+    ): JsonResponse {
+        $feedback = $this->professionalService->update($id, $dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_professionals_delete', methods: ['DELETE'])]
+    #[OA\Delete(
+        description: 'Permet de supprimer définitivement un professionnel de santé.',
+        summary: 'Supprimer un professionnel de santé'
+    )]
+    #[OA\Response(response: 200, description: 'Professionnel de santé supprimé avec succès')]
+    #[OA\Response(response: 404, description: 'Professionnel de santé non trouvé')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function delete(string $id): JsonResponse
+    {
+        $feedback = $this->professionalService->delete($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
     }

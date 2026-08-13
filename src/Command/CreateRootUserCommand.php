@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\Identity\Administrator;
+use App\Entity\Identity\Role;
 use App\Entity\Common\UserStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -73,6 +74,7 @@ class CreateRootUserCommand extends Command
 
         $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
+        $user->setRoles([Role::ROLE_ROOT->value]);
 
         try {
             if ($isNew) {

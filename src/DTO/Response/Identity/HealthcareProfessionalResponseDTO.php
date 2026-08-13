@@ -24,11 +24,8 @@ class HealthcareProfessionalResponseDTO
         #[OA\Property(type: 'string', nullable: true, example: '+243990000000', description: 'Téléphone')]
         public readonly ?string $phone,
 
-        #[OA\Property(type: 'string', example: 'Jean', description: 'Prénom')]
-        public readonly string $firstName,
-
-        #[OA\Property(type: 'string', example: 'Mukendi', description: 'Nom')]
-        public readonly string $lastName,
+        #[OA\Property(type: 'string', example: 'Dr. Jean Mukendi', description: 'Nom complet')]
+        public readonly string $fullName,
 
         #[OA\Property(type: 'string', format: 'uri', nullable: true, example: 'https://storage.diabcare.com/avatars/jean.jpg', description: 'Avatar URL')]
         public readonly ?string $avatarUrl,
@@ -45,7 +42,7 @@ class HealthcareProfessionalResponseDTO
         #[OA\Property(type: 'string', example: 'ORD-MED-2026-99', description: 'Numéro de licence')]
         public readonly string $licenseNumber,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'DOCTOR', description: 'Type de professionnel')]
+        #[OA\Property(type: 'string', nullable: true, example: 'CLINICIAN', description: 'Type de professionnel')]
         public readonly ?ProfessionalType $professionalType,
 
         #[OA\Property(type: 'string', nullable: true, example: 'Endocrinologie et Diabétologie', description: 'Spécialité')]
@@ -84,8 +81,7 @@ class HealthcareProfessionalResponseDTO
             id: (string) $professional->getId(),
             email: $professional->getEmail(),
             phone: $professional->getPhone(),
-            firstName: $professional->getFirstName(),
-            lastName: $professional->getLastName(),
+            fullName: $professional->getFullName(),
             avatarUrl: $professional->getAvatarUrl(),
             gender: $professional->getGender(),
             locale: $professional->getLocale() ?? 'fr',

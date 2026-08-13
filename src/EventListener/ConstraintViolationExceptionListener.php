@@ -2,7 +2,7 @@
 
 namespace App\EventListener;
 
-use App\Dto\Feedback;
+use App\DTO\Feedback;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

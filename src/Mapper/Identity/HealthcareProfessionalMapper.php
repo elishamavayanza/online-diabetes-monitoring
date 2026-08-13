@@ -20,8 +20,7 @@ class HealthcareProfessionalMapper
 
         $professional->setEmail($dto->email);
         $professional->setPhone($dto->phone);
-        $professional->setFirstName($dto->firstName);
-        $professional->setLastName($dto->lastName);
+        $professional->setFullName($dto->fullName);
         $professional->setAvatarUrl($dto->avatarUrl);
         $professional->setGender($dto->gender);
         $professional->setLocale($dto->locale);
@@ -36,12 +35,12 @@ class HealthcareProfessionalMapper
         }
 
         // Gestion de l'adresse embeddable ou liée
-        $address = new Address(
-            street: $dto->street,
-            city: $dto->city,
-            postalCode: $dto->postalCode,
-            country: $dto->country
-        );
+        $address = new Address();
+        $address->setStreet($dto->street);
+        $address->setCity($dto->city);
+        $address->setPostalCode($dto->postalCode);
+        $address->setCountry($dto->country);
+
         $professional->setAddress($address);
 
         return $professional;

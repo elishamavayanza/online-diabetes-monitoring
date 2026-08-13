@@ -15,4 +15,9 @@ enum MembershipStatus: string
 
     /** L'adhésion est terminée ou révoquée. */
     case ENDED = 'ENDED';
+
+    public function isActive(): bool
+    {
+        return $this === self::ACTIVE;
+    }
 }

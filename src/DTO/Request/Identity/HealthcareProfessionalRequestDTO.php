@@ -53,7 +53,7 @@ class HealthcareProfessionalRequestDTO
         public readonly string $licenseNumber,
 
         #[Assert\NotNull]
-        #[OA\Property(type: 'string', example: 'DOCTOR', description: 'Type de professionnel')]
+        #[OA\Property(type: 'string', example: 'CLINICIAN', description: 'Type de professionnel')]
         public readonly ProfessionalType $professionalType,
 
         #[Assert\Length(max: 150)]
