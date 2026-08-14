@@ -34,7 +34,7 @@ class UserRoleService
                 SecurityAction::MANAGE_ROLES->value
             );
 
-            $user = $this->userRepository->findOneBy(['uuid' => $userId]);
+            $user = $this->userRepository->find($userId);
 
             if (!$user) {
                 return $feedback
@@ -67,7 +67,7 @@ class UserRoleService
 
             $feedback
                 ->setData([
-                    'userId' => $user->getUuid(),
+                    'userId' => $user->getId(),
                     'roles' => $user->getRoles(),
                 ])
                 ->setFlushDescription(
@@ -106,7 +106,7 @@ class UserRoleService
                 SecurityAction::MANAGE_ROLES->value
             );
 
-            $user = $this->userRepository->findOneBy(['uuid' => $userId]);
+            $user = $this->userRepository->find($userId);
 
             if (!$user) {
                 return $feedback
@@ -136,7 +136,7 @@ class UserRoleService
 
             return $feedback
                 ->setData([
-                    'userId' => $user->getUuid(),
+                    'userId' => $user->getId(),
                     'roles' => $user->getRoles(),
                 ])
                 ->setFlushDescription(

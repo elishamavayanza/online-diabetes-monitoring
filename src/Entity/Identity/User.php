@@ -71,6 +71,12 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: OrganizationMembership::class)]
     protected Collection $organizationMemberships;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    protected ?string $resetToken = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    protected ?DateTimeImmutable $resetTokenExpiresAt = null;
+
     public function __construct()
     {
         $this->organizationMemberships = new ArrayCollection();
@@ -255,4 +261,10 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
     public function eraseCredentials(): void
     {
     }
+
+    public function getResetToken(): ?string { return $this->resetToken; }
+    public function setResetToken(?string $resetToken): static { $this->resetToken = $resetToken; return $this; }
+
+    public function getResetTokenExpiresAt(): ?DateTimeImmutable { return $this->resetTokenExpiresAt; }
+    public function setResetTokenExpiresAt(?DateTimeImmutable $expiresAt): static { $this->resetTokenExpiresAt = $expiresAt; return $this; }
 }

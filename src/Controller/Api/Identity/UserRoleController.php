@@ -26,7 +26,7 @@ class UserRoleController extends AbstractController
     #[Route(
         '/{id}/roles',
         name: 'api_users_assign_role',
-        requirements: ['id' => '.+'],
+        requirements: ['id' => '\d+'],
         methods: ['POST']
     )]
     #[OA\Post(
@@ -35,12 +35,13 @@ class UserRoleController extends AbstractController
     )]
     #[OA\Parameter(
         name: 'id',
-        description: 'UUID de l’utilisateur',
+        description: 'Identifiant numérique de l’utilisateur',
         in: 'path',
         required: true,
         schema: new OA\Schema(
-            type: 'string',
-            format: 'uuid'
+            type: 'integer',
+            format: 'int64',
+            example: 6
         )
     )]
     #[OA\RequestBody(
@@ -73,7 +74,7 @@ class UserRoleController extends AbstractController
         description: 'Utilisateur introuvable'
     )]
     public function assignRole(
-        string $id,
+        int $id,
         #[MapRequestPayload] AssignRoleRequestDTO $dto
     ): JsonResponse {
         $feedback = $this->userRoleService->assignRole(
