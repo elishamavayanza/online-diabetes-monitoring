@@ -21,4 +21,9 @@ enum Role: string
 
     /** Rôle attribué aux patients. */
     case ROLE_PATIENT = 'ROLE_PATIENT';
+
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

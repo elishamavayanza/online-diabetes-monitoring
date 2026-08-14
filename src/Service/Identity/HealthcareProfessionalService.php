@@ -3,12 +3,18 @@
 namespace App\Service\Identity;
 
 use App\DTO\Feedback;
-use App\DTO\Request\Identity\HealthcareProfessionalRequestDTO;
+use App\DTO\Request\Identity\HealthcareProfessionalCreateRequestDTO;
+use App\DTO\Request\Identity\HealthcareProfessionalUpdateRequestDTO;
+use App\Entity\Common\UserStatus;
+use App\Entity\Identity\HealthcareProfessional;
+use App\Entity\Identity\ProfessionalType;
+use App\Entity\Identity\Role;
 use App\Mapper\Identity\HealthcareProfessionalMapper;
 use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class HealthcareProfessionalService
@@ -17,155 +23,344 @@ class HealthcareProfessionalService
         private readonly HealthcareProfessionalRepository $repository,
         private readonly HealthcareProfessionalMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
-    ) {}
+        private readonly SecurityServiceInterface $securityService,
+        private readonly UserPasswordHasherInterface $passwordHasher
+    ) {
+    }
 
+    /**
+     * Liste tous les professionnels actifs.
+     */
     public function getAll(): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::VIEW->value);
+            $this->securityService->checkPermission(
+                SecurityAction::VIEW->value
+            );
 
             $professionals = $this->repository->findBy(
                 ['deletedAt' => null],
                 ['createdAt' => 'DESC']
             );
 
-            $feedback->setData(array_map(
-                fn ($professional) => $this->mapper->mapEntityToResponse($professional),
+            $data = array_map(
+                fn (HealthcareProfessional $professional) =>
+                $this->mapper->mapEntityToResponse($professional),
                 $professionals
-            ))->setFlushDescription('Liste des professionnels récupérée avec succès.')
+            );
+
+            return $feedback
+                ->setData($data)
+                ->setFlushDescription(
+                    'Liste des professionnels récupérée avec succès.'
+                )
                 ->autoInitFlush();
+
         } catch (AccessDeniedException $e) {
-            $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Accès refusé : ' . $e->getMessage()
+                )
                 ->autoInitFlush();
-        } catch (\Exception $e) {
-            $feedback->setErrorFlushDescription('Erreur : ' . $e->getMessage())
+
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Erreur lors de la récupération des professionnels.'
+                )
                 ->autoInitFlush();
         }
-
-        return $feedback;
     }
 
-    public function create(HealthcareProfessionalRequestDTO $dto): Feedback
-    {
+    /**
+     * Crée un compte professionnel de santé.
+     */
+    public function create(
+        HealthcareProfessionalCreateRequestDTO $dto
+    ): Feedback {
         $feedback = new Feedback();
 
         try {
-            // Contrôle d'accès RBAC pour la création
-            $this->securityService->checkPermission(SecurityAction::MANAGE_USERS->value);
+            $this->securityService->checkPermission(
+                SecurityAction::MANAGE_USERS->value
+            );
 
-            $professional = $this->mapper->mapRequestToEntity($dto);
+            $existingUser = $this->repository->findOneBy([
+                'email' => $dto->email
+            ]);
+
+            if ($existingUser) {
+                return $feedback
+                    ->setErrorFlushDescription(
+                        'Un utilisateur avec cet e-mail existe déjà.'
+                    )
+                    ->autoInitFlush();
+            }
+
+            /** @var HealthcareProfessional $professional */
+            $professional = $this->mapper->mapCreateRequestToEntity($dto);
+
+            $hashedPassword = $this->passwordHasher->hashPassword(
+                $professional,
+                $dto->password
+            );
+
+            $professional->setPasswordHash($hashedPassword);
+
+            $professional->setStatus(
+                UserStatus::PENDING_ACTIVATION
+            );
+
+            $role = $this->resolveRoleFromProfessionalType(
+                ProfessionalType::from($dto->professionalType)
+            );
+
+            $professional->setRoles([
+                $role->value
+            ]);
 
             $this->entityManager->persist($professional);
             $this->entityManager->flush();
 
-            $responseDTO = $this->mapper->mapEntityToResponse($professional);
+            $responseDTO = $this->mapper->mapEntityToResponse(
+                $professional
+            );
 
-            $feedback->setData($responseDTO)
-                ->setFlushDescription("Professionnel de santé créé avec succès.")
+            return $feedback
+                ->setData($responseDTO)
+                ->setFlushDescription(
+                    sprintf(
+                        'Professionnel créé avec succès avec le rôle %s.',
+                        $role->value
+                    )
+                )
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
-            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Accès refusé : ' . $e->getMessage()
+                )
                 ->autoInitFlush();
-        } catch (\Exception $e) {
-            $feedback->setErrorFlushDescription("Erreur lors de la création : " . $e->getMessage())
+
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Erreur lors de la création du professionnel : '
+                    . $e->getMessage()
+                )
                 ->autoInitFlush();
         }
-
-        return $feedback;
     }
 
+    /**
+     * Détermine le rôle de sécurité à partir du type professionnel.
+     */
+    private function resolveRoleFromProfessionalType(
+        ProfessionalType $professionalType
+    ): Role {
+        return match ($professionalType) {
+            ProfessionalType::CLINICIAN => Role::ROLE_CLINICIAN,
+            ProfessionalType::NUTRITIONIST => Role::ROLE_NUTRITIONIST,
+        };
+    }
+
+    /**
+     * Récupère un professionnel par son ID.
+     */
     public function getById(string $id): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::VIEW->value);
+            $this->securityService->checkPermission(
+                SecurityAction::VIEW->value
+            );
 
-            $professional = $this->repository->findOneBy(['id' => $id, 'deletedAt' => null]);
+            $professional = $this->repository->findOneBy([
+                'id' => $id,
+                'deletedAt' => null
+            ]);
 
             if (!$professional) {
-                $feedback->setErrorFlushDescription("Professionnel de santé introuvable.")
+                return $feedback
+                    ->setErrorFlushDescription(
+                        'Professionnel de santé introuvable.'
+                    )
                     ->autoInitFlush();
-                return $feedback;
             }
 
-            $feedback->setData($this->mapper->mapEntityToResponse($professional))
-                ->setFlushDescription("Professionnel récupéré avec succès.")
+            return $feedback
+                ->setData(
+                    $this->mapper->mapEntityToResponse($professional)
+                )
+                ->setFlushDescription(
+                    'Professionnel récupéré avec succès.'
+                )
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
-            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Accès refusé : ' . $e->getMessage()
+                )
                 ->autoInitFlush();
-        } catch (\Exception $e) {
-            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())
+
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Erreur lors de la récupération du professionnel.'
+                )
                 ->autoInitFlush();
         }
-
-        return $feedback;
     }
 
-    public function update(string $id, HealthcareProfessionalRequestDTO $dto): Feedback
-    {
+    /**
+     * Met à jour un professionnel.
+     */
+    public function update(
+        string $id,
+        HealthcareProfessionalUpdateRequestDTO $dto
+    ): Feedback {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::MANAGE_USERS->value);
+            $this->securityService->checkPermission(
+                SecurityAction::MANAGE_USERS->value
+            );
 
-            $professional = $this->repository->findOneBy(['id' => $id, 'deletedAt' => null]);
+            $professional = $this->repository->findOneBy([
+                'id' => $id,
+                'deletedAt' => null
+            ]);
+
             if (!$professional) {
-                $feedback->setErrorFlushDescription('Professionnel de santé introuvable.')
+                return $feedback
+                    ->setErrorFlushDescription(
+                        'Professionnel de santé introuvable.'
+                    )
                     ->autoInitFlush();
-                return $feedback;
             }
 
-            $this->mapper->mapRequestToEntity($dto, $professional);
+            if ($dto->email !== null) {
+                $existingUser = $this->repository->findOneBy([
+                    'email' => $dto->email
+                ]);
+
+                if (
+                    $existingUser
+                    && $existingUser->getUuid() !== $professional->getUuid()
+                ) {
+                    return $feedback
+                        ->setErrorFlushDescription(
+                            'Cet e-mail est déjà utilisé par un autre utilisateur.'
+                        )
+                        ->autoInitFlush();
+                }
+            }
+
+            $this->mapper->mapUpdateRequestToEntity(
+                $dto,
+                $professional
+            );
+
+            if ($dto->professionalType !== null) {
+                $role = $this->resolveRoleFromProfessionalType(
+                    ProfessionalType::from($dto->professionalType)
+                );
+
+                $professional->setRoles([
+                    $role->value
+                ]);
+            }
+
+            if (!empty($dto->password)) {
+                $hashedPassword = $this->passwordHasher->hashPassword(
+                    $professional,
+                    $dto->password
+                );
+
+                $professional->setPasswordHash($hashedPassword);
+            }
+
             $this->entityManager->flush();
 
-            $feedback->setData($this->mapper->mapEntityToResponse($professional))
-                ->setFlushDescription('Professionnel de santé mis à jour avec succès.')
+            return $feedback
+                ->setData(
+                    $this->mapper->mapEntityToResponse($professional)
+                )
+                ->setFlushDescription(
+                    'Professionnel mis à jour avec succès.'
+                )
                 ->autoInitFlush();
+
         } catch (AccessDeniedException $e) {
-            $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Accès refusé : ' . $e->getMessage()
+                )
                 ->autoInitFlush();
-        } catch (\Exception $e) {
-            $feedback->setErrorFlushDescription('Erreur lors de la mise à jour : ' . $e->getMessage())
+
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Erreur lors de la mise à jour : '
+                    . $e->getMessage()
+                )
                 ->autoInitFlush();
         }
-
-        return $feedback;
     }
 
+    /**
+     * Supprime un professionnel (Soft Delete).
+     */
     public function delete(string $id): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::MANAGE_USERS->value);
+            $this->securityService->checkPermission(
+                SecurityAction::MANAGE_USERS->value
+            );
 
-            $professional = $this->repository->findOneBy(['id' => $id, 'deletedAt' => null]);
+            $professional = $this->repository->findOneBy([
+                'id' => $id,
+                'deletedAt' => null
+            ]);
+
             if (!$professional) {
-                $feedback->setErrorFlushDescription('Professionnel de santé introuvable.')
+                return $feedback
+                    ->setErrorFlushDescription(
+                        'Professionnel de santé introuvable.'
+                    )
                     ->autoInitFlush();
-                return $feedback;
             }
 
-            $this->entityManager->remove($professional);
+            // Application du Soft Delete au lieu de remove()
+            $professional->setDeletedAt(new \DateTimeImmutable());
             $this->entityManager->flush();
 
-            $feedback->setFlushDescription('Professionnel de santé supprimé avec succès.')
+            return $feedback
+                ->setFlushDescription(
+                    'Professionnel supprimé avec succès.'
+                )
                 ->autoInitFlush();
+
         } catch (AccessDeniedException $e) {
-            $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Accès refusé : ' . $e->getMessage()
+                )
                 ->autoInitFlush();
-        } catch (\Exception $e) {
-            $feedback->setErrorFlushDescription('Erreur lors de la suppression : ' . $e->getMessage())
+
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Erreur lors de la suppression du professionnel.'
+                )
                 ->autoInitFlush();
         }
-
-        return $feedback;
     }
 }

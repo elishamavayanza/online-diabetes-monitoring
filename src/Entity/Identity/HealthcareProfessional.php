@@ -6,35 +6,52 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Représente un professionnel de santé héritant de l'entité User,
- * avec son numéro de licence, son type, sa spécialité et sa signature électronique.
+ * avec ses informations de licence, son type et sa spécialité.
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'identity_healthcare_professionals')]
 class HealthcareProfessional extends User
 {
     /**
-     * @var string|null Le numéro de licence ou d'enregistrement professionnel (unique).
-     */
-    #[ORM\Column(type: 'string', length: 100, unique: true)]
-    private ?string $licenseNumber = null;
-
-    /**
-     * @var ProfessionalType|null Le type de professionnel de santé (ex: clinicien, nutritionniste).
+     * @var ProfessionalType|null Le type de professionnel de santé.
      */
     #[ORM\Column(type: 'string', length: 50, enumType: ProfessionalType::class)]
     private ?ProfessionalType $professionalType = null;
 
     /**
-     * @var string|null La spécialité médicale ou professionnelle.
+     * @var string|null Le numéro de licence ou d'ordre professionnel.
+     */
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $licenseNumber = null;
+
+    /**
+     * @var string|null La spécialité médicale ou diététique.
      */
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $specialty = null;
 
     /**
-     * @var string|null L'URL ou le chemin d'accès vers la signature numérique du professionnel.
+     * @var string|null L'URL ou le chemin vers la signature numérique du professionnel.
      */
     #[ORM\Column(type: 'string', length: 500, nullable: true)]
     private ?string $signatureUrl = null;
+
+    /**
+     * Récupère le type de professionnel.
+     */
+    public function getProfessionalType(): ?ProfessionalType
+    {
+        return $this->professionalType;
+    }
+
+    /**
+     * Définit le type de professionnel.
+     */
+    public function setProfessionalType(ProfessionalType $professionalType): static
+    {
+        $this->professionalType = $professionalType;
+        return $this;
+    }
 
     /**
      * Récupère le numéro de licence.
@@ -47,26 +64,9 @@ class HealthcareProfessional extends User
     /**
      * Définit le numéro de licence.
      */
-    public function setLicenseNumber(string $licenseNumber): static
+    public function setLicenseNumber(?string $licenseNumber): static
     {
         $this->licenseNumber = $licenseNumber;
-        return $this;
-    }
-
-    /**
-     * Récupère le type de professionnel de santé.
-     */
-    public function getProfessionalType(): ?ProfessionalType
-    {
-        return $this->professionalType;
-    }
-
-    /**
-     * Définit le type de professionnel de santé.
-     */
-    public function setProfessionalType(ProfessionalType $professionalType): static
-    {
-        $this->professionalType = $professionalType;
         return $this;
     }
 
@@ -105,21 +105,25 @@ class HealthcareProfessional extends User
     }
 
     /**
-     * Retourne les rôles de sécurité attribués en fonction du type de professionnel.
+     * Retourne les rôles de sécurité attribués au professionnel de santé
+     * en fonction de son type.
      *
      * @return array<int, string>
      */
     public function getRoles(): array
     {
-        $professionalRole = match ($this->professionalType) {
-            ProfessionalType::CLINICIAN => [Role::ROLE_CLINICIAN->value],
-            ProfessionalType::NUTRITIONIST => [Role::ROLE_NUTRITIONIST->value],
-            default => [],
+        $specificRole = match ($this->professionalType) {
+            ProfessionalType::CLINICIAN => Role::ROLE_CLINICIAN->value,
+            ProfessionalType::NUTRITIONIST => Role::ROLE_NUTRITIONIST->value,
+            default => null,
         };
 
-        return array_values(array_unique([
-            ...parent::getRoles(),
-            ...$professionalRole,
-        ]));
+        $roles = parent::getRoles();
+
+        if ($specificRole && !in_array($specificRole, $roles, true)) {
+            $roles[] = $specificRole;
+        }
+
+        return array_values(array_unique($roles));
     }
 }
