@@ -13,8 +13,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/care-team-assignments')]
-#[OA\Tag(name: 'Healthcare - Care Team Assignments', description: 'Gestion des affectations des équipes de soins aux patients')]
+#[Route(
+    '/api/healthcare-organizations/{organizationId}/care-team-assignments',
+    requirements: ['organizationId' => '\\d+']
+)]
+#[OA\Tag(
+    name: 'Healthcare - Care Team Assignments',
+    description: 'Affectation des patients aux professionnels de santé d’une organisation'
+)]
 class CareTeamAssignmentController extends AbstractController
 {
     public function __construct(
@@ -23,41 +29,69 @@ class CareTeamAssignmentController extends AbstractController
 
     #[Route('', name: 'api_care_team_assignments_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Créer une affectation d’équipe de soins',
-        description: 'Permet d’assigner un professionnel de santé et son rôle auprès d’un patient au sein d’une organisation.'
+        summary: 'Affecter un patient à un professionnel',
+        description: 'Réservé à l’administrateur de l’organisation ciblée.'
     )]
-    #[OA\RequestBody(
+    #[OA\Parameter(
+        name: 'organizationId',
+        in: 'path',
         required: true,
-        description: 'Paramètres de l’affectation de l’équipe de soins',
-        content: new OA\JsonContent(
-            ref: new Model(type: CareTeamAssignmentRequestDTO::class)
-        )
+        schema: new OA\Schema(type: 'integer', format: 'int64', example: 2)
     )]
-    #[OA\Response(
-        response: 201,
-        description: 'Affectation créée avec succès',
-        content: new OA\JsonContent(
-            properties: [
-                new OA\Property(property: 'status', type: 'integer', example: 201),
-                new OA\Property(property: 'error', type: 'boolean', example: false),
-                new OA\Property(property: 'message', type: 'string', example: 'Affectation créée avec succès.'),
-                new OA\Property(property: 'data', ref: new Model(type: CareTeamAssignmentResponseDTO::class))
-            ]
-        )
-    )]
-    #[OA\Response(
-        response: 400,
-        description: 'Données de la requête invalides'
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'Non authentifié'
-    )]
-    public function create(#[MapRequestPayload] CareTeamAssignmentRequestDTO $dto): JsonResponse
-    {
-        $feedback = $this->service->create($dto);
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(ref: new Model(type: CareTeamAssignmentRequestDTO::class)))]
+    #[OA\Response(response: 201, description: 'Affectation créée', content: new OA\JsonContent(ref: new Model(type: CareTeamAssignmentResponseDTO::class)))]
+    #[OA\Response(response: 403, description: 'Administrateur non autorisé pour cette organisation')]
+    public function create(
+        string $organizationId,
+        #[MapRequestPayload] CareTeamAssignmentRequestDTO $dto
+    ): JsonResponse {
+        $feedback = $this->service->create($organizationId, $dto);
 
-        return $this->json($feedback, $status);
+        return $this->json($feedback, $feedback->getStatus());
+    }
+
+    #[Route('', name: 'api_care_team_assignments_list', methods: ['GET'])]
+    #[OA\Get(summary: 'Lister les affectations d’une organisation')]
+    public function list(string $organizationId): JsonResponse
+    {
+        $feedback = $this->service->list($organizationId);
+
+        return $this->json($feedback, $feedback->getStatus());
+    }
+
+    #[Route('/{assignmentId}', name: 'api_care_team_assignments_get', requirements: ['assignmentId' => '\\d+'], methods: ['GET'])]
+    #[OA\Get(summary: 'Consulter une affectation')]
+    public function get(string $organizationId, string $assignmentId): JsonResponse
+    {
+        $feedback = $this->service->get($organizationId, $assignmentId);
+
+        return $this->json($feedback, $feedback->getStatus());
+    }
+
+    #[Route('/{assignmentId}', name: 'api_care_team_assignments_update', requirements: ['assignmentId' => '\\d+'], methods: ['PUT'])]
+    #[OA\Put(summary: 'Modifier une affectation')]
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(ref: new Model(type: CareTeamAssignmentRequestDTO::class)))]
+    public function update(
+        string $organizationId,
+        string $assignmentId,
+        #[MapRequestPayload] CareTeamAssignmentRequestDTO $dto
+    ): JsonResponse {
+        $feedback = $this->service->update($organizationId, $assignmentId, $dto);
+
+        return $this->json($feedback, $feedback->getStatus());
+    }
+
+    #[Route('/{assignmentId}', name: 'api_care_team_assignments_delete', requirements: ['assignmentId' => '\\d+'], methods: ['DELETE'])]
+    #[OA\Delete(summary: 'Supprimer une affectation')]
+    #[OA\Response(response: 204, description: 'Affectation supprimée')]
+    public function delete(string $organizationId, string $assignmentId): JsonResponse
+    {
+        $feedback = $this->service->delete($organizationId, $assignmentId);
+
+        if (!$feedback->hasErrors()) {
+            return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        }
+
+        return $this->json($feedback, $feedback->getStatus());
     }
 }

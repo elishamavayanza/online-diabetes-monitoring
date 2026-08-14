@@ -23,10 +23,38 @@ class CareTeamAssignmentMapper
         $assignment->setPatient($patient);
         $assignment->setProfessional($professional);
         $assignment->setOrganization($organization);
-        $assignment->setRole($dto->role);
-        $assignment->setStartDate($dto->startDate);
-        $assignment->setEndDate($dto->endDate);
-        $assignment->setActive($dto->active);
+
+        // Gestion du rôle (convertit en Enum si c'est une string, ou garde l'objet)
+        if ($dto->role !== null) {
+            $role = is_string($dto->role)
+                ? \App\Entity\Healthcare\TeamRole::from($dto->role) // Ajustez le namespace de l'Enum si besoin
+                : $dto->role;
+            $assignment->setRole($role);
+        }
+
+        // Conversion de startDate (DateTimeImmutable -> DateTime)
+        if ($dto->startDate !== null) {
+            $startDate = $dto->startDate instanceof \DateTimeImmutable
+                ? \DateTime::createFromImmutable($dto->startDate)
+                : ($dto->startDate instanceof \DateTime ? $dto->startDate : new \DateTime($dto->startDate));
+
+            $assignment->setStartDate($startDate);
+        }
+
+        // Conversion de endDate (DateTimeImmutable -> DateTime)
+        if ($dto->endDate !== null) {
+            $endDate = $dto->endDate instanceof \DateTimeImmutable
+                ? \DateTime::createFromImmutable($dto->endDate)
+                : ($dto->endDate instanceof \DateTime ? $dto->endDate : new \DateTime($dto->endDate));
+
+            $assignment->setEndDate($endDate);
+        } else {
+            $assignment->setEndDate(null);
+        }
+
+        if ($dto->active !== null) {
+            $assignment->setActive($dto->active);
+        }
 
         return $assignment;
     }

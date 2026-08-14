@@ -45,18 +45,96 @@ class OrganizationMembershipController extends AbstractController
             ]
         )
     )]
-    #[OA\Response(
-        response: 400,
-        description: 'Données de la requête invalides'
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'Non authentifié'
-    )]
+    #[OA\Response(response: 400, description: 'Données de la requête invalides')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
     public function create(#[MapRequestPayload] OrganizationMembershipRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->create($dto);
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_organization_memberships_get', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère les détails d’une adhésion spécifique par son identifiant.',
+        summary: 'Afficher une adhésion'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Adhésion récupérée avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Adhésion récupérée avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: OrganizationMembershipResponseDTO::class))
+            ]
+        )
+    )]
+    #[OA\Response(response: 404, description: 'Adhésion introuvable')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function getById(string $id): JsonResponse
+    {
+        $feedback = $this->service->getById($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_organization_memberships_update_put', methods: ['PUT'])]
+    #[Route('/{id}', name: 'api_organization_memberships_update_patch', methods: ['PATCH'])]
+    #[OA\Put(
+        description: 'Met à jour complètement ou partiellement une adhésion existante.',
+        summary: 'Mettre à jour une adhésion'
+    )]
+    #[OA\Patch(
+        description: 'Met à jour partiellement une adhésion existante.',
+        summary: 'Mettre à jour partiellement une adhésion'
+    )]
+    #[OA\RequestBody(
+        description: 'Nouveaux paramètres de l’adhésion',
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: OrganizationMembershipRequestDTO::class)
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Adhésion mise à jour avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Adhésion mise à jour avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: OrganizationMembershipResponseDTO::class))
+            ]
+        )
+    )]
+    #[OA\Response(response: 400, description: 'Données invalides')]
+    #[OA\Response(response: 404, description: 'Adhésion introuvable')]
+    public function update(string $id, #[MapRequestPayload] OrganizationMembershipRequestDTO $dto): JsonResponse
+    {
+        $feedback = $this->service->update($id, $dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_organization_memberships_delete', methods: ['DELETE'])]
+    #[OA\Delete(
+        description: 'Supprime un rattachement ou une adhésion existante.',
+        summary: 'Supprimer une adhésion'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Adhésion supprimée avec succès'
+    )]
+    #[OA\Response(response: 404, description: 'Adhésion introuvable')]
+    public function delete(string $id): JsonResponse
+    {
+        $feedback = $this->service->delete($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
     }

@@ -13,16 +13,16 @@ use OpenApi\Attributes as OA;
 class CareTeamAssignmentResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '9f881245-33ee-4b11-9a21-4f88e1478c99', description: 'Identifiant unique de l’affectation')]
+        #[OA\Property(type: 'integer', format: 'int64', example: 21, description: 'Identifiant unique de l’affectation')]
         public readonly string $id,
 
-        #[OA\Property(type: 'string', format: 'uuid', example: 'd3b07384-d113-4ec6-a578-832f01f4c74a', description: 'Identifiant du patient')]
+        #[OA\Property(type: 'integer', format: 'int64', example: 6, description: 'Identifiant du patient')]
         public readonly string $patientId,
 
-        #[OA\Property(type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'Identifiant du professionnel de santé')]
+        #[OA\Property(type: 'integer', format: 'int64', example: 14, description: 'Identifiant du professionnel de santé')]
         public readonly string $professionalId,
 
-        #[OA\Property(type: 'string', format: 'uuid', example: '88a123ff-44ee-4111-8899-7a6543210123', description: 'Identifiant de l’organisation')]
+        #[OA\Property(type: 'integer', format: 'int64', example: 2, description: 'Identifiant de l’organisation')]
         public readonly string $organizationId,
 
         #[OA\Property(type: 'string', nullable: true, example: 'ATTENDING_PHYSICIAN', description: 'Rôle')]

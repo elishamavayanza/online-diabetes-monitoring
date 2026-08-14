@@ -3,8 +3,9 @@
 namespace App\Security;
 
 use App\Entity\Healthcare\HealthcareOrganization;
+use App\Entity\Identity\Patient;
 use App\Entity\Identity\User;
-use App\Entity\Patient\Patient;
+use App\Repository\Healthcare\CareTeamAssignmentRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -12,6 +13,7 @@ final class SecurityService implements SecurityServiceInterface
 {
     public function __construct(
         private readonly Security $security,
+        private readonly CareTeamAssignmentRepository $careTeamAssignmentRepository,
     ) {
     }
 
@@ -353,28 +355,8 @@ final class SecurityService implements SecurityServiceInterface
         User $user,
         Patient $patient
     ): bool {
-        /*
-         * Le modèle UML indique que HealthcareProfessional
-         * est une sous-classe de User.
-         */
-        foreach ($patient->getCareTeamAssignments() as $assignment) {
-
-            if (!$assignment->isActive()) {
-                continue;
-            }
-
-            $professional = $assignment->getProfessional();
-
-            if ($professional === null) {
-                continue;
-            }
-
-            if ($professional->getId() === $user->getId()) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->careTeamAssignmentRepository
+            ->isUserActivelyAssignedToPatient($user->getId(), $patient);
     }
 
     /*

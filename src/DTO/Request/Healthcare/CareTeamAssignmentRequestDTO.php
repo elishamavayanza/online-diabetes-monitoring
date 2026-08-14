@@ -2,6 +2,7 @@
 
 namespace App\DTO\Request\Healthcare;
 
+use App\Entity\Healthcare\CareTeamRole;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -12,31 +13,27 @@ use Symfony\Component\Validator\Constraints as Assert;
 class CareTeamAssignmentRequestDTO
 {
     public function __construct(
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: 'd3b07384-d113-4ec6-a578-832f01f4c74a', description: 'Identifiant du patient')]
-        public readonly string $patientId,
+        #[Assert\Positive]
+        #[OA\Property(type: 'integer', format: 'int64', example: 6, description: 'Identifiant du patient')]
+        public readonly int $patientId,
+
+        #[Assert\Positive]
+        #[OA\Property(type: 'integer', format: 'int64', example: 14, description: 'Identifiant du professionnel de santé')]
+        public readonly int $professionalId,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'Identifiant du professionnel de santé')]
-        public readonly string $professionalId,
-
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '88a123ff-44ee-4111-8899-7a6543210123', description: 'Identifiant de l’organisation')]
-        public readonly string $organizationId,
-
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'ATTENDING_PHYSICIAN', description: 'Rôle du professionnel')]
-        public readonly mixed $role,
+        #[OA\Property(type: 'string', enum: ['PRIMARY_CLINICIAN', 'SPECIALIST', 'NUTRITIONIST'], example: 'PRIMARY_CLINICIAN', description: 'Rôle du professionnel')]
+        public readonly CareTeamRole $role,
 
         #[Assert\NotBlank]
         #[OA\Property(type: 'string', format: 'date', example: '2026-08-10', description: 'Date de début')]
         public readonly \DateTimeInterface $startDate,
 
         #[OA\Property(type: 'string', format: 'date', nullable: true, example: null, description: 'Date de fin')]
-        public readonly ?\DateTimeInterface $endDate,
+        public readonly ?\DateTimeInterface $endDate = null,
 
         #[Assert\NotNull]
         #[OA\Property(type: 'boolean', example: true, description: 'Statut actif')]
-        public readonly bool $active
+        public readonly bool $active = true
     ) {}
 }

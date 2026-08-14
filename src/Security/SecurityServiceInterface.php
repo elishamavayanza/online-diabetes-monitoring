@@ -4,7 +4,7 @@ namespace App\Security;
 
 use App\Entity\Identity\User;
 use App\Entity\Healthcare\HealthcareOrganization;
-use App\Entity\Patient\Patient;
+use App\Entity\Identity\Patient;
 
 interface SecurityServiceInterface
 {
