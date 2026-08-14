@@ -5,6 +5,7 @@ namespace App\Mapper\Healthcare;
 use App\DTO\Request\Healthcare\CareTeamAssignmentRequestDTO;
 use App\DTO\Response\Healthcare\CareTeamAssignmentResponseDTO;
 use App\Entity\Healthcare\CareTeamAssignment;
+use App\Entity\Healthcare\CareTeamRole; // <--- Importez l'Enum ici
 use App\Entity\Identity\Patient;
 use App\Entity\Identity\HealthcareProfessional;
 use App\Entity\Healthcare\HealthcareOrganization;
@@ -24,10 +25,10 @@ class CareTeamAssignmentMapper
         $assignment->setProfessional($professional);
         $assignment->setOrganization($organization);
 
-        // Gestion du rôle (convertit en Enum si c'est une string, ou garde l'objet)
+        // Utilisation correcte de CareTeamRole
         if ($dto->role !== null) {
             $role = is_string($dto->role)
-                ? \App\Entity\Healthcare\TeamRole::from($dto->role) // Ajustez le namespace de l'Enum si besoin
+                ? CareTeamRole::from($dto->role)
                 : $dto->role;
             $assignment->setRole($role);
         }
@@ -45,7 +46,7 @@ class CareTeamAssignmentMapper
         if ($dto->endDate !== null) {
             $endDate = $dto->endDate instanceof \DateTimeImmutable
                 ? \DateTime::createFromImmutable($dto->endDate)
-                : ($dto->endDate instanceof \DateTime ? $dto->endDate : new \DateTime($dto->endDate));
+                : ($dto->startDate instanceof \DateTime ? $dto->endDate : new \DateTime($dto->endDate));
 
             $assignment->setEndDate($endDate);
         } else {
