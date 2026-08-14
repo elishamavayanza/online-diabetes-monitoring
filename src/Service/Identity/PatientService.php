@@ -13,6 +13,7 @@ use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+
 class PatientService
 {
     public function __construct(
@@ -34,9 +35,18 @@ class PatientService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::MANAGE_USERS->value
-            );
+            // 1. Récupérer l'utilisateur actuellement connecté
+            $currentUser = $this->securityService->getCurrentUser();
+
+            // 2. Vérifier si c'est le patient lui-même qui modifie son profil
+            $isSelfUpdate = ($currentUser && $currentUser->getId() === $userId);
+
+            // 3. Si ce n'est pas lui-même, exiger la permission d'administration
+            if (!$isSelfUpdate) {
+                $this->securityService->checkPermission(
+                    SecurityAction::MANAGE_USERS->value
+                );
+            }
 
             /*
              * On récupère l'utilisateur existant.
@@ -67,9 +77,7 @@ class PatientService
 
             /*
              * Données du profil personnel.
-             *
-             * Les données d'authentification telles que
-             * email et mot de passe ne sont pas modifiées ici.
+             * (L'email et le mot de passe sont volontairement exclus pour des raisons de sécurité)
              */
             if ($dto->fullName !== null) {
                 $patient->setFullName($dto->fullName);

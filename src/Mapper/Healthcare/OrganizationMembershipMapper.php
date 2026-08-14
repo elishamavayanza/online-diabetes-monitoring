@@ -28,7 +28,13 @@ class OrganizationMembershipMapper
         $membership->setDepartment($department);
         $membership->setStartDate($dto->startDate);
         $membership->setEndDate($dto->endDate);
-        $membership->setStatus($dto->status);
+        if ($dto->status !== null) {
+            $membership->setStatus(
+                is_string($dto->status)
+                    ? \App\Entity\Healthcare\MembershipStatus::from($dto->status)
+                    : $dto->status
+            );
+        }
 
         return $membership;
     }

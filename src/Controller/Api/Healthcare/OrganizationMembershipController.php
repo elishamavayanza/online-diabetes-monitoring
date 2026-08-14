@@ -23,12 +23,12 @@ class OrganizationMembershipController extends AbstractController
 
     #[Route('', name: 'api_organization_memberships_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Créer une adhésion à une organisation',
-        description: 'Permet de rattacher un utilisateur (professionnel ou personnel) à une organisation, un établissement ou un département de santé.'
+        description: 'Permet de rattacher un utilisateur (professionnel ou personnel) à une organisation, un établissement ou un département de santé.',
+        summary: 'Créer une adhésion à une organisation'
     )]
     #[OA\RequestBody(
-        required: true,
         description: 'Paramètres de l’adhésion à l’organisation',
+        required: true,
         content: new OA\JsonContent(
             ref: new Model(type: OrganizationMembershipRequestDTO::class)
         )
@@ -56,7 +56,7 @@ class OrganizationMembershipController extends AbstractController
     public function create(#[MapRequestPayload] OrganizationMembershipRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->create($dto);
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
 
         return $this->json($feedback, $status);
     }
