@@ -96,7 +96,7 @@ class PatientService
              */
             if ($dto->dateOfBirth !== null) {
                 $patient->setDateOfBirth(
-                    new \DateTimeImmutable($dto->dateOfBirth)
+                    new \DateTime($dto->dateOfBirth)
                 );
             }
 

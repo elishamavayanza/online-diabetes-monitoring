@@ -76,6 +76,10 @@ class PatientRequestDTO
 
         #[Assert\Length(max: 100)]
         #[OA\Property(type: 'string', maxLength: 100, nullable: true, example: 'RDC', description: 'Pays')]
-        public readonly ?string $country
+        public readonly ?string $country,
+
+        #[Assert\Length(max: 100)]
+        #[OA\Property(type: 'string', maxLength: 100, nullable: true, example: 'Nord-Kivu', description: 'État / Province')]
+        public readonly ?string $state
     ) {}
 }

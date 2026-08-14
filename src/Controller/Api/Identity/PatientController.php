@@ -48,8 +48,7 @@ DESC
         in: 'path',
         required: true,
         schema: new OA\Schema(
-            type: 'string',
-            format: 'uuid'
+            type: 'integer'
         )
     )]
     #[OA\RequestBody(
@@ -106,7 +105,7 @@ DESC
         description: 'Utilisateur ou profil patient introuvable'
     )]
     public function updateProfile(
-        string $id,
+        int $id,
         #[MapRequestPayload]
         PatientRequestDTO $dto
     ): JsonResponse {

@@ -146,13 +146,14 @@ class AuthController extends AbstractController
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(property: 'oldPassword', type: 'string'),
-                    new OA\Property(property: 'newPassword', type: 'string')
+                    new OA\Property(property: 'newPassword', type: 'string'),
+                    new OA\Property(property: 'confirmPassword', type: 'string')
                 ]
             )
         ),
         responses: [
             new OA\Response(response: 200, description: 'Mot de passe mis à jour'),
-            new OA\Response(response: 400, description: 'Ancien mot de passe incorrect')
+            new OA\Response(response: 400, description: 'Erreur de validation')
         ]
     )]
     public function changePassword(
@@ -161,12 +162,21 @@ class AuthController extends AbstractController
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
+        $oldPassword = $data['oldPassword'] ?? '';
+        $newPassword = $data['newPassword'] ?? '';
+        $confirmPassword = $data['confirmPassword'] ?? '';
+
+        // 1. Vérification de la correspondance des mots de passe
+        if ($newPassword !== $confirmPassword) {
+            return new JsonResponse(['message' => 'Le nouveau mot de passe et la confirmation ne correspondent pas.'], 400);
+        }
+
         try {
-            // Utilise la méthode sécurisée qui exige l'ancien mot de passe
+            // 2. Appel au service pour vérifier l'ancien mot de passe et enregistrer le nouveau
             $passwordManager->updatePassword(
                 $this->getUser(),
-                $data['oldPassword'] ?? '',
-                $data['newPassword'] ?? ''
+                $oldPassword,
+                $newPassword
             );
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(['message' => $e->getMessage()], 400);
