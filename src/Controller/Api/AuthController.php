@@ -26,7 +26,7 @@ class AuthController extends AbstractController
                 properties: [
                     new OA\Property(property: 'username', type: 'string', example: 'root@diabcare.com'),
                     new OA\Property(property: 'password', type: 'string', example: 'Test@123'),
-                    new OA\Property(property: 'remember_me', type: 'boolean', description: 'Générer un token longue durée', example: false)
+                    new OA\Property(property: 'remember_me', description: 'Générer un token longue durée', type: 'boolean', example: false)
                 ]
             )
         ),
@@ -59,11 +59,47 @@ class AuthController extends AbstractController
         /** @var User|null $user */
         $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
-        if (!$user || !$passwordHasher->isPasswordValid($user, $password)) {
+        if (!$user) {
             return new JsonResponse(['message' => 'Identifiants invalides.'], 401);
         }
 
-        // Génération du token JWT
+        // 1. Vérifier si le compte est bloqué suite à 5 tentatives échouées
+        if ($user->getLockedUntil() && $user->getLockedUntil() > new \DateTimeImmutable()) {
+            $remainingMinutes = ceil(($user->getLockedUntil()->getTimestamp() - time()) / 60);
+            return new JsonResponse([
+                'message' => sprintf('Compte temporairement bloqué suite à trop de tentatives infructueuses. Réessayez dans %d minute(s).', $remainingMinutes)
+            ], 429);
+        }
+
+        // 2. Vérifier le mot de passe
+        if (!$passwordHasher->isPasswordValid($user, $password)) {
+            $attempts = $user->getLoginAttempts() + 1;
+            $user->setLoginAttempts($attempts);
+
+            if ($attempts >= 5) {
+                // Bloquer pour 15 minutes
+                $user->setLockedUntil(new \DateTimeImmutable('+15 minutes'));
+                $entityManager->flush();
+
+                return new JsonResponse([
+                    'message' => 'Compte bloqué pour 15 minutes suite à 5 tentatives infructueuses.'
+                ], 429);
+            }
+
+            $entityManager->flush();
+
+            return new JsonResponse([
+                'message' => sprintf('Identifiants invalides. Tentative %d/5.', $attempts)
+            ], 401);
+        }
+
+        // 3. Connexion réussie : Réinitialiser les compteurs et enregistrer la dernière connexion
+        $user->setLoginAttempts(0);
+        $user->setLockedUntil(null);
+        $user->setLastLoginAt(new \DateTimeImmutable());
+        $entityManager->flush();
+
+        // 4. Génération du token JWT
         $token = $jwtManager->create($user);
 
         return new JsonResponse([
@@ -235,5 +271,33 @@ class AuthController extends AbstractController
             'success' => null,
         ]);
 
+    }
+
+    #[Route('/api/token/refresh', name: 'api_token_refresh', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Rafraîchir le token JWT sans ré-authentification',
+        requestBody: new OA\RequestBody(
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'refresh_token', type: 'string', example: 'votre_refresh_token')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Nouveau token généré avec succès'),
+            new OA\Response(response: 401, description: 'Refresh token invalide ou expiré')
+        ]
+    )]
+    public function refreshToken(Request $request, EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager): JsonResponse
+    {
+        // Note: Si vous utilisez gesdinet/jwt-refresh-token-bundle, ce routeur est géré automatiquement.
+        // Sinon, vous pouvez valider votre refresh token stocké en base de données et en générer un nouveau.
+
+        $data = json_decode($request->getContent(), true);
+        $refreshTokenString = $data['refresh_token'] ?? '';
+
+        // Logique de validation de votre Refresh Token en base...
+
+        return new JsonResponse(['message' => 'Endpoint de rafraîchissement prêt à être configuré avec votre stratégie de stockage de refresh token.']);
     }
 }

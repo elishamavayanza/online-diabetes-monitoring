@@ -26,6 +26,10 @@ enum SecurityAction: string
     case TRANSFER_PATIENT = 'transfer_patient';
     case ARCHIVE_PATIENT = 'archive_patient';
     case ACTIVATE_PATIENT = 'activate_patient';
+    case CREATE_ALLERGY = 'create_allergy';
+    case VIEW_ALLERGY = 'view_allergy';
+    case UPDATE_ALLERGY = 'update_allergy';
+    case DELETE_ALLERGY = 'delete_allergy';
 
     // Dossier médical
     case VIEW_MEDICAL_RECORD = 'view_medical_record';

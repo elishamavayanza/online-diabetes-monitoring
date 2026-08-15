@@ -77,6 +77,12 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     protected ?DateTimeImmutable $resetTokenExpiresAt = null;
 
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    protected int $loginAttempts = 0;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    protected ?DateTimeImmutable $lockedUntil = null;
+
     public function __construct()
     {
         $this->organizationMemberships = new ArrayCollection();
@@ -267,4 +273,10 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
 
     public function getResetTokenExpiresAt(): ?DateTimeImmutable { return $this->resetTokenExpiresAt; }
     public function setResetTokenExpiresAt(?DateTimeImmutable $expiresAt): static { $this->resetTokenExpiresAt = $expiresAt; return $this; }
+
+    public function getLoginAttempts(): int { return $this->loginAttempts; }
+    public function setLoginAttempts(int $attempts): static { $this->loginAttempts = $attempts; return $this; }
+
+    public function getLockedUntil(): ?DateTimeImmutable { return $this->lockedUntil; }
+    public function setLockedUntil(?DateTimeImmutable $lockedUntil): static { $this->lockedUntil = $lockedUntil; return $this; }
 }

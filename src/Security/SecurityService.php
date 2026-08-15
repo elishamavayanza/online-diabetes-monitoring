@@ -572,6 +572,9 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::SEND_MESSAGE,
             SecurityAction::READ_MESSAGE,
             SecurityAction::DOWNLOAD_ATTACHMENT,
+
+            SecurityAction::CREATE_ALLERGY,
+            SecurityAction::VIEW_ALLERGY,
         ];
 
         $this->denyIfNotAllowed(
@@ -640,6 +643,8 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_NUTRITION,
 
             SecurityAction::VIEW_PRESCRIPTION,
+
+            SecurityAction::VIEW_ALLERGY,
 
             SecurityAction::VIEW_APPOINTMENT,
             SecurityAction::CONFIRM_APPOINTMENT,

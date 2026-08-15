@@ -6,6 +6,7 @@ use App\DTO\Request\Patient\AllergyRequestDTO;
 use App\DTO\Response\Patient\AllergyResponseDTO;
 use App\Entity\Identity\Patient;
 use App\Entity\Patient\Allergy;
+use App\Entity\Patient\AllergySeverity; // Assurez-vous d'importer la bonne enum
 
 class AllergyMapper
 {
@@ -15,7 +16,13 @@ class AllergyMapper
 
         $allergy->setPatient($patient);
         $allergy->setName($dto->name);
-        $allergy->setSeverity($dto->severity);
+
+        // Conversion de la string en Enum
+        $severityEnum = AllergySeverity::tryFrom($dto->severity)
+            ?? throw new \InvalidArgumentException(sprintf('Sévérité invalide : "%s"', $dto->severity));
+
+        $allergy->setSeverity($severityEnum);
+
         $allergy->setReaction($dto->reaction);
         $allergy->setNotes($dto->notes);
         $allergy->setDiagnosedAt($dto->diagnosedAt);
