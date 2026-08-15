@@ -3,9 +3,8 @@
 namespace App\Entity\Medical;
 
 use App\Entity\Common\BaseEntity;
-use App\Entity\Common\PatientCommonOperation;
-use App\Entity\Identity\Patient;
 use App\Entity\Healthcare\HealthcareOrganization;
+use App\Entity\Identity\Patient;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,8 +13,15 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'medical_medical_records')]
-class MedicalRecord extends PatientCommonOperation
+class MedicalRecord extends BaseEntity
 {
+    /**
+     * @var Patient|null Le patient concerné par ce dossier médical.
+     */
+    #[ORM\ManyToOne(targetEntity: Patient::class)]
+    #[ORM\JoinColumn(name: 'patient_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Patient $patient = null;
+
     /**
      * @var HealthcareOrganization|null L'organisation de santé gérant ou hébergeant le dossier.
      */
@@ -24,7 +30,7 @@ class MedicalRecord extends PatientCommonOperation
     private ?HealthcareOrganization $organization = null;
 
     /**
-     * @var MedicalRecordStatus|null Le statut actuel du dossier médical.
+     * @var MedicalRecordStatus|null Le statut actuel du dossier médical (ex: OPEN, CLOSED).
      */
     #[ORM\Column(type: 'string', length: 50, enumType: MedicalRecordStatus::class)]
     private ?MedicalRecordStatus $status = MedicalRecordStatus::OPEN;
@@ -36,13 +42,30 @@ class MedicalRecord extends PatientCommonOperation
     private ?DateTimeImmutable $openedAt = null;
 
     /**
-     * @var DateTimeImmutable|null La date et l'heure de clôture du dossier.
+     * @var DateTimeImmutable|null La date et l'heure de clôture du dossier (nullable si encore actif).
      */
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $closedAt = null;
 
     /**
-     * Récupère l'organisation de santé.
+     * Récupère le patient associé au dossier.
+     */
+    public function getPatient(): ?Patient
+    {
+        return $this->patient;
+    }
+
+    /**
+     * Définit le patient associé au dossier.
+     */
+    public function setPatient(?Patient $patient): static
+    {
+        $this->patient = $patient;
+        return $this;
+    }
+
+    /**
+     * Récupère l'organisation de santé gérant le dossier.
      */
     public function getOrganization(): ?HealthcareOrganization
     {
@@ -50,7 +73,7 @@ class MedicalRecord extends PatientCommonOperation
     }
 
     /**
-     * Définit l'organisation de santé.
+     * Définit l'organisation de santé gérant le dossier.
      */
     public function setOrganization(?HealthcareOrganization $organization): static
     {
@@ -59,7 +82,7 @@ class MedicalRecord extends PatientCommonOperation
     }
 
     /**
-     * Récupère le statut du dossier.
+     * Récupère le statut actuel du dossier.
      */
     public function getStatus(): ?MedicalRecordStatus
     {
@@ -67,7 +90,7 @@ class MedicalRecord extends PatientCommonOperation
     }
 
     /**
-     * Définit le statut du dossier.
+     * Définit le statut actuel du dossier.
      */
     public function setStatus(MedicalRecordStatus $status): static
     {
@@ -76,7 +99,7 @@ class MedicalRecord extends PatientCommonOperation
     }
 
     /**
-     * Récupère la date d'ouverture.
+     * Récupère la date et l'heure d'ouverture du dossier.
      */
     public function getOpenedAt(): ?DateTimeImmutable
     {
@@ -84,7 +107,7 @@ class MedicalRecord extends PatientCommonOperation
     }
 
     /**
-     * Définit la date d'ouverture.
+     * Définit la date et l'heure d'ouverture du dossier.
      */
     public function setOpenedAt(DateTimeImmutable $openedAt): static
     {
@@ -93,7 +116,7 @@ class MedicalRecord extends PatientCommonOperation
     }
 
     /**
-     * Récupère la date de clôture.
+     * Récupère la date et l'heure de clôture du dossier.
      */
     public function getClosedAt(): ?DateTimeImmutable
     {
@@ -101,7 +124,7 @@ class MedicalRecord extends PatientCommonOperation
     }
 
     /**
-     * Définit la date de clôture.
+     * Définit la date et l'heure de clôture du dossier.
      */
     public function setClosedAt(?DateTimeImmutable $closedAt): static
     {

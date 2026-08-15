@@ -22,7 +22,7 @@ class MedicalRecordResponseDTO
         #[OA\Property(type: 'string', format: 'uuid', example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID de l’organisation')]
         public readonly string $organizationId,
 
-        #[OA\Property(type: 'string', example: 'ACTIVE', description: 'Statut')]
+        #[OA\Property(type: 'string', example: 'OPEN', description: 'Statut')]
         public readonly string $status,
 
         #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T08:00:00Z', description: 'Date d’ouverture')]

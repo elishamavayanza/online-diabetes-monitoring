@@ -507,6 +507,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::ACTIVATE_PATIENT,
 
             SecurityAction::VIEW_MEDICAL_RECORD,
+            SecurityAction::CREATE_MEDICAL_RECORD,
 
             SecurityAction::VIEW_APPOINTMENT,
             SecurityAction::CREATE_APPOINTMENT,

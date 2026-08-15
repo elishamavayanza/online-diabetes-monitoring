@@ -1,0 +1,68 @@
+graph TD
+    A1["ADMIN ADMIN ORGANISATION"]
+    A2["ORGANISATION + STRUCTURE"]
+    A3["PROFESSIONNELS"]
+    A4["MEMBRES / PERMISSIONS"]
+    A5["PATIENT"]
+    A6["CARE TEAM ASSIGNMENT<br/>(Patient ←→ Médecin(s))"]
+    A7["1. DOSSIER MÉDICAL"]
+
+    MESURES["MESURES"]
+    CONSULTATION["CONSULTATION"]
+    PROFIL["PROFIL"]
+
+    G["Glycémie"]
+    T["Tension"]
+    P["Poids"]
+    H["HbA1c / Activité / Laboratoire"]
+
+    MED["Médecin"]
+    DIAG["DIAGNOSTIC"]
+    NOTES["NOTES MÉDICALES"]
+    PRES["PRESCRIPTION"]
+    PRISES["PRISES MÉDICAMENTS"]
+
+    ALL["Allergies"]
+    CONT["Contacts"]
+    CONS["Consentements"]
+
+    RENDEZ["RENDEZ-VOUS"]
+    RAPPEL["Rappel"]
+    NOTIF["Notification"]
+    COMM["COMMUNICATION"]
+    PATDOC["Patient ↔ Médecin"]
+
+    A1 --> A2
+    A2 --> A3
+    A3 --> A4
+    A4 --> A5
+    A5 --> A6
+    A6 --> A7
+
+    A7 --> MESURES
+    A7 --> CONSULTATION
+    A7 --> PROFIL
+
+    MESURES --> G
+    MESURES --> T
+    MESURES --> P
+    G --> H
+    T --> H
+    P --> H
+    H --> RENDEZ
+
+    CONSULTATION --> MED
+    MED --> DIAG
+    DIAG --> NOTES
+    NOTES --> PRES
+    PRES --> PRISES
+
+    PROFIL --> ALL
+    PROFIL --> CONT
+    PROFIL --> CONS
+
+    RENDEZ --> RAPPEL
+    RENDEZ --> NOTIF
+    RAPPEL --> COMM
+    NOTIF --> COMM
+    COMM --> PATDOC

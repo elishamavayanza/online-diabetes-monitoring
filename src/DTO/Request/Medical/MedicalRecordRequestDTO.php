@@ -21,7 +21,7 @@ class MedicalRecordRequestDTO
         public readonly string $organizationId,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'ACTIVE', description: 'Statut du dossier')]
+        #[OA\Property(type: 'string', example: 'OPEN', description: 'Statut du dossier')]
         public readonly mixed $status,
 
         #[Assert\NotBlank]
