@@ -24,6 +24,44 @@ class PatientService
     }
 
     /**
+     * Récupère le profil complet d'un patient.
+     */
+    public function getProfile(string $userId): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $currentUser = $this->securityService->getCurrentUser();
+
+            // 1. Recherche du patient
+            $user = $this->repository->find($userId);
+            if (!$user instanceof Patient) {
+                return $feedback
+                    ->setErrorFlushDescription('Profil patient introuvable.')
+                    ->autoInitFlush();
+            }
+
+            // 2. Vérification des accès basée sur la logique métier
+            // (au lieu de checkPermission qui est trop générique)
+            $this->securityService->checkPatientAccess($user, SecurityAction::VIEW_PATIENT);
+
+            return $feedback
+                ->setData(PatientResponseDTO::fromEntity($user))
+                ->setFlushDescription('Profil patient récupéré avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription('Erreur lors de la récupération du profil : ' . $e->getMessage())
+                ->autoInitFlush();
+        }
+    }
+
+    /**
      * Complète ou met à jour le profil métier d'un patient.
      *
      * Le compte utilisateur doit déjà exister.
@@ -193,4 +231,6 @@ class PatientService
                 ->autoInitFlush();
         }
     }
+
+
 }

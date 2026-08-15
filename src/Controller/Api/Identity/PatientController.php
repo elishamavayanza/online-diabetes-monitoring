@@ -27,11 +27,54 @@ class PatientController extends AbstractController
 
     #[Route(
         '/{id}/profile',
+        name: 'api_patients_get_profile',
+        methods: ['GET']
+    )]
+    #[OA\Get(
+        summary: 'Récupérer le profil complet du patient',
+        description: 'Permet de récupérer toutes les informations du profil patient ainsi que ses données associées.'
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'UUID ou ID du patient',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Profil patient récupéré avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Profil patient récupéré avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: PatientResponseDTO::class))
+            ]
+        )
+    )]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Permission insuffisante')]
+    #[OA\Response(response: 404, description: 'Patient introuvable')]
+    public function getProfile(int $id): JsonResponse
+    {
+        $feedback = $this->patientService->getProfile($id);
+
+        $status = $feedback->hasErrors()
+            ? Response::HTTP_NOT_FOUND
+            : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route(
+        '/{id}/profile',
         name: 'api_patients_update_profile',
         methods: ['PUT', 'PATCH']
     )]
     #[OA\Put(
-        summary: 'Compléter le profil patient',
         description: <<<'DESC'
 Complète ou met à jour le profil métier d'un patient existant.
 
@@ -40,7 +83,8 @@ via POST /api/users.
 
 Cette opération ne crée pas de compte et ne modifie pas
 les informations d'authentification.
-DESC
+DESC,
+        summary: 'Compléter le profil patient'
     )]
     #[OA\Parameter(
         name: 'id',
