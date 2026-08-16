@@ -575,6 +575,9 @@ final class SecurityService implements SecurityServiceInterface
 
             SecurityAction::CREATE_ALLERGY,
             SecurityAction::VIEW_ALLERGY,
+            SecurityAction::UPDATE_ALLERGY,
+            SecurityAction::VIEW_EMERGENCY_CONTACT,
+            SecurityAction::VIEW_MEDICAL_CONSENT,
         ];
 
         $this->denyIfNotAllowed(
@@ -611,6 +614,10 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::SEND_MESSAGE,
             SecurityAction::READ_MESSAGE,
             SecurityAction::DOWNLOAD_ATTACHMENT,
+
+            SecurityAction::VIEW_ALLERGY,
+            SecurityAction::VIEW_EMERGENCY_CONTACT,
+            SecurityAction::VIEW_MEDICAL_CONSENT,
         ];
 
         $this->denyIfNotAllowed(
@@ -656,6 +663,23 @@ final class SecurityService implements SecurityServiceInterface
 
             SecurityAction::VIEW_NOTIFICATION,
             SecurityAction::MARK_NOTIFICATION_READ,
+
+            // Gestion complète de ses Allergies
+            SecurityAction::CREATE_ALLERGY,
+            SecurityAction::VIEW_ALLERGY,
+            SecurityAction::UPDATE_ALLERGY,
+            SecurityAction::DELETE_ALLERGY,
+
+            // Gestion complète de ses Contacts d'urgence
+            SecurityAction::CREATE_EMERGENCY_CONTACT,
+            SecurityAction::VIEW_EMERGENCY_CONTACT,
+            SecurityAction::UPDATE_EMERGENCY_CONTACT,
+            SecurityAction::DELETE_EMERGENCY_CONTACT,
+
+            // Gestion de ses Consentements
+            SecurityAction::CREATE_MEDICAL_CONSENT,
+            SecurityAction::VIEW_MEDICAL_CONSENT,
+            SecurityAction::REVOKE_MEDICAL_CONSENT,
         ];
 
         $this->denyIfNotAllowed(

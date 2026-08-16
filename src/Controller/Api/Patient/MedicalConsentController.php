@@ -3,7 +3,6 @@
 namespace App\Controller\Api\Patient;
 
 use App\DTO\Request\Patient\MedicalConsentRequestDTO;
-use App\DTO\Response\Patient\MedicalConsentResponseDTO;
 use App\Service\Patient\MedicalConsentService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -14,44 +13,52 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/medical-consents')]
-#[OA\Tag(name: 'Patient - Medical Consents', description: 'Gestion des consentements médicaux des patients')]
+#[OA\Tag(name: 'Patient - Medical Consents', description: 'Gestion des consentements médicaux')]
 class MedicalConsentController extends AbstractController
 {
     public function __construct(
         private readonly MedicalConsentService $consentService
     ) {}
 
-    #[Route('', name: 'api_medical_consents_create', methods: ['POST'])]
-    #[OA\Post(
-        summary: 'Créer un consentement médical',
-        description: 'Permet d’enregistrer un accord ou consentement de traitement/partage de données pour un patient.'
-    )]
-    #[OA\RequestBody(
-        required: true,
-        description: 'Paramètres du consentement',
-        content: new OA\JsonContent(
-            ref: new Model(type: MedicalConsentRequestDTO::class)
-        )
-    )]
-    #[OA\Response(
-        response: 201,
-        description: 'Consentement médical créé avec succès',
-        content: new OA\JsonContent(
-            properties: [
-                new OA\Property(property: 'status', type: 'integer', example: 201),
-                new OA\Property(property: 'error', type: 'boolean', example: false),
-                new OA\Property(property: 'message', type: 'string', example: 'Consentement médical créé avec succès.'),
-                new OA\Property(property: 'data', ref: new Model(type: MedicalConsentResponseDTO::class))
-            ]
-        )
-    )]
-    #[OA\Response(response: 400, description: 'Données de la requête invalides')]
-    #[OA\Response(response: 401, description: 'Non authentifié')]
-    public function create(#[MapRequestPayload] MedicalConsentRequestDTO $dto): JsonResponse
+    #[Route('/patient/{patientId}', name: 'api_medical_consents_by_patient', methods: ['GET'])]
+    #[OA\Get(description: 'Lister les consentements d’un patient', summary: 'Lister par patient')]
+    public function getByPatient(string $patientId): JsonResponse
     {
-        $feedback = $this->consentService->create($dto);
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        $feedback = $this->consentService->getByPatient($patientId);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
     }
+
+    #[Route('', name: 'api_medical_consents_create', methods: ['POST'])]
+    #[OA\Post(description: 'Enregistrer un consentement médical', summary: 'Créer un consentement')]
+    public function create(#[MapRequestPayload] MedicalConsentRequestDTO $dto): JsonResponse
+    {
+        $feedback = $this->consentService->create($dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_medical_consents_update', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(description: 'Modifier un consentement médical existant', summary: 'Mettre à jour un consentement')]
+    public function update(string $id, #[MapRequestPayload] MedicalConsentRequestDTO $dto): JsonResponse
+    {
+        $feedback = $this->consentService->update($id, $dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_medical_consents_delete', methods: ['DELETE'])]
+    #[OA\Delete(description: 'Supprimer un consentement médical', summary: 'Supprimer un consentement')]
+    public function delete(string $id): JsonResponse
+    {
+        $feedback = $this->consentService->delete($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+
 }

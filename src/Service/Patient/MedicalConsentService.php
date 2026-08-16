@@ -24,13 +24,39 @@ class MedicalConsentService
         private readonly SecurityServiceInterface $securityService
     ) {}
 
+    public function getByPatient(string $patientId): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_MEDICAL_CONSENT);
+
+            $consents = $this->consentRepository->findBy(['patient' => $patient]);
+            $responseDTOs = array_map([$this->mapper, 'mapEntityToResponse'], $consents);
+
+            $feedback->setData($responseDTOs)
+                ->setFlushDescription("Consentements récupérés avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
     public function create(MedicalConsentRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::VIEW_PATIENT->value);
-
             $patient = $this->patientRepository->find($dto->patientId);
             if (!$patient) {
                 return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
@@ -42,10 +68,10 @@ class MedicalConsentService
                 if (!$organization) {
                     return $feedback->setErrorFlushDescription("Organisation introuvable.")->autoInitFlush();
                 }
-                $this->securityService->checkOrganizationAccess($organization, SecurityAction::MANAGE_ORGANIZATION);
             }
 
-            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PATIENT);
+            // Seul le patient (ou un admin/superadmin global) peut donner son propre consentement
+            $this->securityService->checkPatientAccess($patient, SecurityAction::CREATE_MEDICAL_CONSENT);
 
             $consent = $this->mapper->mapRequestToEntity($dto, $patient, $organization);
 
@@ -64,4 +90,72 @@ class MedicalConsentService
 
         return $feedback;
     }
+
+    public function update(string $id, MedicalConsentRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $consent = $this->consentRepository->find($id);
+            if (!$consent) {
+                return $feedback->setErrorFlushDescription("Consentement médical introuvable.")->autoInitFlush();
+            }
+
+            $patient = $consent->getPatient();
+            $this->securityService->checkPatientAccess($patient, SecurityAction::REVOKE_MEDICAL_CONSENT);
+
+            $organization = null;
+            if ($dto->organizationId) {
+                $organization = $this->organizationRepository->find($dto->organizationId);
+                if (!$organization) {
+                    return $feedback->setErrorFlushDescription("Organisation introuvable.")->autoInitFlush();
+                }
+            }
+
+            $this->mapper->mapRequestToEntity($dto, $patient, $organization, $consent);
+            $this->entityManager->flush();
+
+            $feedback->setData($this->mapper->mapEntityToResponse($consent))
+                ->setFlushDescription("Consentement médical mis à jour avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function delete(string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $consent = $this->consentRepository->find($id);
+            if (!$consent) {
+                return $feedback->setErrorFlushDescription("Consentement médical introuvable.")->autoInitFlush();
+            }
+
+            $patient = $consent->getPatient();
+            $this->securityService->checkPatientAccess($patient, SecurityAction::REVOKE_MEDICAL_CONSENT);
+
+            $this->entityManager->remove($consent);
+            $this->entityManager->flush();
+
+            $feedback->setData(null)
+                ->setFlushDescription("Consentement médical supprimé avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+
 }

@@ -94,4 +94,15 @@ enum SecurityAction: string
     // Administration
     case MANAGE_ROLES = 'manage_roles';
     case MANAGE_PERMISSIONS = 'manage_permissions';
+
+    // Contacts d'urgence
+    case CREATE_EMERGENCY_CONTACT = 'create_emergency_contact';
+    case VIEW_EMERGENCY_CONTACT = 'view_emergency_contact';
+    case UPDATE_EMERGENCY_CONTACT = 'update_emergency_contact';
+    case DELETE_EMERGENCY_CONTACT = 'delete_emergency_contact';
+
+    // Consentements médicaux
+    case CREATE_MEDICAL_CONSENT = 'create_medical_consent';
+    case VIEW_MEDICAL_CONSENT = 'view_medical_consent';
+    case REVOKE_MEDICAL_CONSENT = 'revoke_medical_consent';
 }
