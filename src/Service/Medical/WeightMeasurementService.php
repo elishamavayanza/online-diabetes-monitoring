@@ -22,27 +22,159 @@ class WeightMeasurementService
         private readonly SecurityServiceInterface $securityService
     ) {}
 
-    public function create(string $patientId, WeightMeasurementRequestDTO $dto): Feedback
+    public function all(string $patientId): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::VIEW_PATIENT->value);
-
             $patient = $this->patientRepository->find($patientId);
             if (!$patient) {
                 return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
             }
 
-            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PATIENT);
+            // Utilisation de RECORD_WEIGHT ou VIEW_PATIENT selon vos règles de sécurité de lecture
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_WEIGHT);
+
+            $measurements = $this->repository->findBy(['patient' => $patient]);
+            $responseDTOs = array_map(fn($m) => $this->mapper->mapEntityToResponse($m), $measurements);
+
+            $feedback->setData($responseDTOs)
+                ->setFlushDescription("Liste des mesures récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function get(string $patientId, string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_WEIGHT);
+
+            $measurement = $this->repository->findOneBy(['id' => $id, 'patient' => $patient]);
+            if (!$measurement) {
+                return $feedback->setErrorFlushDescription("Mesure de poids introuvable.")->autoInitFlush();
+            }
+
+            $feedback->setData($this->mapper->mapEntityToResponse($measurement))
+                ->setFlushDescription("Mesure récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function create(string $patientId, WeightMeasurementRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_WEIGHT);
 
             $measurement = $this->mapper->mapRequestToEntity($dto, $patient);
+
+            // Assignation de la date et de l'utilisateur courant si non gérés dans le mapper
+            if ($measurement->getMeasuredAt() === null) {
+                $measurement->setMeasuredAt(new \DateTimeImmutable());
+            }
+            if ($measurement->getIssuer() === null) {
+                $measurement->setIssuer($this->securityService->getCurrentUser());
+            }
 
             $this->entityManager->persist($measurement);
             $this->entityManager->flush();
 
             $feedback->setData($this->mapper->mapEntityToResponse($measurement))
                 ->setFlushDescription("Mesure de poids enregistrée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function update(string $patientId, string $id, WeightMeasurementRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_WEIGHT);
+
+            $measurement = $this->repository->findOneBy(['id' => $id, 'patient' => $patient]);
+            if (!$measurement) {
+                return $feedback->setErrorFlushDescription("Mesure de poids introuvable.")->autoInitFlush();
+            }
+
+            $measurement = $this->mapper->mapRequestToEntity($dto, $patient, $measurement);
+
+            $this->entityManager->flush();
+
+            $feedback->setData($this->mapper->mapEntityToResponse($measurement))
+                ->setFlushDescription("Mesure de poids mise à jour avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function delete(string $patientId, string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_WEIGHT);
+
+            $measurement = $this->repository->findOneBy(['id' => $id, 'patient' => $patient]);
+            if (!$measurement) {
+                return $feedback->setErrorFlushDescription("Mesure de poids introuvable.")->autoInitFlush();
+            }
+
+            $this->entityManager->remove($measurement);
+            $this->entityManager->flush();
+
+            $feedback->setData(null)
+                ->setFlushDescription("Mesure de poids supprimée avec succès.")
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
