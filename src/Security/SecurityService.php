@@ -680,6 +680,10 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::CREATE_MEDICAL_CONSENT,
             SecurityAction::VIEW_MEDICAL_CONSENT,
             SecurityAction::REVOKE_MEDICAL_CONSENT,
+
+            // Gestion de sa Diagnostique
+            SecurityAction::CREATE_DIAGNOSIS,
+            SecurityAction::UPDATE_DIAGNOSIS,
         ];
 
         $this->denyIfNotAllowed(
