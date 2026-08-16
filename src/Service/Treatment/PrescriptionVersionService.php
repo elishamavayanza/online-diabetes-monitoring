@@ -25,6 +25,42 @@ class PrescriptionVersionService
     ) {
     }
 
+    public function getOne(int|string $id): Feedback
+    {
+        $feedback = new Feedback();
+        $version = $this->repository->find($id);
+
+        if (!$version) {
+            return $feedback->setErrorFlushDescription('Version de prescription introuvable.')->autoInitFlush();
+        }
+
+        $patient = $version->getPrescription()?->getPatient();
+        if ($patient) {
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PRESCRIPTION);
+        }
+
+        return $feedback->setData($this->mapper->mapEntityToResponse($version));
+    }
+
+    public function getAllByPrescription(int|string $prescriptionId): Feedback
+    {
+        $feedback = new Feedback();
+        $prescription = $this->prescriptionRepository->find($prescriptionId);
+
+        if (!$prescription) {
+            return $feedback->setErrorFlushDescription('Prescription introuvable.')->autoInitFlush();
+        }
+
+        $patient = $prescription->getPatient();
+        if ($patient) {
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PRESCRIPTION);
+        }
+
+        $versions = $this->repository->findBy(['prescription' => $prescription], ['id' => 'DESC']);
+
+        return $feedback->setData($this->mapper->mapEntitiesToResponses($versions));
+    }
+
     public function create(PrescriptionVersionRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();
@@ -101,5 +137,25 @@ class PrescriptionVersionService
                 )
                 ->autoInitFlush();
         }
+    }
+
+    public function delete(int|string $id): Feedback
+    {
+        $feedback = new Feedback();
+        $version = $this->repository->find($id);
+
+        if (!$version) {
+            return $feedback->setErrorFlushDescription('Version introuvable.')->autoInitFlush();
+        }
+
+        $patient = $version->getPrescription()?->getPatient();
+        if ($patient) {
+            $this->securityService->checkPatientAccess($patient, SecurityAction::UPDATE_PRESCRIPTION);
+        }
+
+        $this->entityManager->remove($version);
+        $this->entityManager->flush();
+
+        return $feedback->setFlushDescription('Version supprimée avec succès.')->autoInitFlush();
     }
 }

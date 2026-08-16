@@ -32,4 +32,17 @@ class PrescriptionVersionMapper
     {
         return PrescriptionVersionResponseDTO::fromEntity($version);
     }
+
+    /**
+     * @param iterable<PrescriptionVersion> $versions
+     * @return array<PrescriptionVersionResponseDTO>
+     */
+    public function mapEntitiesToResponses(iterable $versions): array
+    {
+        $responses = [];
+        foreach ($versions as $version) {
+            $responses[] = $this->mapEntityToResponse($version);
+        }
+        return $responses;
+    }
 }
