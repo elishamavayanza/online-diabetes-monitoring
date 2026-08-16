@@ -22,19 +22,75 @@ class BloodGlucoseMeasurementService
         private readonly SecurityServiceInterface $securityService
     ) {}
 
-    public function create(string $patientId, BloodGlucoseMeasurementRequestDTO $dto): Feedback
+    public function index(string $patientId): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::VIEW_PATIENT->value);
-
             $patient = $this->patientRepository->find($patientId);
             if (!$patient) {
                 return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
             }
 
-            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PATIENT);
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_GLUCOSE);
+
+            $measurements = $this->repository->findBy(['patient' => $patient]);
+            $responseDTOs = array_map([$this->mapper, 'mapEntityToResponse'], $measurements);
+
+            $feedback->setData($responseDTOs)
+                ->setFlushDescription("Liste des mesures récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function show(string $patientId, string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_GLUCOSE);
+
+            $measurement = $this->repository->findOneBy(['id' => $id, 'patient' => $patient]);
+            if (!$measurement) {
+                return $feedback->setErrorFlushDescription("Mesure de glycémie introuvable.")->autoInitFlush();
+            }
+
+            $feedback->setData($this->mapper->mapEntityToResponse($measurement))
+                ->setFlushDescription("Mesure récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function create(string $patientId, BloodGlucoseMeasurementRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_GLUCOSE);
 
             $measurement = $this->mapper->mapRequestToEntity($dto, $patient);
 
@@ -43,6 +99,72 @@ class BloodGlucoseMeasurementService
 
             $feedback->setData($this->mapper->mapEntityToResponse($measurement))
                 ->setFlushDescription("Mesure de glycémie enregistrée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function update(string $patientId, string $id, BloodGlucoseMeasurementRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_GLUCOSE);
+
+            $measurement = $this->repository->findOneBy(['id' => $id, 'patient' => $patient]);
+            if (!$measurement) {
+                return $feedback->setErrorFlushDescription("Mesure de glycémie introuvable.")->autoInitFlush();
+            }
+
+            $this->mapper->mapRequestToEntity($dto, $patient, $measurement);
+
+            $this->entityManager->flush();
+
+            $feedback->setData($this->mapper->mapEntityToResponse($measurement))
+                ->setFlushDescription("Mesure de glycémie mise à jour avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function delete(string $patientId, string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription("Patient introuvable.")->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_GLUCOSE);
+
+            $measurement = $this->repository->findOneBy(['id' => $id, 'patient' => $patient]);
+            if (!$measurement) {
+                return $feedback->setErrorFlushDescription("Mesure de glycémie introuvable.")->autoInitFlush();
+            }
+
+            $this->entityManager->remove($measurement);
+            $this->entityManager->flush();
+
+            $feedback->setFlushDescription("Mesure de glycémie supprimée avec succès.")
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
