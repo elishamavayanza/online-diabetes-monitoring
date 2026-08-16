@@ -21,14 +21,56 @@ class MedicationController extends AbstractController
         private readonly MedicationService $service
     ) {}
 
+    #[Route('', name: 'api_medications_all', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère la liste de tous les médicaments du catalogue.',
+        summary: 'Lister les médicaments'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Liste récupérée avec succès',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: MedicationResponseDTO::class))
+        )
+    )]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function all(): JsonResponse
+    {
+        $feedback = $this->service->all();
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_medications_get', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère les détails d’un médicament spécifique.',
+        summary: 'Afficher un médicament'
+    )]
+    #[OA\Parameter(name: 'id', description: 'Identifiant unique du médicament', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(
+        response: 200,
+        description: 'Médicament récupéré avec succès',
+        content: new OA\JsonContent(ref: new Model(type: MedicationResponseDTO::class))
+    )]
+    #[OA\Response(response: 404, description: 'Médicament non trouvé')]
+    public function get(string $id): JsonResponse
+    {
+        $feedback = $this->service->get($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
     #[Route('', name: 'api_medications_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Créer un médicament',
-        description: 'Permet d’enregistrer un nouveau médicament dans le catalogue.'
+        description: 'Permet d’enregistrer un nouveau médicament dans le catalogue.',
+        summary: 'Créer un médicament'
     )]
     #[OA\RequestBody(
-        required: true,
         description: 'Paramètres du médicament',
+        required: true,
         content: new OA\JsonContent(
             ref: new Model(type: MedicationRequestDTO::class)
         )
@@ -50,7 +92,41 @@ class MedicationController extends AbstractController
     public function create(#[MapRequestPayload] MedicationRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->create($dto);
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_medications_update', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(
+        description: 'Permet de modifier un médicament existant.',
+        summary: 'Mettre à jour un médicament'
+    )]
+    #[OA\Parameter(name: 'id', description: 'Identifiant unique du médicament', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\RequestBody(required: true, content: new OA\JsonContent(ref: new Model(type: MedicationRequestDTO::class)))]
+    #[OA\Response(response: 200, description: 'Médicament mis à jour avec succès')]
+    #[OA\Response(response: 400, description: 'Données invalides')]
+    #[OA\Response(response: 404, description: 'Médicament non trouvé')]
+    public function update(string $id, #[MapRequestPayload] MedicationRequestDTO $dto): JsonResponse
+    {
+        $feedback = $this->service->update($id, $dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}', name: 'api_medications_delete', methods: ['DELETE'])]
+    #[OA\Delete(
+        description: 'Permet de supprimer un médicament du catalogue.',
+        summary: 'Supprimer un médicament'
+    )]
+    #[OA\Parameter(name: 'id', description: 'Identifiant unique du médicament', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))]
+    #[OA\Response(response: 200, description: 'Médicament supprimé avec succès')]
+    #[OA\Response(response: 404, description: 'Médicament non trouvé')]
+    public function delete(string $id): JsonResponse
+    {
+        $feedback = $this->service->delete($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
     }
