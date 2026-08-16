@@ -60,6 +60,7 @@ enum SecurityAction: string
     case CANCEL_PRESCRIPTION = 'cancel_prescription';
     case VALIDATE_PRESCRIPTION = 'validate_prescription';
     case RECORD_MEDICATION_INTAKE = 'record_medication_intake';
+    case DELETE_MEDICATION_INTAKE = 'delete_medication_intake';
     case MANAGE_MEDICATION = 'manage_medication';
 
     // Nutrition

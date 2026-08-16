@@ -549,6 +549,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::CREATE_MEDICAL_NOTE,
 
             SecurityAction::MANAGE_MEDICATION,
+            SecurityAction::DELETE_MEDICATION_INTAKE,
 
             SecurityAction::RECORD_GLUCOSE,
             SecurityAction::RECORD_BLOOD_PRESSURE,
@@ -647,6 +648,8 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::RECORD_WEIGHT,
             SecurityAction::RECORD_BLOOD_PRESSURE,
             SecurityAction::RECORD_ACTIVITY,
+
+            SecurityAction::RECORD_MEDICATION_INTAKE,
 
             SecurityAction::VIEW_MEASUREMENTS,
 
