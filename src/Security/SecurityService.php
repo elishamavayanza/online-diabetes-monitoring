@@ -653,6 +653,8 @@ final class SecurityService implements SecurityServiceInterface
 
             SecurityAction::VIEW_ALLERGY,
 
+            SecurityAction::VIEW_LABORATORY_RESULT,
+
             SecurityAction::VIEW_APPOINTMENT,
             SecurityAction::CONFIRM_APPOINTMENT,
             SecurityAction::REQUEST_RESCHEDULE,
