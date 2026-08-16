@@ -37,7 +37,6 @@ class FoodCategory extends BaseEntity
      */
     public function __construct()
     {
-        parent::__construct();
         $this->foods = new ArrayCollection();
     }
 

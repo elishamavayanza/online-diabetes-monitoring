@@ -25,6 +25,47 @@ class PrescriptionItemService
     ) {
     }
 
+    public function getAll(): Feedback
+    {
+        $items = $this->repository->findAll();
+        return (new Feedback())->setData($this->mapper->mapEntitiesToResponses($items));
+    }
+
+    // Alias pour correspondre au contrôleur ->getOne()
+    public function getOne(int|string $id): Feedback
+    {
+        return $this->getById($id);
+    }
+
+    public function getById(int|string $id): Feedback
+    {
+        $item = $this->repository->find($id);
+        if (!$item) {
+            return (new Feedback())->setErrorFlushDescription('Élément introuvable.')->autoInitFlush();
+        }
+
+        // Vérification accès via le patient lié
+        $this->securityService->checkPatientAccess($item->getPrescription()->getPatient(), SecurityAction::VIEW_PRESCRIPTION);
+
+        return (new Feedback())->setData($this->mapper->mapEntityToResponse($item));
+    }
+
+    public function getAllByPrescription(int|string $prescriptionId): Feedback
+    {
+        $feedback = new Feedback();
+        $prescription = $this->prescriptionRepository->find($prescriptionId);
+
+        if (!$prescription) {
+            return $feedback->setErrorFlushDescription('Prescription introuvable.')->autoInitFlush();
+        }
+
+        $this->securityService->checkPatientAccess($prescription->getPatient(), SecurityAction::VIEW_PRESCRIPTION);
+
+        $items = $this->repository->findBy(['prescription' => $prescription]);
+
+        return $feedback->setData($this->mapper->mapEntitiesToResponses($items));
+    }
+
     public function create(PrescriptionItemRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();
@@ -101,5 +142,35 @@ class PrescriptionItemService
                 )
                 ->autoInitFlush();
         }
+    }
+
+    public function update(int|string $id, PrescriptionItemRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+        $item = $this->repository->find($id);
+
+        if (!$item) return $feedback->setErrorFlushDescription('Introuvable.')->autoInitFlush();
+
+        $this->securityService->checkPatientAccess($item->getPrescription()->getPatient(), SecurityAction::UPDATE_PRESCRIPTION);
+
+        $this->mapper->mapRequestToEntity($dto, $item->getPrescription(), $this->medicationRepository->find($dto->medicationId), $item);
+
+        $this->entityManager->flush();
+        return $feedback->setFlushDescription('Mis à jour avec succès.')->setData($this->mapper->mapEntityToResponse($item));
+    }
+
+    public function delete(int|string $id): Feedback
+    {
+        $feedback = new Feedback();
+        $item = $this->repository->find($id);
+
+        if (!$item) return $feedback->setErrorFlushDescription('Introuvable.')->autoInitFlush();
+
+        $this->securityService->checkPatientAccess($item->getPrescription()->getPatient(), SecurityAction::UPDATE_PRESCRIPTION);
+
+        $this->entityManager->remove($item);
+        $this->entityManager->flush();
+
+        return $feedback->setFlushDescription('Supprimé avec succès.')->autoInitFlush();
     }
 }

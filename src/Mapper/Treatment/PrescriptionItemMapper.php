@@ -34,4 +34,17 @@ class PrescriptionItemMapper
     {
         return PrescriptionItemResponseDTO::fromEntity($item);
     }
+
+    /**
+     * @param iterable<PrescriptionItem> $items
+     * @return array<PrescriptionItemResponseDTO>
+     */
+    public function mapEntitiesToResponses(iterable $items): array
+    {
+        $responses = [];
+        foreach ($items as $item) {
+            $responses[] = $this->mapEntityToResponse($item);
+        }
+        return $responses;
+    }
 }

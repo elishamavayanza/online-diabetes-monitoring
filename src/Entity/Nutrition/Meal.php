@@ -44,7 +44,6 @@ class Meal extends PatientCommonOperation
      */
     public function __construct()
     {
-        parent::__construct();
         $this->mealItems = new ArrayCollection();
     }
 
