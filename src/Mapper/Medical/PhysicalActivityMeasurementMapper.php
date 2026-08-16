@@ -20,6 +20,15 @@ class PhysicalActivityMeasurementMapper
         $measurement->setMinHeartRate($dto->minHeartRate);
         $measurement->setMaxHeartRate($dto->maxHeartRate);
 
+        // Gestion de la date de mesure (measuredAt) pour éviter l'erreur SQL
+        $measuredAt = property_exists($dto, 'measuredAt') && $dto->measuredAt
+            ? new \DateTimeImmutable($dto->measuredAt)
+            : new \DateTimeImmutable();
+
+        if (method_exists($measurement, 'setMeasuredAt')) {
+            $measurement->setMeasuredAt($measuredAt);
+        }
+
         return $measurement;
     }
 
