@@ -14,7 +14,10 @@ class HbA1cMeasurementRequestDTO
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Regex(pattern: '/^\d+(\.\d{1,2})?$/')]
-        #[OA\Property(type: 'string', example: '6.5', description: 'Valeur de l’HbA1c en pourcentage')]
-        public readonly string $valuePercent
+        #[OA\Property(description: 'Valeur de l’HbA1c en pourcentage', type: 'string', example: '6.5')]
+        public readonly string $valuePercent,
+
+        #[OA\Property(description: 'Date et heure de la mesure (optionnel, prend l’heure actuelle si vide)', type: 'string', format: 'date-time', example: '2026-08-16T10:00:00Z')]
+        public readonly ?string $measuredAt = null
     ) {}
 }
