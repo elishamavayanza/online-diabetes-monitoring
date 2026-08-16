@@ -39,22 +39,22 @@ class Prescription extends BaseEntity
     private ?HealthcareOrganization $organization = null;
 
     /**
-     * @var \DateTimeInterface|null La date de début de la prescription.
+     * @var \DateTimeImmutable|null La date de début de la prescription.
      */
-    #[ORM\Column(type: 'date')]
-    private ?\DateTimeInterface $startDate = null;
+    #[ORM\Column(type: 'date_immutable')]
+    private ?\DateTimeImmutable $startDate = null;
 
     /**
-     * @var \DateTimeInterface|null La date de fin de la prescription.
+     * @var \DateTimeImmutable|null La date de fin de la prescription.
      */
-    #[ORM\Column(type: 'date', nullable: true)]
-    private ?\DateTimeInterface $endDate = null;
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $endDate = null;
 
     /**
-     * @var PrescriptionStatus|null Le statut actuel de la prescription.
+     * @var string|null Le statut actuel de la prescription.
      */
-    #[ORM\Column(type: 'string', length: 50, enumType: PrescriptionStatus::class)]
-    private ?PrescriptionStatus $status = PrescriptionStatus::DRAFT;
+    #[ORM\Column(type: 'string', length: 50)]
+    private ?string $status = null;
 
     /**
      * @var string|null Notes ou instructions particulières concernant la prescription.
@@ -78,13 +78,13 @@ class Prescription extends BaseEntity
     /**
      * @var Collection<int, PrescriptionItem> La collection des éléments composant la prescription.
      */
-    #[ORM\OneToMany(mappedBy: 'prescription', targetEntity: PrescriptionItem::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: PrescriptionItem::class, mappedBy: 'prescription', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $items;
 
     /**
      * @var Collection<int, PrescriptionVersion> L'historique des versions de la prescription.
      */
-    #[ORM\OneToMany(mappedBy: 'prescription', targetEntity: PrescriptionVersion::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: PrescriptionVersion::class, mappedBy: 'prescription', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $versions;
 
     /**
@@ -92,9 +92,9 @@ class Prescription extends BaseEntity
      */
     public function __construct()
     {
-        parent::__construct();
         $this->items = new ArrayCollection();
         $this->versions = new ArrayCollection();
+        $this->status ??= PrescriptionStatus::DRAFT->value;
     }
 
     /**
@@ -151,7 +151,7 @@ class Prescription extends BaseEntity
     /**
      * Récupère la date de début.
      */
-    public function getStartDate(): ?\DateTimeInterface
+    public function getStartDate(): ?\DateTimeImmutable
     {
         return $this->startDate;
     }
@@ -159,7 +159,7 @@ class Prescription extends BaseEntity
     /**
      * Définit la date de début.
      */
-    public function setStartDate(\DateTimeInterface $startDate): static
+    public function setStartDate(\DateTimeImmutable $startDate): static
     {
         $this->startDate = $startDate;
         return $this;
@@ -168,7 +168,7 @@ class Prescription extends BaseEntity
     /**
      * Récupère la date de fin.
      */
-    public function getEndDate(): ?\DateTimeInterface
+    public function getEndDate(): ?\DateTimeImmutable
     {
         return $this->endDate;
     }
@@ -176,26 +176,26 @@ class Prescription extends BaseEntity
     /**
      * Définit la date de fin.
      */
-    public function setEndDate(?\DateTimeInterface $endDate): static
+    public function setEndDate(?\DateTimeImmutable $endDate): static
     {
         $this->endDate = $endDate;
         return $this;
     }
 
     /**
-     * Récupère le statut.
+     * Récupère le statut sous forme d'énumération.
      */
     public function getStatus(): ?PrescriptionStatus
     {
-        return $this->status;
+        return $this->status ? PrescriptionStatus::tryFrom($this->status) : null;
     }
 
     /**
      * Définit le statut.
      */
-    public function setStatus(PrescriptionStatus $status): static
+    public function setStatus(PrescriptionStatus|string $status): static
     {
-        $this->status = $status;
+        $this->status = $status instanceof PrescriptionStatus ? $status->value : $status;
         return $this;
     }
 

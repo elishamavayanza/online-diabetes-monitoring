@@ -11,38 +11,36 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 class PrescriptionRequestDTO
 {
-    public function __construct(
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID du patient')]
-        public readonly string $patientId,
+    #[Assert\NotBlank]
+    #[OA\Property(description: 'ID du patient', type: 'string', example: '13')]
+    public ?string $patientId = null;
 
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID du prescripteur')]
-        public readonly string $prescriberId,
+    #[Assert\NotBlank]
+    #[OA\Property(description: 'ID du prescripteur', type: 'string', example: '14')]
+    public ?string $prescriberId = null;
 
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID de l’organisation')]
-        public readonly string $organizationId,
+    #[Assert\NotBlank]
+    #[OA\Property(description: 'ID de l’organisation', type: 'string', example: '12')]
+    public ?string $organizationId = null;
 
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T00:00:00Z', description: 'Date de début')]
-        public readonly \DateTimeInterface $startDate,
+    #[Assert\NotNull]
+    #[OA\Property(description: 'Date de début', type: 'string', format: 'date-time', example: '2026-08-10T00:00:00Z')]
+    public ?\DateTimeImmutable $startDate = null;
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: '2026-08-17T00:00:00Z', description: 'Date de fin')]
-        public readonly ?\DateTimeInterface $endDate,
+    #[OA\Property(description: 'Date de fin', type: 'string', format: 'date-time', example: '2026-08-17T00:00:00Z', nullable: true)]
+    public ?\DateTimeImmutable $endDate = null;
 
-        #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'ACTIVE', description: 'Statut')]
-        public readonly mixed $status,
+    #[Assert\NotBlank]
+    #[OA\Property(description: 'Statut', type: 'string', example: 'ACTIVE')]
+    public ?string $status = null;
 
-        #[Assert\Length(max: 5000)]
-        #[OA\Property(type: 'string', maxLength: 5000, nullable: true, example: 'Notes cliniques...', description: 'Notes')]
-        public readonly ?string $notes,
+    #[Assert\Length(max: 5000)]
+    #[OA\Property(description: 'Notes', type: 'string', example: 'Notes cliniques...', nullable: true, maxLength: 5000)]
+    public ?string $notes = null;
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de validation')]
-        public readonly ?\DateTimeImmutable $validatedAt,
+    #[OA\Property(description: 'Date de validation', type: 'string', format: 'date-time', example: null, nullable: true)]
+    public ?\DateTimeImmutable $validatedAt = null;
 
-        #[OA\Property(type: 'string', format: 'uuid', nullable: true, example: null, description: 'ID de l’utilisateur validateur')]
-        public readonly ?string $validatedById
-    ) {}
+    #[OA\Property(description: 'ID de l’utilisateur validateur', type: 'string', example: null, nullable: true)]
+    public ?string $validatedById = null;
 }

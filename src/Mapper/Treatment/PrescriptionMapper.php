@@ -27,24 +27,39 @@ class PrescriptionMapper
         $prescription->setPrescriber($prescriber);
         $prescription->setOrganization($organization);
 
-        $startDate = $dto->startDate instanceof \DateTimeImmutable
-            ? $dto->startDate
-            : \DateTimeImmutable::createFromInterface($dto->startDate);
-        $prescription->setStartDate($startDate);
+        // Conversion sécurisée de startDate
+        if ($dto->startDate !== null) {
+            $startDate = ($dto->startDate instanceof \DateTimeInterface)
+                ? \DateTimeImmutable::createFromInterface($dto->startDate)
+                : new \DateTimeImmutable($dto->startDate);
+            $prescription->setStartDate($startDate);
+        }
 
+        // Conversion sécurisée de endDate
         if ($dto->endDate !== null) {
-            $endDate = $dto->endDate instanceof \DateTimeImmutable
-                ? $dto->endDate
-                : \DateTimeImmutable::createFromInterface($dto->endDate);
+            $endDate = ($dto->endDate instanceof \DateTimeInterface)
+                ? \DateTimeImmutable::createFromInterface($dto->endDate)
+                : new \DateTimeImmutable($dto->endDate);
             $prescription->setEndDate($endDate);
         }
 
+        // Conversion sécurisée de validatedAt
+        if ($dto->validatedAt !== null) {
+            $validatedAt = ($dto->validatedAt instanceof \DateTimeInterface)
+                ? \DateTimeImmutable::createFromInterface($dto->validatedAt)
+                : new \DateTimeImmutable($dto->validatedAt);
+            $prescription->setValidatedAt($validatedAt);
+        }
+
         if ($dto->status !== null) {
-            $prescription->setStatus(is_string($dto->status) ? PrescriptionStatus::tryFrom($dto->status) : $dto->status);
+            $status = is_string($dto->status) ? PrescriptionStatus::tryFrom($dto->status) : $dto->status;
+            // On s'assure que le statut n'est pas null avant de l'assigner
+            if ($status instanceof PrescriptionStatus) {
+                $prescription->setStatus($status);
+            }
         }
 
         $prescription->setNotes($dto->notes);
-        $prescription->setValidatedAt($dto->validatedAt);
         $prescription->setValidatedBy($validatedBy);
 
         return $prescription;
