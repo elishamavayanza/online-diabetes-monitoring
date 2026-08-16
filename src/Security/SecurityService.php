@@ -540,6 +540,9 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_PATIENT,
             SecurityAction::VIEW_MEDICAL_RECORD,
             SecurityAction::CREATE_MEDICAL_RECORD,
+            SecurityAction::VIEW_MEDICAL_NOTES,
+            SecurityAction::EDIT_MEDICAL_NOTE,
+            SecurityAction::DELETE_MEDICAL_NOTE,
 
             SecurityAction::CREATE_DIAGNOSIS,
             SecurityAction::UPDATE_DIAGNOSIS,

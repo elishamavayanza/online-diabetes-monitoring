@@ -34,6 +34,9 @@ enum SecurityAction: string
     // Dossier médical
     case VIEW_MEDICAL_RECORD = 'view_medical_record';
     case CREATE_MEDICAL_RECORD = 'create_medical_record';
+    case VIEW_MEDICAL_NOTES = 'view_medical_notes';
+    case EDIT_MEDICAL_NOTE = 'edit_medical_note';
+    case DELETE_MEDICAL_NOTE = 'delete_medical_note';
     case CREATE_DIAGNOSIS = 'create_diagnosis';
     case UPDATE_DIAGNOSIS = 'update_diagnosis';
     case CREATE_MEDICAL_NOTE = 'create_medical_note';
