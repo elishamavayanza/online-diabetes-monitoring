@@ -18,4 +18,9 @@ enum ReminderChannel: string
 
     /** Notification affichée directement au sein de l'application. */
     case IN_APP = 'IN_APP';
+
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

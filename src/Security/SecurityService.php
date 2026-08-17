@@ -513,6 +513,14 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::CREATE_APPOINTMENT,
             SecurityAction::UPDATE_APPOINTMENT,
             SecurityAction::CANCEL_APPOINTMENT,
+            SecurityAction::CONFIRM_APPOINTMENT,
+            SecurityAction::REQUEST_RESCHEDULE,
+            SecurityAction::DELETE_APPOINTMENT,
+
+            SecurityAction::VIEW_APPOINTMENT_REMINDER,
+            SecurityAction::CREATE_APPOINTMENT_REMINDER,
+            SecurityAction::UPDATE_APPOINTMENT_REMINDER,
+            SecurityAction::DELETE_APPOINTMENT_REMINDER,
 
             SecurityAction::VIEW_NUTRITION,
 
@@ -573,6 +581,14 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::CREATE_APPOINTMENT,
             SecurityAction::UPDATE_APPOINTMENT,
             SecurityAction::CANCEL_APPOINTMENT,
+            SecurityAction::CONFIRM_APPOINTMENT,
+            SecurityAction::REQUEST_RESCHEDULE,
+            SecurityAction::DELETE_APPOINTMENT,
+
+            SecurityAction::VIEW_APPOINTMENT_REMINDER,
+            SecurityAction::CREATE_APPOINTMENT_REMINDER,
+            SecurityAction::UPDATE_APPOINTMENT_REMINDER,
+            SecurityAction::DELETE_APPOINTMENT_REMINDER,
 
             SecurityAction::SEND_MESSAGE,
             SecurityAction::READ_MESSAGE,
@@ -664,6 +680,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_LABORATORY_RESULT,
 
             SecurityAction::VIEW_APPOINTMENT,
+            SecurityAction::CANCEL_APPOINTMENT,
             SecurityAction::CONFIRM_APPOINTMENT,
             SecurityAction::REQUEST_RESCHEDULE,
 

@@ -21,4 +21,7 @@ enum AppointmentStatus: string
 
     /** Le patient ne s'est pas présenté au rendez-vous (lapin / no-show). */
     case NO_SHOW = 'NO_SHOW';
+
+    /** Le report du rendez-vous a été demandé. */
+    case RESCHEDULE_REQUESTED = 'RESCHEDULE_REQUESTED';
 }

@@ -74,9 +74,16 @@ enum SecurityAction: string
     case VIEW_APPOINTMENT = 'view_appointment';
     case CREATE_APPOINTMENT = 'create_appointment';
     case UPDATE_APPOINTMENT = 'update_appointment';
+    case DELETE_APPOINTMENT = 'delete_appointment';
     case CANCEL_APPOINTMENT = 'cancel_appointment';
     case CONFIRM_APPOINTMENT = 'confirm_appointment';
     case REQUEST_RESCHEDULE = 'request_reschedule';
+
+    // Rappels de rendez-vous (Ajouté)
+    case VIEW_APPOINTMENT_REMINDER = 'view_appointment_reminder';
+    case CREATE_APPOINTMENT_REMINDER = 'create_appointment_reminder';
+    case UPDATE_APPOINTMENT_REMINDER = 'update_appointment_reminder';
+    case DELETE_APPOINTMENT_REMINDER = 'delete_appointment_reminder';
 
     // Communication
     case SEND_MESSAGE = 'send_message';
@@ -109,4 +116,6 @@ enum SecurityAction: string
     case CREATE_MEDICAL_CONSENT = 'create_medical_consent';
     case VIEW_MEDICAL_CONSENT = 'view_medical_consent';
     case REVOKE_MEDICAL_CONSENT = 'revoke_medical_consent';
+
+
 }

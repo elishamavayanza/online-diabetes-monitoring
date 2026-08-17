@@ -9,7 +9,7 @@ use App\Entity\Appointment\AppointmentStatus;
 use App\Entity\Identity\Patient;
 use App\Entity\Identity\HealthcareProfessional;
 use App\Entity\Healthcare\HealthcareOrganization;
-use App\Entity\Healthcare\Facility;
+use App\Entity\Healthcare\HealthcareFacility as Facility;
 
 class AppointmentMapper
 {

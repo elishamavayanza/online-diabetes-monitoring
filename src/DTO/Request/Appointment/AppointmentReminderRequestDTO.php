@@ -2,6 +2,7 @@
 
 namespace App\DTO\Request\Appointment;
 
+use App\Entity\Appointment\ReminderChannel;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -13,18 +14,20 @@ class AppointmentReminderRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: 'd3b07384-d113-4ec6-a578-832f01f4c74a', description: 'Identifiant unique du rendez-vous associé')]
-        public readonly string $appointmentId,
+        #[Assert\Positive]
+        #[OA\Property(description: 'Identifiant du rendez-vous associé', type: 'integer', format: 'int64', example: 1)]
+        public readonly int $appointmentId,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'SMS', description: 'Canal de diffusion (SMS, EMAIL, PUSH)')]
-        public readonly mixed $channel,
+        #[Assert\Choice(callback: [ReminderChannel::class, 'values'])]
+        #[OA\Property(description: 'Canal de diffusion', type: 'string', example: 'SMS', enum: ['EMAIL', 'SMS', 'PUSH', 'IN_APP'])]
+        public readonly string $channel,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-14T09:00:00Z', description: 'Date et heure prévues pour l’envoi du rappel')]
+        #[OA\Property(description: 'Date et heure prévues pour l’envoi du rappel', type: 'string', format: 'date-time', example: '2026-08-14T09:00:00Z')]
         public readonly \DateTimeImmutable $scheduledFor,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date d’envoi effective')]
+        #[OA\Property(description: 'Date d’envoi effective', type: 'string', format: 'date-time', example: null, nullable: true)]
         public readonly ?\DateTimeImmutable $sentAt
     ) {}
 }
