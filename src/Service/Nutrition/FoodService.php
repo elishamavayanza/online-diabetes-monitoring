@@ -4,6 +4,7 @@ namespace App\Service\Nutrition;
 
 use App\DTO\Feedback;
 use App\DTO\Request\Nutrition\FoodRequestDTO;
+use App\Entity\Nutrition\Food;
 use App\Mapper\Nutrition\FoodMapper;
 use App\Repository\Identity\UserRepository;
 use App\Repository\Nutrition\FoodCategoryRepository;
@@ -23,6 +24,65 @@ class FoodService
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService
     ) {
+    }
+
+    public function all(): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkProfessionalAccess(
+                SecurityAction::MANAGE_FOOD
+            );
+
+            $foods = $this->repository->findAll();
+            $data = array_map(fn(Food $food) => $this->mapper->mapEntityToResponse($food), $foods);
+
+            return $feedback
+                ->setData($data)
+                ->setFlushDescription("Liste des aliments récupérée avec succès.")
+                ->autoInitFlush();
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription("Accès refusé : " . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription("Erreur : " . $e->getMessage())
+                ->autoInitFlush();
+        }
+    }
+
+    public function getById(int $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkProfessionalAccess(
+                SecurityAction::MANAGE_FOOD
+            );
+
+            $food = $this->repository->find($id);
+
+            if (!$food) {
+                return $feedback
+                    ->setErrorFlushDescription("Aliment introuvable.")
+                    ->autoInitFlush();
+            }
+
+            return $feedback
+                ->setData($this->mapper->mapEntityToResponse($food))
+                ->setFlushDescription("Aliment récupéré avec succès.")
+                ->autoInitFlush();
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription("Accès refusé : " . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription("Erreur : " . $e->getMessage())
+                ->autoInitFlush();
+        }
     }
 
     public function create(FoodRequestDTO $dto): Feedback
@@ -84,6 +144,101 @@ class FoodService
                 ->setErrorFlushDescription(
                     "Erreur : " . $e->getMessage()
                 )
+                ->autoInitFlush();
+        }
+    }
+
+    public function update(int $id, FoodRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkProfessionalAccess(
+                SecurityAction::MANAGE_FOOD
+            );
+
+            $food = $this->repository->find($id);
+
+            if (!$food) {
+                return $feedback
+                    ->setErrorFlushDescription("Aliment introuvable.")
+                    ->autoInitFlush();
+            }
+
+            $category = $this->categoryRepository->find(
+                $dto->categoryId
+            );
+
+            if (!$category) {
+                return $feedback
+                    ->setErrorFlushDescription("Catégorie d'aliment introuvable.")
+                    ->autoInitFlush();
+            }
+
+            $createdBy = null;
+
+            if ($dto->createdById) {
+                $createdBy = $this->userRepository->find(
+                    $dto->createdById
+                );
+            }
+
+            $food = $this->mapper->mapRequestToEntity(
+                $dto,
+                $category,
+                $createdBy,
+                $food
+            );
+
+            $this->entityManager->flush();
+
+            return $feedback
+                ->setData($this->mapper->mapEntityToResponse($food))
+                ->setFlushDescription("Aliment mis à jour avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription("Accès refusé : " . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription("Erreur : " . $e->getMessage())
+                ->autoInitFlush();
+        }
+    }
+
+    public function delete(int $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkProfessionalAccess(
+                SecurityAction::MANAGE_FOOD
+            );
+
+            $food = $this->repository->find($id);
+
+            if (!$food) {
+                return $feedback
+                    ->setErrorFlushDescription("Aliment introuvable.")
+                    ->autoInitFlush();
+            }
+
+            $this->entityManager->remove($food);
+            $this->entityManager->flush();
+
+            return $feedback
+                ->setFlushDescription("Aliment supprimé avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription("Accès refusé : " . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription("Erreur : " . $e->getMessage())
                 ->autoInitFlush();
         }
     }
