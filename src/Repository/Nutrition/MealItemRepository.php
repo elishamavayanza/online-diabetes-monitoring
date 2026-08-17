@@ -24,8 +24,17 @@ class MealItemRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('mi')
             ->andWhere('mi.meal = :meal')
-            ->andWhere('mi.deletedAt IS NULL')
             ->setParameter('meal', $meal)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByPatient(int $patientId): array
+    {
+        return $this->createQueryBuilder('mi')
+            ->join('mi.meal', 'm')
+            ->where('m.patient = :patientId')
+            ->setParameter('patientId', $patientId)
             ->getQuery()
             ->getResult();
     }

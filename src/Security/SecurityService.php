@@ -538,6 +538,7 @@ final class SecurityService implements SecurityServiceInterface
     ): void {
         $allowed = [
             SecurityAction::VIEW_PATIENT,
+            SecurityAction::VIEW_NUTRITION,
             SecurityAction::VIEW_MEDICAL_RECORD,
             SecurityAction::CREATE_MEDICAL_RECORD,
             SecurityAction::VIEW_MEDICAL_NOTES,
