@@ -14,15 +14,18 @@ class MealRequestDTO
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, example: 'Déjeuner équilibré', description: 'Nom du repas')]
+        #[OA\Property(description: 'Nom du repas', type: 'string', example: 'Déjeuner équilibré', maxLength: 150)]
         public readonly string $name,
 
         #[Assert\Length(max: 5000)]
-        #[OA\Property(type: 'string', maxLength: 5000, nullable: true, example: 'Salade composée et blanc de poulet.', description: 'Description')]
+        #[OA\Property(description: 'Description', type: 'string', example: 'Salade composée et blanc de poulet.', nullable: true, maxLength: 5000)]
         public readonly ?string $description,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'LUNCH', description: 'Type de repas')]
-        public readonly mixed $mealType
+        #[OA\Property(description: 'Type de repas', type: 'string', example: 'LUNCH')]
+        public readonly mixed $mealType,
+
+        #[OA\Property(description: 'ID du patient (obligatoire si la requête est faite par un professionnel)', type: 'integer', example: 12, nullable: true)]
+        public readonly ?int $patientId = null
     ) {}
 }

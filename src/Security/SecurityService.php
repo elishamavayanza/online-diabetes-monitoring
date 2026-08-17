@@ -654,6 +654,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_MEASUREMENTS,
 
             SecurityAction::VIEW_NUTRITION,
+            SecurityAction::MANAGE_MEAL,
 
             SecurityAction::VIEW_PRESCRIPTION,
 

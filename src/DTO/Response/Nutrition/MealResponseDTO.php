@@ -13,22 +13,28 @@ use OpenApi\Attributes as OA;
 class MealResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'Identifiant unique')]
+        #[OA\Property(description: 'Identifiant unique', type: 'string', example: '1')]
         public readonly string $id,
 
-        #[OA\Property(type: 'string', example: 'Déjeuner équilibré', description: 'Nom du repas')]
+        #[OA\Property(description: 'Nom du repas', type: 'string', example: 'Déjeuner équilibré')]
         public readonly string $name,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'Salade composée...', description: 'Description')]
+        #[OA\Property(description: 'Description', type: 'string', example: 'Salade composée...', nullable: true)]
         public readonly ?string $description,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'LUNCH', description: 'Type de repas')]
+        #[OA\Property(description: 'Type de repas', type: 'string', example: 'LUNCH', nullable: true)]
         public readonly ?string $mealType,
 
-        #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T12:00:00Z', description: 'Date de création')]
-        public readonly \DateTimeImmutable $createdAt,
+        #[OA\Property(description: 'Date et heure de la mesure/repas', type: 'string', format: 'date-time', example: '2026-08-17T12:00:00Z', nullable: true)]
+        public readonly ?\DateTimeImmutable $measuredAt,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de mise à jour')]
+        #[OA\Property(description: 'ID du patient associé', type: 'integer', example: 12, nullable: true)]
+        public readonly ?int $patientId,
+
+        #[OA\Property(description: 'Date de création', type: 'string', format: 'date-time', example: '2026-08-10T12:00:00Z')]
+        public readonly ?\DateTimeImmutable $createdAt,
+
+        #[OA\Property(description: 'Date de mise à jour', type: 'string', format: 'date-time', example: null, nullable: true)]
         public readonly ?\DateTimeImmutable $updatedAt
     ) {}
 
@@ -39,8 +45,10 @@ class MealResponseDTO
             name: $meal->getName(),
             description: $meal->getDescription(),
             mealType: $meal->getMealType()?->value,
-            createdAt: $meal->getCreatedAt(),
-            updatedAt: $meal->getUpdatedAt()
+            measuredAt: method_exists($meal, 'getMeasuredAt') ? $meal->getMeasuredAt() : null,
+            patientId: $meal->getPatient()?->getId(),
+            createdAt: method_exists($meal, 'getCreatedAt') ? $meal->getCreatedAt() : null,
+            updatedAt: method_exists($meal, 'getUpdatedAt') ? $meal->getUpdatedAt() : null
         );
     }
 }
