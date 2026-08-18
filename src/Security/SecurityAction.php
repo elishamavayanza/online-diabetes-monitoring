@@ -89,6 +89,7 @@ enum SecurityAction: string
     case SEND_MESSAGE = 'send_message';
     case READ_MESSAGE = 'read_message';
     case DOWNLOAD_ATTACHMENT = 'download_attachment';
+    case CREATE_CONVERSATION = 'create_conversation';
 
     // Notifications
     case VIEW_NOTIFICATION = 'view_notification';

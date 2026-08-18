@@ -50,6 +50,13 @@ class Conversation extends BaseEntity
     private Collection $messages;
 
     /**
+     * @var User|null L'utilisateur qui a créé la conversation.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $createdBy = null;
+
+    /**
      * Initialise une nouvelle instance de la conversation et sa collection de messages.
      */
     public function __construct()
@@ -157,6 +164,23 @@ class Conversation extends BaseEntity
                 $message->setConversation(null);
             }
         }
+        return $this;
+    }
+
+    /**
+     * Récupère l'utilisateur créateur de la conversation.
+     */
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    /**
+     * Définit l'utilisateur créateur de la conversation.
+     */
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 }

@@ -397,29 +397,41 @@ final class SecurityService implements SecurityServiceInterface
 
     public function hasPermission(string $permission): bool
     {
-        /*
-         * SUPER ADMIN
-         *
-         * Accès global.
-         */
         if ($this->isSuperAdmin()) {
             return true;
         }
 
-        /*
-         * Pour le moment, on délègue à Symfony.
-         *
-         * Plus tard cette méthode pourra centraliser :
-         *
-         * RolePermission
-         * +
-         * UserPermission
-         * +
-         * GRANT / DENY
-         *
-         * sans modifier les services métier.
-         */
-        return $this->security->isGranted($permission);
+        // Convertir la chaîne en SecurityAction
+        $action = SecurityAction::tryFrom($permission);
+        if (!$action) {
+            return false;
+        }
+
+        try {
+            if ($this->isOrganizationAdmin()) {
+                $this->checkOrganizationAdminAction($action);
+                return true;
+            }
+
+            if ($this->isClinician()) {
+                $this->checkClinicianAction($action);
+                return true;
+            }
+
+            if ($this->isNutritionist()) {
+                $this->checkNutritionistAction($action);
+                return true;
+            }
+
+            if ($this->isPatient()) {
+                $this->checkPatientAction($action);
+                return true;
+            }
+        } catch (AccessDeniedException $e) {
+            return false;
+        }
+
+        return false;
     }
 
     public function checkPermission(string $permission): void
@@ -593,6 +605,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::SEND_MESSAGE,
             SecurityAction::READ_MESSAGE,
             SecurityAction::DOWNLOAD_ATTACHMENT,
+            SecurityAction::CREATE_CONVERSATION,
 
             SecurityAction::CREATE_ALLERGY,
             SecurityAction::VIEW_ALLERGY,
@@ -687,6 +700,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::SEND_MESSAGE,
             SecurityAction::READ_MESSAGE,
             SecurityAction::DOWNLOAD_ATTACHMENT,
+            SecurityAction::CREATE_CONVERSATION,
 
             SecurityAction::VIEW_NOTIFICATION,
             SecurityAction::MARK_NOTIFICATION_READ,
