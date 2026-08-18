@@ -25,6 +25,27 @@ class MessageAttachmentMapper
         return $attachment;
     }
 
+    /**
+     * Mappe les données directes d'un fichier uploadé vers l'entité MessageAttachment
+     */
+    public function mapUploadToEntity(
+        Message $message,
+        string $fileName,
+        string $filePath,
+        string $mimeType,
+        int $sizeBytes
+    ): MessageAttachment {
+        $attachment = new MessageAttachment();
+
+        $attachment->setMessage($message);
+        $attachment->setFileName($fileName);
+        $attachment->setFileUrl($filePath); // Nom unique généré par le FileUploaderService
+        $attachment->setMimeType($mimeType);
+        $attachment->setSizeBytes($sizeBytes);
+
+        return $attachment;
+    }
+
     public function mapEntityToResponse(MessageAttachment $attachment): MessageAttachmentResponseDTO
     {
         return MessageAttachmentResponseDTO::fromEntity($attachment);

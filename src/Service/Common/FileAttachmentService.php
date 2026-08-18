@@ -3,13 +3,15 @@
 namespace App\Service\Common;
 
 use App\DTO\Feedback;
-use App\DTO\Request\Common\FileAttachmentRequestDTO;
 use App\Mapper\Common\FileAttachmentMapper;
 use App\Repository\Common\FileAttachmentRepository;
+use App\Service\File\FileUploaderService; // <-- Votre service d'upload unique
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Bundle\SecurityBundle\Security; // Pour récupérer l'utilisateur connecté
 
 class FileAttachmentService
 {
@@ -17,33 +19,49 @@ class FileAttachmentService
         private readonly FileAttachmentRepository $fileAttachmentRepository,
         private readonly FileAttachmentMapper $fileAttachmentMapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService // 1. Injection du service de sécurité
+        private readonly SecurityServiceInterface $securityService,
+        private readonly FileUploaderService $fileUploaderService,
+        private readonly Security $security // Pour récupérer l'ID de l'utilisateur connecté
     ) {}
 
-    public function create(FileAttachmentRequestDTO $dto): Feedback
+    public function uploadAndCreate(UploadedFile $file, string $entityType, string $entityId): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            // 2. Vérification de la sécurité (exemple : action d'upload ou de création)
-            // Vous pouvez ajuster l'action selon votre contexte métier exact (ex: UPLOAD_LABORATORY_RESULT)
+            // 1. Vérification des droits de sécurité
             $this->securityService->checkPermission(SecurityAction::UPLOAD_LABORATORY_RESULT->value);
 
-            // Si le fichier est lié à un patient ou une entité spécifique,
-            // vous pouvez aussi appeler checkPatientAccess() ou checkOrganizationAccess() ici.
+            // 2. Gestion intelligente du sous-dossier (ex: 'voices' pour audio/vocal, 'attachments' pour le reste)
+            $mimeType = $file->getMimeType();
+            $subFolder = str_starts_with($mimeType, 'audio/') ? 'voices' : 'attachments';
 
-            $fileAttachment = $this->fileAttachmentMapper->mapRequestToEntity($dto);
+            // 3. Upload physique du fichier via votre service centralisé
+            $uniqueFilename = $this->fileUploaderService->upload($file, $subFolder);
+
+            // 4. Récupération de l'utilisateur connecté (si disponible)
+            $currentUser = $this->security->getUser();
+            $currentUserId = $currentUser ? $currentUser->getId() : null;
+
+            // 5. Mapping et persistance en base de données
+            $fileAttachment = $this->fileAttachmentMapper->mapUploadToEntity(
+                $file,
+                $uniqueFilename,
+                $entityType,
+                $entityId,
+                $currentUserId
+            );
 
             $this->entityManager->persist($fileAttachment);
             $this->entityManager->flush();
 
             $responseDTO = $this->fileAttachmentMapper->mapEntityToResponse($fileAttachment);
 
-            $feedback->setFlushDescription("Fichier attaché avec succès.")
+            $feedback->setData($responseDTO)
+                ->setFlushDescription("Fichier attaché et enregistré avec succès.")
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
-            // Propagation ou gestion propre de l'accès refusé
             $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())
                 ->autoInitFlush();
         } catch (\Exception $e) {
@@ -54,26 +72,23 @@ class FileAttachmentService
         return $feedback;
     }
 
-    public function getById(string $id): ?Feedback
+    public function getById(string $id): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            // 3. Vérification de l'action de téléchargement/lecture
             $this->securityService->checkPermission(SecurityAction::DOWNLOAD_ATTACHMENT->value);
 
             $fileAttachment = $this->fileAttachmentRepository->find($id);
 
             if (!$fileAttachment) {
-                $feedback->setErrorFlushDescription("Fichier introuvable.")
-                    ->autoInitFlush();
-                return $feedback;
+                return $feedback->setErrorFlushDescription("Fichier introuvable.")->autoInitFlush();
             }
 
-            // TODO : Si le fichier appartient à un patient, vérifier l'accès au patient avec :
-            // $this->securityService->checkPatientAccess($fileAttachment->getPatient(), SecurityAction::DOWNLOAD_ATTACHMENT);
+            $responseDTO = $this->fileAttachmentMapper->mapEntityToResponse($fileAttachment);
 
-            $feedback->setFlushDescription("Fichier récupéré avec succès.")
+            $feedback->setData($responseDTO)
+                ->setFlushDescription("Fichier récupéré avec succès.")
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {

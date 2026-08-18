@@ -2,19 +2,20 @@
 
 namespace App\Controller\Api\Common;
 
-use App\DTO\Request\Common\FileAttachmentRequestDTO;
+use App\DTO\Feedback;
 use App\DTO\Response\Common\FileAttachmentResponseDTO;
 use App\Service\Common\FileAttachmentService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/file-attachments', name: 'api_file_attachments_')]
-#[OA\Tag(name: 'Common - File Attachments', description: 'Gestion centralisée des pièces jointes et fichiers associés aux différentes entités de la plateforme')]
+#[OA\Tag(name: 'Common - File Attachments', description: 'Gestion centralisée des pièces jointes et fichiers associés aux différentes entités')]
 class FileAttachmentController extends AbstractController
 {
     public function __construct(
@@ -23,14 +24,22 @@ class FileAttachmentController extends AbstractController
 
     #[Route('', name: 'create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Enregistrer une nouvelle pièce jointe',
-        description: 'Permet d’associer les métadonnées d’un fichier stocké à une entité spécifique du système (ex: Patient, Consultation, Ordonnance).'
+        description: 'Permet d’uploader physiquement un fichier (image, PDF, audio vocal, etc.) et d’enregistrer ses métadonnées.',
+        summary: 'Uploader et enregistrer une nouvelle pièce jointe'
     )]
     #[OA\RequestBody(
+        description: 'Fichier et paramètres de liaison (entityType, entityId)',
         required: true,
-        description: 'Métadonnées du fichier à enregistrer',
-        content: new OA\JsonContent(
-            ref: new Model(type: FileAttachmentRequestDTO::class)
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                required: ['file', 'entityType', 'entityId'],
+                properties: [
+                    new OA\Property(property: 'file', description: 'Le fichier binaire à uploader', type: 'string', format: 'binary'),
+                    new OA\Property(property: 'entityType', description: 'Le type d entité liée (ex: Patient, Consultation, Message)', type: 'string', example: 'Patient'),
+                    new OA\Property(property: 'entityId', description: 'L identifiant de l entité liée', type: 'string', example: '9a882211-12ee-4c55-8811-1a2233445566')
+                ]
+            )
         )
     )]
     #[OA\Response(
@@ -45,36 +54,35 @@ class FileAttachmentController extends AbstractController
             ]
         )
     )]
-    #[OA\Response(
-        response: 400,
-        description: 'Erreur de validation ou métadonnées invalides'
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'Non authentifié'
-    )]
-    public function create(#[MapRequestPayload] FileAttachmentRequestDTO $dto): JsonResponse
+    #[OA\Response(response: 400, description: 'Fichier manquant ou paramètres invalides')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function create(Request $request): JsonResponse
     {
-        $feedback = $this->fileAttachmentService->create($dto);
+        $file = $request->files->get('file');
+        $entityType = $request->request->get('entityType');
+        $entityId = $request->request->get('entityId');
+
+        if (!$file || !$entityType || !$entityId) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Les champs file, entityType et entityId sont obligatoires.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $feedback = $this->fileAttachmentService->uploadAndCreate($file, $entityType, $entityId);
 
         return $this->json($feedback, $feedback->getStatus());
     }
 
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     #[OA\Get(
-        summary: 'Récupérer les détails d’une pièce jointe',
-        description: 'Permet d’obtenir les métadonnées complètes d’une pièce jointe à partir de son identifiant unique.'
-    )]
-    #[OA\Parameter(
-        name: 'id',
-        description: 'Identifiant UUID de la pièce jointe',
-        in: 'path',
-        required: true,
-        schema: new OA\Schema(type: 'string', format: 'uuid', example: '9a882211-12ee-4c55-8811-1a2233445566')
+        description: 'Permet d’obtenir les métadonnées complètes d’une pièce jointe.',
+        summary: 'Récupérer les détails d’une pièce jointe'
     )]
     #[OA\Response(
         response: 200,
-        description: 'Détails de la pièce jointe récupérés avec succès',
+        description: 'Détails récupérés avec succès',
         content: new OA\JsonContent(
             properties: [
                 new OA\Property(property: 'status', type: 'integer', example: 200),
@@ -84,14 +92,8 @@ class FileAttachmentController extends AbstractController
             ]
         )
     )]
-    #[OA\Response(
-        response: 404,
-        description: 'Pièce jointe introuvable'
-    )]
-    #[OA\Response(
-        response: 401,
-        description: 'Non authentifié'
-    )]
+    #[OA\Response(response: 404, description: 'Pièce jointe introuvable')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
     public function show(string $id): JsonResponse
     {
         $feedback = $this->fileAttachmentService->getById($id);

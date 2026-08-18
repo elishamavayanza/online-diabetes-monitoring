@@ -2,10 +2,10 @@
 
 namespace App\Mapper\Common;
 
-use App\DTO\Request\Common\FileAttachmentRequestDTO;
 use App\DTO\Response\Common\FileAttachmentResponseDTO;
 use App\Entity\Common\FileAttachment;
 use App\Repository\Identity\UserRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileAttachmentMapper
 {
@@ -13,20 +13,29 @@ class FileAttachmentMapper
         private readonly UserRepository $userRepository
     ) {}
 
-    public function mapRequestToEntity(FileAttachmentRequestDTO $dto, ?FileAttachment $entity = null): FileAttachment
-    {
-        $fileAttachment = $entity ?? new FileAttachment();
+    public function mapUploadToEntity(
+        UploadedFile $file,
+        string $uniqueFilename,
+        string $entityType,
+        string $entityId,
+        ?string $currentUserId = null
+    ): FileAttachment {
+        $fileAttachment = new FileAttachment();
 
-        $fileAttachment->setOriginalName($dto->originalName);
-        $fileAttachment->setFilename($dto->fileName);
-        $fileAttachment->setMimeType($dto->mimeType);
-        $fileAttachment->setSizeBytes($dto->sizeBytes);
-        $fileAttachment->setUrl($dto->url);
-        $fileAttachment->setEntityType($dto->entityType);
-        $fileAttachment->setEntityId($dto->entityId);
+        $fileAttachment->setOriginalName(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $fileAttachment->setFilename($uniqueFilename);
+        $fileAttachment->setMimeType($file->getMimeType());
+        $fileAttachment->setSizeBytes($file->getSize());
 
-        if ($dto->uploadedById) {
-            $user = $this->userRepository->find($dto->uploadedById);
+        // Construction de l'URL ou chemin d'accès public relatif
+        $subFolder = str_starts_with((string)$file->getMimeType(), 'audio/') ? 'voices' : 'attachments';
+        $fileAttachment->setUrl('/uploads/' . $subFolder . '/' . $uniqueFilename);
+
+        $fileAttachment->setEntityType($entityType);
+        $fileAttachment->setEntityId($entityId);
+
+        if ($currentUserId) {
+            $user = $this->userRepository->find($currentUserId);
             if ($user) {
                 $fileAttachment->setUploadedBy($user);
             }
