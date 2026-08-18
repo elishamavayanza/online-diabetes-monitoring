@@ -23,12 +23,12 @@ class ConversationController extends AbstractController
 
     #[Route('', name: 'api_conversations_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Créer une nouvelle conversation',
-        description: 'Permet d’initialiser un nouveau fil de discussion (sujet) rattaché ou non à une organisation de santé.'
+        description: 'Permet d’initialiser un nouveau fil de discussion (sujet) rattaché ou non à une organisation de santé.',
+        summary: 'Créer une nouvelle conversation'
     )]
     #[OA\RequestBody(
-        required: true,
         description: 'Paramètres de création de la conversation',
+        required: true,
         content: new OA\JsonContent(
             ref: new Model(type: ConversationRequestDTO::class)
         )
@@ -56,7 +56,7 @@ class ConversationController extends AbstractController
     public function create(#[MapRequestPayload] ConversationRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->create($dto);
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
 
         return $this->json($feedback, $status);
     }

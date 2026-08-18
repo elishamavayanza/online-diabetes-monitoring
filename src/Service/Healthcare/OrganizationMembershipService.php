@@ -7,7 +7,6 @@ use App\DTO\Request\Healthcare\OrganizationMembershipRequestDTO;
 use App\Mapper\Healthcare\OrganizationMembershipMapper;
 use App\Repository\Healthcare\DepartmentRepository;
 use App\Repository\Healthcare\HealthcareFacilityRepository;
-use App\Repository\Healthcare\HealthcareOrganizationRepository;
 use App\Repository\Healthcare\OrganizationMembershipRepository;
 use App\Repository\Identity\UserRepository;
 use App\Security\SecurityAction;
@@ -20,7 +19,6 @@ class OrganizationMembershipService
     public function __construct(
         private readonly OrganizationMembershipRepository $membershipRepository,
         private readonly UserRepository $userRepository,
-        private readonly HealthcareOrganizationRepository $organizationRepository,
         private readonly HealthcareFacilityRepository $facilityRepository,
         private readonly DepartmentRepository $departmentRepository,
         private readonly OrganizationMembershipMapper $mapper,
@@ -33,11 +31,32 @@ class OrganizationMembershipService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::MANAGE_ROLES->value);
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
+            );
 
             $membership = $this->membershipRepository->find($id);
             if (!$membership) {
                 return $feedback->setErrorFlushDescription("Adhésion introuvable.")->autoInitFlush();
+            }
+
+            if ($membership->getOrganization() !== $targetOrganization) {
+                throw new AccessDeniedException("Vous ne pouvez accéder qu'aux adhésions de votre propre organisation.");
             }
 
             $feedback->setData($this->mapper->mapEntityToResponse($membership))
@@ -58,22 +77,54 @@ class OrganizationMembershipService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::MANAGE_ROLES->value);
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
+            );
 
             $user = $this->userRepository->find($dto->userId);
             if (!$user) {
                 return $feedback->setErrorFlushDescription("Utilisateur introuvable.")->autoInitFlush();
             }
 
-            $organization = $this->organizationRepository->find($dto->organizationId);
-            if (!$organization) {
-                return $feedback->setErrorFlushDescription("Organisation introuvable.")->autoInitFlush();
-            }
-
             $facility = $dto->facilityId ? $this->facilityRepository->find($dto->facilityId) : null;
             $department = $dto->departmentId ? $this->departmentRepository->find($dto->departmentId) : null;
 
-            $membership = $this->mapper->mapRequestToEntity($dto, $user, $organization, $facility, $department);
+            // === VÉRIFICATION D'UNICITÉ ===
+            // Empêche la création d'un doublon pour le même utilisateur dans la même organisation
+            $criteria = [
+                'user' => $user,
+                'organization' => $targetOrganization
+            ];
+
+            if ($facility) {
+                $criteria['facility'] = $facility;
+            }
+            if ($department) {
+                $criteria['department'] = $department;
+            }
+
+            $existingMembership = $this->membershipRepository->findOneBy($criteria);
+            if ($existingMembership) {
+                return $feedback->setErrorFlushDescription("Cet utilisateur possède déjà une adhésion active pour cette structure.")->autoInitFlush();
+            }
+            // =============================
+
+            $membership = $this->mapper->mapRequestToEntity($dto, $user, $targetOrganization, $facility, $department);
 
             $this->entityManager->persist($membership);
             $this->entityManager->flush();
@@ -96,11 +147,32 @@ class OrganizationMembershipService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::MANAGE_ROLES->value);
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
+            );
 
             $membership = $this->membershipRepository->find($id);
             if (!$membership) {
                 return $feedback->setErrorFlushDescription("Adhésion introuvable.")->autoInitFlush();
+            }
+
+            if ($membership->getOrganization() !== $targetOrganization) {
+                throw new AccessDeniedException("Vous ne pouvez modifier que les adhésions de votre propre organisation.");
             }
 
             $user = $dto->userId ? $this->userRepository->find($dto->userId) : $membership->getUser();
@@ -108,15 +180,10 @@ class OrganizationMembershipService
                 return $feedback->setErrorFlushDescription("Utilisateur introuvable.")->autoInitFlush();
             }
 
-            $organization = $dto->organizationId ? $this->organizationRepository->find($dto->organizationId) : $membership->getOrganization();
-            if (!$organization) {
-                return $feedback->setErrorFlushDescription("Organisation introuvable.")->autoInitFlush();
-            }
-
             $facility = $dto->facilityId !== null ? $this->facilityRepository->find($dto->facilityId) : $membership->getFacility();
             $department = $dto->departmentId !== null ? $this->departmentRepository->find($dto->departmentId) : $membership->getDepartment();
 
-            $this->mapper->mapRequestToEntity($dto, $user, $organization, $facility, $department, $membership);
+            $this->mapper->mapRequestToEntity($dto, $user, $targetOrganization, $facility, $department, $membership);
 
             $this->entityManager->flush();
 
@@ -138,11 +205,32 @@ class OrganizationMembershipService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(SecurityAction::MANAGE_ROLES->value);
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
+            );
 
             $membership = $this->membershipRepository->find($id);
             if (!$membership) {
                 return $feedback->setErrorFlushDescription("Adhésion introuvable.")->autoInitFlush();
+            }
+
+            if ($membership->getOrganization() !== $targetOrganization) {
+                throw new AccessDeniedException("Vous ne pouvez supprimer que les adhésions de votre propre organisation.");
             }
 
             $this->entityManager->remove($membership);

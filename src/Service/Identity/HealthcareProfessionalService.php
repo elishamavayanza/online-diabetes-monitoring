@@ -83,8 +83,23 @@ class HealthcareProfessionalService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::MANAGE_USERS->value
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
             );
 
             $existingUser = $this->repository->findOneBy([
@@ -121,6 +136,9 @@ class HealthcareProfessionalService
                 $role->value
             ]);
 
+            // Si nécessaire, rattachez le professionnel à l'organisation ici :
+            // $professional->addOrganization($targetOrganization);
+
             $this->entityManager->persist($professional);
             $this->entityManager->flush();
 
@@ -132,7 +150,7 @@ class HealthcareProfessionalService
                 ->setData($responseDTO)
                 ->setFlushDescription(
                     sprintf(
-                        'Professionnel créé avec succès avec le rôle %s.',
+                        'Professionnel créé avec succès avec le rôle %s et rattaché à l’organisation.',
                         $role->value
                     )
                 )
@@ -227,8 +245,23 @@ class HealthcareProfessionalService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::MANAGE_USERS->value
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
             );
 
             $professional = $this->repository->findOneBy([
@@ -321,8 +354,23 @@ class HealthcareProfessionalService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::MANAGE_USERS->value
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
             );
 
             $professional = $this->repository->findOneBy([
@@ -338,7 +386,6 @@ class HealthcareProfessionalService
                     ->autoInitFlush();
             }
 
-            // Application du Soft Delete au lieu de remove()
             $professional->setDeletedAt(new \DateTimeImmutable());
             $this->entityManager->flush();
 
