@@ -7,41 +7,48 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     title: 'NotificationRequestDTO',
-    description: 'Structure de requête pour la création d’une notification'
+    description: 'Structure de requête pour la création d’une ou plusieurs notifications'
 )]
 class NotificationRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'Identifiant de l’utilisateur')]
-        public readonly string $userId,
+        #[Assert\Choice(choices: ['USER', 'ORGANIZATION', 'GLOBAL'], message: 'Le scope doit être USER, ORGANIZATION ou GLOBAL.')]
+        #[OA\Property(description: 'Portée de la notification (USER, ORGANIZATION, GLOBAL)', type: 'string', example: 'USER')]
+        public readonly string $scope,
+
+        #[OA\Property(description: 'Requis si scope = USER', type: 'string', format: 'uuid', example: '19', nullable: true)]
+        public readonly ?string $userId = null,
+
+        #[OA\Property(description: 'Requis si scope = ORGANIZATION', type: 'string', format: 'uuid', example: 'org-uuid-1234', nullable: true)]
+        public readonly ?string $organizationId = null,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'ALERT', description: 'Type de notification')]
+        #[OA\Property(description: 'Type de notification', type: 'string', example: 'ALERT')]
         public readonly mixed $type,
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 255)]
-        #[OA\Property(type: 'string', maxLength: 255, example: 'Rappel de glycémie', description: 'Titre')]
+        #[OA\Property(description: 'Titre', type: 'string', example: 'Rappel important', maxLength: 255)]
         public readonly string $title,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'Il est l’heure...', description: 'Corps du message')]
+        #[OA\Property(description: 'Corps du message', type: 'string', example: 'Il est l’heure...')]
         public readonly string $body,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'PUSH', description: 'Canal de diffusion')]
+        #[OA\Property(description: 'Canal de diffusion', type: 'string', example: 'PUSH')]
         public readonly mixed $channel,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de lecture')]
-        public readonly ?\DateTimeImmutable $readAt,
+        #[OA\Property(description: 'Date de lecture', type: 'string', format: 'date-time', example: null, nullable: true)]
+        public readonly ?\DateTimeImmutable $readAt = null,
 
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, nullable: true, example: 'BloodGlucoseMeasurement', description: 'Type d’entité liée')]
-        public readonly ?string $relatedEntityType,
+        #[OA\Property(description: 'Type d’entité liée', type: 'string', example: 'SystemEvent', nullable: true, maxLength: 150)]
+        public readonly ?string $relatedEntityType = null,
 
         #[Assert\Uuid]
-        #[OA\Property(type: 'string', format: 'uuid', nullable: true, example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID de l’entité liée')]
-        public readonly ?string $relatedEntityId
+        #[OA\Property(description: 'ID de l’entité liée', type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', nullable: true)]
+        public readonly ?string $relatedEntityId = null
     ) {}
 }

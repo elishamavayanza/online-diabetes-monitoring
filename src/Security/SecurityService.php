@@ -538,6 +538,8 @@ final class SecurityService implements SecurityServiceInterface
 
             SecurityAction::SEND_MESSAGE,
             SecurityAction::READ_MESSAGE,
+
+            SecurityAction::CREATE_NOTIFICATION,
         ];
 
         $this->denyIfNotAllowed(
@@ -614,6 +616,8 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_MEDICAL_CONSENT,
 
             SecurityAction::CREATE_REMINDER_RULE,
+
+            SecurityAction::CREATE_NOTIFICATION,
         ];
 
         $this->denyIfNotAllowed(
@@ -656,6 +660,8 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_MEDICAL_CONSENT,
 
             SecurityAction::CREATE_REMINDER_RULE,
+
+            SecurityAction::CREATE_NOTIFICATION,
         ];
 
         $this->denyIfNotAllowed(
@@ -677,6 +683,10 @@ final class SecurityService implements SecurityServiceInterface
         $allowed = [
             SecurityAction::VIEW_PATIENT,
             SecurityAction::UPDATE_PATIENT,
+
+            SecurityAction::VIEW_MEDICAL_RECORD,
+            SecurityAction::VIEW_MEDICAL_NOTES,
+            SecurityAction::EDIT_MEDICAL_NOTE,
 
             SecurityAction::RECORD_GLUCOSE,
             SecurityAction::RECORD_WEIGHT,

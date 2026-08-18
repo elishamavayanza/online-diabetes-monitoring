@@ -13,37 +13,37 @@ use OpenApi\Attributes as OA;
 class NotificationResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '77bb6655-4433-2211-0099-887766554433', description: 'Identifiant unique')]
+        #[OA\Property(description: 'Identifiant unique', type: 'string', format: 'uuid', example: '77bb6655-4433-2211-0099-887766554433')]
         public readonly string $id,
 
-        #[OA\Property(type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID de l’utilisateur')]
+        #[OA\Property(description: 'ID de l’utilisateur', type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999')]
         public readonly string $userId,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'ALERT', description: 'Type de notification')]
+        #[OA\Property(description: 'Type de notification', type: 'string', example: 'ALERT', nullable: true)]
         public readonly ?string $type,
 
-        #[OA\Property(type: 'string', example: 'Rappel de glycémie', description: 'Titre')]
+        #[OA\Property(description: 'Titre', type: 'string', example: 'Rappel de glycémie')]
         public readonly string $title,
 
-        #[OA\Property(type: 'string', example: 'Il est l’heure...', description: 'Corps du message')]
+        #[OA\Property(description: 'Corps du message', type: 'string', example: 'Il est l’heure...')]
         public readonly string $body,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'PUSH', description: 'Canal')]
+        #[OA\Property(description: 'Canal', type: 'string', example: 'PUSH', nullable: true)]
         public readonly ?string $channel,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de lecture')]
+        #[OA\Property(description: 'Date de lecture', type: 'string', format: 'date-time', example: null, nullable: true)]
         public readonly ?\DateTimeImmutable $readAt,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'BloodGlucoseMeasurement', description: 'Type d’entité liée')]
+        #[OA\Property(description: 'Type d’entité liée', type: 'string', example: 'BloodGlucoseMeasurement', nullable: true)]
         public readonly ?string $relatedEntityType,
 
-        #[OA\Property(type: 'string', format: 'uuid', nullable: true, example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID de l’entité liée')]
+        #[OA\Property(description: 'ID de l’entité liée', type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', nullable: true)]
         public readonly ?string $relatedEntityId,
 
-        #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T11:30:00Z', description: 'Date de création')]
+        #[OA\Property(description: 'Date de création', type: 'string', format: 'date-time', example: '2026-08-10T11:30:00Z')]
         public readonly \DateTimeImmutable $createdAt,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de mise à jour')]
+        #[OA\Property(description: 'Date de mise à jour', type: 'string', format: 'date-time', example: null, nullable: true)]
         public readonly ?\DateTimeImmutable $updatedAt
     ) {}
 

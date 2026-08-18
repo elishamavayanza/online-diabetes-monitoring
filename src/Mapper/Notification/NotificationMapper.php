@@ -4,6 +4,7 @@ namespace App\Mapper\Notification;
 
 use App\DTO\Request\Notification\NotificationRequestDTO;
 use App\DTO\Response\Notification\NotificationResponseDTO;
+use App\Entity\Appointment\ReminderChannel;
 use App\Entity\Notification\Notification;
 use App\Entity\Notification\NotificationType;
 use App\Entity\Notification\NotificationChannel;
@@ -28,7 +29,7 @@ class NotificationMapper
         $notification->setBody($dto->body);
 
         if ($dto->channel !== null) {
-            $notification->setChannel(is_string($dto->channel) ? NotificationChannel::tryFrom($dto->channel) : $dto->channel);
+            $notification->setChannel(is_string($dto->channel) ? ReminderChannel::tryFrom($dto->channel) : $dto->channel);
         }
 
         $notification->setReadAt($dto->readAt);
