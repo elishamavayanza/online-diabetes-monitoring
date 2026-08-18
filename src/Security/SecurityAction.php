@@ -95,6 +95,7 @@ enum SecurityAction: string
     case VIEW_NOTIFICATION = 'view_notification';
     case CREATE_NOTIFICATION = 'create_notification';
 
+    case CREATE_REMINDER_RULE = 'create_reminder_rule';
     case MARK_NOTIFICATION_READ = 'mark_notification_read';
 
 

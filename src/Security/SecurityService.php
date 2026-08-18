@@ -612,6 +612,8 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::UPDATE_ALLERGY,
             SecurityAction::VIEW_EMERGENCY_CONTACT,
             SecurityAction::VIEW_MEDICAL_CONSENT,
+
+            SecurityAction::CREATE_REMINDER_RULE,
         ];
 
         $this->denyIfNotAllowed(
@@ -652,6 +654,8 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_ALLERGY,
             SecurityAction::VIEW_EMERGENCY_CONTACT,
             SecurityAction::VIEW_MEDICAL_CONSENT,
+
+            SecurityAction::CREATE_REMINDER_RULE,
         ];
 
         $this->denyIfNotAllowed(
@@ -725,6 +729,8 @@ final class SecurityService implements SecurityServiceInterface
             // Gestion de sa Diagnostique
             SecurityAction::CREATE_DIAGNOSIS,
             SecurityAction::UPDATE_DIAGNOSIS,
+
+            SecurityAction::CREATE_REMINDER_RULE,
         ];
 
         $this->denyIfNotAllowed(
