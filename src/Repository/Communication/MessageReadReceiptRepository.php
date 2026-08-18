@@ -4,7 +4,7 @@ namespace App\Repository\Communication;
 
 use App\Entity\Communication\MessageReadReceipt;
 use App\Entity\Communication\Message;
-use App\Entity\Communication\ConversationParticipant;
+use App\Entity\Identity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,14 +18,14 @@ class MessageReadReceiptRepository extends ServiceEntityRepository
         parent::__construct($registry, MessageReadReceipt::class);
     }
 
-    public function findByMessageAndParticipant(Message $message, ConversationParticipant $participant): ?MessageReadReceipt
+    public function findByMessageAndUser(Message $message, User $user): ?MessageReadReceipt
     {
         return $this->createQueryBuilder('mrr')
             ->andWhere('mrr.message = :message')
-            ->andWhere('mrr.participant = :participant')
+            ->andWhere('mrr.user = :user')
             ->andWhere('mrr.deletedAt IS NULL')
             ->setParameter('message', $message)
-            ->setParameter('participant', $participant)
+            ->setParameter('user', $user)
             ->getQuery()
             ->getOneOrNullResult();
     }

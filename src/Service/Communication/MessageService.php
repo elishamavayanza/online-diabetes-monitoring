@@ -58,4 +58,96 @@ class MessageService
 
         return $feedback;
     }
+
+    public function get(string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkPermission(SecurityAction::READ_MESSAGE->value);
+
+            $message = $this->repository->find($id);
+            if (!$message) {
+                return $feedback->setErrorFlushDescription("Message introuvable.")->autoInitFlush();
+            }
+
+            $feedback->setData($this->mapper->mapEntityToResponse($message))
+                ->setFlushDescription("Message récupéré avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function update(string $id, MessageRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkPermission(SecurityAction::SEND_MESSAGE->value);
+
+            $message = $this->repository->find($id);
+            if (!$message) {
+                return $feedback->setErrorFlushDescription("Message introuvable.")->autoInitFlush();
+            }
+
+            $conversation = $this->conversationRepository->find($dto->conversationId);
+            if (!$conversation) {
+                return $feedback->setErrorFlushDescription("Conversation introuvable.")->autoInitFlush();
+            }
+
+            $sender = $this->userRepository->find($dto->senderId);
+            if (!$sender) {
+                return $feedback->setErrorFlushDescription("Expéditeur introuvable.")->autoInitFlush();
+            }
+
+            // Mise à jour de l'entité existante via le mapper
+            $this->mapper->mapRequestToEntity($dto, $conversation, $sender, $message);
+
+            $this->entityManager->flush();
+
+            $feedback->setData($this->mapper->mapEntityToResponse($message))
+                ->setFlushDescription("Message mis à jour avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    public function delete(string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkPermission(SecurityAction::SEND_MESSAGE->value);
+
+            $message = $this->repository->find($id);
+            if (!$message) {
+                return $feedback->setErrorFlushDescription("Message introuvable.")->autoInitFlush();
+            }
+
+            $this->entityManager->remove($message);
+            $this->entityManager->flush();
+
+            $feedback->setFlushDescription("Message supprimé avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
 }

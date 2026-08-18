@@ -6,20 +6,21 @@ use App\DTO\Request\Communication\MessageReadReceiptRequestDTO;
 use App\DTO\Response\Communication\MessageReadReceiptResponseDTO;
 use App\Entity\Communication\MessageReadReceipt;
 use App\Entity\Communication\Message;
-use App\Entity\Communication\ConversationParticipant;
+use App\Entity\Identity\User;
 
 class MessageReadReceiptMapper
 {
     public function mapRequestToEntity(
         MessageReadReceiptRequestDTO $dto,
         Message $message,
-        ConversationParticipant $participant,
+        User $participant,
         ?MessageReadReceipt $receipt = null
     ): MessageReadReceipt {
         $receipt ??= new MessageReadReceipt();
 
         $receipt->setMessage($message);
-        $receipt->setParticipant($participant);
+        // `MessageReadReceipt` stocke un `user` (patient ou soignant).
+        $receipt->setUser($participant);
         $receipt->setReadAt($dto->readAt);
 
         return $receipt;

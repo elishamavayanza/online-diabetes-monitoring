@@ -7,7 +7,7 @@ use App\DTO\Request\Communication\MessageReadReceiptRequestDTO;
 use App\Mapper\Communication\MessageReadReceiptMapper;
 use App\Repository\Communication\MessageReadReceiptRepository;
 use App\Repository\Communication\MessageRepository;
-use App\Repository\Communication\ConversationParticipantRepository;
+use App\Repository\Identity\UserRepository; // Importez le repository des utilisateurs
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,6 +18,7 @@ class MessageReadReceiptService
     public function __construct(
         private readonly MessageReadReceiptRepository $repository,
         private readonly MessageRepository $messageRepository,
+        private readonly UserRepository $userRepository, // Injectez le UserRepository
         private readonly MessageReadReceiptMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService
@@ -30,16 +31,19 @@ class MessageReadReceiptService
         try {
             $this->securityService->checkPermission(SecurityAction::SEND_MESSAGE->value);
 
+            // 1. Récupérer le message
             $message = $this->messageRepository->find($dto->messageId);
             if (!$message) {
                 return $feedback->setErrorFlushDescription("Message introuvable.")->autoInitFlush();
             }
 
-            $participant = $this->participantRepository->find($dto->participantId);
+            // 2. Récupérer l'utilisateur à partir de l'userId du DTO
+            $participant = $this->userRepository->find($dto->userId);
             if (!$participant) {
-                return $feedback->setErrorFlushDescription("Participant introuvable.")->autoInitFlush();
+                return $feedback->setErrorFlushDescription("Utilisateur/Participant introuvable.")->autoInitFlush();
             }
 
+            // 3. Mappage et enregistrement
             $receipt = $this->mapper->mapRequestToEntity($dto, $message, $participant);
 
             $this->entityManager->persist($receipt);

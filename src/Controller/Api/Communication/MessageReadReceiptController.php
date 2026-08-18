@@ -23,12 +23,12 @@ class MessageReadReceiptController extends AbstractController
 
     #[Route('', name: 'api_message_read_receipts_create', methods: ['POST'])]
     #[OA\Post(
-        summary: 'Marquer un message comme lu',
-        description: 'Permet d’enregistrer l’accusé de lecture d’un message par un participant spécifique de la conversation.'
+        description: 'Permet d’enregistrer l’accusé de lecture d’un message par un participant spécifique de la conversation.',
+        summary: 'Marquer un message comme lu'
     )]
     #[OA\RequestBody(
-        required: true,
         description: 'Paramètres de l’accusé de lecture',
+        required: true,
         content: new OA\JsonContent(
             ref: new Model(type: MessageReadReceiptRequestDTO::class)
         )
@@ -56,7 +56,7 @@ class MessageReadReceiptController extends AbstractController
     public function create(#[MapRequestPayload] MessageReadReceiptRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->create($dto);
-        $status = $feedback->hasError() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
 
         return $this->json($feedback, $status);
     }
