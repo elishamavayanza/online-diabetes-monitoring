@@ -1,0 +1,66 @@
+// assets/styles/baseVariables/_mixins.scss
+
+// Mixin pour appliquer les styles d'un bouton primaire
+@mixin button-primary {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s, opacity 0.2s;
+    &:hover {
+        filter: brightness(1.1);
+    }
+    &:active {
+        filter: brightness(0.95);
+    }
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+// Mixin pour un bouton secondaire
+@mixin button-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-on-secondary);
+    border: 1px solid var(--color-border);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    &:hover {
+        filter: brightness(0.95);
+    }
+}
+
+// Mixin pour une carte (surface)
+@mixin card {
+    background-color: var(--color-surface);
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px var(--color-shadow);
+    padding: 1.5rem;
+}
+
+// Mixin pour un badge de statut
+@mixin status-badge($status: 'success') {
+    @if $status == 'success' {
+        background-color: var(--color-success);
+        color: var(--color-on-success);
+    } @else if $status == 'warning' {
+        background-color: var(--color-warning);
+        color: var(--color-on-warning);
+    } @else if $status == 'error' {
+        background-color: var(--color-error);
+        color: var(--color-on-error);
+    } @else {
+        background-color: var(--color-secondary);
+        color: var(--color-on-secondary);
+    }
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}

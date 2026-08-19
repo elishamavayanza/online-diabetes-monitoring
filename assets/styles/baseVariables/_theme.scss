@@ -1,0 +1,14 @@
+// assets/styles/baseVariables/_theme.scss
+
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// Applique les variables CSS sur :root (déjà fait dans _variables.scss)
+// Ce fichier permet de basculer dynamiquement de thème en changeant la classe sur <html>
+
+// Exemple : si vous voulez supporter plusieurs thèmes simultanément,
+// vous pouvez générer des classes .theme-bleu-serein, .theme-vert-medical, etc.
+// Mais ici, nous utilisons une seule palette active via :root.
+
+// Si vous souhaitez changer de thème dynamiquement en JS, il suffit de modifier
+// les propriétés CSS via document.documentElement.style.setProperty()

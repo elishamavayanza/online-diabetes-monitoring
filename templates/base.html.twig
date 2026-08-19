@@ -4,16 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}DiabCare{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     {# On charge le CSS via <link> pour les pages web #}
     {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
         <link rel="stylesheet" href="{{ asset('styles/reset_password_form.css') }}">
     {% endblock %}
 </head>
 <body>
-{% block body %}{% endblock %}
+{% block body %}
+    <div id="root"></div>
+{% endblock %}
 
 {% block javascripts %}
-    {# On peut ajouter du JS si besoin #}
+    <script src="{{ asset('build/runtime.js') }}" defer></script>
+    <script src="{{ asset('build/app.js') }}" defer></script>
 {% endblock %}
 </body>
 </html>

@@ -9,6 +9,7 @@
   },
   "include": [
     "assets/**/*.ts",
-    "assets/**/*.tsx"
+    "assets/**/*.tsx",
+    "assets/**/*.d.ts"
   ]
 }

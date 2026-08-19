@@ -1,0 +1,12 @@
+// assets/styles/index.scss
+
+@use 'baseVariables/variables' as *;
+@use 'baseVariables/mixins' as *;
+@use 'baseVariables/theme' as *;
+
+// Exemple d'utilisation dans un composant :
+// body {
+//   background-color: var(--color-background);
+//   color: var(--color-text);
+//   font-family: 'Inter', sans-serif;
+// }
