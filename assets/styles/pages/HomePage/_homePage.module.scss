@@ -30,62 +30,78 @@
 }
 
 /* ============================================================
-   Header
+   Variables globales pour la hauteur du header
+   ============================================================ */
+:root {
+    --header-height: 76px;   /* hauteur desktop */
+}
+
+/* ============================================================
+   Header – fixe, fond semi‑transparent, professionnel
    ============================================================ */
 .header {
-    background: linear-gradient(135deg, rgba(44, 122, 123, 0.08), rgba(118, 184, 184, 0.08));
-    background-color: rgba(245, 248, 250, 0.85); // Couleur surface approximative en rgba
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    position: sticky;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
     z-index: 100;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid rgba(44, 122, 123, 0.15);
     animation: fadeIn 0.5s ease-out;
 }
 
 .headerInner {
     width: 100%;
-    padding: 0.7rem 2rem;
+    padding: 0 3rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 72px;
+    height: var(--header-height);
 }
 
 .logo {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    letter-spacing: -0.02em;
-    text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    text-decoration: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.logo::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(244, 162, 97, 0.2);
+.logo:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+.logoImage {
+    height: 45px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.logo span {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
 }
 
 .nav {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 2.5rem;
 }
 
 .nav a {
     color: var(--color-text);
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 1rem;
+    padding: 0.25rem 0;
     transition: color 0.25s ease;
     position: relative;
 }
@@ -93,13 +109,13 @@
 .nav a::after {
     content: '';
     position: absolute;
-    bottom: -6px;
+    bottom: -2px;
     left: 0;
     width: 0;
     height: 2px;
-    background-color: var(--color-primary);
-    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
     border-radius: 1px;
+    transition: width 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .nav a:hover::after,
@@ -112,28 +128,29 @@
 }
 
 .ctaButton {
-    background-color: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-primary), color.adjust(#2C7A7B, $lightness: -5%));
     color: var(--color-on-primary);
-    padding: 0.5rem 1.6rem;
-    font-size: 0.9rem;
+    padding: 0.6rem 1.8rem;
+    font-size: 0.95rem;
     border-radius: 999px;
     font-weight: 600;
+    letter-spacing: 0.02em;
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-    box-shadow: 0 4px 10px rgba(44, 122, 123, 0.2);
+    box-shadow: 0 6px 16px rgba(44, 122, 123, 0.25);
+    transition: all 0.25s ease;
 }
 
 .ctaButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(44, 122, 123, 0.3);
-    background-color: color.adjust(#2C7A7B, $lightness: -5%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(44, 122, 123, 0.35);
+    background: linear-gradient(135deg, color.adjust(#2C7A7B, $lightness: -5%), #1F5A5B);
 }
 
 .menuToggle {
     display: none;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     background: none;
     border: none;
     cursor: pointer;
@@ -143,10 +160,10 @@
 
 .menuToggle span {
     display: block;
-    width: 26px;
-    height: 2.5px;
+    width: 28px;
+    height: 3px;
     background-color: var(--color-text);
-    border-radius: 2px;
+    border-radius: 3px;
     transition: all 0.3s ease;
 }
 
@@ -155,61 +172,67 @@
 }
 
 /* ============================================================
-   Hero
+   Hero – avec image de fond, commence après le header
    ============================================================ */
 .hero {
     width: 100%;
+    margin-top: var(--header-height);               /* Décale toute la section sous le header */
     padding: 5rem 2rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
-    min-height: calc(100vh - 72px);
-    animation: fadeInUp 0.7s ease-out;
+    min-height: calc(100vh - var(--header-height));
     position: relative;
     overflow: hidden;
+    background-image: url('../../../images/hero-medical.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .hero::before {
     content: '';
     position: absolute;
-    top: -20%;
-    right: -10%;
-    width: 50%;
-    height: 120%;
-    background: radial-gradient(circle, rgba(118, 184, 184, 0.12) 0%, transparent 70%);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(30, 42, 50, 0.85), rgba(44, 122, 123, 0.65));
     pointer-events: none;
+    z-index: 1;
 }
 
 .heroContent {
     padding-left: 2rem;
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .heroContent h1 {
-    font-size: 3.4rem;
+    font-size: 4.5rem;
     font-weight: 700;
-    line-height: 1.15;
-    margin-bottom: 1.5rem;
-    color: var(--color-text);
+    line-height: 1.1;
+    margin-bottom: 1.8rem;
+    color: #FFFFFF;
     letter-spacing: -0.02em;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .heroContent p {
-    font-size: 1.2rem;
-    color: var(--color-text);
-    opacity: 0.8;
-    max-width: 500px;
-    margin-bottom: 2.5rem;
-    line-height: 1.7;
+    font-size: 1.5rem;
+    color: #FFFFFF;
+    opacity: 0.95;
+    max-width: 600px;
+    margin-bottom: 3rem;
+    line-height: 1.6;
 }
 
 .primaryCta {
     background-color: var(--color-primary);
     color: var(--color-on-primary);
-    padding: 0.9rem 3rem;
-    font-size: 1.1rem;
+    padding: 1rem 3.5rem;
+    font-size: 1.25rem;
     border-radius: 999px;
     font-weight: 600;
     border: none;
@@ -228,18 +251,83 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 2;
     animation: fadeIn 1s ease-out 0.2s both;
 }
 
-.heroIllustration svg {
-    max-width: 100%;
-    height: auto;
-    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.06));
-    transition: transform 0.3s ease;
+/* ============================================================
+   Responsive : ajustement de la hauteur du header et du hero
+   ============================================================ */
+@media (max-width: 768px) {
+    :root {
+        --header-height: 68px;
+    }
+    .headerInner {
+        padding: 0 1.5rem;
+    }
+    .nav {
+        display: none;
+    }
+    .menuToggle {
+        display: flex;
+    }
+    .logoImage {
+        height: 38px;
+    }
+    .logo span {
+        font-size: 1.5rem;
+    }
+
+    .hero {
+        margin-top: var(--header-height);
+        padding: 3rem 1.5rem;
+        min-height: calc(100vh - var(--header-height));
+    }
+    .heroContent h1 {
+        font-size: 3.5rem;
+    }
+    .heroContent p {
+        font-size: 1.3rem;
+    }
+    .primaryCta {
+        padding: 0.9rem 2.8rem;
+        font-size: 1.1rem;
+    }
 }
 
-.heroIllustration:hover svg {
-    transform: scale(1.02);
+@media (max-width: 480px) {
+    :root {
+        --header-height: 64px;
+    }
+    .headerInner {
+        padding: 0 1rem;
+    }
+    .logoImage {
+        height: 32px;
+    }
+    .logo span {
+        font-size: 1.4rem;
+    }
+    .ctaButton {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
+    .hero {
+        margin-top: var(--header-height);
+        padding: 2.5rem 1rem;
+        min-height: calc(100vh - var(--header-height));
+    }
+    .heroContent h1 {
+        font-size: 2.8rem;
+    }
+    .heroContent p {
+        font-size: 1.15rem;
+    }
+    .primaryCta {
+        padding: 0.8rem 2.5rem;
+        font-size: 1rem;
+    }
 }
 
 /* ============================================================
@@ -490,6 +578,68 @@
     border-color: var(--color-on-primary);
     transform: translateY(-3px);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================
+   Menu mobile
+   ============================================================ */
+.mobileMenu {
+    display: none;               /* caché par défaut, sera affiché via JS */
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.5rem 2rem;
+    background: rgba(255, 255, 255, 0.98);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    z-index: 99;
+    animation: fadeInUp 0.3s ease;
+}
+
+.mobileMenu a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: color 0.2s;
+}
+
+.mobileMenu a:hover {
+    color: var(--color-primary);
+}
+
+.mobileMenu .ctaButton {
+    width: 100%;
+    max-width: 250px;
+    text-align: center;
+}
+
+/* Bouton hamburger – animation en croix (optionnel) */
+.menuToggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+.menuToggle.active span:nth-child(2) {
+    opacity: 0;
+}
+.menuToggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Affichage du menu mobile uniquement sur petits écrans */
+@media (max-width: 768px) {
+    .nav {
+        display: none;           /* on masque la navigation desktop */
+    }
+    .menuToggle {
+        display: flex;           /* on affiche le hamburger */
+    }
+    .mobileMenu {
+        display: flex;           /* le menu mobile devient visible quand il est présent dans le DOM */
+    }
 }
 
 /* ============================================================

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import styles from '../../../styles/pages/HomePage/_homePage.module.scss';
 import {
     IconActivity,
@@ -9,22 +9,52 @@ import {
 } from './icons';
 
 const HomePage: React.FC = () => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
     return (
         <div className={styles.page}>
             {/* ===== HEADER ===== */}
             <header className={styles.header}>
                 <div className={styles.headerInner}>
-                    <div className={styles.logo}>DiabCare</div>
+                    <a href="#" className={styles.logo}>
+                        <img src="../../../images/logo.png" alt="Logo DiabCare" className={styles.logoImage} />
+                        <span>DiabCare</span>
+                    </a>
+
+                    {/* Navigation desktop (visible sur écrans larges) */}
                     <nav className={styles.nav}>
                         <a href="#about">À propos</a>
                         <a href="#features">Fonctionnalités</a>
                         <a href="#users">Pour qui ?</a>
                         <button className={styles.ctaButton}>Se connecter</button>
                     </nav>
-                    <button className={styles.menuToggle} aria-label="Menu">
-                        <span></span><span></span><span></span>
+
+                    {/* Bouton hamburger (visible sur mobile) */}
+                    <button
+                        className={`${styles.menuToggle} ${isMenuOpen ? styles.active : ''}`}
+                        onClick={toggleMenu}
+                        aria-label="Menu"
+                        aria-expanded={isMenuOpen}
+                    >
+                        <span></span>
+                        <span></span>
+                        <span></span>
                     </button>
                 </div>
+
+                {/* Menu mobile (affiché uniquement si isMenuOpen est true) */}
+                {isMenuOpen && (
+                    <div className={styles.mobileMenu}>
+                        <a href="#about" onClick={toggleMenu}>À propos</a>
+                        <a href="#features" onClick={toggleMenu}>Fonctionnalités</a>
+                        <a href="#users" onClick={toggleMenu}>Pour qui ?</a>
+                        <button className={styles.ctaButton} onClick={toggleMenu}>Se connecter</button>
+                    </div>
+                )}
             </header>
 
             {/* ===== HERO ===== */}
@@ -42,15 +72,46 @@ const HomePage: React.FC = () => {
                 </div>
                 <div className={styles.heroIllustration}>
                     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="120" cy="150" r="80" fill="var(--color-primary)" opacity="0.15" />
-                        <circle cx="280" cy="150" r="80" fill="var(--color-secondary)" opacity="0.15" />
-                        <path d="M120 150 Q200 80 280 150 Q200 220 120 150" stroke="var(--color-primary)" strokeWidth="2" fill="none" />
-                        <circle cx="120" cy="150" r="12" fill="var(--color-primary)" />
-                        <circle cx="280" cy="150" r="12" fill="var(--color-secondary)" />
-                        <rect x="160" y="130" width="80" height="40" rx="6" fill="var(--color-surface)" stroke="var(--color-border)" />
-                        <line x1="180" y1="140" x2="220" y2="140" stroke="var(--color-text)" strokeWidth="2" />
-                        <line x1="180" y1="150" x2="210" y2="150" stroke="var(--color-text)" strokeWidth="2" />
-                        <line x1="180" y1="160" x2="200" y2="160" stroke="var(--color-text)" strokeWidth="2" />
+                        {/* Cercles de fond avec dégradé */}
+                        <defs>
+                            <linearGradient id="gradPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#2C7A7B" stopOpacity={0.2} />
+                                <stop offset="100%" stopColor="#76B8B8" stopOpacity={0.1} />
+                            </linearGradient>
+                            <linearGradient id="gradSecondary" x1="100%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#76B8B8" stopOpacity={0.2} />
+                                <stop offset="100%" stopColor="#2C7A7B" stopOpacity={0.1} />
+                            </linearGradient>
+                        </defs>
+
+                        {/* Deux sphères translucides */}
+                        <circle cx="120" cy="150" r="80" fill="url(#gradPrimary)" />
+                        <circle cx="280" cy="150" r="80" fill="url(#gradSecondary)" />
+
+                        {/* Connexion */}
+                        <path
+                            d="M120 150 Q200 80 280 150 Q200 220 120 150"
+                            stroke="#2C7A7B"
+                            strokeWidth={3}
+                            strokeLinecap="round"
+                            strokeDasharray="6 6"
+                            fill="none"
+                        />
+
+                        {/* Points centraux */}
+                        <circle cx="120" cy="150" r="10" fill="#2C7A7B" />
+                        <circle cx="280" cy="150" r="10" fill="#76B8B8" />
+
+                        {/* Dossier médical stylisé */}
+                        <g transform="translate(160,125)">
+                            <rect width="80" height="50" rx="10" fill="white" stroke="#2C7A7B" strokeWidth={2} />
+                            {/* Lignes de données */}
+                            <line x1="15" y1="15" x2="65" y2="15" stroke="#2C7A7B" strokeWidth={3} strokeLinecap="round" />
+                            <line x1="15" y1="25" x2="50" y2="25" stroke="#76B8B8" strokeWidth={3} strokeLinecap="round" />
+                            <line x1="15" y1="35" x2="35" y2="35" stroke="#2C7A7B" strokeWidth={3} strokeLinecap="round" />
+                            {/* Petite icône croix médicale */}
+                            <path d="M65 20 L75 20 M70 15 L70 25" stroke="#F4A261" strokeWidth={3} strokeLinecap="round" />
+                        </g>
                     </svg>
                 </div>
             </section>

@@ -4,12 +4,11 @@
 @use 'baseVariables/mixins' as *;
 @use 'baseVariables/theme' as *;
 
-// Exemple d'utilisation dans un composant :
-// body {
-//   background-color: var(--color-background);
-//   color: var(--color-text);
-//   font-family: 'Inter', sans-serif;
-// }
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
 
 html,
 body,
