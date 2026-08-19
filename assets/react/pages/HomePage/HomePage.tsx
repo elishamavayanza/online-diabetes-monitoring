@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import styles from '../../../styles/pages/HomePage/_homePage.module.scss';
 import {
     IconActivity,
@@ -10,10 +10,45 @@ import {
 
 const HomePage: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    const bubbles = useMemo(() => {
+        const isMobile = windowWidth <= 768;
+        const isSmallMobile = windowWidth <= 480;
+        const bubbleCount = isSmallMobile ? 8 : isMobile ? 12 : 20;
+        const minSize = isSmallMobile ? 15 : isMobile ? 20 : 20;
+        const maxSize = isSmallMobile ? 35 : isMobile ? 50 : 80;
+
+        return Array.from({ length: bubbleCount }, (_, i) => {
+            const size = Math.random() * (maxSize - minSize) + minSize;
+            // Déplacement aléatoire (en pixels) pour la trajectoire
+            const tx = (Math.random() * 80 - 40).toFixed(1); // -40 à 40 px
+            const ty = (Math.random() * 80 - 40).toFixed(1);
+            return {
+                id: i,
+                width: size,
+                height: size,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animationDuration: `${Math.random() * 4 + 3}s`, // 3 à 7 s
+                animationDelay: `${Math.random() * 3}s`,
+                backgroundColor: `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`,
+                // Variables CSS pour la trajectoire
+                '--tx': `${tx}px`,
+                '--ty': `${ty}px`,
+            };
+        });
+    }, [windowWidth]);
 
     return (
         <div className={styles.page}>
@@ -59,6 +94,26 @@ const HomePage: React.FC = () => {
 
             {/* ===== HERO ===== */}
             <section className={styles.hero}>
+                <div className={styles.bubbles}>
+                    {bubbles.map((bubble) => (
+                        <span
+                            key={bubble.id}
+                            className={styles.bubble}
+                            style={{
+                                width: `${bubble.width}px`,
+                                height: `${bubble.height}px`,
+                                top: bubble.top,
+                                left: bubble.left,
+                                animationDuration: bubble.animationDuration,
+                                animationDelay: bubble.animationDelay,
+                                backgroundColor: bubble.backgroundColor,
+                                // Passer les variables de trajectoire
+                                '--tx': bubble['--tx'],
+                                '--ty': bubble['--ty'],
+                            } as React.CSSProperties}
+                        ></span>
+                    ))}
+                </div>
                 <div className={styles.heroContent}>
                     <h1>
                         Mieux suivre le diabète.<br />
