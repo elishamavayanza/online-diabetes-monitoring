@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../../../styles/pages/HomePage/HomePage.module.scss';
+import styles from '../../../styles/pages/HomePage/_homePage.module.scss';
 import {
     IconActivity,
     IconClipboard,

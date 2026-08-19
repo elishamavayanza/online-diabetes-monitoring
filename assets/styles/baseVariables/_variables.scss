@@ -4,9 +4,8 @@
 @use 'sass:map';
 
 // ============================================================
-// 1. Palettes de couleurs (8 palettes proposées)
+// 1. Palettes de couleurs
 // ============================================================
-
 $palettes: (
     "bleu-serein": (
         primary: #5A8BD3,
@@ -95,14 +94,25 @@ $palettes: (
         success: #66BB6A,
         warning: #FFA726,
         error: #E53935,
+    ),
+    // Nouvelle palette médicale sobre et raffinée
+    "teal-medical": (
+        primary: #2C7A7B,
+        secondary: #76B8B8,
+        background: #E9EEF3,
+        surface: #F5F8FA,
+        text: #1E2A32,
+        accent: #F4A261,
+        success: #4CB944,
+        warning: #F5A623,
+        error: #E74C3C,
     )
 );
 
 // ============================================================
-// 2. Choix du thème actif (par défaut : "bleu-serein")
-//    Pour changer : modifier la variable $active-theme
+// 2. Choix du thème actif
 // ============================================================
-$active-theme: "bleu-serein" !default;
+$active-theme: "teal-medical" !default;
 
 @function contrast-text($background-color) {
     $r: color.channel($background-color, "red", $space: rgb) / 255;
@@ -122,9 +132,7 @@ $theme-colors: map.get($palettes, $active-theme);
 
 // ============================================================
 // 3. Définition des variables CSS (Custom Properties)
-//    Elles seront appliquées sur :root dans _theme.scss
 // ============================================================
-
 :root {
     // Couleurs principales du thème
     --color-primary: #{map.get($theme-colors, primary)};
