@@ -269,6 +269,10 @@ const HomePage: React.FC = () => {
                             <a href="#">Se connecter</a>
                         </div>
                     </div>
+                    {/* Image/logo à droite */}
+                    <div className={styles.footerLogo}>
+                        <img src="../../../images/logo.png" alt="Logo DiabCare" />
+                    </div>
                 </div>
                 <div className={styles.footerBottom}>
                     <p>© 2026 DiabCare — Projet académique et éducatif.</p>
