@@ -1,0 +1,97 @@
+@use '../../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+@use 'sass:color';
+@use 'sass:map';
+
+/* ============================================================
+   Bouton icône – IconButton
+   ============================================================ */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+    padding: 0.5rem;
+    font-size: 1rem;
+
+    /* Variantes */
+    &--primary {
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        &:hover:not(:disabled) {
+            background-color: color.adjust(var(--color-primary), $lightness: -5%);
+        }
+    }
+
+    &--secondary {
+        background-color: var(--color-secondary);
+        color: var(--color-on-secondary);
+        &:hover:not(:disabled) {
+            background-color: color.adjust(var(--color-secondary), $lightness: -5%);
+        }
+    }
+
+    &--outline {
+        background-color: transparent;
+        border: 1px solid var(--color-primary);
+        color: var(--color-primary);
+        &:hover:not(:disabled) {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+        }
+    }
+
+    &--ghost {
+        background-color: transparent;
+        color: var(--color-text);
+        &:hover:not(:disabled) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    &--danger {
+        background-color: var(--color-error);
+        color: var(--color-on-error);
+        &:hover:not(:disabled) {
+            background-color: color.adjust(var(--color-error), $lightness: -5%);
+        }
+    }
+
+    /* Tailles */
+    &--small {
+        padding: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    &--large {
+        padding: 0.75rem;
+        font-size: 1.25rem;
+    }
+
+    /* États */
+    &--disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &--loading {
+        cursor: progress;
+    }
+
+    &__spinner {
+        width: 1em;
+        height: 1em;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: icon-btn-spin 0.6s linear infinite;
+    }
+}
+
+@keyframes icon-btn-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

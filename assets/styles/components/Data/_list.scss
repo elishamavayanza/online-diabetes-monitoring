@@ -1,0 +1,142 @@
+@use '../../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+
+/* ============================================================
+   Liste professionnelle – List
+   ============================================================ */
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+
+    /* Variantes */
+    &--default {
+        .list__item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+    }
+
+    &--separated {
+        .list__item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--color-surface);
+            border-radius: 0.5rem;
+            border: 1px solid var(--color-border);
+        }
+    }
+
+    &--striped {
+        .list__item:nth-child(odd) {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.03);
+        }
+        .list__item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+        }
+    }
+
+    &--bordered {
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        .list__item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+    }
+
+    /* Tailles */
+    &--small {
+        .list__item {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    &--large {
+        .list__item {
+            padding: 1rem 1.5rem;
+            font-size: 1.125rem;
+        }
+    }
+
+    /* Ordre */
+    &--unordered {
+        list-style: disc;
+        padding-left: 1.5rem;
+    }
+
+    &--ordered {
+        list-style: decimal;
+        padding-left: 1.5rem;
+    }
+
+    &--none {
+        list-style: none;
+        padding: 0;
+    }
+
+    &--full-width {
+        width: 100%;
+    }
+
+    /* Éléments internes */
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        transition: background-color 0.2s, transform 0.2s;
+        cursor: default;
+
+        &:hover {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.05);
+        }
+
+        &[role="button"] {
+            cursor: pointer;
+            &:hover {
+                background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.08);
+            }
+            &:focus-visible {
+                outline: 2px solid var(--color-primary);
+                outline-offset: -2px;
+            }
+        }
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+
+        &--left {
+            order: 0;
+        }
+
+        &--right {
+            order: 2;
+            margin-left: auto;
+        }
+    }
+
+    &__content {
+        order: 1;
+        flex: 1;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--color-text);
+        opacity: 0.6;
+        font-style: italic;
+    }
+}

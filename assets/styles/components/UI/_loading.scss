@@ -1,0 +1,17 @@
+@use '../../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+
+/* ============================================================
+   Loading (spinner + texte)
+   ============================================================ */
+.loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text);
+
+    &__text {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+}

@@ -1,0 +1,135 @@
+@use '../../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+
+/* ============================================================
+   Tableau professionnel – Table
+   ============================================================ */
+.table__wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-family: inherit;
+    color: var(--color-text);
+    background-color: var(--color-surface);
+
+    /* Tailles */
+    &--small {
+        th, td {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    &--medium {
+        th, td {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+    }
+
+    &--large {
+        th, td {
+            padding: 1rem 1.5rem;
+            font-size: 1.125rem;
+        }
+    }
+
+    /* En-tête */
+    thead {
+        th {
+            text-align: left;
+            font-weight: 600;
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.05);
+            border-bottom: 1px solid var(--color-border);
+            white-space: nowrap;
+        }
+    }
+
+    /* Corps */
+    tbody {
+        td {
+            border-bottom: 1px solid var(--color-border);
+            background-color: var(--color-surface);
+        }
+    }
+
+    /* Lignes survolables */
+    &--hoverable {
+        tbody tr:hover td {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.04);
+        }
+    }
+
+    /* Variante zébrée */
+    &--striped {
+        tbody tr:nth-child(even) td {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        tbody tr:hover td {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.08);
+        }
+    }
+
+    /* Variante avec bordures complètes */
+    &--bordered {
+        th, td {
+            border: 1px solid var(--color-border);
+        }
+        thead th {
+            border-bottom: 2px solid var(--color-border);
+        }
+    }
+
+    /* En-tête sticky */
+    &--sticky-header {
+        thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: var(--color-surface);
+            box-shadow: 0 1px 0 var(--color-border);
+        }
+    }
+
+    /* Pleine largeur */
+    &--full-width {
+        width: 100%;
+    }
+
+    /* Colonnes triables */
+    &__th--sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+        }
+    }
+
+    &__th-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    &__sort-icon {
+        font-size: 0.75em;
+        opacity: 0.7;
+    }
+
+    /* Cellule vide */
+    &__empty {
+        text-align: center;
+        padding: 2rem;
+        color: var(--color-text);
+        opacity: 0.6;
+        font-style: italic;
+    }
+}
