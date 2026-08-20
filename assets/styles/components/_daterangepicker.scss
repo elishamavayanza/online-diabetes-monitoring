@@ -1,0 +1,91 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+
+/* ============================================================
+   Sélecteur de plage de dates – DateRangePicker
+   ============================================================ */
+.daterange {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    &__label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--color-text);
+    }
+
+    &__input {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        background-color: var(--color-surface);
+        color: var(--color-text);
+        font-family: inherit;
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+
+        &:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 44, 122, 123), 0.2);
+        }
+
+        &:disabled {
+            background-color: rgba(0, 0, 0, 0.05);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    }
+
+    &__separator {
+        font-size: 1.2rem;
+        color: var(--color-text);
+        opacity: 0.6;
+        align-self: center;
+    }
+
+    &--error {
+        .daterange__input {
+            border-color: var(--color-error);
+        }
+    }
+
+    &--success {
+        .daterange__input {
+            border-color: var(--color-success);
+        }
+    }
+
+    &--small {
+        .daterange__input {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    &--large {
+        .daterange__input {
+            padding: 1rem 1.5rem;
+            font-size: 1.125rem;
+        }
+    }
+
+    &--full-width {
+        width: 100%;
+        .daterange__field {
+            flex: 1;
+        }
+    }
+
+    &--disabled {
+        opacity: 0.7;
+    }
+}

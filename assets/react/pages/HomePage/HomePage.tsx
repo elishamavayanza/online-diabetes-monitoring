@@ -56,8 +56,8 @@ const HomePage: React.FC = () => {
             <header className={styles.header}>
                 <div className={styles.headerInner}>
                     <a href="#" className={styles.logo}>
-                        <img src="../../../images/logo.png" alt="Logo DiabCare" className={styles.logoImage} />
-                        <span>DiabCare</span>
+                        <img src="../../../images/logo.png" alt="Logo OnlineDIAB" className={styles.logoImage} />
+                        <span>OnlineDIAB</span>
                     </a>
 
                     {/* Navigation desktop (visible sur écrans larges) */}
@@ -120,7 +120,7 @@ const HomePage: React.FC = () => {
                         Mieux accompagner chaque patient.
                     </h1>
                     <p>
-                        DiabCare facilite le suivi quotidien des personnes vivant avec le diabète
+                        OnlineDIAB facilite le suivi quotidien des personnes vivant avec le diabète
                         et favorise une meilleure collaboration entre patients et professionnels de santé.
                     </p>
                     <button className={styles.primaryCta}>Se connecter</button>
@@ -174,13 +174,13 @@ const HomePage: React.FC = () => {
             {/* ===== ABOUT ===== */}
             <section id="about" className={styles.about}>
                 <div className={styles.aboutInner}>
-                    <h2>Pourquoi DiabCare existe ?</h2>
+                    <h2>Pourquoi OnlineDIAB existe ?</h2>
                     <p>
                         Le suivi du diabète nécessite une attention régulière et une bonne coordination
                         entre le patient et les professionnels qui l'accompagnent.
                     </p>
                     <p>
-                        DiabCare propose un espace centralisé permettant de réunir les informations
+                        OnlineDIAB propose un espace centralisé permettant de réunir les informations
                         importantes du suivi médical afin de faciliter l'accompagnement et la prise de décision.
                     </p>
                 </div>
@@ -189,7 +189,7 @@ const HomePage: React.FC = () => {
             {/* ===== FEATURES ===== */}
             <section id="features" className={styles.features}>
                 <div className={styles.featuresInner}>
-                    <h2>Ce que DiabCare permet</h2>
+                    <h2>Ce que OnlineDIAB permet</h2>
                     <div className={styles.cardsGrid}>
                         <div className={styles.card}>
                             <IconActivity />
@@ -245,7 +245,7 @@ const HomePage: React.FC = () => {
             <section className={styles.finalCta}>
                 <div className={styles.finalCtaInner}>
                     <h2>Un suivi plus simple. <br />Une meilleure coordination.</h2>
-                    <p>Découvrez DiabCare et son approche du suivi du diabète.</p>
+                    <p>Découvrez OnlineDIAB et son approche du suivi du diabète.</p>
                     <button className={styles.primaryCta}>Se connecter</button>
                 </div>
             </section>
@@ -254,7 +254,7 @@ const HomePage: React.FC = () => {
             <footer className={styles.footer}>
                 <div className={styles.footerInner}>
                     <div className={styles.footerBrand}>
-                        <strong>DiabCare</strong>
+                        <strong>OnlineDIAB</strong>
                         <p>Une plateforme pensée pour faciliter le suivi et l'accompagnement des personnes vivant avec le diabète.</p>
                     </div>
                     <div className={styles.footerLinks}>
@@ -271,11 +271,11 @@ const HomePage: React.FC = () => {
                     </div>
                     {/* Image/logo à droite */}
                     <div className={styles.footerLogo}>
-                        <img src="../../../images/logo.png" alt="Logo DiabCare" />
+                        <img src="../../../images/logo.png" alt="Logo OnlineDIAB" />
                     </div>
                 </div>
                 <div className={styles.footerBottom}>
-                    <p>© 2026 DiabCare — Projet académique et éducatif.</p>
+                    <p>© 2026 OnlineDIAB — Projet académique et éducatif.</p>
                 </div>
             </footer>
         </div>

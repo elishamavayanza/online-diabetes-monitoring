@@ -1,0 +1,88 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+@use 'sass:color';
+@use 'sass:map';
+
+/* ============================================================
+   Liste déroulante – Select
+   ============================================================ */
+.select-field {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 44, 122, 123), 0.2);
+    }
+
+    &:hover:not(:disabled):not(:focus) {
+        border-color: color.adjust(map.get($theme-colors, primary), $lightness: 20%);
+    }
+
+    &--error {
+        border-color: var(--color-error);
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(var(--color-error-rgb, 231, 74, 59), 0.2);
+        }
+    }
+
+    &--success {
+        border-color: var(--color-success);
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(var(--color-success-rgb, 76, 185, 68), 0.2);
+        }
+    }
+
+    &--small {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    &--large {
+        padding: 1rem 1.5rem;
+        font-size: 1.125rem;
+    }
+
+    &--disabled {
+        background-color: rgba(0, 0, 0, 0.05);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    &--full-width {
+        width: 100%;
+    }
+
+    /* Flèche personnalisée */
+    &__wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    &__arrow {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid var(--color-text);
+        pointer-events: none;
+        opacity: 0.6;
+    }
+}

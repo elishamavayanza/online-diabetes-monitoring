@@ -1,0 +1,49 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+
+/* ============================================================
+   Squelette de chargement – Skeleton
+   ============================================================ */
+.skeleton {
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.08);
+    border-radius: 0.25rem;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    min-height: 0.75rem;
+
+    &--text {
+        height: 0.75rem;
+        border-radius: 0.25rem;
+    }
+
+    &--rect {
+        width: 100%;
+        height: 6rem;
+    }
+
+    &--circle {
+        border-radius: 50%;
+        width: 3rem;
+        height: 3rem;
+    }
+
+    /* Tailles */
+    &--small {
+        height: 0.5rem;
+    }
+    &--medium {
+        height: 0.75rem;
+    }
+    &--large {
+        height: 1rem;
+    }
+}
+
+@keyframes skeleton-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.4;
+    }
+}

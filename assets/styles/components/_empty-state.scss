@@ -1,0 +1,104 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+
+/* ============================================================
+   État vide – EmptyState
+   ============================================================ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 2rem;
+    background-color: var(--color-surface);
+    border: 1px dashed var(--color-border);
+    border-radius: 0.75rem;
+
+    &__icon {
+        color: var(--color-secondary);
+        margin-bottom: 1rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem;
+        color: var(--color-text);
+    }
+
+    &__description {
+        font-size: 0.95rem;
+        color: var(--color-text);
+        opacity: 0.7;
+        margin: 0;
+        max-width: 400px;
+        line-height: 1.6;
+    }
+
+    &__action {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    /* Variantes */
+    &--info {
+        .empty-state__icon {
+            color: var(--color-primary);
+        }
+    }
+
+    &--success {
+        .empty-state__icon {
+            color: var(--color-success);
+        }
+    }
+
+    &--warning {
+        .empty-state__icon {
+            color: var(--color-warning);
+        }
+    }
+
+    &--error {
+        .empty-state__icon {
+            color: var(--color-error);
+        }
+    }
+
+    /* Tailles */
+    &--small {
+        padding: 2rem 1.5rem;
+        .empty-state__icon {
+            margin-bottom: 0.5rem;
+        }
+        .empty-state__title {
+            font-size: 1.1rem;
+        }
+        .empty-state__description {
+            font-size: 0.85rem;
+        }
+    }
+
+    &--large {
+        padding: 4rem 3rem;
+        .empty-state__icon {
+            margin-bottom: 1.5rem;
+        }
+        .empty-state__title {
+            font-size: 1.5rem;
+        }
+        .empty-state__description {
+            font-size: 1.1rem;
+            max-width: 500px;
+        }
+    }
+
+    &--full-width {
+        width: 100%;
+    }
+}

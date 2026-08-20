@@ -1,0 +1,81 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+
+/* ============================================================
+   Séparateur – Separator
+   ============================================================ */
+.separator {
+    border: none;
+    margin: 0;
+    flex-shrink: 0;
+
+    /* Orientation */
+    &--horizontal {
+        width: 100%;
+        height: 1px;
+        background-color: var(--color-border);
+    }
+
+    &--vertical {
+        width: 1px;
+        height: auto;
+        align-self: stretch;
+        background-color: var(--color-border);
+    }
+
+    /* Variantes */
+    &--default {
+        background-color: var(--color-border);
+    }
+    &--primary {
+        background-color: var(--color-primary);
+    }
+    &--secondary {
+        background-color: var(--color-secondary);
+    }
+    &--light {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Épaisseurs */
+    &--thin {
+        height: 1px;
+        &.separator--vertical {
+            width: 1px;
+        }
+    }
+    &--medium {
+        height: 2px;
+        &.separator--vertical {
+            width: 2px;
+        }
+    }
+    &--thick {
+        height: 3px;
+        &.separator--vertical {
+            width: 3px;
+        }
+    }
+
+    /* Avec label */
+    &--with-label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: none;
+        height: auto;
+    }
+
+    &__line {
+        flex: 1;
+        height: 1px;
+        background-color: var(--color-border);
+    }
+
+    &__label {
+        font-size: 0.9rem;
+        color: var(--color-text);
+        opacity: 0.7;
+        white-space: nowrap;
+    }
+}

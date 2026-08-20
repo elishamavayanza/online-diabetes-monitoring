@@ -1,0 +1,80 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+
+/* ============================================================
+   Étiquettes – Label
+   ============================================================ */
+.label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 500;
+    color: var(--color-text);
+    transition: color 0.2s, opacity 0.2s;
+
+    /* Variantes */
+    &--default {
+        color: var(--color-text);
+    }
+
+    &--error {
+        color: var(--color-error);
+    }
+
+    &--success {
+        color: var(--color-success);
+    }
+
+    &--warning {
+        color: var(--color-warning);
+    }
+
+    /* Tailles */
+    &--small {
+        font-size: 0.875rem;
+    }
+
+    &--medium {
+        font-size: 1rem;
+    }
+
+    &--large {
+        font-size: 1.125rem;
+    }
+
+    /* États */
+    &--required {
+        /* L'étoile est gérée séparément */
+    }
+
+    &--disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Icônes */
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        font-size: 1.2em;
+        line-height: 1;
+    }
+
+    &__icon--left {
+        order: 0;
+    }
+
+    &__icon--right {
+        order: 2;
+    }
+
+    &__text {
+        order: 1;
+    }
+
+    &__required-star {
+        color: var(--color-error);
+        margin-left: 0.25rem;
+        font-weight: 700;
+    }
+}

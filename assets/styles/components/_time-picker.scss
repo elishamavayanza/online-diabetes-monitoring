@@ -1,0 +1,87 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+@use 'sass:color';
+@use 'sass:map';
+
+/* ============================================================
+   Sélecteur d'heure – TimePicker
+   ============================================================ */
+.time-picker {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &::-webkit-calendar-picker-indicator {
+        opacity: 0.5;
+        cursor: pointer;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 44, 122, 123), 0.2);
+    }
+
+    &:hover:not(:disabled):not(:focus) {
+        border-color: color.adjust(map.get($theme-colors, primary), $lightness: 20%);
+    }
+
+    &--error {
+        border-color: var(--color-error);
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(var(--color-error-rgb, 231, 74, 59), 0.2);
+        }
+    }
+
+    &--success {
+        border-color: var(--color-success);
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(var(--color-success-rgb, 76, 185, 68), 0.2);
+        }
+    }
+
+    &--small {
+        padding: 0.4rem 0.75rem 0.4rem 2rem;
+        font-size: 0.875rem;
+    }
+
+    &--large {
+        padding: 1rem 1.5rem 1rem 3rem;
+        font-size: 1.125rem;
+    }
+
+    &--disabled {
+        background-color: rgba(0, 0, 0, 0.05);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    &--full-width {
+        width: 100%;
+    }
+
+    &__wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    &__icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        pointer-events: none;
+        color: var(--color-text);
+        opacity: 0.6;
+    }
+}

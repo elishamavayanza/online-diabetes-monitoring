@@ -1,0 +1,52 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+
+/* ============================================================
+   Infobulle – Tooltip
+   ============================================================ */
+.tooltip__wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip {
+    position: absolute;
+    background-color: var(--color-text);
+    color: var(--color-surface);
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 3000;
+
+    &--visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Positions */
+    &--top {
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-0.5rem);
+    }
+    &--bottom {
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(0.5rem);
+    }
+    &--left {
+        right: 100%;
+        top: 50%;
+        transform: translateY(-50%) translateX(-0.5rem);
+    }
+    &--right {
+        left: 100%;
+        top: 50%;
+        transform: translateY(-50%) translateX(0.5rem);
+    }
+}

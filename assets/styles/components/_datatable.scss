@@ -1,0 +1,72 @@
+@use '../baseVariables/mixins' as *;
+@use '../baseVariables/variables' as *;
+
+/* ============================================================
+   Tableau de données avancé – DataTable
+   ============================================================ */
+.datatable {
+    width: 100%;
+
+    &__wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    &__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: inherit;
+        color: var(--color-text);
+        background-color: var(--color-surface);
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            text-align: left;
+        }
+
+        thead th {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.05);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        tbody tr:hover td {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.04);
+        }
+    }
+
+    &__th--sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+        }
+    }
+
+    &__th-content {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    &__sort-icon {
+        font-size: 0.75em;
+        opacity: 0.7;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 2rem;
+        font-style: italic;
+        opacity: 0.6;
+    }
+
+    &__pagination {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+    }
+}

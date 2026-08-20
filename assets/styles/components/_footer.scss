@@ -1,0 +1,108 @@
+@use '../../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+
+/* ============================================================
+   Pied de page – Footer
+   ============================================================ */
+.footer {
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 3rem 2rem 1.5rem;
+
+    &--dark {
+        background-color: var(--color-text);
+        color: var(--color-background);
+        border-top: none;
+
+        .footer__section-title,
+        .footer__link {
+            color: rgba(255, 255, 255, 0.8);
+            &:hover {
+                color: var(--color-primary);
+            }
+        }
+    }
+
+    &--colored {
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        border-top: none;
+
+        .footer__section-title,
+        .footer__link {
+            color: rgba(255, 255, 255, 0.9);
+            &:hover {
+                color: var(--color-secondary);
+            }
+        }
+    }
+
+    &__inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    &__brand {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    &__section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--color-text);
+    }
+
+    &__links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    &__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--color-text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        padding: 0.25rem 0;
+        transition: color 0.2s, transform 0.2s;
+
+        &:hover {
+            color: var(--color-primary);
+            transform: translateX(4px);
+        }
+    }
+
+    &__link-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    &__logo {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        img {
+            max-height: 80px;
+            width: auto;
+            object-fit: contain;
+        }
+    }
+
+    &__bottom {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+        border-top: 1px solid var(--color-border);
+        padding-top: 1.5rem;
+        font-size: 0.85rem;
+        opacity: 0.7;
+    }
+}
