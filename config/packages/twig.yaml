@@ -1,7 +1,7 @@
 twig:
     file_name_pattern: '*.twig'
     paths:
-        '%kernel.project_dir%/public/styles': styles
+        '%kernel.project_dir%/public/build': styles
 
 when@test:
     twig:

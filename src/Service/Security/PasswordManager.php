@@ -4,6 +4,7 @@ namespace App\Service\Security;
 
 use App\Entity\Identity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -17,7 +18,8 @@ class PasswordManager
         private EntityManagerInterface $entityManager,
         private Environment $twig,
         private MailerInterface $mailer,
-        private UrlGeneratorInterface $router
+        private UrlGeneratorInterface $router,
+        private ParameterBagInterface $params
 
     ) {}
 
@@ -54,31 +56,33 @@ class PasswordManager
         $user->setResetTokenExpiresAt(new \DateTimeImmutable('+1 hour'));
         $this->entityManager->flush();
 
-        $resetUrl = 'http://localhost:4200/reset-password?token=' . $token;
-
         $resetUrl = $this->router->generate('app_reset_password_form', [
             'token' => $token
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        // Rendu du template Twig
-        $emailHtml = $this->twig->render('emails/reset_password.html.twig', [
-            'resetUrl' => $resetUrl,
-            'user' => $user
-        ]);
+        $logoPath = $this->params->get('kernel.project_dir') . '/public/images/logo.png';
 
+        // 1. Créer l'objet Email
         $email = (new Email())
             ->from('no-reply@diabcare.com')
             ->to($user->getEmail())
-            ->subject('Réinitialisation de votre mot de passe')
-            ->html($emailHtml);
+            ->subject('Réinitialisation de votre mot de passe');
 
+        // 2. Attacher l'image et récupérer l'objet Attachement pour obtenir son CID
+        $logoPart = \Symfony\Component\Mime\Part\DataPart::fromPath($logoPath);
+        $logoCid = $logoPart->getContentId();
+        $email->addPart($logoPart);
+
+        // 3. Rendre le template Twig en passant le bon CID (sous forme de chaîne, ex: "cid:...")
+        $emailHtml = $this->twig->render('emails/reset_password.html.twig', [
+            'resetUrl' => $resetUrl,
+            'user' => $user,
+            'logo_cid' => 'cid:' . $logoCid,
+        ]);
+
+        // 4. Assigner le HTML et envoyer
+        $email->html($emailHtml);
         $this->mailer->send($email);
-    }
-
-    private function applyNewPassword(User $user, string $newPassword): void
-    {
-        $user->setPassword($this->passwordHasher->hashPassword($user, $newPassword));
-        $this->entityManager->flush();
     }
 
     public function updatePassword(?\Symfony\Component\Security\Core\User\UserInterface $user, mixed $oldPassword, mixed $newPassword): void
@@ -100,5 +104,10 @@ class PasswordManager
 
         // 4. Hashage et mise à jour via votre méthode privée existante
         $this->applyNewPassword($user, $newPassword);
+    }
+    private function applyNewPassword(User $user, string $newPassword): void
+    {
+        $user->setPassword($this->passwordHasher->hashPassword($user, $newPassword));
+        $this->entityManager->flush();
     }
 }

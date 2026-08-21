@@ -2,6 +2,7 @@
 
 @use 'sass:color';
 @use 'sass:map';
+@use 'sass:math';
 
 // ============================================================
 // 1. Palettes de couleurs
@@ -115,9 +116,9 @@ $palettes: (
 $active-theme: "teal-medical" !default;
 
 @function contrast-text($background-color) {
-    $r: color.channel($background-color, "red", $space: rgb) / 255;
-    $g: color.channel($background-color, "green", $space: rgb) / 255;
-    $b: color.channel($background-color, "blue", $space: rgb) / 255;
+    $r: math.div(color.channel($background-color, "red", $space: rgb), 255);
+    $g: math.div(color.channel($background-color, "green", $space: rgb), 255);
+    $b: math.div(color.channel($background-color, "blue", $space: rgb), 255);
     $luminance: (0.2126 * $r + 0.7152 * $g + 0.0722 * $b);
 
     @if $luminance > 0.5 {

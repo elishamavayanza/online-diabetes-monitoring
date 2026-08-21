@@ -44,7 +44,7 @@ cp .env .env.local
 | `JWT_SECRET_KEY` | Chemin vers la clé privée JWT |
 | `JWT_PUBLIC_KEY` | Chemin vers la clé publique JWT |
 | `JWT_PASSPHRASE` | Passphrase des clés JWT |
-| `MAILER_DSN` | DSN du serveur d'envoi d'emails |
+| `MAILER_DSN` | DSN du serveur d'envoi d' |
 
 > Les clés JWT sont stockées dans `config/jwt/` (fichiers `private.pem` / `public.pem`) et référencées par variables d'environnement. Elles ne doivent jamais être commitées dans un dépôt partagé.
 
@@ -69,7 +69,7 @@ php bin/console app:security:create-root
 Par défaut : email `root@diabcare.com`. En production, fournir un mot de passe :
 
 ```bash
-php bin/console app:security:create-root --email=admin@diabcare.com --password='S3cure!Pwd'
+php bin/console app:security:create-root --=admin@diabcare.com --password='S3cure!Pwd'
 ```
 
 ## 6. Lancer l'application

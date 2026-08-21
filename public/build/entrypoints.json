@@ -8,6 +8,15 @@
       "css": [
         "/build/app.css"
       ]
+    },
+    "email": {
+      "js": [
+        "/build/runtime.js",
+        "/build/email.js"
+      ],
+      "css": [
+        "/build/email.css"
+      ]
     }
   }
 }

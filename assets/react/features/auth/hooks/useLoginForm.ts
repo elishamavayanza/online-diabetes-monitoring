@@ -31,7 +31,7 @@ export function useLoginForm() {
     const validate = (vals: LoginFormValues) => {
         const errs: Partial<LoginFormValues> = {};
         if (!vals.emailOrUsername.trim()) {
-            errs.emailOrUsername = 'Veuillez saisir votre email ou nom d’utilisateur.';
+            errs.emailOrUsername = 'Veuillez saisir votre  ou nom d’utilisateur.';
         }
         if (!vals.password) {
             errs.password = 'Veuillez saisir votre mot de passe.';

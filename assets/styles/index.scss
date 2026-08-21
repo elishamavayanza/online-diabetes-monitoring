@@ -52,6 +52,9 @@
 @use './components/Calendar/time-picker' as *;
 @use './layouts/layouts' as *;
 
+@use './emails/email' as *;
+@use './emails/reset_password_form' as *;
+
 @use './pages/auth/login' as *;
 
 // ──────────────────────────────────────────

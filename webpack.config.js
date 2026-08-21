@@ -6,6 +6,7 @@ api.setOutputPath('public/build/');
 api.setPublicPath('/build/');
 
 api.addEntry('app', './assets/react/main.tsx');
+api.addEntry('email', './assets/styles/emails/email.scss');
 
 // Alias @ -> assets
 api.addAliases({
