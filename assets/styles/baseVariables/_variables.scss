@@ -154,4 +154,9 @@ $theme-colors: map.get($palettes, $active-theme);
     --color-on-surface: var(--color-text);
     --color-border: #{color.adjust(map.get($theme-colors, background), $lightness: -20%)};
     --color-shadow: rgba(0, 0, 0, 0.08);
+
+    // Variantes hover pré-calculées (Sass compile-time → pas de color.adjust sur var())
+    --color-primary-hover: #{color.adjust(map.get($theme-colors, primary), $lightness: -5%)};
+    --color-secondary-hover: #{color.adjust(map.get($theme-colors, secondary), $lightness: -5%)};
+    --color-error-hover: #{color.adjust(map.get($theme-colors, error), $lightness: -5%)};
 }

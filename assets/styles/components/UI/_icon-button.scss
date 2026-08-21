@@ -22,7 +22,7 @@
         background-color: var(--color-primary);
         color: var(--color-on-primary);
         &:hover:not(:disabled) {
-            background-color: color.adjust(var(--color-primary), $lightness: -5%);
+            background-color: var(--color-primary-hover);
         }
     }
 
@@ -30,7 +30,7 @@
         background-color: var(--color-secondary);
         color: var(--color-on-secondary);
         &:hover:not(:disabled) {
-            background-color: color.adjust(var(--color-secondary), $lightness: -5%);
+            background-color: var(--color-secondary-hover);
         }
     }
 
@@ -55,7 +55,7 @@
         background-color: var(--color-error);
         color: var(--color-on-error);
         &:hover:not(:disabled) {
-            background-color: color.adjust(var(--color-error), $lightness: -5%);
+            background-color: var(--color-error-hover);
         }
     }
 

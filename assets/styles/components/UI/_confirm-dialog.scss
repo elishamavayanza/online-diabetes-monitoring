@@ -81,7 +81,7 @@
             color: var(--color-on-primary);
             border-color: var(--color-primary);
             &:hover {
-                background-color: color.adjust(var(--color-primary), $lightness: -5%);
+                background-color: var(--color-primary-hover);
             }
         }
     }

@@ -1,38 +1,11 @@
 // assets/styles/index.scss
 
+// ──────────────────────────────────────────
+// 1. All @use rules MUST come first (SCSS rule)
+// ──────────────────────────────────────────
 @use 'baseVariables/variables' as *;
 @use 'baseVariables/mixins' as *;
 @use 'baseVariables/theme' as *;
-
-html,
-body {
-    margin: 0;
-    padding: 0;
-}
-
-html,
-body,
-#root {
-    width: 100%;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-}
-
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: #f0f4f8;
-}
-
-@use 'components/UI/buttons' as *;
-@use './baseVariables/variables' as *;
-@use './baseVariables/mixins' as *;
 @use 'components/UI/buttons' as *;
 @use 'components/Form/input' as *;
 @use 'components/Form/textarea' as *;
@@ -77,3 +50,32 @@ body {
 @use 'components/Navigation/command-palette' as *;
 @use 'components/Calendar/calendar' as *;
 @use 'components/Calendar/time-picker' as *;
+
+// ──────────────────────────────────────────
+// 2. Global base styles
+// ──────────────────────────────────────────
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+}
