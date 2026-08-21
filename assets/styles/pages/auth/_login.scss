@@ -1,7 +1,7 @@
 @use '../../baseVariables/variables' as *;
 
 /* ============================================================
-   Page de connexion
+   Page de connexion – design moderne (logo dans la carte, centrage forcé)
    ============================================================ */
 .login-page {
     min-height: 100vh;
@@ -11,71 +11,246 @@
     justify-content: center;
     padding: 2rem;
 
-    background:
-        radial-gradient(ellipse at 20% 80%, rgba(44, 122, 123, 0.06) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(118, 184, 184, 0.08) 0%, transparent 60%),
-        linear-gradient(135deg, #E9EEF3 0%, #F5F8FA 100%);
 
-    &__header {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    &__logo {
-        height: 64px;
-        width: auto;
-        margin-bottom: 1rem;
-    }
-
-    &__title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--color-primary);
-        letter-spacing: -0.02em;
-        margin-bottom: 0.5rem;
-    }
-
-    &__subtitle {
-        font-size: 1rem;
-        color: var(--color-text);
-        opacity: 0.7;
-    }
+    //color: var(--color-primary);
 
     &__card {
         width: 100%;
-        max-width: 420px;
+        max-width: 440px;
+
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 1rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(44, 122, 123, 0.05);
+        padding: 2.5rem;
+
+        .login-page__header {
+            text-align: center;
+            margin-bottom: 2rem;
+
+            // Forcer le centrage absolu des éléments
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .login-page__logo {
+            display: block;         // supprime tout espace blanc sous l'image
+            margin: 0 auto 1rem;    // centre horizontalement
+            height: 70px;
+            width: auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+        }
+
+        .login-page__title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;  // le garder en inline-block pour le soulignement
+            padding-bottom: 0.5rem;
+            text-align: center;     // centre le texte lui-même (même si inline-block)
+        }
+
+        .login-page__title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            border-radius: 2px;
+        }
+
+        .login-page__subtitle {
+            font-size: 1.05rem;
+            color: var(--color-primary);
+            opacity: 0.85;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
     }
 }
 
 /* ============================================================
-   Lien "Mot de passe oublié"
+   Formulaire – ajustements pour la connexion
    ============================================================ */
 .login-form__forgot-row {
     text-align: right;
-    margin-top: -0.5rem;
+    margin-top: -0.25rem;
 }
 
 .login-form__forgot-link {
     font-size: 0.9rem;
     color: var(--color-primary);
     text-decoration: none;
+    transition: color 0.2s, text-decoration 0.2s;
 
     &:hover {
+        color: var(--color-primary-hover, #256B6C);
         text-decoration: underline;
     }
 }
 
-/* Responsive */
+/* Tous les textes du formulaire en couleur primaire */
+.login-page .form-field__label,
+.login-page .form-field__required-star,
+.login-page .input-field,
+.login-page .password-field,
+.login-page .input-field::placeholder,
+.login-page .password-field::placeholder {
+    color: var(--color-primary);
+}
+
+.login-page .form-field__label {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.login-page .form-field__required-star {
+    color: var(--color-accent);
+}
+
+/* Champs : une seule bordure, pas de bordure externe */
+.login-page .input-field,
+.login-page .password-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--color-primary);
+    border-radius: 0.5rem;
+    padding: 0.85rem 1rem;
+    transition: border-color 0.25s, box-shadow 0.25s;
+
+    box-shadow: none;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+
+    &:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(44, 122, 123, 0.2);
+    }
+}
+
+/* Wrappers sans bordure, padding ou fond */
+.login-page .input-field__wrapper,
+.login-page .password-field__wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+}
+
+/* Contrôle du champ sans bordure */
+.login-page .form-field__control {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+/* Espacement cohérent entre les champs */
+.login-page .form-field {
+    gap: 0.25rem;
+    margin-bottom: 1.25rem;
+    width: 100%;
+}
+
+/* Bouton : style conservé */
+.login-page .btn--primary {
+    background: linear-gradient(135deg, #3A9D9E 0%, #2C7A7B 100%);
+    color: var(--color-on-primary);
+    border: none;
+    border-radius: 999px;
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 8px 20px rgba(44, 122, 123, 0.25);
+    transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(44, 122, 123, 0.35);
+        background: linear-gradient(135deg, #4AACAD 0%, #3A8D8E 100%);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: 0 6px 16px rgba(44, 122, 123, 0.2);
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+/* Message d'erreur : distinctif mais accessible */
+.login-page .error-message {
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-error);
+    background-color: rgba(var(--color-error-rgb, 231, 74, 59), 0.05);
+    border-left: 3px solid var(--color-error);
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 768px) {
+    .login-page {
+        padding: 2rem 1.5rem;
+    }
+
+    .login-page__card {
+        max-width: 100%;
+        padding: 2rem 1.5rem;
+
+        .login-page__logo {
+            height: 56px;
+        }
+
+        .login-page__title {
+            font-size: 1.8rem;
+        }
+    }
+}
+
 @media (max-width: 480px) {
     .login-page {
-        padding: 1.5rem;
+        padding: 1.5rem 1rem;
     }
 
-    .login-page__logo {
-        height: 48px;
+    .login-page__card {
+        padding: 1.5rem 1rem;
+
+        .login-page__logo {
+            height: 48px;
+            margin-bottom: 0.75rem;
+        }
+
+        .login-page__title {
+            font-size: 1.6rem;
+        }
+
+        .login-page__subtitle {
+            font-size: 0.9rem;
+        }
     }
 
-    .login-page__title {
-        font-size: 1.75rem;
+    .login-page .btn--primary {
+        padding: 0.8rem 1.25rem;
+        font-size: 0.95rem;
     }
 }

@@ -46,7 +46,7 @@ export const Password = forwardRef<HTMLInputElement, PasswordProps>(
         });
 
         return (
-            <div className={`${classes}__wrapper`}>
+            <div className={`${classes} password-field__wrapper`}>
                 <input
                     ref={ref}
                     type={showPassword ? 'text' : 'password'}

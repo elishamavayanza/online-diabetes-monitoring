@@ -32,7 +32,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         });
 
         return (
-            <div className={`${classes}__wrapper`}>
+            <div className={`${classes} input-field__wrapper`}>
                 {icon && iconPosition === 'left' && (
                     <span className="input-field__icon input-field__icon--left" aria-hidden="true">
             {icon}
