@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from '../../../styles/pages/HomePage/_homePage.module.scss';
 import {
     IconActivity,
@@ -7,13 +8,20 @@ import {
     IconMessageCircle,
     IconBell,
 } from './icons';
+import {useAuth} from "@/react/app/providers/AuthProvider";
 
 const HomePage: React.FC = () => {
+    const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
+    };
+
+    const goToLogin = () => {
+        navigate(isAuthenticated ? '/app' : '/login');
     };
 
     useEffect(() => {
@@ -55,7 +63,14 @@ const HomePage: React.FC = () => {
             {/* ===== HEADER ===== */}
             <header className={styles.header}>
                 <div className={styles.headerInner}>
-                    <a href="#" className={styles.logo}>
+                    <a
+                        href="#"
+                        className={styles.logo}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            goToLogin();
+                        }}
+                    >
                         <img src="../../../images/logo.png" alt="Logo OnlineDIAB" className={styles.logoImage} />
                         <span>OnlineDIAB</span>
                     </a>
@@ -65,7 +80,7 @@ const HomePage: React.FC = () => {
                         <a href="#about">À propos</a>
                         <a href="#features">Fonctionnalités</a>
                         <a href="#users">Pour qui ?</a>
-                        <button className={styles.ctaButton}>Se connecter</button>
+                        <button className={styles.ctaButton} onClick={goToLogin}>Se connecter</button>
                     </nav>
 
                     {/* Bouton hamburger (visible sur mobile) */}
@@ -87,7 +102,7 @@ const HomePage: React.FC = () => {
                         <a href="#about" onClick={toggleMenu}>À propos</a>
                         <a href="#features" onClick={toggleMenu}>Fonctionnalités</a>
                         <a href="#users" onClick={toggleMenu}>Pour qui ?</a>
-                        <button className={styles.ctaButton} onClick={toggleMenu}>Se connecter</button>
+                        <button className={styles.ctaButton} onClick={() => { toggleMenu(); goToLogin(); }}>Se connecter</button>
                     </div>
                 )}
             </header>
@@ -123,7 +138,7 @@ const HomePage: React.FC = () => {
                         OnlineDIAB facilite le suivi quotidien des personnes vivant avec le diabète
                         et favorise une meilleure collaboration entre patients et professionnels de santé.
                     </p>
-                    <button className={styles.primaryCta}>Se connecter</button>
+                    <button className={styles.primaryCta} onClick={goToLogin}>Se connecter</button>
                 </div>
                 <div className={styles.heroIllustration}>
                     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -246,7 +261,7 @@ const HomePage: React.FC = () => {
                 <div className={styles.finalCtaInner}>
                     <h2>Un suivi plus simple. <br />Une meilleure coordination.</h2>
                     <p>Découvrez OnlineDIAB et son approche du suivi du diabète.</p>
-                    <button className={styles.primaryCta}>Se connecter</button>
+                    <button className={styles.primaryCta} onClick={goToLogin}>Se connecter</button>
                 </div>
             </section>
 
@@ -266,7 +281,7 @@ const HomePage: React.FC = () => {
                         </div>
                         <div>
                             <h4>Compte</h4>
-                            <a href="#">Se connecter</a>
+                            <a href="/login" onClick={(event) => { event.preventDefault(); goToLogin(); }}>Se connecter</a>
                         </div>
                     </div>
                     {/* Image/logo à droite */}

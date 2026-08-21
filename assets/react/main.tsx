@@ -1,16 +1,18 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import "../styles/index.scss";
-import HomePage from './pages/HomePage/HomePage';
-
-console.log("🚀 main.tsx exécuté !");
+import App from "@/react/App";
+import { AuthProvider } from "@/react/app/providers/AuthProvider";
+import AppRoutes from "@/react/app/routes/AppRoutes";
 
 const container = document.getElementById("root");
 
 if (container) {
     createRoot(container).render(
         <React.StrictMode>
-            <HomePage />
+            <AuthProvider>
+                <AppRoutes />
+            </AuthProvider>
         </React.StrictMode>
     );
 }

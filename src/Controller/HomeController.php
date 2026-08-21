@@ -11,6 +11,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home', methods: ['GET'])]
+    #[Route(
+        '/{reactRouting}',
+        name: 'app_spa',
+        requirements: ['reactRouting' => '^(?!api|_profiler|_wdt|build|reset-password).+'],
+        methods: ['GET']
+    )]
     #[OA\Get(
         description: 'Affiche la page d\'accueil de l\'application DiabCare.',
         summary: 'Page d\'accueil'
@@ -20,7 +26,7 @@ class HomeController extends AbstractController
         description: 'Page HTML de l\'application',
         content: new OA\MediaType(mediaType: 'text/html')
     )]
-    public function index(): Response
+    public function index(?string $reactRouting = null): Response
     {
         return $this->render('base.html.twig');
     }

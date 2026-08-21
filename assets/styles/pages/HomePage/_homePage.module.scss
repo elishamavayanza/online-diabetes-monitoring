@@ -1065,6 +1065,32 @@
         max-height: 70px;
     }
 }
+/* ---------- Tablettes (769px à 900px) ---------- */
+@media (max-width: 900px) and (min-width: 769px) {
+    :root {
+        --header-height: 68px;
+    }
+
+    .headerInner {
+        padding: 0 1.5rem;
+    }
+
+    .nav {
+        display: none;           // cache la navigation desktop
+    }
+
+    .menuToggle {
+        display: flex;           // affiche le bouton hamburger
+    }
+
+    .logoImage {
+        height: 40px;
+    }
+
+    .logo span {
+        font-size: 1.5rem;
+    }
+}
 
 /* ---------- Écrans ≤ 768px (tablette portrait) ---------- */
 @media (max-width: 768px) {

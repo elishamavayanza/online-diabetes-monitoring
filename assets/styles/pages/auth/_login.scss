@@ -1,0 +1,81 @@
+@use '../../baseVariables/variables' as *;
+
+/* ============================================================
+   Page de connexion
+   ============================================================ */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+
+    background:
+        radial-gradient(ellipse at 20% 80%, rgba(44, 122, 123, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(118, 184, 184, 0.08) 0%, transparent 60%),
+        linear-gradient(135deg, #E9EEF3 0%, #F5F8FA 100%);
+
+    &__header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    &__logo {
+        height: 64px;
+        width: auto;
+        margin-bottom: 1rem;
+    }
+
+    &__title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+    }
+
+    &__subtitle {
+        font-size: 1rem;
+        color: var(--color-text);
+        opacity: 0.7;
+    }
+
+    &__card {
+        width: 100%;
+        max-width: 420px;
+    }
+}
+
+/* ============================================================
+   Lien "Mot de passe oublié"
+   ============================================================ */
+.login-form__forgot-row {
+    text-align: right;
+    margin-top: -0.5rem;
+}
+
+.login-form__forgot-link {
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .login-page {
+        padding: 1.5rem;
+    }
+
+    .login-page__logo {
+        height: 48px;
+    }
+
+    .login-page__title {
+        font-size: 1.75rem;
+    }
+}

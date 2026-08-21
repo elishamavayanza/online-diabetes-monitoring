@@ -1,10 +1,16 @@
 const Encore = require('@symfony/webpack-encore');
+const path = require('path');
 const api = Encore.default || Encore;
 
 api.setOutputPath('public/build/');
 api.setPublicPath('/build/');
 
 api.addEntry('app', './assets/react/main.tsx');
+
+// Alias @ -> assets
+api.addAliases({
+    '@': path.resolve(__dirname, 'assets'),
+});
 
 api.enableReactPreset();
 api.enableTypeScriptLoader();
