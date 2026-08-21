@@ -5,7 +5,6 @@
    Case à cocher – Checkbox
    ============================================================ */
 .checkbox-field {
-    /* Masquer l'input natif mais rester accessible */
     position: absolute;
     opacity: 0;
     width: 0;
@@ -30,7 +29,7 @@
         position: relative;
     }
 
-    &:checked + &__visual {
+    &:checked + .checkbox-field__visual {
         background-color: var(--color-primary);
         border-color: var(--color-primary);
         &:after {
@@ -46,36 +45,36 @@
         }
     }
 
-    &:focus-visible + &__visual {
+    &:focus-visible + .checkbox-field__visual {
         outline: 2px solid var(--color-primary);
         outline-offset: 2px;
     }
 
-    &--error + &__visual {
+    &--error + .checkbox-field__visual {
         border-color: var(--color-error);
     }
 
-    &--success + &__visual {
+    &--success + .checkbox-field__visual {
         border-color: var(--color-success);
     }
 
     /* Tailles */
     &--small {
-        &__visual { width: 1em; height: 1em; }
-        &__label { font-size: 0.875rem; }
+        .checkbox-field__visual { width: 1em; height: 1em; }
+        .checkbox-field__label { font-size: 0.875rem; }
     }
 
     &--large {
-        &__visual { width: 1.5em; height: 1.5em; }
-        &__label { font-size: 1.125rem; }
+        .checkbox-field__visual { width: 1.5em; height: 1.5em; }
+        .checkbox-field__label { font-size: 1.125rem; }
     }
 
     &--disabled {
-        &__wrapper { cursor: not-allowed; opacity: 0.6; }
+        .checkbox-field__wrapper { cursor: not-allowed; opacity: 0.6; }
     }
 
     &__label {
-        order: 1;
         color: var(--color-text);
+        font-size: 1rem;
     }
 }

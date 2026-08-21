@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { useCheckbox, UseCheckboxProps } from '../../../hook-components/Forms/Checkbox';
+import { useCheckbox, UseCheckboxProps } from '@/react/hook-components/Forms/Checkbox';
 
 export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement>, UseCheckboxProps {
     label?: React.ReactNode;
@@ -25,7 +25,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         });
 
         return (
-            <label className={`${classes}__wrapper`}>
+            <label className="checkbox-field__wrapper">
                 <input
                     ref={ref}
                     type="checkbox"

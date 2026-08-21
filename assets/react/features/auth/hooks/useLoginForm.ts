@@ -5,6 +5,7 @@ import { LoginFormValues } from '../types/auth.types';
 const initialValues: LoginFormValues = {
     emailOrUsername: '',
     password: '',
+    rememberMe: false,
 };
 
 export function useLoginForm() {
@@ -19,6 +20,12 @@ export function useLoginForm() {
                 setValues((prev) => ({ ...prev, [field]: e.target.value }));
                 setErrors((prev) => ({ ...prev, [field]: undefined }));
                 setSubmitError(null);
+            };
+
+    const handleBooleanChange =
+        (field: keyof LoginFormValues) =>
+            (e: React.ChangeEvent<HTMLInputElement>) => {
+                setValues((prev) => ({ ...prev, [field]: e.target.checked }));
             };
 
     const validate = (vals: LoginFormValues) => {
@@ -59,6 +66,7 @@ export function useLoginForm() {
         isSubmitting,
         submitError,
         handleChange,
+        handleBooleanChange,
         handleSubmit,
     };
 }

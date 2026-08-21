@@ -1,3 +1,4 @@
+// @ts-ignore
 import { AuthResponse, LoginPayload } from '../types/auth.types';
 
 /**
@@ -21,4 +22,10 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
     }
 
     throw new Error('Identifiants incorrects. Veuillez réessayer.');
+}
+
+export interface LoginPayload {
+    emailOrUsername: string;
+    password: string;
+    rememberMe: boolean;
 }

@@ -1,6 +1,7 @@
 export interface LoginFormValues {
     emailOrUsername: string;
     password: string;
+    rememberMe: boolean;
 }
 
 export interface AuthUser {

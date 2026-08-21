@@ -6,6 +6,7 @@ import {Input} from "@/react/components/Forms/Input";
 import {Password} from "@/react/components/Forms/Password";
 import {ErrorMessage} from "@/react/components/Forms/ErrorMessage";
 import {Button} from "@/react/components/UI/Button";
+import { Checkbox } from "@/react/components/Forms/Checkbox";
 
 export function LoginForm() {
     const {
@@ -14,6 +15,7 @@ export function LoginForm() {
         isSubmitting,
         submitError,
         handleChange,
+        handleBooleanChange,
         handleSubmit,
     } = useLoginForm();
 
@@ -54,7 +56,14 @@ export function LoginForm() {
                 />
             </FormField>
 
-            <div className="login-form__forgot-row">
+            <div className="login-form__options-row">
+                <Checkbox
+                    label="Se souvenir de moi"
+                    checked={values.rememberMe}
+                    onChange={handleBooleanChange('rememberMe')}
+                    name="rememberMe"
+                    id="rememberMe"
+                />
                 <a href="/forgot-password" className="login-form__forgot-link">
                     Mot de passe oublié ?
                 </a>

@@ -18,7 +18,13 @@
         width: 100%;
         max-width: 440px;
 
-        background: rgba(255, 255, 255, 0.75);
+        /* Dégradé multicolore subtil basé sur la palette médicale */
+        background:
+            radial-gradient(ellipse at 20% 20%, rgba(44, 122, 123, 0.20) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 80%, rgba(118, 184, 184, 0.18) 0%, transparent 60%),
+            radial-gradient(ellipse at 60% 40%, rgba(244, 162, 97, 0.12) 0%, transparent 50%),
+            rgba(255, 255, 255, 0.75);  // fond de base clair
+
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.4);
@@ -37,9 +43,9 @@
         }
 
         .login-page__logo {
-            display: block;         // supprime tout espace blanc sous l'image
-            margin: 0 auto 1rem;    // centre horizontalement
-            height: 70px;
+            display: block;
+            margin: 0 auto 0.5rem;  // ← espace bas réduit (0.5rem)
+            height: 85px;           // ← logo plus grand
             width: auto;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
         }
@@ -81,15 +87,25 @@
 /* ============================================================
    Formulaire – ajustements pour la connexion
    ============================================================ */
-.login-form__forgot-row {
-    text-align: right;
+.login-form__options-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
     margin-top: -0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-form__options-row .checkbox-field__label {
+    font-size: 0.75rem;                       /* taille réduite davantage */
+    color: rgba(30, 42, 50, 0.6);             /* couleur gris doux, plus discrète */
 }
 
 .login-form__forgot-link {
     font-size: 0.9rem;
     color: var(--color-primary);
     text-decoration: none;
+    white-space: nowrap;
     transition: color 0.2s, text-decoration 0.2s;
 
     &:hover {
@@ -218,7 +234,8 @@
         padding: 2rem 1.5rem;
 
         .login-page__logo {
-            height: 56px;
+            height: 64px;
+            margin-bottom: 0.5rem;
         }
 
         .login-page__title {
@@ -236,8 +253,8 @@
         padding: 1.5rem 1rem;
 
         .login-page__logo {
-            height: 48px;
-            margin-bottom: 0.75rem;
+            height: 54px;
+            margin-bottom: 0.5rem;
         }
 
         .login-page__title {
