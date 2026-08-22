@@ -53,6 +53,12 @@ export function ForgotPasswordForm() {
             >
                 {isSubmitting ? 'Envoi en cours...' : 'Envoyer le lien'}
             </Button>
+
+            <div className="forgot-password__back-row">
+                <a href="/login" className="forgot-password__back-link">
+                    Retour à la connexion
+                </a>
+            </div>
         </Form>
     );
 }
