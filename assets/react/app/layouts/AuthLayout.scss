@@ -9,13 +9,13 @@
 /* Tablette (jusqu'à 768px) */
 @media (max-width: 768px) {
     .auth-layout {
-        padding: 1rem;              // réduit l'espace sur tablette
+        padding: 0;              // réduit l'espace sur tablette
     }
 }
 
 /* Mobile (jusqu'à 480px) */
 @media (max-width: 480px) {
     .auth-layout {
-        padding: 0.25rem;              // marges minimales sur téléphone
+        padding: 0;              // marges minimales sur téléphone
     }
 }

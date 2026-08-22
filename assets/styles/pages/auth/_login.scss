@@ -255,14 +255,13 @@
 
 @media (max-width: 480px) {
     .login-page {
-        padding: 0.75rem;          // marge minimale autour de la carte
+        padding: 0.45rem;
     }
 
-    .login-page .login-page__card {
+    .login-page__card {
         width: 100%;
-        max-width: 100%;           // la carte occupe toute la largeur disponible
-        margin: 0;
-        padding: 1.25rem;          // padding interne réduit
+        max-width: 100%;
+        padding: 1.25rem;
 
         .login-page__logo {
             height: 54px;

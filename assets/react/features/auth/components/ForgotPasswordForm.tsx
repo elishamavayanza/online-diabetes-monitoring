@@ -4,7 +4,7 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Input } from '@/react/components/Forms/Input';
 import { ErrorMessage } from '@/react/components/Forms/ErrorMessage';
 import { Button } from '@/react/components/UI/Button';
-import { useForgotPasswordForm } from '../hooks/useForgotPasswordForm';
+import { useForgotPasswordForm } from '@/react/features/auth';
 
 export function ForgotPasswordForm() {
     const {
