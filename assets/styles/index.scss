@@ -56,6 +56,7 @@
 @use './emails/reset_password_form' as *;
 
 @use './pages/auth/login' as *;
+@use './pages/auth/forgot-password' as *;
 
 // ──────────────────────────────────────────
 // 2. Global base styles

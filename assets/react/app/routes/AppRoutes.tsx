@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../providers/AuthProvider';
 import { LoginPage } from '@/react/features/auth/pages/LoginPage';
+import { ForgotPasswordPage } from '@/react/features/auth/pages/ForgotPasswordPage'; // import ajouté
 import AuthLayout from '../layouts/AuthLayout';
 import AppLayout from '../layouts/AppLayout';
 import HomePage from "@/react/homepage/HomePage/HomePage";
@@ -25,6 +26,16 @@ export default function AppRoutes() {
                     element={
                         <AuthLayout>
                             <LoginPage />
+                        </AuthLayout>
+                    }
+                />
+
+                {/* Page mot de passe oublié – publique */}
+                <Route
+                    path="/forgot-password"
+                    element={
+                        <AuthLayout>
+                            <ForgotPasswordPage />
                         </AuthLayout>
                     }
                 />
