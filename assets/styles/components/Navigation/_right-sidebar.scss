@@ -1,0 +1,104 @@
+@use '../../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+
+/* ============================================================
+   Barre latérale droite – RightSidebar
+   ============================================================ */
+.right-sidebar {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    height: 100%;
+    transition: width 0.3s ease;
+
+    &__collapse {
+        align-self: flex-start;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.75rem;
+        color: var(--color-text);
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+
+    &__header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--color-border);
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
+    &__title {
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    &__content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+
+    &__footer {
+        padding: 1rem;
+        border-top: 1px solid var(--color-border);
+    }
+
+    /* Variantes */
+    &--default {
+        background-color: var(--color-surface);
+    }
+
+    &--light {
+        background-color: var(--color-background);
+    }
+
+    &--dark {
+        background-color: var(--color-text);
+        color: var(--color-background);
+        border-left: none;
+
+        .right-sidebar__title,
+        .right-sidebar__header {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .right-sidebar__collapse,
+        .right-sidebar__footer {
+            color: rgba(255, 255, 255, 0.8);
+        }
+    }
+
+    /* Tailles */
+    &--small {
+        width: 200px;
+    }
+
+    &--medium {
+        width: 280px;
+    }
+
+    &--large {
+        width: 340px;
+    }
+
+    /* Mode replié */
+    &--collapsed {
+        width: 60px;
+        overflow: hidden;
+
+        .right-sidebar__header,
+        .right-sidebar__title,
+        .right-sidebar__content,
+        .right-sidebar__footer {
+            display: none;
+        }
+    }
+}

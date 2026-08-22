@@ -50,7 +50,9 @@
 @use './components/Navigation/command-palette' as *;
 @use './components/Calendar/calendar' as *;
 @use './components/Calendar/time-picker' as *;
+@use './components/Navigation/right-sidebar' as *;
 @use './layouts/layouts' as *;
+@use '../react/app/layouts/MainLayout/MainLayout' as *;
 
 @use './emails/email' as *;
 @use './emails/reset_password_form' as *;

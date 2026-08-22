@@ -1,0 +1,83 @@
+@use '../../../../styles/baseVariables/variables' as *;
+
+/* ============================================================
+   MainLayout – structure commune de l'application
+   ============================================================ */
+.main-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--color-background);
+    color: var(--color-text);
+
+    &__header {
+        position: sticky;
+        top: 0;
+        z-index: 1000; /* au-dessus du contenu */
+        background-color: var(--color-surface);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    &__body {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    &__sidebar-left {
+        width: 260px;
+        flex-shrink: 0;
+        background-color: var(--color-surface);
+        border-right: 1px solid var(--color-border);
+        height: auto;
+        min-height: calc(100vh - 64px); // moins la hauteur du header
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0; // évite les débordements
+        padding: 2rem;
+        background-color: var(--color-background);
+    }
+
+    &__sidebar-right {
+        width: 280px;
+        flex-shrink: 0;
+        background-color: var(--color-surface);
+        border-left: 1px solid var(--color-border);
+        min-height: calc(100vh - 64px);
+    }
+
+    &__right-placeholder {
+        padding: 1rem;
+        color: var(--color-text);
+        opacity: 0.7;
+        text-align: center;
+    }
+
+    &__footer {
+        background-color: var(--color-surface);
+        border-top: 1px solid var(--color-border);
+    }
+}
+
+/* Responsive – passage en colonne sur mobile */
+@media (max-width: 992px) {
+    .main-layout__body {
+        flex-direction: column;
+    }
+
+    .main-layout__sidebar-left,
+    .main-layout__sidebar-right {
+        width: 100%;
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .main-layout__sidebar-right {
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+    }
+}
