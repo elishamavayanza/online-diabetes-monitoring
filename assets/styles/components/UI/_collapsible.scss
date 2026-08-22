@@ -1,0 +1,42 @@
+@use '../../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+
+/* ============================================================
+   Conteneur repliable – Collapsible
+   ============================================================ */
+.collapsible {
+    width: 100%;
+
+    &__trigger {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        user-select: none;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.05);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: -2px;
+        }
+    }
+
+    &__content {
+        overflow: hidden;
+        animation: collapsible-fade-in 0.2s ease-out;
+    }
+}
+
+@keyframes collapsible-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

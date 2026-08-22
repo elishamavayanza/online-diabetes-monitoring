@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { login } from '../services/authService';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/react/app/providers/AuthProvider';
 import { LoginFormValues } from '../types/auth.types';
 
 const initialValues: LoginFormValues = {
@@ -13,6 +14,8 @@ export function useLoginForm() {
     const [errors, setErrors] = useState<Partial<LoginFormValues>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleChange =
         (field: keyof LoginFormValues) =>
@@ -31,7 +34,7 @@ export function useLoginForm() {
     const validate = (vals: LoginFormValues) => {
         const errs: Partial<LoginFormValues> = {};
         if (!vals.emailOrUsername.trim()) {
-            errs.emailOrUsername = 'Veuillez saisir votre  ou nom d’utilisateur.';
+            errs.emailOrUsername = 'Veuillez saisir votre email ou nom d’utilisateur.';
         }
         if (!vals.password) {
             errs.password = 'Veuillez saisir votre mot de passe.';
@@ -49,10 +52,9 @@ export function useLoginForm() {
 
         setIsSubmitting(true);
         try {
-            const response = await login(values);
-            // Stocker le token / rediriger selon votre stratégie
-            console.log('Connexion réussie', response);
-            // Exemple : localStorage.setItem('token', response.token);
+            await login(values);
+            console.log('Connexion réussie');
+            navigate('/app');
         } catch (error: any) {
             setSubmitError(error.message || 'Une erreur est survenue.');
         } finally {

@@ -10,13 +10,14 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Exemple de validation factice
-    if (payload.emailOrUsername === 'admin' && payload.password === 'admin') {
+    if (payload.emailOrUsername === 'user@example.com' && payload.password === 'password123') {
         return {
             token: 'fake-token-123',
             user: {
                 id: '1',
                 name: 'Admin DiabCare',
                 email: 'admin@diabcare.com',
+                permissions: ['DASHBOARD_VIEW', 'USER_VIEW', 'PATIENT_VIEW'],
             },
         };
     }

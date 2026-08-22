@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Header } from '@/react/components/Navigation/Header';
-import { Sidebar } from '@/react/components/Navigation/Sidebar';
 import { Footer } from '@/react/components/Navigation/Footer';
-import {RightSidebar} from "@/react/components/Navigation/RightSidebar";
+import { RightSidebar } from "@/react/components/Navigation/RightSidebar";
+import { Sidebar } from "@/react/components/Navigation/Sidebar";
+import { useAuth } from '@/react/app/providers/AuthProvider';
+import { SIDEBAR_CONFIG } from './components/Sidebar/sidebar.config'; // adaptez le chemin
 import './MainLayout.scss';
 
 interface MainLayoutProps {
@@ -32,6 +34,12 @@ export function MainLayout({
                                footerProps,
                                className = '',
                            }: MainLayoutProps) {
+    const { user } = useAuth();
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+    // Permissions par défaut si `user` ne les fournit pas
+    const permissions = user?.permissions ?? [];
+
     return (
         <div className={`main-layout ${className}`.trim()}>
             {showHeader && (
@@ -45,12 +53,19 @@ export function MainLayout({
             )}
 
             <div className="main-layout__body">
-                {showSidebar && (
+                {showSidebar && user && (
                     <aside className="main-layout__sidebar-left">
                         {sidebarContent || (
                             <Sidebar
-                                items={[]}
+                                groups={SIDEBAR_CONFIG}
+                                userPermissions={permissions}
                                 collapsible
+                                defaultCollapsed={false}
+                                activeId="dashboard"
+                                mobileOpen={mobileSidebarOpen}
+                                onMobileClose={() => setMobileSidebarOpen(false)}
+                                header={<span>OnlineDIAB</span>}
+                                footer={<div>{user.name}</div>}
                                 {...sidebarProps}
                             />
                         )}

@@ -2,7 +2,7 @@
 @use '../../baseVariables/variables' as *;
 
 /* ============================================================
-   Barre latérale – Sidebar
+   Barre latérale intelligente – Sidebar
    ============================================================ */
 .sidebar {
     background-color: var(--color-surface);
@@ -13,6 +13,29 @@
     transition: width 0.3s ease;
     overflow: hidden;
 
+    /* Mode replié : largeur réduite, icônes seulement */
+    &--collapsed {
+        width: 70px;
+
+        .sidebar__group-label,
+        .sidebar__label,
+        .sidebar__arrow,
+        .sidebar__user-menu__info {
+            display: none; /* cache les textes */
+        }
+
+        .sidebar__item,
+        .sidebar__subitem {
+            justify-content: center;
+            padding: 0.5rem;
+        }
+
+        .sidebar__collapse {
+            align-self: center;
+        }
+    }
+
+    /* Variante sombre */
     &--dark {
         background-color: var(--color-text);
         color: var(--color-background);
@@ -20,10 +43,12 @@
 
         .sidebar__item,
         .sidebar__subitem {
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
+
             &:hover {
-                background-color: rgba(255,255,255,0.1);
+                background-color: rgba(255, 255, 255, 0.1);
             }
+
             &--active {
                 background-color: var(--color-primary);
                 color: white;
@@ -31,57 +56,87 @@
         }
     }
 
+    /* Variante claire */
     &--light {
         background-color: var(--color-background);
     }
 
-    &--collapsed {
-        .sidebar__collapse {
-            align-self: center;
-        }
+    /* En-tête du sidebar (logo + bouton repli) */
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--color-border);
+        height: 64px; /* aligne avec la hauteur du header principal */
+    }
+
+    &__logo {
+        font-size: 1.2rem;
+        color: var(--color-primary);
+        white-space: nowrap;
     }
 
     &__collapse {
         background: none;
         border: none;
         cursor: pointer;
-        padding: 0.75rem;
+        padding: 0.5rem;
         color: inherit;
-        align-self: flex-end;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.25rem;
+        transition: background-color 0.2s;
+
         &:hover {
-            opacity: 0.7;
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
         }
     }
 
-    &__header {
-        padding: 1rem;
-        font-weight: 600;
-        border-bottom: 1px solid var(--color-border);
-    }
-
+    /* Navigation principale */
     &__nav {
         flex: 1;
         overflow-y: auto;
         padding: 0.5rem 0;
     }
 
+    /* Groupe de menu */
     &__group {
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.75rem;
     }
 
+    &__group-label {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--color-text);
+        opacity: 0.6;
+        letter-spacing: 0.05em;
+    }
+
+    /* Élément simple et sous‑élément */
     &__item,
     &__subitem {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 1rem;
         cursor: pointer;
         color: var(--color-text);
-        transition: background-color 0.2s, color 0.2s;
+        text-decoration: none;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
         border-left: 3px solid transparent;
 
         &:hover {
             background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.05);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: -2px;
         }
 
         &--active {
@@ -94,6 +149,7 @@
         &--disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            pointer-events: none;
         }
     }
 
@@ -102,23 +158,86 @@
         font-size: 0.9rem;
     }
 
+    /* Icône et libellé */
     &__icon {
         display: inline-flex;
         align-items: center;
         flex-shrink: 0;
+        min-width: 24px;
+        justify-content: center;
     }
 
     &__label {
         flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
+    /* Flèche des sous‑menus */
     &__arrow {
         font-size: 0.8em;
         opacity: 0.7;
+        transition: transform 0.2s;
+
+        &.open {
+            transform: rotate(90deg);
+        }
     }
 
+    /* Conteneur des sous‑items */
+    &__subitems {
+        padding-left: 1rem;
+    }
+
+    /* Pied du sidebar (menu utilisateur) */
     &__footer {
         padding: 1rem;
         border-top: 1px solid var(--color-border);
     }
 }
+
+/* ============================================================
+   Menu utilisateur intégré au sidebar
+   ============================================================ */
+.sidebar-user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.25rem 0;
+
+    &__trigger {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+    &__name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-text);
+    }
+
+    &__role {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        color: var(--color-text);
+    }
+
+    &--collapsed {
+        justify-content: center;
+    }
+}
+
+/* ============================================================
+   Version mobile – le sidebar est rendu dans un Drawer
+   Le style est réutilisé, aucune règle supplémentaire nécessaire.
+   ============================================================ */

@@ -13,7 +13,14 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<AuthUser | null>(null);
+    const [user, setUser] = useState<AuthUser | null>(() => {
+        try {
+            const storedUser = localStorage.getItem('user');
+            return storedUser ? JSON.parse(storedUser) : null;
+        } catch {
+            return null;
+        }
+    });
     const [isLoading, setIsLoading] = useState(false);
 
     const login = async (payload: LoginPayload) => {
@@ -21,8 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const response = await loginService(payload);
             setUser(response.user);
-            // Stocker le token si besoin
             localStorage.setItem('token', response.token);
+            localStorage.setItem('user', JSON.stringify(response.user));
         } finally {
             setIsLoading(false);
         }
@@ -31,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logout = () => {
         setUser(null);
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
     };
 
     const value: AuthContextValue = {
