@@ -41,16 +41,16 @@
         overflow: hidden;
     }
 
-    /* En-tête – vide, hauteur 20px, fond primaire */
+    /* En-tête – vide, hauteur 20px, fond primaire, SANS bordure inférieure */
     &__header {
         position: sticky;
         top: 0;
         z-index: 1000;
-        background-color: var(--color-primary);   /* <-- changement ici */
-        border-bottom: 1px solid var(--color-border);
+        background-color: var(--color-primary);
+        /* border-bottom supprimée */
         flex-shrink: 0;
-        height: 20px;
-        min-height: 20px;
+        height: 10px;
+        min-height: 10px;
         box-shadow: none;
     }
 
@@ -61,25 +61,35 @@
         width: 100%;
         min-height: 0;
         overflow: hidden;
+        background-color: var(--color-primary);
     }
 
-    /* Contenu principal */
+    /* Contenu principal – coins arrondis côté extérieur gauche */
     &__content {
         flex: 1;
         min-width: 0;
         padding: 2rem;
         background-color: var(--color-background);
         overflow-y: auto;
+
+        /* Arrondi extérieur : en haut à gauche et en bas à gauche */
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
     }
 
-    /* Sidebar droite – largeur gérée par le composant RightSidebar (drag) */
+    /* Sidebar droite – coins arrondis côté extérieur droit */
     &__sidebar-right {
         flex-shrink: 0;
         background-color: var(--color-surface);
-        border-left: 1px solid var(--color-border);
+        /* border-left supprimée si vous voulez aussi retirer la séparation avec le contenu */
+        border-left: none;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+
+        /* Arrondi extérieur : en haut à droite et en bas à droite */
+        border-top-right-radius: 16px;
+        border-bottom-right-radius: 16px;
     }
 
     /* Contenu de la sidebar droite (utilisé si vous n'utilisez pas RightSidebar) */
@@ -134,13 +144,13 @@
         }
     }
 
-    /* Pied de page – vide, hauteur 20px, fond primaire */
+    /* Pied de page – vide, hauteur 20px, fond primaire, SANS bordure supérieure */
     &__footer {
-        background-color: var(--color-primary);   /* <-- changement ici */
-        border-top: 1px solid var(--color-border);
+        background-color: var(--color-primary);
+        /* border-top supprimée */
         flex-shrink: 0;
-        height: 20px;
-        min-height: 20px;
+        height: 10px;
+        min-height: 10px;
         padding: 0;
         margin: 0;
         z-index: 100;
@@ -200,27 +210,30 @@
         &__body {
             flex-direction: column;
             overflow: visible;
+            background-color: var(--color-primary);
         }
 
         &__content {
             overflow-y: visible;
+            border-radius: 0;
         }
 
         &__sidebar-right {
             width: 100%;
             min-height: auto;
             border-left: none;
-            border-top: 1px solid var(--color-border);
+            border-top: none;  /* on retire aussi la bordure supérieure éventuelle */
+            border-radius: 0;
         }
 
         &__header {
-            height: 15px;
-            min-height: 15px;
+            height: 8px;
+            min-height: 8px;
         }
 
         &__footer {
-            height: 15px;
-            min-height: 15px;
+            height: 8px;
+            min-height: 8px;
         }
     }
 }
