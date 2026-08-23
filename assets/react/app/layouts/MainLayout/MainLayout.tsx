@@ -7,6 +7,7 @@ import { SIDEBAR_CONFIG } from './components/Sidebar/sidebar.config';
 import './MainLayout.scss';
 import { Header } from '@/react/components/Navigation/Header';
 import logo from '@/images/logo_with.png';
+import { Avatar } from "@/react/components/UI/Avatar";
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -63,8 +64,21 @@ export function MainLayout({
                                         <span className="sidebar-brand__title">OnlineDIAB</span>
                                     </div>
                                 }
-                                footer={<div>{user.name}</div>}
-                                {...sidebarProps}
+                                footer={
+                                    <div className="sidebar-user-menu">
+                                        <Avatar
+                                            src={user.photoUrl || undefined}
+                                            name={user.name}
+                                            size="medium"
+                                            shape="circle"
+                                            status="online"
+                                        />
+                                        <div className="sidebar-user-menu__info">
+                                            <span className="sidebar-user-menu__name">{user.name}</span>
+                                            <span className="sidebar-user-menu__role">{user.role || 'Utilisateur'}</span>
+                                        </div>
+                                    </div>
+                                }
                             />
                         )}
                     </aside>

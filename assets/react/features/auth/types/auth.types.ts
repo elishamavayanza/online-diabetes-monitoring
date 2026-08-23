@@ -9,6 +9,10 @@ export interface AuthUser {
     name: string;
     email: string;
     permissions: string[];
+
+    role?: string;
+    /** URL de la photo de profil (optionnel) */
+    photoUrl?: string;
 }
 
 export interface AuthResponse {

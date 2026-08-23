@@ -5,7 +5,7 @@
    Barre latérale intelligente – Sidebar
    ============================================================ */
 .sidebar {
-    background-color: var(--color-primary);   /* ← couleur primaire */
+    background-color: var(--color-primary);
     height: 100vh;
     width: 260px;
     display: flex;
@@ -33,11 +33,10 @@
         }
     }
 
-    /* Variante sombre (conserver si besoin, ici on peut la laisser) */
+    /* Variante sombre */
     &--dark {
         background-color: var(--color-text);
         color: var(--color-background);
-        border-right: none;
 
         .sidebar__item,
         .sidebar__subitem {
@@ -59,19 +58,19 @@
         background-color: var(--color-background);
     }
 
-    /* En-tête du sidebar */
+    /* En-tête du sidebar – avec séparateur bas */
     &__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 1rem;
         font-weight: 600;
-        border-bottom: 1px solid var(--color-border);
         height: 64px;
         flex-shrink: 0;
         gap: 0.5rem;
-        background-color: var(--color-primary);   /* fond primaire */
-        color: var(--color-on-primary);            /* texte lisible */
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        border-bottom: 1px solid var(--color-border);  /* ← séparateur ajouté */
     }
 
     &__header-content {
@@ -206,13 +205,13 @@
         padding-left: 1rem;
     }
 
-    /* Pied du sidebar */
+    /* Pied du sidebar – sans bordure supérieure */
     &__footer {
-        padding: 1rem;
-        border-top: 1px solid var(--color-border);
+        padding: 0.75rem;
         flex-shrink: 0;
         background-color: var(--color-primary);
         color: var(--color-on-primary);
+        transition: padding 0.3s ease;
     }
 }
 
@@ -223,34 +222,37 @@
 }
 
 /* ============================================================
-   Menu utilisateur intégré au sidebar
+   Menu utilisateur intégré au sidebar (footer)
    ============================================================ */
 .sidebar-user-menu {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     cursor: pointer;
-    padding: 0.25rem 0;
+    padding: 0.5rem;
     background-color: var(--color-primary);
     color: var(--color-on-primary);
+    border-radius: 0.5rem;
+    transition: background-color 0.2s, gap 0.3s ease, justify-content 0.3s ease;
 
-    &__trigger {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        width: 100%;
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
     }
 
     &__info {
         display: flex;
         flex-direction: column;
         line-height: 1.2;
+        min-width: 0;
     }
 
     &__name {
         font-weight: 600;
         font-size: 0.9rem;
         color: var(--color-on-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     &__role {
@@ -263,6 +265,7 @@
         justify-content: center;
     }
 }
+
 /* Marque du sidebar : logo + texte */
 .sidebar-brand {
     display: flex;
@@ -273,10 +276,8 @@
 }
 
 .sidebar-brand__logo {
-    width: 40px;
-    height: 40px;
-    /* Suppression du cercle : retirer border-radius: 50% */
-    border-radius: 0;                  /* ou supprimez simplement la ligne */
+    width: 35px;
+    height: 35px;
     object-fit: cover;
     flex-shrink: 0;
 }
@@ -310,4 +311,105 @@
 
 .sidebar--collapsed .sidebar-brand__title {
     display: none;
+}
+
+/* En mode replié : on centre l'avatar et on masque le texte du menu utilisateur */
+.sidebar--collapsed {
+    .sidebar__footer {
+        padding: 0.5rem;
+    }
+
+    .sidebar-user-menu {
+        justify-content: center;
+        gap: 0;
+        padding: 0;
+    }
+
+    .sidebar-user-menu__info {
+        display: none;
+    }
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* Pied du sidebar */
+.sidebar__footer {
+    padding: 0.75rem;
+    flex-shrink: 0;
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    transition: padding 0.3s ease;
+}
+
+/* ============================================================
+   Menu utilisateur – carte arrondie avec fond commun
+   ============================================================ */
+.sidebar-user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;                  /* un peu plus large horizontalement */
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--color-on-primary);
+    border-radius: 999px;                     /* ← forme de pilule / demi-cercle */
+    transition: background-color 0.2s, gap 0.3s ease, justify-content 0.3s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+        min-width: 0;
+    }
+
+    &__name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--color-on-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__role {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        color: var(--color-on-primary);
+    }
+
+    &--collapsed {
+        justify-content: center;
+        background-color: transparent;
+        border-radius: 50%;                  /* pour l'avatar seul en mode replié */
+        padding: 0;
+    }
+}
+/* En mode replié : ajustements */
+.sidebar--collapsed {
+    .sidebar__footer {
+        padding: 0.5rem;
+    }
+
+    .sidebar-user-menu {
+        justify-content: center;
+        gap: 0;
+        padding: 0;
+        background-color: transparent;
+    }
+
+    .sidebar-user-menu__info {
+        display: none;
+    }
+
+    .avatar {
+        width: 36px;
+        height: 36px;
+    }
 }

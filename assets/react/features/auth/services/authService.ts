@@ -10,7 +10,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     // Exemple de validation factice
-    if (payload.emailOrUsername === 'user@example.com' && payload.password === 'password123') {
+    if (payload.emailOrUsername === 'admin' && payload.password === 'admin') {
         return {
             token: 'fake-token-123',
             user: {
@@ -18,6 +18,8 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
                 name: 'Admin DiabCare',
                 email: 'admin@diabcare.com',
                 permissions: ['DASHBOARD_VIEW', 'USER_VIEW', 'PATIENT_VIEW'],
+                role: 'ADMIN',                 // nouveau
+                photoUrl: '/images/logo.png',  // ou une vraie photo, sinon undefined
             },
         };
     }
