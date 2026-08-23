@@ -1,27 +1,29 @@
-import React from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useRightSidebar, UseRightSidebarProps } from '../../../hook-components/Navigation/RightSidebar';
 
-const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
+const CollapseIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
-        {collapsed ? (
-            <polyline points="9 18 15 12 9 6" />
-        ) : (
-            <polyline points="15 18 9 12 15 6" />
-        )}
+        <polyline points="15 18 9 12 15 6" />
+    </svg>
+);
+
+const ExpandIcon = () => (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="9 18 15 12 9 6" />
     </svg>
 );
 
 export interface RightSidebarProps extends UseRightSidebarProps {
-    /** Contenu de la sidebar droite */
     children: React.ReactNode;
-    /** Titre optionnel affiché en haut */
     title?: React.ReactNode;
-    /** Élément de header personnalisé (au-dessus du titre) */
     header?: React.ReactNode;
-    /** Élément de footer personnalisé */
     footer?: React.ReactNode;
-    /** Callback lors du clic sur le bouton de repli */
     onToggle?: (collapsed: boolean) => void;
+    minWidth?: number;
+    maxWidth?: number;
+    onResize?: (width: number) => void;
+    closeThreshold?: number;
+    collapsedWidth?: number;
 }
 
 export function RightSidebar({
@@ -31,42 +33,162 @@ export function RightSidebar({
                                  footer,
                                  variant,
                                  size,
-                                 collapsible,
-                                 defaultCollapsed,
+                                 collapsible = true,
+                                 defaultCollapsed = false,
                                  className,
                                  onToggle,
+                                 minWidth = 200,
+                                 maxWidth = 600,
+                                 onResize,
+                                 closeThreshold = 60,
+                                 collapsedWidth = 35,
                              }: RightSidebarProps) {
-    const { classes, isCollapsed, toggleCollapse } = useRightSidebar({
-        variant,
-        size,
-        collapsible,
-        defaultCollapsed,
-        className,
+    const { classes } = useRightSidebar({ variant, size, collapsible, defaultCollapsed, className });
+
+    const [width, setWidth] = useState<number>(() => {
+        switch (size) {
+            case 'small': return 200;
+            case 'large': return 340;
+            case 'medium':
+            default: return 280;
+        }
     });
 
+    const [isFullyCollapsed, setIsFullyCollapsed] = useState(defaultCollapsed);
+    const asideRef = useRef<HTMLElement>(null);
+
+    const isDraggingRef = useRef(false);
+    const rafRef = useRef<number | null>(null);
+    const isFullyCollapsedRef = useRef(isFullyCollapsed);
+
+    useEffect(() => {
+        isFullyCollapsedRef.current = isFullyCollapsed;
+    }, [isFullyCollapsed]);
+
+    const updateWidthDOM = useCallback((newWidth: number) => {
+        if (asideRef.current) {
+            asideRef.current.style.width = `${newWidth}px`;
+        }
+    }, []);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!isDraggingRef.current) return;
+
+        if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+
+        rafRef.current = requestAnimationFrame(() => {
+            let newWidth = window.innerWidth - e.clientX;
+
+            if (isFullyCollapsedRef.current) {
+                if (newWidth > collapsedWidth + 20) {
+                    setIsFullyCollapsed(false);
+                    isFullyCollapsedRef.current = false;
+                } else {
+                    return;
+                }
+            }
+
+            if (newWidth < closeThreshold) {
+                setIsFullyCollapsed(true);
+                isFullyCollapsedRef.current = true;
+                updateWidthDOM(collapsedWidth);
+                return;
+            }
+
+            newWidth = Math.min(maxWidth, Math.max(minWidth, newWidth));
+            updateWidthDOM(newWidth);
+        });
+    }, [minWidth, maxWidth, closeThreshold, collapsedWidth, updateWidthDOM]);
+
+    const handleMouseUp = useCallback(() => {
+        isDraggingRef.current = false;
+        document.body.classList.remove('right-sidebar-resizing');
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+
+        if (rafRef.current !== null) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = null;
+        }
+
+        if (asideRef.current) {
+            const currentWidth = parseInt(asideRef.current.style.width, 10);
+            if (!isFullyCollapsedRef.current && !isNaN(currentWidth)) {
+                setWidth(currentWidth);
+                onResize?.(currentWidth);
+            } else {
+                setWidth(collapsedWidth);
+                onResize?.(collapsedWidth);
+            }
+        }
+    }, [handleMouseMove, collapsedWidth, onResize]);
+
+    const startDragging = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        isDraggingRef.current = true;
+        document.body.classList.add('right-sidebar-resizing');
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+    }, [handleMouseMove, handleMouseUp]);
+
+    useEffect(() => {
+        return () => {
+            document.body.classList.remove('right-sidebar-resizing');
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+        };
+    }, [handleMouseMove, handleMouseUp]);
+
     const handleToggle = () => {
-        toggleCollapse();
-        if (onToggle) onToggle(!isCollapsed);
+        const nextState = !isFullyCollapsed;
+        setIsFullyCollapsed(nextState);
+        const targetWidth = nextState ? collapsedWidth : width;
+        updateWidthDOM(targetWidth);
+        onToggle?.(nextState);
     };
 
+    const sidebarStyle: React.CSSProperties = {
+        width: isFullyCollapsed ? `${collapsedWidth}px` : `${width}px`,
+        transition: isDraggingRef.current ? 'none' : 'width 0.3s ease',
+        position: 'relative',
+        flexShrink: 0,
+        overflow: 'hidden',
+    };
+
+    useEffect(() => {
+        updateWidthDOM(isFullyCollapsed ? collapsedWidth : width);
+    }, [isFullyCollapsed, width, collapsedWidth, updateWidthDOM]);
+
     return (
-        <aside className={classes}>
-            {collapsible && (
-                <button
-                    type="button"
-                    className="right-sidebar__collapse"
-                    onClick={handleToggle}
-                    aria-label={isCollapsed ? 'Déplier la sidebar' : 'Replier la sidebar'}
-                    aria-expanded={!isCollapsed}
+        <aside
+            ref={asideRef}
+            className={`${classes} ${isFullyCollapsed ? 'right-sidebar--fully-collapsed' : ''}`}
+            style={sidebarStyle}
+        >
+            {isFullyCollapsed ? (
+                <div
+                    className="right-sidebar__collapsed-strip"
+                    onMouseDown={startDragging}
+                    onClick={(e) => {
+                        if (!isDraggingRef.current) handleToggle();
+                    }}
+                    title="Cliquer pour ouvrir ou glisser vers la gauche"
                 >
-                    <CollapseIcon collapsed={isCollapsed} />
-                </button>
-            )}
-
-            {header && <div className="right-sidebar__header">{header}</div>}
-
-            {!isCollapsed && (
+                    <span className="right-sidebar__collapsed-text">{title || ''}</span>
+                </div>
+            ) : (
                 <>
+                    <div
+                        className="right-sidebar__resizer"
+                        onMouseDown={startDragging}
+                        title="Glisser pour redimensionner"
+                    />
+
+                    {/* Bouton de fermeture supprimé */}
+
+                    {header && <div className="right-sidebar__header">{header}</div>}
                     {title && <div className="right-sidebar__title">{title}</div>}
                     <div className="right-sidebar__content">{children}</div>
                     {footer && <div className="right-sidebar__footer">{footer}</div>}

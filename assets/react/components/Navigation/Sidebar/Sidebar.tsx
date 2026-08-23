@@ -80,8 +80,8 @@ export function Sidebar({
                 {!isCollapsed && <span className="sidebar__label">{item.label}</span>}
                 {!isCollapsed && item.children && (
                     <span className="sidebar__arrow">
-            {openSections[item.id] ? '▾' : '▸'}
-          </span>
+                        {openSections[item.id] ? '▾' : '▸'}
+                    </span>
                 )}
             </div>
             {!isCollapsed && item.children && openSections[item.id] && (
@@ -106,7 +106,6 @@ export function Sidebar({
     // Rendu des groupes ou de la liste plate
     const renderContent = () => {
         if (groups) {
-            // filteredItems est un tableau de SidebarGroup
             return (filteredItems as SidebarGroup[]).map((group) => (
                 <div key={group.id} className="sidebar__group-section">
                     {!isCollapsed && <div className="sidebar__group-label">{group.label}</div>}
@@ -114,28 +113,36 @@ export function Sidebar({
                 </div>
             ));
         }
-        // filteredItems est un tableau de SidebarItem
         return (filteredItems as SidebarItem[]).map((item) => renderItem(item, isCollapsed));
     };
 
     const sidebarContent = (
         <aside className={classes} style={style}>
-            {collapsible && (
-                <button className="sidebar__collapse" onClick={toggleCollapse} aria-label="Réduire/agrandir">
-                    {isCollapsed ? <ExpandIcon /> : <CollapseIcon />}
-                </button>
-            )}
-            {header && <div className="sidebar__header">{header}</div>}
+            {/* Header avec le bouton de collapse intégré */}
+            <div className="sidebar__header">
+                {!isCollapsed && <div className="sidebar__header-content">{header}</div>}
+                {collapsible && (
+                    <button
+                        className="sidebar__collapse"
+                        onClick={toggleCollapse}
+                        aria-label="Réduire/agrandir"
+                    >
+                        {isCollapsed ? <ExpandIcon /> : <CollapseIcon />}
+                    </button>
+                )}
+            </div>
+
             <nav className="sidebar__nav" aria-label="Navigation latérale">
                 {renderContent()}
             </nav>
+
             {footer && <div className="sidebar__footer">{footer}</div>}
         </aside>
     );
 
     return (
         <>
-            <div className="sidebar__desktop">{sidebarContent}</div>
+            {sidebarContent}
             <Drawer
                 isOpen={isMobileOpen}
                 onClose={closeMobile}

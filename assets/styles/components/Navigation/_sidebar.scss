@@ -8,10 +8,13 @@
     background-color: var(--color-surface);
     border-right: 1px solid var(--color-border);
     height: 100vh;
+    width: 260px; /* Largeur par défaut */
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
     overflow: hidden;
+    position: sticky;
+    top: 0;
 
     /* Mode replié : largeur réduite, icônes seulement */
     &--collapsed {
@@ -21,17 +24,13 @@
         .sidebar__label,
         .sidebar__arrow,
         .sidebar__user-menu__info {
-            display: none; /* cache les textes */
+            display: none;
         }
 
         .sidebar__item,
         .sidebar__subitem {
             justify-content: center;
             padding: 0.5rem;
-        }
-
-        .sidebar__collapse {
-            align-self: center;
         }
     }
 
@@ -61,15 +60,27 @@
         background-color: var(--color-background);
     }
 
-    /* En-tête du sidebar (logo + bouton repli) */
+    /* En-tête du sidebar - hauteur fixe alignée avec le header principal */
     &__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.75rem 1rem;
+        padding: 0 1rem;
         font-weight: 600;
         border-bottom: 1px solid var(--color-border);
-        height: 64px; /* aligne avec la hauteur du header principal */
+        height: 64px; /* Même hauteur que le header principal */
+        flex-shrink: 0; /* Empêche le header de se réduire */
+        gap: 0.5rem;
+    }
+
+    &__header-content {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
     }
 
     &__logo {
@@ -89,6 +100,9 @@
         justify-content: center;
         border-radius: 0.25rem;
         transition: background-color 0.2s;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
 
         &:hover {
             background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
@@ -194,7 +208,14 @@
     &__footer {
         padding: 1rem;
         border-top: 1px solid var(--color-border);
+        flex-shrink: 0;
     }
+}
+
+/* En mode replié, le header est centré */
+.sidebar--collapsed .sidebar__header {
+    justify-content: center;
+    padding: 0;
 }
 
 /* ============================================================
@@ -236,8 +257,3 @@
         justify-content: center;
     }
 }
-
-/* ============================================================
-   Version mobile – le sidebar est rendu dans un Drawer
-   Le style est réutilisé, aucune règle supplémentaire nécessaire.
-   ============================================================ */

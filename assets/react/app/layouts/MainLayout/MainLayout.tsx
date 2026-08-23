@@ -4,7 +4,7 @@ import { Footer } from '@/react/components/Navigation/Footer';
 import { RightSidebar } from "@/react/components/Navigation/RightSidebar";
 import { Sidebar } from "@/react/components/Navigation/Sidebar";
 import { useAuth } from '@/react/app/providers/AuthProvider';
-import { SIDEBAR_CONFIG } from './components/Sidebar/sidebar.config'; // adaptez le chemin
+import { SIDEBAR_CONFIG } from './components/Sidebar/sidebar.config';
 import './MainLayout.scss';
 
 interface MainLayoutProps {
@@ -15,6 +15,7 @@ interface MainLayoutProps {
     showRightSidebar?: boolean;
     sidebarContent?: React.ReactNode;
     rightSidebarContent?: React.ReactNode;
+    rightSidebarProps?: Omit<React.ComponentProps<typeof RightSidebar>, 'children'>;
     headerProps?: React.ComponentProps<typeof Header>;
     sidebarProps?: React.ComponentProps<typeof Sidebar>;
     footerProps?: React.ComponentProps<typeof Footer>;
@@ -25,10 +26,11 @@ export function MainLayout({
                                children,
                                showHeader = true,
                                showSidebar = true,
-                               showFooter = false,
+                               showFooter = true,
                                showRightSidebar = false,
                                sidebarContent,
                                rightSidebarContent,
+                               rightSidebarProps,
                                headerProps,
                                sidebarProps,
                                footerProps,
@@ -36,23 +38,13 @@ export function MainLayout({
                            }: MainLayoutProps) {
     const { user } = useAuth();
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+    const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
 
-    // Permissions par défaut si `user` ne les fournit pas
     const permissions = user?.permissions ?? [];
 
     return (
         <div className={`main-layout ${className}`.trim()}>
-            {showHeader && (
-                <header className="main-layout__header">
-                    <Header
-                        logo="OnlineDIAB"
-                        navItems={[]}
-                        {...headerProps}
-                    />
-                </header>
-            )}
-
-            <div className="main-layout__body">
+            <div className="main-layout__container">
                 {showSidebar && user && (
                     <aside className="main-layout__sidebar-left">
                         {sidebarContent || (
@@ -72,33 +64,51 @@ export function MainLayout({
                     </aside>
                 )}
 
-                <main className="main-layout__content">{children}</main>
+                <div className="main-layout__main">
+                    {showHeader && (
+                        <header className="main-layout__header">
+                            <Header
+                                logo="OnlineDIAB"
+                                navItems={[]}
+                                {...headerProps}
+                            />
+                        </header>
+                    )}
 
-                {showRightSidebar && (
-                    <aside className="main-layout__sidebar-right">
-                        {rightSidebarContent || (
+                    <div className="main-layout__body">
+                        <main className="main-layout__content">
+                            {children}
+                        </main>
+
+                        {showRightSidebar && rightSidebarOpen && (
                             <RightSidebar
                                 collapsible
-                                defaultCollapsed={false}
                                 size="medium"
-                                className="right-sidebar--full-width"
+                                minWidth={250}
+                                maxWidth={500}
+                                closeThreshold={80}
+                                collapsedWidth={35}
+                                {...rightSidebarProps}
                             >
-                                <p>Contenu par défaut de la sidebar droite.</p>
+                                {rightSidebarContent || (
+                                    <div className="main-layout__right-content">
+                                        <p>Contenu par défaut de la sidebar droite.</p>
+                                        <ul>
+                                            <li>Information 1</li>
+                                            <li>Information 2</li>
+                                            <li>Information 3</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </RightSidebar>
                         )}
-                    </aside>
-                )}
-            </div>
+                    </div>
 
-            {showFooter && (
-                <footer className="main-layout__footer">
-                    <Footer
-                        brand="OnlineDIAB"
-                        sections={[]}
-                        {...footerProps}
-                    />
-                </footer>
-            )}
+                    {showFooter && (
+                        <footer className="main-layout__footer" />
+                    )}
+                </div>
+            </div>
         </div>
     );
 }
