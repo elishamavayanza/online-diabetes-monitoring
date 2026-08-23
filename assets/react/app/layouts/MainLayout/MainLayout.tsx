@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Header } from '@/react/components/Navigation/Header';
 import { Footer } from '@/react/components/Navigation/Footer';
 import { RightSidebar } from "@/react/components/Navigation/RightSidebar";
 import { Sidebar } from "@/react/components/Navigation/Sidebar";
 import { useAuth } from '@/react/app/providers/AuthProvider';
 import { SIDEBAR_CONFIG } from './components/Sidebar/sidebar.config';
 import './MainLayout.scss';
+// L'import de Header est conservé uniquement pour les types (headerProps),
+// mais le Header n'est plus utilisé dans le rendu.
+import { Header } from '@/react/components/Navigation/Header';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -16,7 +18,7 @@ interface MainLayoutProps {
     sidebarContent?: React.ReactNode;
     rightSidebarContent?: React.ReactNode;
     rightSidebarProps?: Omit<React.ComponentProps<typeof RightSidebar>, 'children'>;
-    headerProps?: React.ComponentProps<typeof Header>;
+    headerProps?: React.ComponentProps<typeof Header>; // gardé pour API future, non utilisé
     sidebarProps?: React.ComponentProps<typeof Sidebar>;
     footerProps?: React.ComponentProps<typeof Footer>;
     className?: string;
@@ -65,14 +67,9 @@ export function MainLayout({
                 )}
 
                 <div className="main-layout__main">
+                    {/* Header vide, même hauteur que le footer */}
                     {showHeader && (
-                        <header className="main-layout__header">
-                            <Header
-                                logo="OnlineDIAB"
-                                navItems={[]}
-                                {...headerProps}
-                            />
-                        </header>
+                        <header className="main-layout__header" />
                     )}
 
                     <div className="main-layout__body">
@@ -104,6 +101,7 @@ export function MainLayout({
                         )}
                     </div>
 
+                    {/* Footer vide */}
                     {showFooter && (
                         <footer className="main-layout__footer" />
                     )}
