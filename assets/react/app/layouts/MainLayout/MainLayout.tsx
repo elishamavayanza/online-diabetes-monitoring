@@ -5,9 +5,8 @@ import { Sidebar } from "@/react/components/Navigation/Sidebar";
 import { useAuth } from '@/react/app/providers/AuthProvider';
 import { SIDEBAR_CONFIG } from './components/Sidebar/sidebar.config';
 import './MainLayout.scss';
-// L'import de Header est conservé uniquement pour les types (headerProps),
-// mais le Header n'est plus utilisé dans le rendu.
 import { Header } from '@/react/components/Navigation/Header';
+import logo from '@/images/logo_with.png';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -58,7 +57,12 @@ export function MainLayout({
                                 activeId="dashboard"
                                 mobileOpen={mobileSidebarOpen}
                                 onMobileClose={() => setMobileSidebarOpen(false)}
-                                header={<span>OnlineDIAB</span>}
+                                header={
+                                    <div className="sidebar-brand">
+                                        <img src={logo} alt="OnlineDIAB" className="sidebar-brand__logo" />
+                                        <span className="sidebar-brand__title">OnlineDIAB</span>
+                                    </div>
+                                }
                                 footer={<div>{user.name}</div>}
                                 {...sidebarProps}
                             />

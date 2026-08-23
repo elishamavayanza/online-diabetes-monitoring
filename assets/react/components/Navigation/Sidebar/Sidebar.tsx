@@ -120,14 +120,32 @@ export function Sidebar({
         <aside className={classes} style={style}>
             {/* Header avec le bouton de collapse intégré */}
             <div className="sidebar__header">
-                {!isCollapsed && <div className="sidebar__header-content">{header}</div>}
-                {collapsible && (
+                {/* Zone cliquable pour le logo/brand – toujours visible */}
+                <div
+                    className="sidebar__header-brand"
+                    onClick={toggleCollapse}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            toggleCollapse();
+                        }
+                    }}
+                    title={isCollapsed ? 'Déplier le menu' : 'Replier le menu'}
+                >
+                    {header}
+                </div>
+
+                {/* Bouton de repli : visible uniquement quand le sidebar est déplié */}
+                {collapsible && !isCollapsed && (
                     <button
                         className="sidebar__collapse"
                         onClick={toggleCollapse}
-                        aria-label="Réduire/agrandir"
+                        aria-label="Replier le menu"
+                        title="Replier"
                     >
-                        {isCollapsed ? <ExpandIcon /> : <CollapseIcon />}
+                        <CollapseIcon />
                     </button>
                 )}
             </div>

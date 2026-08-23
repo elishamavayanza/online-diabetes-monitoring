@@ -5,10 +5,9 @@
    Barre latérale intelligente – Sidebar
    ============================================================ */
 .sidebar {
-    background-color: var(--color-surface);
-    border-right: 1px solid var(--color-border);
+    background-color: var(--color-primary);   /* ← couleur primaire */
     height: 100vh;
-    width: 260px; /* Largeur par défaut */
+    width: 260px;
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
@@ -34,7 +33,7 @@
         }
     }
 
-    /* Variante sombre */
+    /* Variante sombre (conserver si besoin, ici on peut la laisser) */
     &--dark {
         background-color: var(--color-text);
         color: var(--color-background);
@@ -60,7 +59,7 @@
         background-color: var(--color-background);
     }
 
-    /* En-tête du sidebar - hauteur fixe alignée avec le header principal */
+    /* En-tête du sidebar */
     &__header {
         display: flex;
         align-items: center;
@@ -68,9 +67,11 @@
         padding: 0 1rem;
         font-weight: 600;
         border-bottom: 1px solid var(--color-border);
-        height: 64px; /* Même hauteur que le header principal */
-        flex-shrink: 0; /* Empêche le header de se réduire */
+        height: 64px;
+        flex-shrink: 0;
         gap: 0.5rem;
+        background-color: var(--color-primary);   /* fond primaire */
+        color: var(--color-on-primary);            /* texte lisible */
     }
 
     &__header-content {
@@ -85,7 +86,7 @@
 
     &__logo {
         font-size: 1.2rem;
-        color: var(--color-primary);
+        color: var(--color-on-primary);
         white-space: nowrap;
     }
 
@@ -94,7 +95,7 @@
         border: none;
         cursor: pointer;
         padding: 0.5rem;
-        color: inherit;
+        color: var(--color-on-primary);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -105,7 +106,7 @@
         height: 40px;
 
         &:hover {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+            background-color: rgba(255, 255, 255, 0.2);
         }
     }
 
@@ -126,8 +127,8 @@
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
-        color: var(--color-text);
-        opacity: 0.6;
+        color: var(--color-on-primary);
+        opacity: 0.8;
         letter-spacing: 0.05em;
     }
 
@@ -139,24 +140,24 @@
         gap: 0.75rem;
         padding: 0.6rem 1rem;
         cursor: pointer;
-        color: var(--color-text);
+        color: var(--color-on-primary);
         text-decoration: none;
         transition: background-color 0.2s, color 0.2s, border-color 0.2s;
         border-left: 3px solid transparent;
 
         &:hover {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.05);
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         &:focus-visible {
-            outline: 2px solid var(--color-primary);
+            outline: 2px solid var(--color-on-primary);
             outline-offset: -2px;
         }
 
         &--active {
-            border-left-color: var(--color-primary);
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.08);
-            color: var(--color-primary);
+            border-left-color: var(--color-on-primary);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
             font-weight: 600;
         }
 
@@ -191,8 +192,9 @@
     /* Flèche des sous‑menus */
     &__arrow {
         font-size: 0.8em;
-        opacity: 0.7;
+        opacity: 0.8;
         transition: transform 0.2s;
+        color: var(--color-on-primary);
 
         &.open {
             transform: rotate(90deg);
@@ -204,11 +206,13 @@
         padding-left: 1rem;
     }
 
-    /* Pied du sidebar (menu utilisateur) */
+    /* Pied du sidebar */
     &__footer {
         padding: 1rem;
         border-top: 1px solid var(--color-border);
         flex-shrink: 0;
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
     }
 }
 
@@ -227,6 +231,8 @@
     gap: 0.75rem;
     cursor: pointer;
     padding: 0.25rem 0;
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
 
     &__trigger {
         display: flex;
@@ -244,16 +250,64 @@
     &__name {
         font-weight: 600;
         font-size: 0.9rem;
-        color: var(--color-text);
+        color: var(--color-on-primary);
     }
 
     &__role {
         font-size: 0.75rem;
-        opacity: 0.7;
-        color: var(--color-text);
+        opacity: 0.8;
+        color: var(--color-on-primary);
     }
 
     &--collapsed {
         justify-content: center;
     }
+}
+/* Marque du sidebar : logo + texte */
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.sidebar-brand__logo {
+    width: 40px;
+    height: 40px;
+    /* Suppression du cercle : retirer border-radius: 50% */
+    border-radius: 0;                  /* ou supprimez simplement la ligne */
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.sidebar-brand__title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-on-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Zone cliquable du logo/brand */
+.sidebar__header-brand {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    user-select: none;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+/* En mode replié : centre le logo et masque le texte */
+.sidebar--collapsed .sidebar__header-brand {
+    justify-content: center;
+}
+
+.sidebar--collapsed .sidebar-brand__title {
+    display: none;
 }
