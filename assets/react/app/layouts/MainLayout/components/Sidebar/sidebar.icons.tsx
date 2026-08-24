@@ -277,3 +277,6 @@ export const BookAppointmentIcon = ({ size = 20, className }: IconProps) => (
         <line x1="8" y1="17" x2="16" y2="17" />
     </svg>
 );
+
+
+

@@ -121,16 +121,18 @@
         display: block;
     }
 
-    /* Bouton flottant mobile pour ouvrir/fermer le panneau droit */
-    .main-layout__floating-toggle-right {
+    /* ============================================================
+       Boutons flottants mobiles (gauche et droite)
+       Taille identique + fond semi-transparent
+       ============================================================ */
+    .main-layout__floating-toggle-right,
+    .main-layout__floating-toggle-left {
         position: fixed;
-        top: 12px;
-        right: 12px;
-        z-index: 3100;
+        z-index: 3100;               // au-dessus de tout
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: var(--color-primary);
+        background-color: color-mix(in srgb, var(--color-primary) 65%, transparent);
         color: white;
         border: none;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
@@ -143,12 +145,85 @@
         &:hover {
             transform: scale(1.1);
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
-            background-color: var(--color-primary-hover, #256B6C);
+            background-color: color-mix(in srgb, var(--color-primary) 80%, transparent);
         }
 
         &:active {
             transform: scale(0.95);
         }
+    }
+
+    /* Positionnement spécifique */
+    .main-layout__floating-toggle-right {
+        top: 12px;
+        right: 12px;
+    }
+
+    .main-layout__floating-toggle-left {
+        top: 12px;
+        left: 12px;
+        z-index: 4100;               // légèrement au-dessus du bouton droit si nécessaire
+    }
+}
+
+/* ============================================================
+   Sidebar mobile : poussée du contenu (pas d'overlay)
+   ============================================================ */
+@media (max-width: 768px) {
+    .main-layout__floating-toggle-left,
+    .main-layout__floating-toggle-right {
+        width: 36px;
+        height: 36px;
+    }
+
+    .main-layout__floating-toggle-left {
+        top: 10px;
+        left: 10px;
+    }
+
+    .main-layout__floating-toggle-right {
+        top: 10px;
+        right: 10px;
+    }
+
+    .main-layout__sidebar-left {
+        position: relative;
+        top: auto;
+        left: auto;
+        height: 100vh;
+        width: 0;
+        overflow: hidden;
+        transition: width 0.3s ease;
+        flex-shrink: 0;
+        z-index: auto;
+    }
+
+    .main-layout__sidebar-left--open {
+        width: min(280px, 85vw);
+    }
+
+    .main-layout__sidebar-left .sidebar {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-layout__floating-toggle-left,
+    .main-layout__floating-toggle-right {
+        width: 32px;
+        height: 32px;
+    }
+
+    .main-layout__floating-toggle-left {
+        top: 8px;
+        left: 8px;
+    }
+
+    .main-layout__floating-toggle-right {
+        top: 8px;
+        right: 8px;
     }
 }
 
@@ -172,12 +247,6 @@
         &__right-header,
         &__right-footer { padding: 0.75rem; font-size: 0.9rem; }
     }
-    .main-layout__floating-toggle-right {
-        width: 36px;
-        height: 36px;
-        top: 10px;
-        right: 10px;
-    }
 }
 
 /* ============================================================
@@ -190,12 +259,6 @@
         &__right-header,
         &__right-footer { padding: 0.5rem; font-size: 0.85rem; }
     }
-    .main-layout__floating-toggle-right {
-        width: 32px;
-        height: 32px;
-        top: 8px;
-        right: 8px;
-    }
 }
 
 /* ============================================================
@@ -204,7 +267,7 @@
 @media (orientation: portrait) {
     .main-layout {
         &__content {
-            padding: 1rem;          /* réduit le padding */
+            padding: 1rem;
         }
         &__right-content {
             padding: 0.75rem;
@@ -218,6 +281,6 @@
     }
 
     .main-layout__floating-toggle-right {
-        display: flex; /* déjà affiché via JS, mais par sécurité */
+        display: flex;
     }
 }

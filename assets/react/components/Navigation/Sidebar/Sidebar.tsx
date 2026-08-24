@@ -31,9 +31,11 @@ export function Sidebar({
                             header,
                             footer,
                             userPermissions,
+                            mobileOpen = false,
+                            onMobileClose,
                         }: SidebarProps) {
     const {
-        classes,
+        classes: hookClasses,
         isCollapsed,
         toggleCollapse,
         openSections,
@@ -50,7 +52,15 @@ export function Sidebar({
         onItemClick,
         className,
         userPermissions,
+        mobileOpen,
+        onMobileClose,
     });
+
+    // Forcer l’affichage des textes sur mobile (collapsible=false)
+    const displayCollapsed = collapsible ? isCollapsed : false;
+    const classes = collapsible
+        ? hookClasses
+        : hookClasses.replace(' sidebar--collapsed', '');
 
     const handleItemClick = (item: SidebarItem | SidebarSubItem) => {
         onItemClick?.(item);
@@ -59,7 +69,25 @@ export function Sidebar({
         }
     };
 
-    const renderItem = (item: SidebarItem, isCollapsed: boolean) => (
+    // Clic sur le logo : replie/déplie si collapsible, sinon ferme le mobile
+    const handleBrandClick = () => {
+        if (collapsible) {
+            toggleCollapse();
+        } else if (onMobileClose) {
+            onMobileClose();
+        }
+    };
+
+    const handleBrandKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleBrandClick();
+        }
+    };
+
+    const isBrandInteractive = collapsible || !!onMobileClose;
+
+    const renderItem = (item: SidebarItem, collapsed: boolean) => (
         <div key={item.id} className="sidebar__group">
             <div
                 className={`sidebar__item ${item.active || item.id === activeId ? 'sidebar__item--active' : ''} ${item.disabled ? 'sidebar__item--disabled' : ''}`}
@@ -68,14 +96,14 @@ export function Sidebar({
                 tabIndex={item.disabled ? -1 : 0}
             >
                 {item.icon && <span className="sidebar__icon">{item.icon}</span>}
-                {!isCollapsed && <span className="sidebar__label">{item.label}</span>}
-                {!isCollapsed && item.children && (
+                {!collapsed && <span className="sidebar__label">{item.label}</span>}
+                {!collapsed && item.children && (
                     <span className="sidebar__arrow">
                         {openSections[item.id] ? '▾' : '▸'}
                     </span>
                 )}
             </div>
-            {!isCollapsed && item.children && openSections[item.id] && (
+            {!collapsed && item.children && openSections[item.id] && (
                 <div className="sidebar__subitems">
                     {item.children.map((child) => (
                         <div
@@ -98,12 +126,14 @@ export function Sidebar({
         if (groups) {
             return (filteredItems as SidebarGroup[]).map((group) => (
                 <div key={group.id} className="sidebar__group-section">
-                    {!isCollapsed && <div className="sidebar__group-label">{group.label}</div>}
-                    {group.items.map((item) => renderItem(item as SidebarItem, isCollapsed))}
+                    {!displayCollapsed && <div className="sidebar__group-label">{group.label}</div>}
+                    {group.items.map((item) => renderItem(item as SidebarItem, displayCollapsed))}
                 </div>
             ));
         }
-        return (filteredItems as SidebarItem[]).map((item) => renderItem(item, isCollapsed));
+        return (filteredItems as SidebarItem[]).map((item) =>
+            renderItem(item, displayCollapsed)
+        );
     };
 
     return (
@@ -111,20 +141,21 @@ export function Sidebar({
             <div className="sidebar__header">
                 <div
                     className="sidebar__header-brand"
-                    onClick={toggleCollapse}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            toggleCollapse();
-                        }
-                    }}
-                    title={isCollapsed ? 'Déplier le menu' : 'Replier le menu'}
+                    onClick={handleBrandClick}
+                    role={isBrandInteractive ? 'button' : undefined}
+                    tabIndex={isBrandInteractive ? 0 : undefined}
+                    onKeyDown={isBrandInteractive ? handleBrandKeyDown : undefined}
+                    title={
+                        collapsible
+                            ? (displayCollapsed ? 'Déplier le menu' : 'Replier le menu')
+                            : onMobileClose
+                                ? 'Fermer le menu'
+                                : undefined
+                    }
                 >
                     {header}
                 </div>
-                {collapsible && !isCollapsed && (
+                {collapsible && !displayCollapsed && (
                     <button
                         className="sidebar__collapse"
                         onClick={toggleCollapse}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Footer } from '@/react/components/Navigation/Footer';
 import { RightSidebar } from "@/react/components/Navigation/RightSidebar";
 import { Sidebar } from "@/react/components/Navigation/Sidebar";
@@ -12,7 +12,23 @@ import { PopoverMenu } from "@/react/components/UI/PopoverMenu";
 import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
 import { useIsMobile } from '@/react/hooks/useIsMobile';
 import { useIsPortrait } from '@/react/hooks/useIsPortrait';
-import {PanelRightIcon} from "@/react/app/layouts/MainLayout/components/PanelRightIcon";   // ← nouveau
+import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
+
+// ---------- Icônes hamburger / fermer ----------
+const MenuIcon = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+);
+
+const CloseIcon = () => (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+);
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -47,17 +63,77 @@ export function MainLayout({
     const isMobile = useIsMobile();
     const isPortrait = useIsPortrait();
 
-    // On considère "compact" si mobile OU portrait (tablette en portrait, desktop vertical, etc.)
     const isCompact = isMobile || isPortrait;
 
-    const [rightSidebarOpen, setRightSidebarOpen] = useState(!isCompact);  // fermé par défaut si compact
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+    const [rightSidebarOpen, setRightSidebarOpen] = useState(!isCompact);
 
     const permissions = user?.permissions ?? [];
     const userRole = user?.role as UserRole | undefined;
     const menuConfig = userRole ? SIDEBAR_CONFIGS[userRole] : SIDEBAR_CONFIGS.ROOT;
 
+    // ---------- Gestion tactile (mobile uniquement) ----------
+    const mainTouchStart = useRef<{ x: number; y: number } | null>(null);
+    const sidebarTouchStart = useRef<{ x: number; y: number } | null>(null);
+
+    const handleMainTouchStart = (e: React.TouchEvent) => {
+        if (!isMobile || mobileSidebarOpen) return;
+        const touch = e.touches[0];
+        mainTouchStart.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const handleMainTouchEnd = (e: React.TouchEvent) => {
+        if (!isMobile || mobileSidebarOpen || !mainTouchStart.current) return;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - mainTouchStart.current.x;
+        const dy = touch.clientY - mainTouchStart.current.y;
+
+        // Balayage vers la gauche (dx < 0) → ouvre
+        if (Math.abs(dx) > 60 && Math.abs(dy) < 30 && dx < 0) {
+            setMobileSidebarOpen(true);
+        }
+        mainTouchStart.current = null;
+    };
+
+    const handleSidebarTouchStart = (e: React.TouchEvent) => {
+        if (!isMobile || !mobileSidebarOpen) return;
+        const touch = e.touches[0];
+        sidebarTouchStart.current = { x: touch.clientX, y: touch.clientY };
+    };
+
+    const handleSidebarTouchEnd = (e: React.TouchEvent) => {
+        if (!isMobile || !mobileSidebarOpen || !sidebarTouchStart.current) return;
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - sidebarTouchStart.current.x;
+        const dy = touch.clientY - sidebarTouchStart.current.y;
+
+        // Balayage vers la droite (dx > 0) → ferme
+        if (Math.abs(dx) > 60 && Math.abs(dy) < 30 && dx > 0) {
+            setMobileSidebarOpen(false);
+        }
+        sidebarTouchStart.current = null;
+    };
+    // --------------------------------------------------------
+
     return (
-        <div className={`main-layout ${className}`.trim()}>
+        <div
+            className={`main-layout ${className}`.trim()}
+            onTouchStart={handleMainTouchStart}
+            onTouchEnd={handleMainTouchEnd}
+            style={{ touchAction: 'pan-y' }}
+        >
+            {/* Bouton hamburger (mobile uniquement) */}
+            {isMobile && !mobileSidebarOpen && (
+                <button
+                    className="main-layout__floating-toggle-left"
+                    onClick={() => setMobileSidebarOpen(true)}
+                    aria-label="Ouvrir le menu"
+                    title="Ouvrir le menu"
+                >
+                    <MenuIcon />
+                </button>
+            )}
+
             {/* Bouton flottant pour ouvrir/fermer le panneau droit en mode compact */}
             {isCompact && showRightSidebar && (
                 <button
@@ -72,14 +148,26 @@ export function MainLayout({
 
             <div className="main-layout__container">
                 {showSidebar && user && (
-                    <aside className="main-layout__sidebar-left">
+                    <aside
+                        className={`main-layout__sidebar-left${isMobile && mobileSidebarOpen ? ' main-layout__sidebar-left--open' : ''}`}
+                        onTouchStart={handleSidebarTouchStart}
+                        onTouchEnd={handleSidebarTouchEnd}
+                        style={{ touchAction: 'pan-y' }}
+                    >
                         {sidebarContent || (
                             <Sidebar
                                 groups={menuConfig}
                                 userPermissions={permissions}
-                                collapsible
-                                defaultCollapsed={isCompact}   // replié si compact
+                                collapsible={!isMobile}
+                                defaultCollapsed={isCompact && !isMobile}
                                 activeId="dashboard"
+                                mobileOpen={isMobile ? mobileSidebarOpen : undefined}
+                                onMobileClose={() => setMobileSidebarOpen(false)}
+                                onItemClick={(item) => {
+                                    if (isMobile && !('children' in item && item.children)) {
+                                        setMobileSidebarOpen(false);
+                                    }
+                                }}
                                 header={
                                     <div className="sidebar-brand">
                                         <img src={logo} alt="OnlineDIAB" className="sidebar-brand__logo" />
@@ -134,9 +222,7 @@ export function MainLayout({
                 )}
 
                 <div className="main-layout__main">
-                    {showHeader && (
-                        <header className="main-layout__header" />
-                    )}
+                    {showHeader && <header className="main-layout__header" />}
 
                     <div className="main-layout__body">
                         <main className="main-layout__content">
@@ -167,9 +253,7 @@ export function MainLayout({
                         )}
                     </div>
 
-                    {showFooter && (
-                        <footer className="main-layout__footer" />
-                    )}
+                    {showFooter && <footer className="main-layout__footer" />}
                 </div>
             </div>
         </div>
