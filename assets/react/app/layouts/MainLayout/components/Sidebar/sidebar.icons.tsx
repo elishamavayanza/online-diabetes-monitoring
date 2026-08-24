@@ -266,3 +266,14 @@ export const ConfigIcon = ({ size = 20, className }: IconProps) => (
         <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42m12.72-12.72l1.42-1.42" />
     </svg>
 );
+
+export const BookAppointmentIcon = ({ size = 20, className }: IconProps) => (
+    <svg {...baseProps} width={size} height={size} className={className}>
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+        <line x1="12" y1="14" x2="12" y2="20" />
+        <line x1="8" y1="17" x2="16" y2="17" />
+    </svg>
+);

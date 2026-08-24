@@ -1,34 +1,50 @@
-// @ts-ignore
+import apiClient from '@/services/api/client';
+import { tokenStorage } from '@/services/storage/storage.service';
 import { AuthResponse, LoginPayload } from '../types/auth.types';
+import { UserRole } from '@/react/app/layouts/MainLayout/components/Sidebar/sidebar.config';
 
 /**
- * Simule une requête d'authentification.
- * Remplacez la simulation par un appel API réel.
+ * Mappe les rôles Symfony (ROLE_*) vers les rôles applicatifs.
  */
-export async function login(payload: LoginPayload): Promise<AuthResponse> {
-    // Simule une latence réseau
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Exemple de validation factice
-    if (payload.emailOrUsername === 'admin' && payload.password === 'admin') {
-        return {
-            token: 'fake-token-123',
-            user: {
-                id: '1',
-                name: 'Admin DiabCare',
-                email: 'admin@diabcare.com',
-                permissions: ['DASHBOARD_VIEW', 'USER_VIEW', 'PATIENT_VIEW'],
-                role: 'ADMIN',                 // nouveau
-                photoUrl: '/images/logo.png',  // ou une vraie photo, sinon undefined
-            },
-        };
-    }
-
-    throw new Error('Identifiants incorrects. Veuillez réessayer.');
+function mapSymfonyRoleToUserRole(roles: string[]): UserRole {
+    if (roles.includes('ROLE_ROOT')) return 'ROOT';
+    if (roles.includes('ROLE_ADMIN')) return 'ADMIN';
+    if (roles.includes('ROLE_CLINICIAN')) return 'CLINICIAN';
+    if (roles.includes('ROLE_NUTRITIONIST')) return 'NUTRITIONIST';
+    if (roles.includes('ROLE_PATIENT')) return 'PATIENT';
+    return 'PATIENT';
 }
 
-export interface LoginPayload {
-    emailOrUsername: string;
-    password: string;
-    rememberMe: boolean;
+export async function login(payload: LoginPayload): Promise<AuthResponse> {
+    // Appel réel à l'API Symfony
+    const response = await apiClient.post<{
+        token: string;
+        fullName?: string;
+        email?: string;
+        roles?: string[];
+        permissions?: string[];
+        id?: string;
+    }>('/login_check', {
+        username: payload.emailOrUsername,   // le backend attend "username"
+        password: payload.password,
+    });
+
+    const data = response.data;
+
+    const user = {
+        id: data.id ?? 'unknown',
+        name: data.fullName ?? payload.emailOrUsername,
+        email: data.email ?? payload.emailOrUsername,
+        permissions: data.permissions ?? [],
+        role: mapSymfonyRoleToUserRole(data.roles ?? []),
+        photoUrl: undefined,
+    };
+
+    // Stocke le token JWT pour les prochaines requêtes
+    tokenStorage.setAccessToken(data.token);
+
+    return {
+        token: data.token,
+        user,
+    };
 }

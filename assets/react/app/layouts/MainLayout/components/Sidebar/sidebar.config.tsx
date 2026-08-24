@@ -1,4 +1,4 @@
-import {SidebarConfig} from "@/react/hook-components/Navigation/Sidebar/types";
+import { SidebarConfig } from "@/react/hook-components/Navigation/Sidebar/types";
 import {
     DashboardIcon,
     UsersIcon,
@@ -25,7 +25,7 @@ import {
     DosesIcon,
     CalendarIcon,
     TeamIcon,
-    ConfigIcon,
+    ConfigIcon, BookAppointmentIcon,
 } from "./sidebar.icons";
 
 export type UserRole = "ROOT" | "ADMIN" | "CLINICIAN" | "NUTRITIONIST" | "PATIENT";
@@ -102,6 +102,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             items: [
                 { id: "admin-appointments", label: "Rendez-vous", icon: <AppointmentsIcon />, route: "/admin/appointments", permission: "APPOINTMENT_VIEW" },
                 { id: "activity-log", label: "Activité", icon: <ActivityIcon />, route: "/admin/activity", permission: "ACTIVITY_VIEW" },
+                { id: "admin-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/admin/notifications", permission: "NOTIFICATION_VIEW" },
             ],
         },
         {
@@ -141,6 +142,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Communication",
             items: [
                 { id: "clinician-messages", label: "Messages", icon: <MessagesIcon />, route: "/clinician/messages", permission: "MESSAGE_VIEW" },
+                { id: "clinician-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/clinician/notifications", permission: "NOTIFICATION_VIEW" },
             ],
         },
     ],
@@ -181,6 +183,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Communication",
             items: [
                 { id: "nutritionist-messages", label: "Messages", icon: <MessagesIcon />, route: "/nutritionist/messages", permission: "MESSAGE_VIEW" },
+                { id: "nutritionist-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/nutritionist/notifications", permission: "NOTIFICATION_VIEW" },
             ],
         },
     ],
@@ -214,7 +217,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Rendez-vous",
             items: [
                 { id: "my-appointments", label: "Mes rendez-vous", icon: <AppointmentsIcon />, route: "/patient/appointments", permission: "APPOINTMENT_VIEW" },
-                { id: "book-appointment", label: "Prendre rendez-vous", icon: <CalendarIcon />, route: "/patient/book", permission: "APPOINTMENT_CREATE" },
+                { id: "book-appointment", label: "Prendre rendez-vous", icon: <BookAppointmentIcon />, route: "/patient/book", permission: "APPOINTMENT_CREATE" },
             ],
         },
         {
@@ -222,6 +225,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Communication",
             items: [
                 { id: "patient-messages", label: "Messages", icon: <MessagesIcon />, route: "/patient/messages", permission: "MESSAGE_VIEW" },
+                { id: "patient-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/patient/notifications", permission: "NOTIFICATION_VIEW" },
                 { id: "my-team", label: "Mon équipe", icon: <TeamIcon />, route: "/patient/team", permission: "TEAM_VIEW" },
             ],
         },

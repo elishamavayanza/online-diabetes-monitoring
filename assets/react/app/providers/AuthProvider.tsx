@@ -1,6 +1,9 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthUser, LoginPayload } from '@/react/features/auth/types/auth.types';
 import { login as loginService } from '@/react/features/auth/services/authService';
+import { tokenStorage } from '@/services/storage/storage.service';
+import { decodeJwtPayload, isTokenExpired } from '@/services/security/security.utils';
+import { UserRole } from '@/react/app/layouts/MainLayout/components/Sidebar/sidebar.config';
 
 interface AuthContextValue {
     user: AuthUser | null;
@@ -13,23 +16,41 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<AuthUser | null>(() => {
-        try {
-            const storedUser = localStorage.getItem('user');
-            return storedUser ? JSON.parse(storedUser) : null;
-        } catch {
-            return null;
+    const [user, setUser] = useState<AuthUser | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Restaurer l'utilisateur depuis le JWT au chargement
+    useEffect(() => {
+        const token = tokenStorage.getAccessToken();
+        if (token && !isTokenExpired(token)) {
+            const payload = decodeJwtPayload(token);
+            if (payload) {
+                // Le rôle peut être une string ou undefined, on le normalise
+                const role = (payload.role as UserRole) ?? 'PATIENT';
+                const restoredUser: AuthUser = {
+                    id: payload.sub ?? 'unknown',
+                    name: payload.fullName ?? payload.username ?? 'Utilisateur',
+                    email: payload.email ?? '',
+                    permissions: payload.permissions ?? [],
+                    role: role,
+                    photoUrl: payload.photoUrl,
+                };
+                setUser(restoredUser);
+            }
+        } else {
+            tokenStorage.clearAll();
         }
-    });
-    const [isLoading, setIsLoading] = useState(false);
+        setIsLoading(false);
+    }, []);
 
     const login = async (payload: LoginPayload) => {
         setIsLoading(true);
         try {
             const response = await loginService(payload);
             setUser(response.user);
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('user', JSON.stringify(response.user));
+        } catch (error) {
+            tokenStorage.clearAll();
+            throw error;
         } finally {
             setIsLoading(false);
         }
@@ -37,11 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        tokenStorage.clearAll();
     };
 
-    const value: AuthContextValue = {
+    const value = {
         user,
         isAuthenticated: !!user,
         isLoading,
@@ -52,8 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Hook personnalisé pour utiliser le contexte
-export function useAuth(): AuthContextValue {
+export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');

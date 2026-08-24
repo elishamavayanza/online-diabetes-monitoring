@@ -67,6 +67,12 @@ export interface JwtPayload {
     iat?: number;
     roles?: string[];
     username?: string;
+    fullName?: string;
+
+    email?: string;
+    permissions?: string[];
+    role?: string;
+    photoUrl?: string;
     [key: string]: unknown;
 }
 
