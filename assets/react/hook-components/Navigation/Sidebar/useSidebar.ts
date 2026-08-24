@@ -94,19 +94,14 @@ export function useSidebar({
             .join(' ');
     }, [variant, collapsible, isCollapsed, isMobileOpen, className]);
 
-    const style = useMemo(() => {
-        return { width: collapsible && isCollapsed ? '70px' : width };
-    }, [collapsible, isCollapsed, width]);
-
     return {
         classes,
-        style,
         isCollapsed,
         toggleCollapse,
         openSections,
         toggleSection,
         activeId,
-        filteredItems,  // peut être SidebarItem[] ou SidebarGroup[] selon l'entrée
+        filteredItems,
         isMobileOpen,
         closeMobile,
         openMobile,

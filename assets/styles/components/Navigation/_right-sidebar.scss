@@ -23,9 +23,6 @@
 
     min-width: 0;
 
-    /* --- Nouvelle règle : autorise la réduction en dessous de la largeur par défaut --- */
-    min-width: 0;
-
     &__resizer {
         position: absolute;
         top: 0;
@@ -33,9 +30,9 @@
         width: 12px;
         height: 100%;
         cursor: col-resize;
-        z-index: 3000;              /* <-- augmenté pour être au-dessus de tout */
+        z-index: 3000;
         background-color: transparent;
-        pointer-events: auto;       /* garantit la capture de la souris */
+        pointer-events: auto;
         transition: background-color 0.2s;
 
         &:hover {
@@ -160,6 +157,7 @@
         flex-shrink: 0;
     }
 
+    /* Variantes */
     &--default {
         background-color: var(--color-surface);
     }
@@ -208,22 +206,20 @@
         }
     }
 
-    /* --- Tailles : largeurs initiales, mais sans min-width --- */
+    /* Tailles */
     &--small {
         width: 200px;
-        /* min-width supprimé */
     }
 
     &--medium {
         width: 280px;
-        /* min-width supprimé */
     }
 
     &--large {
         width: 340px;
-        /* min-width supprimé */
     }
 
+    /* État replié */
     &--fully-collapsed {
         border-left: 1px solid var(--color-border);
         cursor: pointer;
@@ -261,6 +257,7 @@
     }
 }
 
+/* État pendant le redimensionnement */
 body.right-sidebar-resizing {
     user-select: none;
     -webkit-user-select: none;
@@ -273,6 +270,7 @@ body.right-sidebar-resizing {
     }
 }
 
+/* Responsive mobile */
 @media (max-width: 768px) {
     .right-sidebar {
         position: fixed;
@@ -282,23 +280,35 @@ body.right-sidebar-resizing {
         z-index: 1500;
         box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
 
-        &--small {
-            width: 100%;
-            max-width: 300px;
-        }
-
-        &--medium {
-            width: 100%;
-            max-width: 350px;
-        }
-
+        &--small,
+        &--medium,
         &--large {
             width: 100%;
-            max-width: 400px;
+            max-width: 300px;   /* sera ajusté par le style inline */
         }
 
         &__resizer {
             display: none;
+        }
+
+        &__header,
+        &__footer {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        &__content {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        &__title {
+            font-size: 0.9rem;
+        }
+
+        &__collapse svg {
+            width: 16px;
+            height: 16px;
         }
     }
 }

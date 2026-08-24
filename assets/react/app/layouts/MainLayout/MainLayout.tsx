@@ -9,8 +9,9 @@ import { Header } from '@/react/components/Navigation/Header';
 import logo from '@/images/logo_with.png';
 import { Avatar } from "@/react/components/UI/Avatar";
 import { PopoverMenu } from "@/react/components/UI/PopoverMenu";
-import {LogoutIcon, ProfileIcon} from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
-
+import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
+import { useIsMobile } from '@/react/hooks/useIsMobile';
+import {PanelRightIcon} from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -21,7 +22,7 @@ interface MainLayoutProps {
     sidebarContent?: React.ReactNode;
     rightSidebarContent?: React.ReactNode;
     rightSidebarProps?: Omit<React.ComponentProps<typeof RightSidebar>, 'children'>;
-    headerProps?: React.ComponentProps<typeof Header>; // gardé pour API future, non utilisé
+    headerProps?: React.ComponentProps<typeof Header>;
     sidebarProps?: React.ComponentProps<typeof Sidebar>;
     footerProps?: React.ComponentProps<typeof Footer>;
     className?: string;
@@ -42,13 +43,25 @@ export function MainLayout({
                                className = '',
                            }: MainLayoutProps) {
     const { user, logout } = useAuth();
-    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-    const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
+    const isMobile = useIsMobile();
+    const [rightSidebarOpen, setRightSidebarOpen] = useState(!isMobile);
 
     const permissions = user?.permissions ?? [];
 
     return (
         <div className={`main-layout ${className}`.trim()}>
+            {/* Bouton flottant mobile pour ouvrir/fermer le panneau droit */}
+            {isMobile && showRightSidebar && (
+                <button
+                    className="main-layout__floating-toggle-right"
+                    onClick={() => setRightSidebarOpen((prev) => !prev)}
+                    aria-label={rightSidebarOpen ? 'Fermer le panneau droit' : 'Ouvrir le panneau droit'}
+                    title={rightSidebarOpen ? 'Fermer le panneau droit' : 'Ouvrir le panneau droit'}
+                >
+                    <PanelRightIcon open={rightSidebarOpen} />
+                </button>
+            )}
+
             <div className="main-layout__container">
                 {showSidebar && user && (
                     <aside className="main-layout__sidebar-left">
@@ -57,10 +70,8 @@ export function MainLayout({
                                 groups={SIDEBAR_CONFIG}
                                 userPermissions={permissions}
                                 collapsible
-                                defaultCollapsed={false}
+                                defaultCollapsed={isMobile}
                                 activeId="dashboard"
-                                mobileOpen={mobileSidebarOpen}
-                                onMobileClose={() => setMobileSidebarOpen(false)}
                                 header={
                                     <div className="sidebar-brand">
                                         <img src={logo} alt="OnlineDIAB" className="sidebar-brand__logo" />
@@ -115,7 +126,6 @@ export function MainLayout({
                 )}
 
                 <div className="main-layout__main">
-                    {/* Header vide, même hauteur que le footer */}
                     {showHeader && (
                         <header className="main-layout__header" />
                     )}
@@ -149,7 +159,6 @@ export function MainLayout({
                         )}
                     </div>
 
-                    {/* Footer vide */}
                     {showFooter && (
                         <footer className="main-layout__footer" />
                     )}

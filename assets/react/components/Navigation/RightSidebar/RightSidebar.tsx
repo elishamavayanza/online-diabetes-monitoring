@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useRightSidebar, UseRightSidebarProps } from '../../../hook-components/Navigation/RightSidebar';
+import { useIsMobile } from '@/react/hooks/useIsMobile';   // ← détection mobile
 
 const CollapseIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -43,17 +44,22 @@ export function RightSidebar({
                                  closeThreshold = 60,
                                  collapsedWidth = 35,
                              }: RightSidebarProps) {
+    const isMobile = useIsMobile();
+
+    // Ajustements mobiles
+    const effectiveMinWidth = isMobile ? 120 : minWidth;
+    const effectiveMaxWidth = isMobile ? 280 : maxWidth;
+    const effectiveCloseThreshold = isMobile ? 40 : closeThreshold;
+    const effectiveCollapsedWidth = isMobile ? 25 : collapsedWidth;
+
+    // Largeur initiale adaptée
+    const initialWidth = isMobile
+        ? 180
+        : size === 'small' ? 200 : size === 'large' ? 340 : 280;
+
     const { classes } = useRightSidebar({ variant, size, collapsible, defaultCollapsed, className });
 
-    const [width, setWidth] = useState<number>(() => {
-        switch (size) {
-            case 'small': return 200;
-            case 'large': return 340;
-            case 'medium':
-            default: return 280;
-        }
-    });
-
+    const [width, setWidth] = useState<number>(initialWidth);
     const [isFullyCollapsed, setIsFullyCollapsed] = useState(defaultCollapsed);
     const asideRef = useRef<HTMLElement>(null);
 
@@ -80,7 +86,7 @@ export function RightSidebar({
             let newWidth = window.innerWidth - e.clientX;
 
             if (isFullyCollapsedRef.current) {
-                if (newWidth > collapsedWidth + 20) {
+                if (newWidth > effectiveCollapsedWidth + 20) {
                     setIsFullyCollapsed(false);
                     isFullyCollapsedRef.current = false;
                 } else {
@@ -88,17 +94,17 @@ export function RightSidebar({
                 }
             }
 
-            if (newWidth < closeThreshold) {
+            if (newWidth < effectiveCloseThreshold) {
                 setIsFullyCollapsed(true);
                 isFullyCollapsedRef.current = true;
-                updateWidthDOM(collapsedWidth);
+                updateWidthDOM(effectiveCollapsedWidth);
                 return;
             }
 
-            newWidth = Math.min(maxWidth, Math.max(minWidth, newWidth));
+            newWidth = Math.min(effectiveMaxWidth, Math.max(effectiveMinWidth, newWidth));
             updateWidthDOM(newWidth);
         });
-    }, [minWidth, maxWidth, closeThreshold, collapsedWidth, updateWidthDOM]);
+    }, [effectiveMinWidth, effectiveMaxWidth, effectiveCloseThreshold, effectiveCollapsedWidth, updateWidthDOM]);
 
     const handleMouseUp = useCallback(() => {
         isDraggingRef.current = false;
@@ -117,11 +123,11 @@ export function RightSidebar({
                 setWidth(currentWidth);
                 onResize?.(currentWidth);
             } else {
-                setWidth(collapsedWidth);
-                onResize?.(collapsedWidth);
+                setWidth(effectiveCollapsedWidth);
+                onResize?.(effectiveCollapsedWidth);
             }
         }
-    }, [handleMouseMove, collapsedWidth, onResize]);
+    }, [handleMouseMove, effectiveCollapsedWidth, onResize]);
 
     const startDragging = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
@@ -144,13 +150,13 @@ export function RightSidebar({
     const handleToggle = () => {
         const nextState = !isFullyCollapsed;
         setIsFullyCollapsed(nextState);
-        const targetWidth = nextState ? collapsedWidth : width;
+        const targetWidth = nextState ? effectiveCollapsedWidth : width;
         updateWidthDOM(targetWidth);
         onToggle?.(nextState);
     };
 
     const sidebarStyle: React.CSSProperties = {
-        width: isFullyCollapsed ? `${collapsedWidth}px` : `${width}px`,
+        width: isFullyCollapsed ? `${effectiveCollapsedWidth}px` : `${width}px`,
         transition: isDraggingRef.current ? 'none' : 'width 0.3s ease',
         position: 'relative',
         flexShrink: 0,
@@ -158,8 +164,8 @@ export function RightSidebar({
     };
 
     useEffect(() => {
-        updateWidthDOM(isFullyCollapsed ? collapsedWidth : width);
-    }, [isFullyCollapsed, width, collapsedWidth, updateWidthDOM]);
+        updateWidthDOM(isFullyCollapsed ? effectiveCollapsedWidth : width);
+    }, [isFullyCollapsed, width, effectiveCollapsedWidth, updateWidthDOM]);
 
     return (
         <aside
@@ -185,8 +191,6 @@ export function RightSidebar({
                         onMouseDown={startDragging}
                         title="Glisser pour redimensionner"
                     />
-
-                    {/* Bouton de fermeture supprimé */}
 
                     {header && <div className="right-sidebar__header">{header}</div>}
                     {title && <div className="right-sidebar__title">{title}</div>}

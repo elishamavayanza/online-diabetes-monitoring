@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSidebar, UseSidebarProps, SidebarItem, SidebarSubItem, SidebarGroup } from '../../../hook-components/Navigation/Sidebar';
-import { Drawer } from '@/react/components/UI/Drawer';
 
 const CollapseIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -32,19 +31,14 @@ export function Sidebar({
                             header,
                             footer,
                             userPermissions,
-                            mobileOpen,
-                            onMobileClose,
                         }: SidebarProps) {
     const {
         classes,
-        style,
         isCollapsed,
         toggleCollapse,
         openSections,
         toggleSection,
         filteredItems,
-        isMobileOpen,
-        closeMobile,
     } = useSidebar({
         items,
         groups,
@@ -56,8 +50,6 @@ export function Sidebar({
         onItemClick,
         className,
         userPermissions,
-        mobileOpen,
-        onMobileClose,
     });
 
     const handleItemClick = (item: SidebarItem | SidebarSubItem) => {
@@ -67,7 +59,6 @@ export function Sidebar({
         }
     };
 
-    // Rendu d'un item simple ou avec enfants
     const renderItem = (item: SidebarItem, isCollapsed: boolean) => (
         <div key={item.id} className="sidebar__group">
             <div
@@ -103,7 +94,6 @@ export function Sidebar({
         </div>
     );
 
-    // Rendu des groupes ou de la liste plate
     const renderContent = () => {
         if (groups) {
             return (filteredItems as SidebarGroup[]).map((group) => (
@@ -116,11 +106,9 @@ export function Sidebar({
         return (filteredItems as SidebarItem[]).map((item) => renderItem(item, isCollapsed));
     };
 
-    const sidebarContent = (
-        <aside className={classes} style={style}>
-            {/* Header avec le bouton de collapse intégré */}
+    return (
+        <aside className={classes}>
             <div className="sidebar__header">
-                {/* Zone cliquable pour le logo/brand – toujours visible */}
                 <div
                     className="sidebar__header-brand"
                     onClick={toggleCollapse}
@@ -136,8 +124,6 @@ export function Sidebar({
                 >
                     {header}
                 </div>
-
-                {/* Bouton de repli : visible uniquement quand le sidebar est déplié */}
                 {collapsible && !isCollapsed && (
                     <button
                         className="sidebar__collapse"
@@ -156,19 +142,5 @@ export function Sidebar({
 
             {footer && <div className="sidebar__footer">{footer}</div>}
         </aside>
-    );
-
-    return (
-        <>
-            {sidebarContent}
-            <Drawer
-                isOpen={isMobileOpen}
-                onClose={closeMobile}
-                position="left"
-                size="small"
-            >
-                {sidebarContent}
-            </Drawer>
-        </>
     );
 }
