@@ -197,3 +197,27 @@
         right: 8px;
     }
 }
+
+/* ============================================================
+   Responsive – écrans portrait (y compris tablettes)
+   ============================================================ */
+@media (orientation: portrait) {
+    .main-layout {
+        &__content {
+            padding: 1rem;          /* réduit le padding */
+        }
+        &__right-content {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+        &__right-header,
+        &__right-footer {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    .main-layout__floating-toggle-right {
+        display: flex; /* déjà affiché via JS, mais par sécurité */
+    }
+}

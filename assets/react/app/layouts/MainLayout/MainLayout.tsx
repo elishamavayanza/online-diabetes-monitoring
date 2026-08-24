@@ -11,7 +11,8 @@ import { Avatar } from "@/react/components/UI/Avatar";
 import { PopoverMenu } from "@/react/components/UI/PopoverMenu";
 import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
 import { useIsMobile } from '@/react/hooks/useIsMobile';
-import {PanelRightIcon} from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
+import { useIsPortrait } from '@/react/hooks/useIsPortrait';
+import {PanelRightIcon} from "@/react/app/layouts/MainLayout/components/PanelRightIcon";   // ← nouveau
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -44,14 +45,19 @@ export function MainLayout({
                            }: MainLayoutProps) {
     const { user, logout } = useAuth();
     const isMobile = useIsMobile();
-    const [rightSidebarOpen, setRightSidebarOpen] = useState(!isMobile);
+    const isPortrait = useIsPortrait();
+
+    // On considère "compact" si mobile OU portrait (tablette en portrait, desktop vertical, etc.)
+    const isCompact = isMobile || isPortrait;
+
+    const [rightSidebarOpen, setRightSidebarOpen] = useState(!isCompact);  // fermé par défaut si compact
 
     const permissions = user?.permissions ?? [];
 
     return (
         <div className={`main-layout ${className}`.trim()}>
-            {/* Bouton flottant mobile pour ouvrir/fermer le panneau droit */}
-            {isMobile && showRightSidebar && (
+            {/* Bouton flottant pour ouvrir/fermer le panneau droit en mode compact */}
+            {isCompact && showRightSidebar && (
                 <button
                     className="main-layout__floating-toggle-right"
                     onClick={() => setRightSidebarOpen((prev) => !prev)}
@@ -70,7 +76,7 @@ export function MainLayout({
                                 groups={SIDEBAR_CONFIG}
                                 userPermissions={permissions}
                                 collapsible
-                                defaultCollapsed={isMobile}
+                                defaultCollapsed={isCompact}   // replié si compact
                                 activeId="dashboard"
                                 header={
                                     <div className="sidebar-brand">
