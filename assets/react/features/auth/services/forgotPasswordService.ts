@@ -1,19 +1,35 @@
-import { ForgotPasswordFormValues, ForgotPasswordResponse } from '../types/forgotPassword.types';
+import { apiClient } from '@/services/api/client';
+import type {
+    ForgotPasswordFormValues,
+    ForgotPasswordResponse,
+    ResetPasswordFormValues,
+    ResetPasswordResponse,
+} from '@/react/features/auth';
 
 /**
- * Simule l'envoi d'un email de réinitialisation.
- * Remplacez par un vrai appel API.
+ * Envoie une demande de réinitialisation de mot de passe à l'API.
+ * Endpoint : POST /api/forgot-password
  */
 export async function sendResetEmail(
     payload: ForgotPasswordFormValues
 ): Promise<ForgotPasswordResponse> {
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const response = await apiClient.post<ForgotPasswordResponse>(
+        '/forgot-password',
+        payload
+    );
+    return response.data;
+}
 
-    if (payload.email.trim() === '') {
-        throw new Error('Veuillez saisir un email valide.');
-    }
-
-    return {
-        message: 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.',
-    };
+/**
+ * Réinitialise le mot de passe avec le token reçu par e-mail.
+ * Endpoint : POST /api/reset-password
+ */
+export async function resetPasswordWithToken(
+    payload: ResetPasswordFormValues
+): Promise<ResetPasswordResponse> {
+    const response = await apiClient.post<ResetPasswordResponse>(
+        '/reset-password',
+        payload
+    );
+    return response.data;
 }

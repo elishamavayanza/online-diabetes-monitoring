@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { sendResetEmail } from '../services/forgotPasswordService';
-import { ForgotPasswordFormValues } from '../types/forgotPassword.types';
+import { sendResetEmail } from '@/react/features/auth';
+import { ForgotPasswordFormValues } from '@/react/features/auth';
 
 const initialValues: ForgotPasswordFormValues = {
     email: '',
@@ -45,10 +45,15 @@ export function useForgotPasswordForm() {
         try {
             const response = await sendResetEmail(values);
             setSuccessMessage(response.message);
-            // Réinitialiser le champ après succès (optionnel)
+            // Optionnel : on vide le champ après succès
             setValues({ email: '' });
         } catch (error: any) {
-            setSubmitError(error.message || 'Une erreur est survenue.');
+            // L'erreur est une ApiError avec éventuellement data.message
+            const message =
+                error?.data?.message ||
+                error?.message ||
+                'Une erreur est survenue.';
+            setSubmitError(message);
         } finally {
             setIsSubmitting(false);
         }
