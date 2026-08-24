@@ -4,6 +4,7 @@
 /* ============================================================
    Barre latérale intelligente – Sidebar
    ============================================================ */
+
 .sidebar {
     background-color: var(--color-primary);
     height: 100vh;
@@ -11,20 +12,16 @@
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
-    overflow: hidden;
+    overflow: visible;                  /* ← important pour que le popover puisse dépasser */
     position: sticky;
     top: 0;
 
-    /* Mode replié : largeur réduite, icônes seulement */
     &--collapsed {
         width: 70px;
-
         .sidebar__group-label,
         .sidebar__label,
         .sidebar__arrow,
-        .sidebar__user-menu__info {
-            display: none;
-        }
+        .sidebar__user-menu__info { display: none; }
 
         .sidebar__item,
         .sidebar__subitem {
@@ -33,32 +30,18 @@
         }
     }
 
-    /* Variante sombre */
     &--dark {
         background-color: var(--color-text);
         color: var(--color-background);
-
-        .sidebar__item,
-        .sidebar__subitem {
-            color: rgba(255, 255, 255, 0.8);
-
-            &:hover {
-                background-color: rgba(255, 255, 255, 0.1);
-            }
-
-            &--active {
-                background-color: var(--color-primary);
-                color: white;
-            }
+        .sidebar__item, .sidebar__subitem {
+            color: rgba(255,255,255,0.8);
+            &:hover { background-color: rgba(255,255,255,0.1); }
+            &--active { background-color: var(--color-primary); color: white; }
         }
     }
 
-    /* Variante claire */
-    &--light {
-        background-color: var(--color-background);
-    }
+    &--light { background-color: var(--color-background); }
 
-    /* En-tête du sidebar – avec séparateur bas */
     &__header {
         display: flex;
         align-items: center;
@@ -70,7 +53,7 @@
         gap: 0.5rem;
         background-color: var(--color-primary);
         color: var(--color-on-primary);
-        border-bottom: 1px solid var(--color-border);  /* ← séparateur ajouté */
+        border-bottom: 1px solid var(--color-border);
     }
 
     &__header-content {
@@ -103,23 +86,16 @@
         flex-shrink: 0;
         width: 40px;
         height: 40px;
-
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
+        &:hover { background-color: rgba(255,255,255,0.2); }
     }
 
-    /* Navigation principale */
     &__nav {
         flex: 1;
         overflow-y: auto;
         padding: 0.5rem 0;
     }
 
-    /* Groupe de menu */
-    &__group {
-        margin-bottom: 0.75rem;
-    }
+    &__group { margin-bottom: 0.75rem; }
 
     &__group-label {
         padding: 0.5rem 1rem;
@@ -131,7 +107,6 @@
         letter-spacing: 0.05em;
     }
 
-    /* Élément simple et sous‑élément */
     &__item,
     &__subitem {
         display: flex;
@@ -143,36 +118,19 @@
         text-decoration: none;
         transition: background-color 0.2s, color 0.2s, border-color 0.2s;
         border-left: 3px solid transparent;
-
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        &:focus-visible {
-            outline: 2px solid var(--color-on-primary);
-            outline-offset: -2px;
-        }
-
+        &:hover { background-color: rgba(255,255,255,0.1); }
+        &:focus-visible { outline: 2px solid var(--color-on-primary); outline-offset: -2px; }
         &--active {
             border-left-color: var(--color-on-primary);
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255,255,255,0.2);
             color: #ffffff;
             font-weight: 600;
         }
-
-        &--disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+        &--disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
     }
 
-    &__subitem {
-        padding-left: 2.5rem;
-        font-size: 0.9rem;
-    }
+    &__subitem { padding-left: 2.5rem; font-size: 0.9rem; }
 
-    /* Icône et libellé */
     &__icon {
         display: inline-flex;
         align-items: center;
@@ -188,85 +146,36 @@
         text-overflow: ellipsis;
     }
 
-    /* Flèche des sous‑menus */
     &__arrow {
         font-size: 0.8em;
         opacity: 0.8;
         transition: transform 0.2s;
         color: var(--color-on-primary);
-
-        &.open {
-            transform: rotate(90deg);
-        }
+        &.open { transform: rotate(90deg); }
     }
 
-    /* Conteneur des sous‑items */
-    &__subitems {
-        padding-left: 1rem;
-    }
+    &__subitems { padding-left: 1rem; }
 
-    /* Pied du sidebar – sans bordure supérieure */
     &__footer {
         padding: 0.75rem;
         flex-shrink: 0;
         background-color: var(--color-primary);
         color: var(--color-on-primary);
         transition: padding 0.3s ease;
+        position: relative;   /* pour le z-index */
+        z-index: 3000;        /* au-dessus du contenu de la sidebar */
+        width: 100%;
+        box-sizing: border-box;
     }
 }
 
-/* En mode replié, le header est centré */
+/* En mode replié : header centré */
 .sidebar--collapsed .sidebar__header {
     justify-content: center;
     padding: 0;
 }
 
-/* ============================================================
-   Menu utilisateur intégré au sidebar (footer)
-   ============================================================ */
-.sidebar-user-menu {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-    border-radius: 0.5rem;
-    transition: background-color 0.2s, gap 0.3s ease, justify-content 0.3s ease;
-
-    &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    &__info {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.2;
-        min-width: 0;
-    }
-
-    &__name {
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--color-on-primary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    &__role {
-        font-size: 0.75rem;
-        opacity: 0.8;
-        color: var(--color-on-primary);
-    }
-
-    &--collapsed {
-        justify-content: center;
-    }
-}
-
-/* Marque du sidebar : logo + texte */
+/* Marque du sidebar */
 .sidebar-brand {
     display: flex;
     align-items: center;
@@ -313,37 +222,6 @@
     display: none;
 }
 
-/* En mode replié : on centre l'avatar et on masque le texte du menu utilisateur */
-.sidebar--collapsed {
-    .sidebar__footer {
-        padding: 0.5rem;
-    }
-
-    .sidebar-user-menu {
-        justify-content: center;
-        gap: 0;
-        padding: 0;
-    }
-
-    .sidebar-user-menu__info {
-        display: none;
-    }
-
-    .avatar {
-        width: 36px;
-        height: 36px;
-    }
-}
-
-/* Pied du sidebar */
-.sidebar__footer {
-    padding: 0.75rem;
-    flex-shrink: 0;
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-    transition: padding 0.3s ease;
-}
-
 /* ============================================================
    Menu utilisateur – carte arrondie avec fond commun
    ============================================================ */
@@ -352,15 +230,15 @@
     align-items: center;
     gap: 0.75rem;
     cursor: pointer;
-    padding: 0.5rem 0.75rem;                  /* un peu plus large horizontalement */
-    background-color: rgba(255, 255, 255, 0.15);
+    padding: 0.5rem 0.75rem;
+    background-color: rgba(255,255,255,0.15);
     color: var(--color-on-primary);
-    border-radius: 999px;                     /* ← forme de pilule / demi-cercle */
+    border-radius: 999px;
     transition: background-color 0.2s, gap 0.3s ease, justify-content 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
 
-    &:hover {
-        background-color: rgba(255, 255, 255, 0.25);
-    }
+    &:hover { background-color: rgba(255,255,255,0.25); }
 
     &__info {
         display: flex;
@@ -387,29 +265,20 @@
     &--collapsed {
         justify-content: center;
         background-color: transparent;
-        border-radius: 50%;                  /* pour l'avatar seul en mode replié */
+        border-radius: 50%;
         padding: 0;
     }
 }
+
 /* En mode replié : ajustements */
 .sidebar--collapsed {
-    .sidebar__footer {
-        padding: 0.5rem;
-    }
-
+    .sidebar__footer { padding: 0.5rem; }
     .sidebar-user-menu {
         justify-content: center;
         gap: 0;
         padding: 0;
         background-color: transparent;
     }
-
-    .sidebar-user-menu__info {
-        display: none;
-    }
-
-    .avatar {
-        width: 36px;
-        height: 36px;
-    }
+    .sidebar-user-menu__info { display: none; }
+    .avatar { width: 36px; height: 36px; }
 }

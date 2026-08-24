@@ -8,6 +8,9 @@ import './MainLayout.scss';
 import { Header } from '@/react/components/Navigation/Header';
 import logo from '@/images/logo_with.png';
 import { Avatar } from "@/react/components/UI/Avatar";
+import { PopoverMenu } from "@/react/components/UI/PopoverMenu";
+import {LogoutIcon, ProfileIcon} from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
+
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -65,19 +68,44 @@ export function MainLayout({
                                     </div>
                                 }
                                 footer={
-                                    <div className="sidebar-user-menu">
-                                        <Avatar
-                                            src={user.photoUrl || undefined}
-                                            name={user.name}
-                                            size="medium"
-                                            shape="circle"
-                                            status="online"
-                                        />
-                                        <div className="sidebar-user-menu__info">
-                                            <span className="sidebar-user-menu__name">{user.name}</span>
-                                            <span className="sidebar-user-menu__role">{user.role || 'Utilisateur'}</span>
-                                        </div>
-                                    </div>
+                                    <PopoverMenu
+                                        placement="top"
+                                        items={[
+                                            {
+                                                id: 'profile',
+                                                label: 'Mon profil',
+                                                icon: <ProfileIcon />,
+                                                onClick: () => console.log('Profil'),
+                                            },
+                                            {
+                                                id: 'separator',
+                                                label: '',
+                                                separator: true,
+                                            },
+                                            {
+                                                id: 'logout',
+                                                label: 'Déconnexion',
+                                                icon: <LogoutIcon />,
+                                                danger: true,
+                                                onClick: () => console.log('Déconnexion'),
+                                            },
+                                        ]}
+                                        trigger={
+                                            <div className="sidebar-user-menu">
+                                                <Avatar
+                                                    src={user.photoUrl || undefined}
+                                                    name={user.name}
+                                                    size="medium"
+                                                    shape="circle"
+                                                    status="online"
+                                                />
+                                                <div className="sidebar-user-menu__info">
+                                                    <span className="sidebar-user-menu__name">{user.name}</span>
+                                                    <span className="sidebar-user-menu__role">{user.role || 'Utilisateur'}</span>
+                                                </div>
+                                            </div>
+                                        }
+                                    />
                                 }
                             />
                         )}
