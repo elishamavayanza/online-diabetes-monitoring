@@ -1,3 +1,5 @@
+import {UserRole} from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.config";
+
 export interface LoginFormValues {
     emailOrUsername: string;
     password: string;
@@ -10,7 +12,7 @@ export interface AuthUser {
     email: string;
     permissions: string[];
 
-    role?: string;
+    role: UserRole;
     /** URL de la photo de profil (optionnel) */
     photoUrl?: string;
 }

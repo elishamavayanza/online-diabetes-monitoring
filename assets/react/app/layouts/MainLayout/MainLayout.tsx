@@ -3,7 +3,7 @@ import { Footer } from '@/react/components/Navigation/Footer';
 import { RightSidebar } from "@/react/components/Navigation/RightSidebar";
 import { Sidebar } from "@/react/components/Navigation/Sidebar";
 import { useAuth } from '@/react/app/providers/AuthProvider';
-import { SIDEBAR_CONFIG } from './components/Sidebar/sidebar.config';
+import { SIDEBAR_CONFIGS, UserRole } from './components/Sidebar/sidebar.config';
 import './MainLayout.scss';
 import { Header } from '@/react/components/Navigation/Header';
 import logo from '@/images/logo_with.png';
@@ -53,6 +53,8 @@ export function MainLayout({
     const [rightSidebarOpen, setRightSidebarOpen] = useState(!isCompact);  // fermé par défaut si compact
 
     const permissions = user?.permissions ?? [];
+    const userRole = user?.role as UserRole | undefined;
+    const menuConfig = userRole ? SIDEBAR_CONFIGS[userRole] : SIDEBAR_CONFIGS.ROOT;
 
     return (
         <div className={`main-layout ${className}`.trim()}>
@@ -73,7 +75,7 @@ export function MainLayout({
                     <aside className="main-layout__sidebar-left">
                         {sidebarContent || (
                             <Sidebar
-                                groups={SIDEBAR_CONFIG}
+                                groups={menuConfig}
                                 userPermissions={permissions}
                                 collapsible
                                 defaultCollapsed={isCompact}   // replié si compact
