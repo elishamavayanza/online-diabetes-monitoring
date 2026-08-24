@@ -41,7 +41,7 @@ export function MainLayout({
                                footerProps,
                                className = '',
                            }: MainLayoutProps) {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
 
@@ -87,7 +87,9 @@ export function MainLayout({
                                                 label: 'Déconnexion',
                                                 icon: <LogoutIcon />,
                                                 danger: true,
-                                                onClick: () => console.log('Déconnexion'),
+                                                onClick: () => {
+                                                    logout();
+                                                },
                                             },
                                         ]}
                                         trigger={
