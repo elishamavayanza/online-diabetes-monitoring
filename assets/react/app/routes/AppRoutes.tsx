@@ -37,6 +37,16 @@ import {NotificationPages} from "@/react/features/nutritionist/notifications/pag
 import {MessagesPages} from "@/react/features/nutritionist/messages/pages/MessagesPages";
 import {AppointmentsPages} from "@/react/features/nutritionist/appointments/pages/AppointmentsPages";
 import {AgendaPages} from "@/react/features/nutritionist/agenda/pages/AgendaPages";
+import {PatientDashboardPage} from "@/react/features/patient/dashboard/pages/PatientDashboardPage";
+import {MeasurementsPage} from "@/react/features/patient/health/pages/MeasurementsPage";
+import {MedicalRecordPage} from "@/react/features/patient/medical-record/pages/MedicalRecordPage";
+import {TreatmentsPage} from "@/react/features/patient/treatments/pages/TreatmentsPage";
+import {DosesPage} from "@/react/features/patient/doses/pages/DosesPage";
+import {PatientAppointmentsPage} from "@/react/features/patient/appointments/pages/PatientAppointmentsPage";
+import {BookingPage} from "@/react/features/patient/booking/pages/BookingPage";
+import {PatientMessagesPage} from "@/react/features/patient/messages/pages/PatientMessagesPage";
+import {PatientNotificationsPage} from "@/react/features/patient/notifications/pages/PatientNotificationsPage";
+import {TeamPage} from "@/react/features/patient/team/pages/TeamPage";
 
 
 
@@ -177,6 +187,27 @@ export default function AppRoutes() {
                     <Route path="appointments" element={<AppointmentsPages />} />
                     <Route path="messages" element={<MessagesPages />} />
                     <Route path="notifications" element={<NotificationPages />} />
+                </Route>
+
+                <Route
+                    path="/patient"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<Navigate to="/patient/summary" replace />} />
+                    <Route path="summary" element={<PatientDashboardPage />} />
+                    <Route path="measurements" element={<MeasurementsPage />} />
+                    <Route path="record" element={<MedicalRecordPage />} />
+                    <Route path="treatments" element={<TreatmentsPage />} />
+                    <Route path="doses" element={<DosesPage />} />
+                    <Route path="appointments" element={<PatientAppointmentsPage />} />
+                    <Route path="book" element={<BookingPage />} />
+                    <Route path="messages" element={<PatientMessagesPage />} />
+                    <Route path="notifications" element={<PatientNotificationsPage />} />
+                    <Route path="team" element={<TeamPage />} />
                 </Route>
 
                 {/* Fallback pour /app, au cas où */}

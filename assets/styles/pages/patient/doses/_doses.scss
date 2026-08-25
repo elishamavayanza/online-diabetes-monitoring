@@ -1,0 +1,47 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.doses-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
+        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
+    }
+}
+
+.doses-card {
+    @include card;
+
+    h2 {
+        margin-top: 0;
+        color: var(--color-primary);
+    }
+}
+
+.doses-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dose-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child { border-bottom: none; }
+
+    &__time {
+        font-weight: 600;
+        min-width: 60px;
+    }
+
+    &__medication {
+        flex: 1;
+    }
+}

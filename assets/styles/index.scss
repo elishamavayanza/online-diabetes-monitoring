@@ -92,6 +92,17 @@
 @use './pages/nutritionist/messages/messages' as *;
 @use './pages/nutritionist/notifications/notifications' as *;
 
+@use './pages/patient/dashboard/dashboard' as *;
+@use './pages/patient/health/measurements' as *;
+@use './pages/patient/medical-record/record' as *;
+@use './pages/patient/appointments/appointments' as *;
+@use './pages/patient/doses/doses' as *;
+@use './pages/patient/treatments/treatments' as *;
+@use './pages/patient/booking/booking' as *;
+@use './pages/patient/messages/messages' as *;
+@use './pages/patient/notifications/notifications' as *;
+@use './pages/patient/team/team' as *;
+
 // ──────────────────────────────────────────
 // 2. Global base styles
 // ──────────────────────────────────────────

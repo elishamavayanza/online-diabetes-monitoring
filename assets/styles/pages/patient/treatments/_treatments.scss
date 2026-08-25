@@ -1,0 +1,51 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.treatments-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
+        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
+    }
+}
+
+.treatments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.treatment-card {
+    @include card;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        h3 { margin: 0; flex: 1; }
+    }
+
+    &__dosage {
+        font-weight: 600;
+        color: var(--color-primary);
+    }
+
+    &__horaires {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    &__horaire {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        background-color: rgba(0,0,0,0.05);
+        font-size: 0.85rem;
+    }
+}
