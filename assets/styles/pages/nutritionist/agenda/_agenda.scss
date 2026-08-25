@@ -1,0 +1,74 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.agenda-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
+        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
+    }
+
+    &__days {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+}
+
+.agenda-day-card {
+    @include card;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        h3 { margin: 0; color: var(--color-primary); }
+        span { font-size: 0.8rem; opacity: 0.7; }
+    }
+
+    &__empty {
+        font-style: italic;
+        color: var(--color-text);
+        opacity: 0.6;
+        margin: 0;
+    }
+
+    &__list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+.agenda-appointment {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    padding: 0.4rem;
+    background: rgba(0,0,0,0.02);
+    border-radius: 0.5rem;
+
+    &__time {
+        font-weight: 600;
+        min-width: 50px;
+    }
+
+    &__patient {
+        font-weight: 500;
+    }
+
+    &__motif {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        display: block;
+    }
+}

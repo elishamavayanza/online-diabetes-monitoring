@@ -29,6 +29,14 @@ import {AgendaPage} from "@/react/features/clinician/agenda/pages/AgendaPage";
 import { AppointmentPage } from '@/react/features/clinician/appointments/pages/AppointmentPage';
 import { MessagesPage } from '@/react/features/clinician/messages/pages/MessagesPage';
 import { ClinicianNotificationsPage } from '@/react/features/clinician/notifications/pages/ClinicianNotificationsPage';
+import { NutritionistDashboardPage } from '@/react/features/nutritionist/dashboard/pages/NutritionistDashboardPage';
+import { NutritionistPatientsPage } from '@/react/features/nutritionist/patients/pages/NutritionistPatientsPage';
+import { MealPlansPage } from '@/react/features/nutritionist/plans/pages/MealPlansPage';
+import { FoodsPage } from '@/react/features/nutritionist/foods/pages/FoodsPage';
+import {NotificationPages} from "@/react/features/nutritionist/notifications/pages/NotificationPages";
+import {MessagesPages} from "@/react/features/nutritionist/messages/pages/MessagesPages";
+import {AppointmentsPages} from "@/react/features/nutritionist/appointments/pages/AppointmentsPages";
+import {AgendaPages} from "@/react/features/nutritionist/agenda/pages/AgendaPages";
 
 
 
@@ -150,6 +158,25 @@ export default function AppRoutes() {
                     <Route path="appointments" element={<AppointmentPage />} />
                     <Route path="messages" element={<MessagesPage />} />
                     <Route path="notifications" element={<ClinicianNotificationsPage />} />
+                </Route>
+
+                <Route
+                    path="/nutritionist"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<Navigate to="/nutritionist/dashboard" replace />} />
+                    <Route path="dashboard" element={<NutritionistDashboardPage />} />
+                    <Route path="my-patients" element={<NutritionistPatientsPage />} />
+                    <Route path="plans" element={<MealPlansPage />} />
+                    <Route path="foods" element={<FoodsPage />} />
+                    <Route path="agenda" element={<AgendaPages />} />
+                    <Route path="appointments" element={<AppointmentsPages />} />
+                    <Route path="messages" element={<MessagesPages />} />
+                    <Route path="notifications" element={<NotificationPages />} />
                 </Route>
 
                 {/* Fallback pour /app, au cas où */}

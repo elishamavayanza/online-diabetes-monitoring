@@ -83,6 +83,15 @@
 @use './pages/clinician/messages/messages' as *;
 @use './pages/clinician/notifications/notifications' as *;
 
+@use './pages/nutritionist/dashboard/dashboard' as *;
+@use './pages/nutritionist/foods/foods' as *;
+@use './pages/nutritionist/patients/patients' as *;
+@use './pages/nutritionist/plans/plans' as *;
+@use './pages/nutritionist/agenda/agenda' as *;
+@use './pages/nutritionist/appointments/appointments' as *;
+@use './pages/nutritionist/messages/messages' as *;
+@use './pages/nutritionist/notifications/notifications' as *;
+
 // ──────────────────────────────────────────
 // 2. Global base styles
 // ──────────────────────────────────────────

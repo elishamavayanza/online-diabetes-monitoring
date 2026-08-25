@@ -1,0 +1,19 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.meal-plans-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        h1 { font-size: 1.8rem; color: var(--color-primary); margin: 0; }
+    }
+}
+
+.meal-plans-card {
+    @include card;
+}
