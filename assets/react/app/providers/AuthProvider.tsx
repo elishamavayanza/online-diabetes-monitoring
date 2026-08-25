@@ -27,13 +27,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (payload) {
                 // Le rôle peut être une string ou undefined, on le normalise
                 const role = (payload.role as UserRole) ?? 'PATIENT';
+                const baseUrl = (import.meta as unknown as { env: { VITE_API_BASE_URL?: string } }).env.VITE_API_BASE_URL || '';
                 const restoredUser: AuthUser = {
                     id: payload.sub ?? 'unknown',
                     name: payload.fullName ?? payload.username ?? 'Utilisateur',
                     email: payload.email ?? '',
                     permissions: payload.permissions ?? [],
                     role: role,
-                    photoUrl: payload.photoUrl,
+                    photoUrl: payload.photoUrl
+                        ? payload.photoUrl.startsWith('http')
+                            ? payload.photoUrl
+                            : `${baseUrl}${payload.photoUrl}`
+                        : undefined,
                 };
                 setUser(restoredUser);
             }

@@ -16,6 +16,8 @@ class JWTCreatedListener
             return;
         }
 
+        $payload = $event->getData();
+
         $roles = $user->getRoles();
 
         // Rôles Symfony standard
@@ -31,11 +33,14 @@ class JWTCreatedListener
         $payload['fullName'] = $user->getFullName();
         $payload['email'] = $user->getEmail();
 
-        // Organisations actives (si nécessaires)
+        $payload['photoUrl'] = $user->getAvatarUrl() ?? $user->getPhotoUrl() ?? null;
+
+        // Organisations actives
         $payload['organizations'] = $this->getActiveOrganizations($user);
 
         $event->setData($payload);
     }
+
 
     private function mapRole(array $roles): string
     {

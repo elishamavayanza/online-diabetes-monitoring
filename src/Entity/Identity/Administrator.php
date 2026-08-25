@@ -12,4 +12,17 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'identity_administrators')]
 class Administrator extends User
 {
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $photoUrl = null; // ou $avatarUrl selon le nommage utilisé
+
+    public function getPhotoUrl(): ?string
+    {
+        return $this->photoUrl;
+    }
+
+    public function setPhotoUrl(?string $photoUrl): self
+    {
+        $this->photoUrl = $photoUrl;
+        return $this;
+    }
 }
