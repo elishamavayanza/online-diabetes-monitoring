@@ -16,6 +16,7 @@ const ExpandIcon = () => (
 export interface SidebarProps extends UseSidebarProps {
     header?: React.ReactNode;
     footer?: React.ReactNode;
+    activeRoute?: string;
 }
 
 export function Sidebar({
@@ -26,6 +27,7 @@ export function Sidebar({
                             defaultCollapsed,
                             width,
                             activeId,
+                            activeRoute,
                             onItemClick,
                             className,
                             header,
@@ -56,6 +58,7 @@ export function Sidebar({
         onMobileClose,
     });
 
+
     // Forcer l’affichage des textes sur mobile (collapsible=false)
     const displayCollapsed = collapsible ? isCollapsed : false;
     const classes = collapsible
@@ -67,6 +70,13 @@ export function Sidebar({
         if ('children' in item && item.children) {
             toggleSection(item.id);
         }
+    };
+
+    const isItemActive = (item: SidebarItem | SidebarSubItem): boolean => {
+        if (item.active) return true;
+        if (activeId && item.id === activeId) return true;
+        if (activeRoute && 'route' in item && item.route === activeRoute) return true;
+        return false;
     };
 
     // Clic sur le logo : replie/déplie si collapsible, sinon ferme le mobile
@@ -90,7 +100,7 @@ export function Sidebar({
     const renderItem = (item: SidebarItem, collapsed: boolean) => (
         <div key={item.id} className="sidebar__group">
             <div
-                className={`sidebar__item ${item.active || item.id === activeId ? 'sidebar__item--active' : ''} ${item.disabled ? 'sidebar__item--disabled' : ''}`}
+                className={`sidebar__item ${isItemActive(item) ? 'sidebar__item--active' : ''} ${item.disabled ? 'sidebar__item--disabled' : ''}`}
                 onClick={() => handleItemClick(item)}
                 role="button"
                 tabIndex={item.disabled ? -1 : 0}
@@ -108,7 +118,7 @@ export function Sidebar({
                     {item.children.map((child) => (
                         <div
                             key={child.id}
-                            className={`sidebar__subitem ${child.active || child.id === activeId ? 'sidebar__subitem--active' : ''}`}
+                            className={`sidebar__subitem ${isItemActive(child) ? 'sidebar__subitem--active' : ''}`}
                             onClick={() => handleItemClick(child)}
                             role="button"
                             tabIndex={0}

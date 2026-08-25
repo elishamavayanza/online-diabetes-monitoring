@@ -13,6 +13,7 @@ import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/componen
 import { useIsMobile } from '@/react/hooks/useIsMobile';
 import { useIsPortrait } from '@/react/hooks/useIsPortrait';
 import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
+import {Outlet, useLocation} from 'react-router-dom';
 
 // ---------- Icônes hamburger / fermer ----------
 const MenuIcon = () => (
@@ -31,7 +32,8 @@ const CloseIcon = () => (
 );
 
 interface MainLayoutProps {
-    children: React.ReactNode;
+    children?: React.ReactNode;
+    // children: React.ReactNode;
     showHeader?: boolean;
     showSidebar?: boolean;
     showFooter?: boolean;
@@ -62,6 +64,7 @@ export function MainLayout({
     const { user, logout } = useAuth();
     const isMobile = useIsMobile();
     const isPortrait = useIsPortrait();
+    const location = useLocation();
 
     const isCompact = isMobile || isPortrait;
 
@@ -160,7 +163,7 @@ export function MainLayout({
                                 userPermissions={permissions}
                                 collapsible={!isMobile}
                                 defaultCollapsed={isCompact && !isMobile}
-                                activeId="dashboard"
+                                activeRoute={location.pathname}
                                 mobileOpen={isMobile ? mobileSidebarOpen : undefined}
                                 onMobileClose={() => setMobileSidebarOpen(false)}
                                 onItemClick={(item) => {
@@ -226,7 +229,7 @@ export function MainLayout({
 
                     <div className="main-layout__body">
                         <main className="main-layout__content">
-                            {children}
+                            {children ?? <Outlet />}
                         </main>
 
                         {showRightSidebar && rightSidebarOpen && (

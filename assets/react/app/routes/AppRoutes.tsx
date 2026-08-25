@@ -4,8 +4,9 @@ import { useAuth } from '../providers/AuthProvider';
 import { LoginPage } from '@/react/features/auth/pages/LoginPage';
 import { ForgotPasswordPage } from '@/react/features/auth/pages/ForgotPasswordPage';
 import HomePage from "@/react/homepage/HomePage/HomePage";
-import { DashboardPage } from '@/react/features/dashboard/pages/DashboardPage';
-import AuthLayout from "@/react/app/layouts/ AuthLayout/AuthLayout";
+import AuthLayout from "@/react/app/layouts/AuthLayout/AuthLayout";
+import { DashboardPage as RootDashboardPage } from '@/react/features/root/dashboard/pages/DashboardPage';
+import { MainLayout } from "@/react/app/layouts/MainLayout/MainLayout";
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -13,8 +14,33 @@ function ProtectedRoute({ children }: { children: React.ReactElement }) {
 }
 
 function PublicRoute({ children }: { children: React.ReactElement }) {
-    const { isAuthenticated } = useAuth();
-    return !isAuthenticated ? children : <Navigate to="/app" replace />;
+    const { isAuthenticated, user } = useAuth();
+
+    if (isAuthenticated && user) {
+        let destination = '/root/dashboard'; // fallback par défaut
+        switch (user.role) {
+            case 'ROOT':
+                destination = '/root/dashboard';
+                break;
+            case 'ADMIN':
+                destination = '/admin/dashboard';
+                break;
+            case 'CLINICIAN':
+                destination = '/clinician/dashboard';
+                break;
+            case 'NUTRITIONIST':
+                destination = '/nutritionist/dashboard';
+                break;
+            case 'PATIENT':
+                destination = '/patient/summary';
+                break;
+            default:
+                destination = '/root/dashboard'; // pour éviter /app inexistant
+        }
+        return <Navigate to={destination} replace />;
+    }
+
+    return children;
 }
 
 export default function AppRoutes() {
@@ -22,6 +48,7 @@ export default function AppRoutes() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />} />
+
                 <Route
                     path="/login"
                     element={
@@ -32,6 +59,7 @@ export default function AppRoutes() {
                         </PublicRoute>
                     }
                 />
+
                 <Route
                     path="/forgot-password"
                     element={
@@ -42,14 +70,23 @@ export default function AppRoutes() {
                         </PublicRoute>
                     }
                 />
+
+                {/* Routes protégées avec MainLayout */}
                 <Route
-                    path="/app"
+                    path="/root"
                     element={
                         <ProtectedRoute>
-                            <DashboardPage />
+                            <MainLayout />
                         </ProtectedRoute>
                     }
-                />
+                >
+                    <Route index element={<Navigate to="/root/dashboard" replace />} />
+                    <Route path="dashboard" element={<RootDashboardPage />} />
+                </Route>
+
+                {/* Fallback pour /app, au cas où */}
+                <Route path="/app" element={<Navigate to="/root/dashboard" replace />} />
+
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>
