@@ -13,7 +13,7 @@ import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/componen
 import { useIsMobile } from '@/react/hooks/useIsMobile';
 import { useIsPortrait } from '@/react/hooks/useIsPortrait';
 import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
-import {Outlet, useLocation} from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 // ---------- Icônes hamburger / fermer ----------
 const MenuIcon = () => (
@@ -65,6 +65,7 @@ export function MainLayout({
     const isMobile = useIsMobile();
     const isPortrait = useIsPortrait();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isCompact = isMobile || isPortrait;
 
@@ -169,6 +170,9 @@ export function MainLayout({
                                 onItemClick={(item) => {
                                     if (isMobile && !('children' in item && item.children)) {
                                         setMobileSidebarOpen(false);
+                                    }
+                                    if ('route' in item && item.route) {
+                                        navigate(item.route);
                                     }
                                 }}
                                 header={
