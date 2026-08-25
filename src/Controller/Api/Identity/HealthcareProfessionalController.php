@@ -10,9 +10,12 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Serializer\SerializerInterface; // <-- N'oubliez pas cet import
 
 #[Route('/api/professionals')]
 #[OA\Tag(
@@ -22,7 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class HealthcareProfessionalController extends AbstractController
 {
     public function __construct(
-        private readonly HealthcareProfessionalService $professionalService
+        private readonly HealthcareProfessionalService $professionalService,
+        private readonly SerializerInterface $serializer
     ) {
     }
 
@@ -68,9 +72,10 @@ DESC,
     )]
     #[OA\RequestBody(
         required: true,
-        content: new OA\JsonContent(
-            ref: new Model(
-                type: HealthcareProfessionalCreateRequestDTO::class
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                ref: new Model(type: HealthcareProfessionalCreateRequestDTO::class)
             )
         )
     )]
@@ -116,19 +121,38 @@ DESC,
         description: 'Permission insuffisante'
     )]
     public function create(
-        #[MapRequestPayload]
-        HealthcareProfessionalCreateRequestDTO $dto
+        Request $request,
+        ValidatorInterface $validator
     ): JsonResponse {
+        $formData = array_merge(
+            $request->request->all(),
+            $request->files->all()
+        );
+
+        $dto = $this->serializer->denormalize(
+            $formData,
+            HealthcareProfessionalCreateRequestDTO::class,
+            null,
+            ['allow_extra_attributes' => true]
+        );
+
+        $errors = $validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Données invalides',
+                'errors' => (string) $errors
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $feedback = $this->professionalService->create($dto);
 
         $status = $feedback->hasErrors()
             ? Response::HTTP_BAD_REQUEST
             : Response::HTTP_CREATED;
 
-        return $this->json(
-            $feedback,
-            $status
-        );
+        return $this->json($feedback, $status);
     }
 
     #[Route(
@@ -209,9 +233,10 @@ DESC,
     )]
     #[OA\RequestBody(
         required: true,
-        content: new OA\JsonContent(
-            ref: new Model(
-                type: HealthcareProfessionalUpdateRequestDTO::class
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                ref: new Model(type: HealthcareProfessionalUpdateRequestDTO::class)
             )
         )
     )]
@@ -233,22 +258,42 @@ DESC,
     )]
     public function update(
         string $id,
-        #[MapRequestPayload]
-        HealthcareProfessionalUpdateRequestDTO $dto
+        Request $request,
+        ValidatorInterface $validator
     ): JsonResponse {
-        $feedback = $this->professionalService->update(
-            $id,
-            $dto
+        // 1. Fusionner les données textuelles du formulaire et les fichiers reçus (avec le $)
+        $formData = array_merge(
+            $request->request->all(),
+            $request->files->all()
         );
+
+        // 2. Désérialiser proprement dans le DTO
+        $dto = $this->serializer->denormalize(
+            $formData,
+            HealthcareProfessionalUpdateRequestDTO::class,
+            null,
+            ['allow_extra_attributes' => true]
+        );
+
+        // 3. Valider manuellement le DTO
+        $errors = $validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Données invalides',
+                'errors' => (string) $errors
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // 4. Appel du service
+        $feedback = $this->professionalService->update($id, $dto);
 
         $status = $feedback->hasErrors()
             ? Response::HTTP_BAD_REQUEST
             : Response::HTTP_OK;
 
-        return $this->json(
-            $feedback,
-            $status
-        );
+        return $this->json($feedback, $status);
     }
 
     #[Route(

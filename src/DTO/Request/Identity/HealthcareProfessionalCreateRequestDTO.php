@@ -3,6 +3,7 @@
 namespace App\DTO\Request\Identity;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
@@ -32,10 +33,15 @@ class HealthcareProfessionalCreateRequestDTO
         #[OA\Property(type: 'string', example: 'Dr. Jean Mukendi', maxLength: 150)]
         public readonly string $fullName,
 
-        #[Assert\Url]
-        #[Assert\Length(max: 500)]
-        #[OA\Property(type: 'string', format: 'uri', example: 'https://diabcare.com/avatars/dr-jean.jpg', nullable: true, maxLength: 500)]
-        public readonly ?string $avatarUrl,
+        #[Assert\Image(
+            maxSize: '2M',
+            mimeTypes: ['image/jpeg', 'image/png', 'image/webp']
+        )]
+        #[OA\Property(description: 'Photo de profil (avatar)', type: 'string', format: 'binary', nullable: true)]
+        public readonly ?UploadedFile $avatarFile = null,
+
+        #[OA\Property(type: 'string', nullable: true)]
+        public readonly ?string $avatarUrl = null,
 
         #[Assert\NotBlank]
         #[OA\Property(type: 'string', example: 'MALE', enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'])]

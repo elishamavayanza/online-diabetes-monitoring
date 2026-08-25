@@ -12,6 +12,7 @@ use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use App\Service\File\FileUploaderService;
 
 
 class PatientService
@@ -19,7 +20,8 @@ class PatientService
     public function __construct(
         private readonly UserRepository $repository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly FileUploaderService $fileUploader
     ) {
     }
 
@@ -73,50 +75,29 @@ class PatientService
         $feedback = new Feedback();
 
         try {
-            // 1. Récupérer l'utilisateur actuellement connecté
             $currentUser = $this->securityService->getCurrentUser();
 
-            // 2. Vérifier si c'est le patient lui-même qui modifie son profil
-            $isSelfUpdate = ($currentUser && $currentUser->getId() === $userId);
+            // Sécurisation de la comparaison d'IDs (conversion en string pour éviter les erreurs de type Uuid/int)
+            $isSelfUpdate = ($currentUser && (string) $currentUser->getId() === (string) $userId);
 
-            // 3. Si ce n'est pas lui-même, exiger la permission d'administration
             if (!$isSelfUpdate) {
                 $this->securityService->checkPermission(
                     SecurityAction::MANAGE_USERS->value
                 );
             }
 
-            /*
-             * On récupère l'utilisateur existant.
-             */
             $user = $this->repository->find($userId);
 
             if (!$user) {
-                return $feedback
-                    ->setErrorFlushDescription(
-                        'Utilisateur introuvable.'
-                    )
-                    ->autoInitFlush();
+                return $feedback->setErrorFlushDescription('Utilisateur introuvable.')->autoInitFlush();
             }
 
-            /*
-             * Le profil patient nécessite un utilisateur
-             * de type Patient.
-             */
             if (!$user instanceof Patient) {
-                return $feedback
-                    ->setErrorFlushDescription(
-                        'Cet utilisateur ne possède pas de profil patient.'
-                    )
-                    ->autoInitFlush();
+                return $feedback->setErrorFlushDescription('Cet utilisateur ne possède pas de profil patient.')->autoInitFlush();
             }
 
             $patient = $user;
 
-            /*
-             * Données du profil personnel.
-             * (L'email et le mot de passe sont volontairement exclus pour des raisons de sécurité)
-             */
             if ($dto->fullName !== null) {
                 $patient->setFullName($dto->fullName);
             }
@@ -129,44 +110,36 @@ class PatientService
                 $patient->setGender($dto->gender);
             }
 
-            if ($dto->avatarUrl !== null) {
-                $patient->setAvatarUrl($dto->avatarUrl);
+            // Gestion de l'upload de l'avatar
+            if ($dto->avatarFile !== null) {
+                if ($patient->getAvatarUrl()) {
+                    $this->fileUploader->remove($patient->getAvatarUrl(), 'avatars');
+                }
+
+                $fileName = $this->fileUploader->upload($dto->avatarFile, 'avatars');
+                $patient->setAvatarUrl($fileName);
             }
 
             if ($dto->locale !== null) {
                 $patient->setLocale($dto->locale);
             }
 
-            /*
-             * Informations spécifiques au patient.
-             */
             if ($dto->dateOfBirth !== null) {
-                $patient->setDateOfBirth(
-                    new \DateTime($dto->dateOfBirth)
-                );
+                $patient->setDateOfBirth(new \DateTime($dto->dateOfBirth));
             }
 
             if ($dto->placeOfBirth !== null) {
-                $patient->setPlaceOfBirth(
-                    $dto->placeOfBirth
-                );
+                $patient->setPlaceOfBirth($dto->placeOfBirth);
             }
 
             if ($dto->bloodType !== null) {
-                $patient->setBloodType(
-                    $dto->bloodType
-                );
+                $patient->setBloodType($dto->bloodType);
             }
 
             if ($dto->heightCm !== null) {
-                $patient->setHeightCm(
-                    $dto->heightCm
-                );
+                $patient->setHeightCm($dto->heightCm);
             }
 
-            /*
-             * Adresse embarquée.
-             */
             if (
                 $dto->street !== null ||
                 $dto->city !== null ||
@@ -205,32 +178,14 @@ class PatientService
             $this->entityManager->flush();
 
             return $feedback
-                ->setData(
-                    PatientResponseDTO::fromEntity($patient)
-                )
-                ->setFlushDescription(
-                    'Profil patient mis à jour avec succès.'
-                )
+                ->setData(PatientResponseDTO::fromEntity($patient))
+                ->setFlushDescription('Profil patient mis à jour avec succès.')
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
-
-            return $feedback
-                ->setErrorFlushDescription(
-                    'Accès refusé : ' . $e->getMessage()
-                )
-                ->autoInitFlush();
-
+            return $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())->autoInitFlush();
         } catch (\Throwable $e) {
-
-            return $feedback
-                ->setErrorFlushDescription(
-                    'Erreur lors de la mise à jour du profil patient : '
-                    . $e->getMessage()
-                )
-                ->autoInitFlush();
+            return $feedback->setErrorFlushDescription('Erreur lors de la mise à jour du profil patient : ' . $e->getMessage())->autoInitFlush();
         }
     }
-
-
 }

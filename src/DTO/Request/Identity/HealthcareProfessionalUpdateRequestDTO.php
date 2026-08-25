@@ -3,6 +3,7 @@
 namespace App\DTO\Request\Identity;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
@@ -18,7 +19,7 @@ class HealthcareProfessionalUpdateRequestDTO
         public readonly ?string $email = null,
 
         #[Assert\Length(min: 8)]
-        #[OA\Property(type: 'string', format: 'password', example: 'NewSecurePassword123!', nullable: true, minLength: 8)]
+        #[OA\Property(type: 'string', format: 'password', example: 'Test@123', nullable: true, minLength: 8)]
         public readonly ?string $password = null,
 
         #[Assert\Length(max: 50)]
@@ -29,9 +30,14 @@ class HealthcareProfessionalUpdateRequestDTO
         #[OA\Property(type: 'string', example: 'Dr. Jean Mukendi', nullable: true, maxLength: 150)]
         public readonly ?string $fullName = null,
 
-        #[Assert\Url]
-        #[Assert\Length(max: 500)]
-        #[OA\Property(type: 'string', format: 'uri', example: 'https://diabcare.com/avatars/dr-jean.jpg', nullable: true, maxLength: 500)]
+        #[Assert\Image(
+            maxSize: '2M',
+            mimeTypes: ['image/jpeg', 'image/png', 'image/webp']
+        )]
+        #[OA\Property(description: 'Nouvelle photo de profil (avatar)', type: 'string', format: 'binary', nullable: true)]
+        public readonly ?UploadedFile $avatarFile = null,
+
+        #[OA\Property(type: 'string', nullable: true)]
         public readonly ?string $avatarUrl = null,
 
         #[OA\Property(type: 'string', example: 'MALE', nullable: true, enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'])]

@@ -13,6 +13,7 @@ use App\Mapper\Identity\HealthcareProfessionalMapper;
 use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\File\FileUploaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -24,7 +25,8 @@ class HealthcareProfessionalService
         private readonly HealthcareProfessionalMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly UserPasswordHasherInterface $passwordHasher
+        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly FileUploaderService $fileUploader
     ) {
     }
 
@@ -73,6 +75,55 @@ class HealthcareProfessionalService
                 ->autoInitFlush();
         }
     }
+    /**
+     * Récupère un professionnel par son ID.
+     */
+    public function getById(string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkPermission(
+                SecurityAction::VIEW->value
+            );
+
+            $professional = $this->repository->findOneBy([
+                'id' => $id,
+                'deletedAt' => null
+            ]);
+
+            if (!$professional) {
+                return $feedback
+                    ->setErrorFlushDescription(
+                        'Professionnel de santé introuvable.'
+                    )
+                    ->autoInitFlush();
+            }
+
+            return $feedback
+                ->setData(
+                    $this->mapper->mapEntityToResponse($professional)
+                )
+                ->setFlushDescription(
+                    'Professionnel récupéré avec succès.'
+                )
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Accès refusé : ' . $e->getMessage()
+                )
+                ->autoInitFlush();
+
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription(
+                    'Erreur lors de la récupération du professionnel.'
+                )
+                ->autoInitFlush();
+        }
+    }
 
     /**
      * Crée un compte professionnel de santé.
@@ -116,6 +167,12 @@ class HealthcareProfessionalService
 
             /** @var HealthcareProfessional $professional */
             $professional = $this->mapper->mapCreateRequestToEntity($dto);
+
+            // Gestion de l'upload de l'avatar à la création
+            if ($dto->avatarFile) {
+                $fileName = $this->fileUploader->upload($dto->avatarFile, 'avatars');
+                $professional->setAvatarUrl($fileName); // ou setAvatarPath selon votre entité
+            }
 
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $professional,
@@ -186,56 +243,6 @@ class HealthcareProfessionalService
     }
 
     /**
-     * Récupère un professionnel par son ID.
-     */
-    public function getById(string $id): Feedback
-    {
-        $feedback = new Feedback();
-
-        try {
-            $this->securityService->checkPermission(
-                SecurityAction::VIEW->value
-            );
-
-            $professional = $this->repository->findOneBy([
-                'id' => $id,
-                'deletedAt' => null
-            ]);
-
-            if (!$professional) {
-                return $feedback
-                    ->setErrorFlushDescription(
-                        'Professionnel de santé introuvable.'
-                    )
-                    ->autoInitFlush();
-            }
-
-            return $feedback
-                ->setData(
-                    $this->mapper->mapEntityToResponse($professional)
-                )
-                ->setFlushDescription(
-                    'Professionnel récupéré avec succès.'
-                )
-                ->autoInitFlush();
-
-        } catch (AccessDeniedException $e) {
-            return $feedback
-                ->setErrorFlushDescription(
-                    'Accès refusé : ' . $e->getMessage()
-                )
-                ->autoInitFlush();
-
-        } catch (\Throwable $e) {
-            return $feedback
-                ->setErrorFlushDescription(
-                    'Erreur lors de la récupération du professionnel.'
-                )
-                ->autoInitFlush();
-        }
-    }
-
-    /**
      * Met à jour un professionnel.
      */
     public function update(
@@ -246,24 +253,8 @@ class HealthcareProfessionalService
 
         try {
             $currentUser = $this->securityService->getCurrentUser();
-            $targetOrganization = null;
 
-            foreach ($currentUser->getOrganizationMemberships() as $membership) {
-                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
-                    $targetOrganization = $membership->getOrganization();
-                    break;
-                }
-            }
-
-            if (!$targetOrganization) {
-                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
-            }
-
-            $this->securityService->checkOrganizationAccess(
-                $targetOrganization,
-                SecurityAction::MANAGE_USERS
-            );
-
+            // 1. On récupère d'abord le professionnel pour savoir qui on essaie de modifier
             $professional = $this->repository->findOneBy([
                 'id' => $id,
                 'deletedAt' => null
@@ -277,6 +268,43 @@ class HealthcareProfessionalService
                     ->autoInitFlush();
             }
 
+            // 2. Vérification des droits : Est-ce l'utilisateur lui-même OU un administrateur ?
+            $isSelfUpdate = ($currentUser->getId() === $professional->getId());
+
+            if (!$isSelfUpdate) {
+                // Si ce n'est pas lui-même, on applique la règle de contrôle administrateur
+                $targetOrganization = null;
+
+                foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                        $targetOrganization = $membership->getOrganization();
+                        break;
+                    }
+                }
+
+                if (!$targetOrganization) {
+                    throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+                }
+
+                $this->securityService->checkOrganizationAccess(
+                    $targetOrganization,
+                    SecurityAction::MANAGE_USERS
+                );
+            } else {
+                // Si c'est lui-même, on s'assure juste qu'il a une organisation active (ou selon votre règle métier de base)
+                $targetOrganization = null;
+                foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                        $targetOrganization = $membership->getOrganization();
+                        break;
+                    }
+                }
+
+                if (!$targetOrganization) {
+                    throw new AccessDeniedException('Aucune organisation active trouvée.');
+                }
+            }
+
             if ($dto->email !== null) {
                 $existingUser = $this->repository->findOneBy([
                     'email' => $dto->email
@@ -284,7 +312,7 @@ class HealthcareProfessionalService
 
                 if (
                     $existingUser
-                    && $existingUser->getUuid() !== $professional->getUuid()
+                    && $existingUser->getId() !== $professional->getId()
                 ) {
                     return $feedback
                         ->setErrorFlushDescription(
@@ -298,6 +326,18 @@ class HealthcareProfessionalService
                 $dto,
                 $professional
             );
+
+            // Gestion de l'upload de l'avatar à la modification
+            if ($dto->avatarFile) {
+                // Supprimer l'ancienne image si elle existe
+                if ($professional->getAvatarUrl()) {
+                    $this->fileUploader->remove($professional->getAvatarUrl(), 'avatars');
+                }
+
+                // Uploader la nouvelle
+                $fileName = $this->fileUploader->upload($dto->avatarFile, 'avatars');
+                $professional->setAvatarUrl($fileName);
+            }
 
             if ($dto->professionalType !== null) {
                 $role = $this->resolveRoleFromProfessionalType(

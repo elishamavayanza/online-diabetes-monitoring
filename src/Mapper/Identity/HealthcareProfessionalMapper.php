@@ -27,14 +27,17 @@ class HealthcareProfessionalMapper
         $professional->setAvatarUrl($dto->avatarUrl);
 
         // Conversion de la string en Enum Gender
-        $professional->setGender(Gender::from($dto->gender));
+        if ($dto->gender !== null) {
+            $professional->setGender(Gender::from($dto->gender));
+        }
 
         $professional->setLocale($dto->locale);
-
         $professional->setLicenseNumber($dto->licenseNumber);
 
         // Conversion de la string en Enum ProfessionalType
-        $professional->setProfessionalType(ProfessionalType::from($dto->professionalType));
+        if ($dto->professionalType !== null) {
+            $professional->setProfessionalType(ProfessionalType::from($dto->professionalType));
+        }
 
         $professional->setSpecialty($dto->specialty);
         $professional->setSignatureUrl($dto->signatureUrl);
@@ -44,12 +47,21 @@ class HealthcareProfessionalMapper
             $professional->setPasswordHash($hashedPassword);
         }
 
-        $address = new Address();
-        $address->setStreet($dto->street);
-        $address->setCity($dto->city);
-        $address->setPostalCode($dto->postalCode);
-        $address->setCountry($dto->country);
-        $professional->setAddress($address);
+        // Gestion de l'adresse à la création en filtrant les valeurs textuelles "null"
+        $street = ($dto->street !== 'null') ? $dto->street : null;
+        $city = ($dto->city !== 'null') ? $dto->city : null;
+        $postalCode = ($dto->postalCode !== 'null') ? $dto->postalCode : null;
+        $country = ($dto->country !== 'null') ? $dto->country : null;
+
+        if ($street !== null || $city !== null || $postalCode !== null || $country !== null) {
+            $address = new Address();
+            if ($street !== null) $address->setStreet($street);
+            if ($city !== null) $address->setCity($city);
+            if ($postalCode !== null) $address->setPostalCode($postalCode);
+            if ($country !== null) $address->setCountry($country);
+
+            $professional->setAddress($address);
+        }
 
         return $professional;
     }
@@ -95,31 +107,23 @@ class HealthcareProfessionalMapper
             $professional->setPasswordHash($hashedPassword);
         }
 
-        // Préserver l'adresse existante ou en créer une si absente
-        if (
-            $dto->street !== null ||
-            $dto->city !== null ||
-            $dto->postalCode !== null ||
-            $dto->country !== null
-        ) {
+        // Gestion de l'adresse en filtrant les valeurs textuelles "null"
+        $street = ($dto->street !== 'null') ? $dto->street : null;
+        $city = ($dto->city !== 'null') ? $dto->city : null;
+        $postalCode = ($dto->postalCode !== 'null') ? $dto->postalCode : null;
+        $country = ($dto->country !== 'null') ? $dto->country : null;
+
+        if ($street !== null || $city !== null || $postalCode !== null || $country !== null) {
             $address = $professional->getAddress();
             if ($address === null) {
                 $address = new Address();
                 $professional->setAddress($address);
             }
 
-            if ($dto->street !== null) {
-                $address->setStreet($dto->street);
-            }
-            if ($dto->city !== null) {
-                $address->setCity($dto->city);
-            }
-            if ($dto->postalCode !== null) {
-                $address->setPostalCode($dto->postalCode);
-            }
-            if ($dto->country !== null) {
-                $address->setCountry($dto->country);
-            }
+            if ($street !== null) $address->setStreet($street);
+            if ($city !== null) $address->setCity($city);
+            if ($postalCode !== null) $address->setPostalCode($postalCode);
+            if ($country !== null) $address->setCountry($country);
         }
 
         return $professional;

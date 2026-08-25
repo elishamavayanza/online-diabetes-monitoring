@@ -46,6 +46,16 @@ abstract class BaseEntity
     protected ?DateTimeImmutable $updatedAt = null;
 
     /**
+     * @var DateTimeImmutable|null La date et l'heure de suppression (Soft Delete).
+     */
+    #[ORM\Column(
+        name: 'deleted_at',
+        type: Types::DATETIME_IMMUTABLE,
+        nullable: true
+    )]
+    protected ?DateTimeImmutable $deletedAt = null;
+
+    /**
      * Callback exécuté automatiquement avant l'insertion en base de données.
      * Initialise les dates de création et de mise à jour si elles sont nulles.
      */
@@ -113,5 +123,30 @@ abstract class BaseEntity
     {
         $this->updatedAt = $updatedAt;
         return $this;
+    }
+
+    /**
+     * Récupère la date de suppression (Soft Delete).
+     */
+    public function getDeletedAt(): ?DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
+    /**
+     * Définit la date de suppression.
+     */
+    public function setDeletedAt(?DateTimeImmutable $deletedAt): static
+    {
+        $this->deletedAt = $deletedAt;
+        return $this;
+    }
+
+    /**
+     * Vérifie si l'entité est supprimée.
+     */
+    public function isDeleted(): bool
+    {
+        return $this->deletedAt !== null;
     }
 }
