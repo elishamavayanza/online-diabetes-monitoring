@@ -64,6 +64,8 @@
 @use './pages/auth/forgot-password' as *;
 @use './pages/root/dashboard/dashboard' as *;
 @use './pages/root/organisations/organisations' as *;
+@use './pages/root/users/users' as *;
+@use './pages/root/audit/audit' as *;
 
 // ──────────────────────────────────────────
 // 2. Global base styles

@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { useSwitch, UseSwitchProps } from '../../../hook-components/Forms/Switch';
+import { useSwitch, UseSwitchProps } from '@/react/hook-components/Forms/Switch';
 
 export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement>, UseSwitchProps {
     label?: React.ReactNode;

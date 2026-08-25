@@ -8,7 +8,11 @@ import AuthLayout from "@/react/app/layouts/AuthLayout/AuthLayout";
 import { DashboardPage as RootDashboardPage } from '@/react/features/root/dashboard/pages/DashboardPage';
 import { MainLayout } from "@/react/app/layouts/MainLayout/MainLayout";
 import { OrganisationsPage } from '@/react/features/root/organisations/pages/OrganisationsPage';
-
+import { UsersPage } from '@/react/features/root/users/pages/UsersPage';
+import { RolesPage } from '@/react/features/root/roles/pages/RolesPage';
+import { NotificationsPage } from '@/react/features/root/notifications/pages/NotificationsPage';
+import { AuditPage } from '@/react/features/root/audit/pages/AuditPage';
+import { SettingsPage } from '@/react/features/root/settings/pages/SettingsPage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -85,6 +89,11 @@ export default function AppRoutes() {
                     <Route index element={<Navigate to="/root/dashboard" replace />} />
                     <Route path="dashboard" element={<RootDashboardPage />} />
                     <Route path="organisations" element={<OrganisationsPage />} />
+                    <Route path="users" element={<UsersPage />} />
+                    <Route path="roles" element={<RolesPage />} />
+                    <Route path="notifications" element={<NotificationsPage />} />
+                    <Route path="audit" element={<AuditPage />} />
+                    <Route path="settings" element={<SettingsPage />} />
 
                 </Route>
 
