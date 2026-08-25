@@ -76,6 +76,13 @@
 @use './pages/admin/appointments/appointments' as *;
 @use './pages/admin/patients/patients' as *;
 
+@use './pages/clinician/dashboard/dashboard' as *;
+@use './pages/clinician/patients/patients' as *;
+@use 'pages/clinician/agenda/agenda' as *;
+@use './pages/clinician/appointments/appointments' as *;
+@use './pages/clinician/messages/messages' as *;
+@use './pages/clinician/notifications/notifications' as *;
+
 // ──────────────────────────────────────────
 // 2. Global base styles
 // ──────────────────────────────────────────

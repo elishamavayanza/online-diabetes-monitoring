@@ -1,0 +1,110 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.agenda-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
+        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
+    }
+
+    &__days {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+}
+
+.agenda-day-card {
+    @include card;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: 0.5rem;
+    }
+
+    &__label {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        margin: 0;
+    }
+
+    &__date {
+        font-size: 0.8rem;
+        color: var(--color-text);
+        opacity: 0.6;
+    }
+
+    &__empty {
+        color: var(--color-text);
+        opacity: 0.6;
+        font-style: italic;
+        margin: 0.5rem 0;
+    }
+
+    &__list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+.agenda-appointment {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem;
+    border-radius: 0.5rem;
+    background-color: rgba(0,0,0,0.02);
+
+    &__time {
+        font-weight: 600;
+        min-width: 50px;
+    }
+
+    &__info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__patient {
+        font-weight: 500;
+    }
+
+    &__motif {
+        font-size: 0.8rem;
+        color: var(--color-text);
+        opacity: 0.7;
+    }
+
+    &__type {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 1rem;
+        white-space: nowrap;
+
+        &--consultation {
+            background-color: var(--color-primary);
+            color: var(--color-on-primary);
+        }
+
+        &--suivi {
+            background-color: var(--color-accent);
+            color: var(--color-on-accent);
+        }
+    }
+}

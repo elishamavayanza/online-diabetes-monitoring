@@ -23,6 +23,14 @@ import { AppointmentsPage } from '@/react/features/admin/appointments/pages/Appo
 import { ActivityPage } from '@/react/features/admin/activity/pages/ActivityPage';
 import { AdminNotificationsPage } from '@/react/features/admin/notifications/pages/AdminNotificationsPage';
 import { AdminSettingsPage } from '@/react/features/admin/settings/pages/AdminSettingsPage';
+import {ClinicianDashboardPage} from "@/react/features/clinician/dashboard/pages/ClinicianDashboardPage";
+import {ClinicianPatientsPage} from "@/react/features/clinician/patients/pages/ClinicianPatientsPage";
+import {AgendaPage} from "@/react/features/clinician/agenda/pages/AgendaPage";
+import { AppointmentPage } from '@/react/features/clinician/appointments/pages/AppointmentPage';
+import { MessagesPage } from '@/react/features/clinician/messages/pages/MessagesPage';
+import { ClinicianNotificationsPage } from '@/react/features/clinician/notifications/pages/ClinicianNotificationsPage';
+
+
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -125,6 +133,23 @@ export default function AppRoutes() {
                     <Route path="activity" element={<ActivityPage />} />
                     <Route path="notifications" element={<AdminNotificationsPage />} />
                     <Route path="settings" element={<AdminSettingsPage />} />
+                </Route>
+
+                <Route
+                    path="/clinician"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<Navigate to="/clinician/dashboard" replace />} />
+                    <Route path="dashboard" element={<ClinicianDashboardPage />} />
+                    <Route path="my-patients" element={<ClinicianPatientsPage />} />
+                    <Route path="agenda" element={<AgendaPage />} />
+                    <Route path="appointments" element={<AppointmentPage />} />
+                    <Route path="messages" element={<MessagesPage />} />
+                    <Route path="notifications" element={<ClinicianNotificationsPage />} />
                 </Route>
 
                 {/* Fallback pour /app, au cas où */}
