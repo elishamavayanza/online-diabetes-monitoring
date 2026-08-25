@@ -47,8 +47,7 @@ import {BookingPage} from "@/react/features/patient/booking/pages/BookingPage";
 import {PatientMessagesPage} from "@/react/features/patient/messages/pages/PatientMessagesPage";
 import {PatientNotificationsPage} from "@/react/features/patient/notifications/pages/PatientNotificationsPage";
 import {TeamPage} from "@/react/features/patient/team/pages/TeamPage";
-
-
+import { ProfilePage } from '@/react/features/profile/pages/ProfilePage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -209,6 +208,17 @@ export default function AppRoutes() {
                     <Route path="notifications" element={<PatientNotificationsPage />} />
                     <Route path="team" element={<TeamPage />} />
                 </Route>
+
+                <Route
+                    path="/profile"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout>
+                                <ProfilePage />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
 
                 {/* Fallback pour /app, au cas où */}
                 <Route path="/app" element={<Navigate to="/root/dashboard" replace />} />

@@ -189,7 +189,7 @@ export function MainLayout({
                                                 id: 'profile',
                                                 label: 'Mon profil',
                                                 icon: <ProfileIcon />,
-                                                onClick: () => console.log('Profil'),
+                                                onClick: () => navigate('/profile'),
                                             },
                                             {
                                                 id: 'separator',
