@@ -1,0 +1,43 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.activity-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
+        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
+    }
+}
+
+.activity-card {
+    @include card;
+}
+
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child { border-bottom: none; }
+}
+
+.activity-message {
+    flex: 1;
+}
+
+.activity-timestamp {
+    font-size: 0.85rem;
+    color: var(--color-text);
+    opacity: 0.6;
+}

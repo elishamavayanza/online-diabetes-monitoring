@@ -1,0 +1,20 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.establishments-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h1 { font-size: 1.8rem; color: var(--color-primary); margin: 0; }
+    }
+}
+
+.establishments-card {
+    @include card;
+}

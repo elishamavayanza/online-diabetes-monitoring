@@ -1,0 +1,23 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.admin-settings-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
+        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
+    }
+}
+
+.org-settings-card {
+    @include card;
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--color-primary);
+    }
+}

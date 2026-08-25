@@ -13,6 +13,16 @@ import { RolesPage } from '@/react/features/root/roles/pages/RolesPage';
 import { NotificationsPage } from '@/react/features/root/notifications/pages/NotificationsPage';
 import { AuditPage } from '@/react/features/root/audit/pages/AuditPage';
 import { SettingsPage } from '@/react/features/root/settings/pages/SettingsPage';
+import { AdminDashboardPage } from '@/react/features/admin/dashboard/pages/AdminDashboardPage';
+import { EstablishmentsPage } from '@/react/features/admin/establishments/pages/EstablishmentsPage';
+import { DepartmentsPage } from '@/react/features/admin/departments/pages/DepartmentsPage';
+import { ProfessionalsPage } from '@/react/features/admin/professionals/pages/ProfessionalsPage';
+import { MembersPage } from '@/react/features/admin/members/pages/MembersPage';
+import { PatientsPage } from '@/react/features/admin/patients/pages/PatientsPage';
+import { AppointmentsPage } from '@/react/features/admin/appointments/pages/AppointmentsPage';
+import { ActivityPage } from '@/react/features/admin/activity/pages/ActivityPage';
+import { AdminNotificationsPage } from '@/react/features/admin/notifications/pages/AdminNotificationsPage';
+import { AdminSettingsPage } from '@/react/features/admin/settings/pages/AdminSettingsPage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -94,7 +104,27 @@ export default function AppRoutes() {
                     <Route path="notifications" element={<NotificationsPage />} />
                     <Route path="audit" element={<AuditPage />} />
                     <Route path="settings" element={<SettingsPage />} />
+                </Route>
 
+                <Route
+                    path="/admin"
+                    element={
+                        <ProtectedRoute>
+                            <MainLayout />
+                        </ProtectedRoute>
+                     }
+                >
+                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                    <Route path="dashboard" element={<AdminDashboardPage />} />
+                    <Route path="establishments" element={<EstablishmentsPage />} />
+                    <Route path="departments" element={<DepartmentsPage />} />
+                    <Route path="professionals" element={<ProfessionalsPage />} />
+                    <Route path="members" element={<MembersPage />} />
+                    <Route path="patients" element={<PatientsPage />} />
+                    <Route path="appointments" element={<AppointmentsPage />} />
+                    <Route path="activity" element={<ActivityPage />} />
+                    <Route path="notifications" element={<AdminNotificationsPage />} />
+                    <Route path="settings" element={<AdminSettingsPage />} />
                 </Route>
 
                 {/* Fallback pour /app, au cas où */}

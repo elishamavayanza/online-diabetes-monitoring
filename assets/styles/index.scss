@@ -67,6 +67,15 @@
 @use './pages/root/users/users' as *;
 @use './pages/root/audit/audit' as *;
 
+@use './pages/admin/dashboard/dashboard' as *;
+@use './pages/admin/establishments/establishments' as *;
+@use './pages/admin/departments/departments' as *;
+@use './pages/admin/establishments/establishments' as *;
+@use './pages/admin/professionals/professionals' as *;
+@use './pages/admin/activity/activity' as *;
+@use './pages/admin/appointments/appointments' as *;
+@use './pages/admin/patients/patients' as *;
+
 // ──────────────────────────────────────────
 // 2. Global base styles
 // ──────────────────────────────────────────
