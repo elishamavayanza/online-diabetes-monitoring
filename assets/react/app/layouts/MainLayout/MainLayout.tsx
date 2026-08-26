@@ -133,6 +133,12 @@ export function MainLayout({
             navigate(-1);
         }
     };
+    const handleProfileClick = () => {
+        if (isMobile) {
+            setMobileSidebarOpen(false);
+        }
+        navigate('/profile');
+    };
     // --------------------------------------------------------
 
     return (
@@ -205,7 +211,7 @@ export function MainLayout({
                                                 id: 'profile',
                                                 label: 'Mon profil',
                                                 icon: <ProfileIcon />,
-                                                onClick: () => navigate('/profile'),
+                                                onClick: handleProfileClick,
                                             },
                                             {
                                                 id: 'separator',
