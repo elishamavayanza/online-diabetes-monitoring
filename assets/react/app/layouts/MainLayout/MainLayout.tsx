@@ -31,6 +31,13 @@ const CloseIcon = () => (
     </svg>
 );
 
+const BackIcon = () => (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 12H5" />
+        <polyline points="12 19 5 12 12 5" />
+    </svg>
+);
+
 interface MainLayoutProps {
     children?: React.ReactNode;
     // children: React.ReactNode;
@@ -233,7 +240,19 @@ export function MainLayout({
 
                     <div className="main-layout__body">
                         <main className="main-layout__content">
-                            {children ?? <Outlet />}
+                            {!mobileSidebarOpen && (
+                                <button
+                                    className="main-layout__back-button"
+                                    onClick={() => navigate(-1)}
+                                    aria-label="Retour à la page précédente"
+                                    title="Retour"
+                                >
+                                    <BackIcon />
+                                </button>
+                            )}
+                            <div className="main-layout__page-content">
+                                {children ?? <Outlet />}
+                            </div>
                         </main>
 
                         {showRightSidebar && rightSidebarOpen && (

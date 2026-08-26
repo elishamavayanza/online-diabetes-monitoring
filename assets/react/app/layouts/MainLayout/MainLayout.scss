@@ -167,6 +167,50 @@
 }
 
 /* ============================================================
+   Bouton retour flottant (fixe au-dessus du contenu)
+   ============================================================ */
+.main-layout__top-bar {
+    display: none; // conteneur masqué, inutile
+}
+
+.main-layout__back-button {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 4200;
+    background: none;              // ✅ aucun fond
+    border: none;
+    padding: 0.25rem;              // zone cliquable réduite mais accessible
+    cursor: pointer;
+    color: var(--color-text);      // couleur de l'icône
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;              // pas besoin de rayon sans fond
+    box-shadow: none;              // ✅ aucune ombre
+    transition: color 0.2s;        // uniquement transition de couleur
+    align-self: flex-start;
+}
+
+.main-layout__back-button:hover {
+    color: var(--color-primary);   // changement de couleur au survol
+}
+
+.main-layout__back-button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.main-layout__content {
+    position: relative;
+    min-width: 0;
+    padding: 1rem;
+    //background: /* ... */;
+    overflow-y: auto;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+/* ============================================================
    Sidebar mobile : poussée du contenu (pas d'overlay)
    ============================================================ */
 @media (max-width: 768px) {
@@ -207,6 +251,19 @@
         height: 100%;
         position: relative;
     }
+
+    .main-layout__back-button {
+        position: fixed;
+        top: 56px;          // 10px (hamburger top) + 36px (hauteur) + 10px d'espace
+        left: 10px;
+        margin-top: 0;
+        padding: 0.4rem;
+        z-index: 4200;
+    }
+
+    .main-layout__page-content {
+        padding-top: 1rem;  // laisser de l'espace pour les deux boutons flottants
+    }
 }
 
 @media (max-width: 480px) {
@@ -225,6 +282,19 @@
         top: 8px;
         right: 8px;
     }
+    .main-layout__back-button {
+        position: fixed;
+        top: 48px;          // 8px (hamburger top) + 32px (hauteur) + 8px d'espace
+        left: 8px;
+        margin-top: 0;
+        padding: 0.35rem;
+        z-index: 4200;
+    }
+
+    .main-layout__page-content {
+        padding-top: 1rem;
+    }
+
 }
 
 /* ============================================================
