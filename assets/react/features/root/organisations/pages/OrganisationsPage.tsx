@@ -17,6 +17,8 @@ import { CreateOrganisationPayload } from '../types';
 import { Establishment } from '../types/establishment';
 import { Department } from '../types/department';
 import { TreeNode } from "@/react/hook-components/Data/Tree/types";
+import { OrgAdminFormModal } from '../components/OrgAdminFormModal';
+
 
 export function OrganisationsPage() {
     const { treeNodes, isLoading, error } = useOrganisations();
@@ -33,11 +35,14 @@ export function OrganisationsPage() {
     const [selectedFacilityId, setSelectedFacilityId] = useState<string>('');
     const [search, setSearch] = useState('');
     const { pushAction } = useActionHistory();
+    const [modalAdminOpen, setModalAdminOpen] = useState(false);
+
 
     const openAddModal = () => {
         setModalCreateOpen(true);
         pushAction(() => setModalCreateOpen(false));
     };
+
 
     const handleAction = (action: string, node: TreeNode) => {
         switch (action) {
@@ -70,7 +75,8 @@ export function OrganisationsPage() {
                 pushAction(() => setModalCreateDepOpen(false));
                 break;
             case 'add-admin':
-                console.log('Ajouter admin pour', node.label);
+                setModalAdminOpen(true);
+                pushAction(() => setModalAdminOpen(false));
                 break;
             case 'suspend':
                 console.log('Suspendre', node.label);
@@ -146,6 +152,10 @@ export function OrganisationsPage() {
                     department={editingDep}
                 />
             )}
+            <OrgAdminFormModal
+                isOpen={modalAdminOpen}
+                onClose={() => setModalAdminOpen(false)}
+            />
         </div>
     );
 }
