@@ -13,6 +13,7 @@ import {
 } from '../components/OrganisationIcons';
 import { CreateOrganisationPayload } from "@/react/features/root/organisations/types";
 import { Establishment } from '../types/establishment';
+import { Department } from '../types/department';
 
 export async function fetchOrganisations(): Promise<TreeNode[]> {
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -45,6 +46,7 @@ export async function fetchOrganisations(): Promise<TreeNode[]> {
                     label: 'Bâtiment principal',
                     icon: React.createElement(HospitalIcon),
                     data: {
+                        dataType: 'establishment',
                         id: 'est1',
                         organizationId: 'org1',
                         name: 'Bâtiment principal',
@@ -57,8 +59,18 @@ export async function fetchOrganisations(): Promise<TreeNode[]> {
                         },
                     } as Establishment,
                     children: [
-                        { id: 'dep1', label: 'Diabétologie', icon: React.createElement(DiabetesIcon) },
-                        { id: 'dep2', label: 'Nutrition', icon: React.createElement(NutritionIcon) },
+                        {
+                            id: 'dep1',
+                            label: 'Diabétologie',
+                            icon: React.createElement(DiabetesIcon),
+                            data: {
+                                dataType: 'department',
+                                id: 'dep1',
+                                facilityId: 'est1',
+                                name: 'Diabétologie',
+                                specialty: 'Endocrinologie',
+                            } as Department & { dataType?: string },
+                        }
                     ],
                 },
                 {
@@ -66,6 +78,7 @@ export async function fetchOrganisations(): Promise<TreeNode[]> {
                     label: 'Annexe',
                     icon: React.createElement(HospitalIcon),
                     data: {
+                        dataType: 'establishment',
                         id: 'est2',
                         organizationId: 'org1',
                         name: 'Annexe',
@@ -78,7 +91,18 @@ export async function fetchOrganisations(): Promise<TreeNode[]> {
                         },
                     } as Establishment,
                     children: [
-                        { id: 'dep3', label: 'Médecine générale', icon: React.createElement(GeneralMedicineIcon) },
+                        {
+                            id: 'dep3',
+                            label: 'Diabétologie',
+                            icon: React.createElement(DiabetesIcon),
+                            data: {
+                                dataType: 'department',
+                                id: 'dep1',
+                                facilityId: 'est1',
+                                name: 'Diabétologie',
+                                specialty: 'Endocrinologie',
+                            } as Department & { dataType?: string },
+                        }
                     ],
                 },
             ],

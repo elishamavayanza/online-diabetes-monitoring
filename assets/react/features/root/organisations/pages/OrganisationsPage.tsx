@@ -5,6 +5,8 @@ import { OrganisationFormModal } from '../components/OrganisationFormModal';
 import { OrganisationEditModal } from '../components/OrganisationEditModal';
 import { EstablishmentFormModal } from '../components/EstablishmentFormModal';
 import { EstablishmentEditModal } from '../components/EstablishmentEditModal';
+import { DepartmentFormModal } from '../components/DepartmentFormModal';
+import { DepartmentEditModal } from '../components/DepartmentEditModal';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
@@ -13,6 +15,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/root/organisations/_organisations.scss';
 import { CreateOrganisationPayload } from '../types';
 import { Establishment } from '../types/establishment';
+import { Department } from '../types/department';
 import { TreeNode } from "@/react/hook-components/Data/Tree/types";
 
 export function OrganisationsPage() {
@@ -24,6 +27,10 @@ export function OrganisationsPage() {
     const [modalEditEstOpen, setModalEditEstOpen] = useState(false);
     const [editingEst, setEditingEst] = useState<Establishment | null>(null);
     const [selectedOrgId, setSelectedOrgId] = useState<string>('');
+    const [modalCreateDepOpen, setModalCreateDepOpen] = useState(false);
+    const [modalEditDepOpen, setModalEditDepOpen] = useState(false);
+    const [editingDep, setEditingDep] = useState<Department | null>(null);
+    const [selectedFacilityId, setSelectedFacilityId] = useState<string>('');
     const [search, setSearch] = useState('');
     const { pushAction } = useActionHistory();
 
@@ -45,6 +52,10 @@ export function OrganisationsPage() {
                         setEditingEst(data as unknown as Establishment);
                         setModalEditEstOpen(true);
                         pushAction(() => setModalEditEstOpen(false));
+                    } else if (data.dataType === 'department') {
+                        setEditingDep(data as unknown as Department);
+                        setModalEditDepOpen(true);
+                        pushAction(() => setModalEditDepOpen(false));
                     }
                 }
                 break;
@@ -54,7 +65,9 @@ export function OrganisationsPage() {
                 pushAction(() => setModalCreateEstOpen(false));
                 break;
             case 'add-department':
-                console.log('Ajouter département pour', node.label);
+                setSelectedFacilityId(node.id);
+                setModalCreateDepOpen(true);
+                pushAction(() => setModalCreateDepOpen(false));
                 break;
             case 'add-admin':
                 console.log('Ajouter admin pour', node.label);
@@ -117,6 +130,20 @@ export function OrganisationsPage() {
                     isOpen={modalEditEstOpen}
                     onClose={() => setModalEditEstOpen(false)}
                     establishment={editingEst}
+                />
+            )}
+
+            {/* Modales département */}
+            <DepartmentFormModal
+                isOpen={modalCreateDepOpen}
+                onClose={() => setModalCreateDepOpen(false)}
+                facilityId={selectedFacilityId}
+            />
+            {editingDep && (
+                <DepartmentEditModal
+                    isOpen={modalEditDepOpen}
+                    onClose={() => setModalEditDepOpen(false)}
+                    department={editingDep}
                 />
             )}
         </div>
