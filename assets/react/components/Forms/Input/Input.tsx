@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { useInput, UseInputProps } from '../../../hook-components/Forms/Input';
+import { useInput, UseInputProps } from '@/react/hook-components/Forms/Input';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement>, UseInputProps {
     icon?: React.ReactNode;
@@ -32,7 +32,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         });
 
         return (
-            <div className={`${classes} input-field__wrapper`}>
+            <div className="input-field__wrapper">
                 {icon && iconPosition === 'left' && (
                     <span className="input-field__icon input-field__icon--left" aria-hidden="true">
             {icon}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useModal, UseModalProps } from '../../../hook-components/UI/Modal';
+import { useModal, UseModalProps } from '@/react/hook-components/UI/Modal';
 
 export interface ModalProps extends UseModalProps {
     title?: React.ReactNode;

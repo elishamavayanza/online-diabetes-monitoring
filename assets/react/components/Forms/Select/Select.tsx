@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { useSelect, UseSelectProps } from '../../../hook-components/Forms/Select';
+import { useSelect, UseSelectProps } from '@/react/hook-components/Forms/Select';
 
 export interface SelectOption {
     value: string | number;
@@ -36,7 +36,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         });
 
         return (
-            <div className={`${classes}__wrapper`}>
+            <div className="select-field__wrapper">
                 <select
                     ref={ref}
                     className={classes}

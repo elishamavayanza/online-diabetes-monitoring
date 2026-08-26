@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFormField, UseFormFieldProps } from '../../../hook-components/Forms/FormField';
+import { useFormField, UseFormFieldProps } from '@/react/hook-components/Forms/FormField';
 
 export interface FormFieldProps extends UseFormFieldProps {
     children: React.ReactNode;

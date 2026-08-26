@@ -8,22 +8,22 @@
    ============================================================ */
 .select-field {
     width: 100%;
-    padding: 0.75rem 2.5rem 0.75rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    background-color: var(--color-surface);
+    padding: 0.5rem 2.5rem 0.5rem 1rem;                       // espace pour la flèche
+    border: 1px solid var(--color-border);                    // ✅ UNE seule bordure
+    border-radius: 0.5rem;                                     // ✅ forme pilule
+    background-color: color-mix(in srgb, var(--color-surface) 35%, transparent);
     color: var(--color-text);
     font-family: inherit;
     font-size: 1rem;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
 
     &:focus {
         outline: none;
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 44, 122, 123), 0.2);
+        background-color: color-mix(in srgb, var(--color-surface) 50%, transparent);
     }
 
     &:hover:not(:disabled):not(:focus) {
@@ -33,14 +33,14 @@
     &--error {
         border-color: var(--color-error);
         &:focus {
-            box-shadow: 0 0 0 3px rgba(var(--color-error-rgb, 231, 74, 59), 0.2);
+            background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
         }
     }
 
     &--success {
         border-color: var(--color-success);
         &:focus {
-            box-shadow: 0 0 0 3px rgba(var(--color-success-rgb, 76, 185, 68), 0.2);
+            background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
         }
     }
 
@@ -55,7 +55,7 @@
     }
 
     &--disabled {
-        background-color: rgba(0, 0, 0, 0.05);
+        background-color: color-mix(in srgb, var(--color-surface) 20%, transparent);
         cursor: not-allowed;
         opacity: 0.7;
     }
@@ -67,7 +67,7 @@
     /* Flèche personnalisée */
     &__wrapper {
         position: relative;
-        display: inline-flex;
+        display: flex;                  // ✅ flex
         align-items: center;
         width: 100%;
     }
