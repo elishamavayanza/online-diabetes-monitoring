@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { useTree } from '../../../hook-components/Data/Tree/useTree';
-import { TreeNode, TreeProps } from '../../../hook-components/Data/Tree/types';
+import { useTree } from '@/react/hook-components/Data/Tree/useTree';
+import { TreeNode, TreeProps } from '@/react/hook-components/Data/Tree/types';
 import '../../../../styles/components/Data/Tree.scss';
 
 const ChevronIcon = () => (

@@ -18,7 +18,7 @@ import { Establishment } from '../types/establishment';
 import { Department } from '../types/department';
 import { TreeNode } from "@/react/hook-components/Data/Tree/types";
 import { OrgAdminFormModal } from '../components/OrgAdminFormModal';
-
+import { NodeDetailsPanel } from '../components/NodeDetailsPanel';
 
 export function OrganisationsPage() {
     const { treeNodes, isLoading, error } = useOrganisations();
@@ -36,11 +36,17 @@ export function OrganisationsPage() {
     const [search, setSearch] = useState('');
     const { pushAction } = useActionHistory();
     const [modalAdminOpen, setModalAdminOpen] = useState(false);
-
+    const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const openAddModal = () => {
         setModalCreateOpen(true);
         pushAction(() => setModalCreateOpen(false));
+    };
+
+    const handleNodeClick = (node: TreeNode) => {
+        setSelectedNode(node);
+        setIsDrawerOpen(true);
     };
 
 
@@ -110,6 +116,7 @@ export function OrganisationsPage() {
                 treeNodes={treeNodes}
                 filter={search}
                 onAction={handleAction}
+                onNodeClick={handleNodeClick}
             />
 
             {/* Modales organisation */}
@@ -155,6 +162,12 @@ export function OrganisationsPage() {
             <OrgAdminFormModal
                 isOpen={modalAdminOpen}
                 onClose={() => setModalAdminOpen(false)}
+            />
+
+            <NodeDetailsPanel
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                node={selectedNode}
             />
         </div>
     );

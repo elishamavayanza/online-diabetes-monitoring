@@ -15,9 +15,10 @@ interface OrganisationsTreeProps {
     treeNodes: TreeNode[];
     filter?: string;
     onAction?: (action: string, node: TreeNode) => void;
+    onNodeClick?: (node: TreeNode) => void;
 }
 
-// ✅ Composant local pour bouton avec tooltip
+//  Composant local pour bouton avec tooltip
 function ActionButton({
                           label,
                           onClick,
@@ -40,7 +41,7 @@ function ActionButton({
     );
 }
 
-export function OrganisationsTree({ treeNodes, filter, onAction }: OrganisationsTreeProps) {
+export function OrganisationsTree({ treeNodes, filter, onAction, onNodeClick }: OrganisationsTreeProps) {
     const enhanceNodes = (nodes: TreeNode[], level: number): TreeNode[] => {
         return nodes.map((node) => {
             let actions: React.ReactNode = null;
@@ -105,7 +106,9 @@ export function OrganisationsTree({ treeNodes, filter, onAction }: Organisations
                 nodes={enhancedNodes}
                 filter={filter}
                 selectable
-                onNodeClick={(node: TreeNode) => console.log('Clic simple', node.label)}
+                onNodeClick={(node) => {
+                    onNodeClick?.(node);
+                }}
                 onNodeDoubleClick={(node: TreeNode) => console.log('Double clic', node.label)}
                 showLines
                 variant="bordered"
