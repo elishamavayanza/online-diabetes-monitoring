@@ -3,10 +3,12 @@ import { AppointmentsTable } from '../components/AppointmentsTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Tabs } from '@/react/components/Navigation/Tabs';
+import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/nutritionist/appointments/_appointments.scss';
 
 export function AppointmentsPages() {
     const { appointments, filter, setFilter, isLoading, error } = useAppointments();
+    const { pushAction } = useActionHistory();
 
     const tabs = [
         { id: 'today', label: "Aujourd'hui" },
@@ -14,6 +16,12 @@ export function AppointmentsPages() {
         { id: 'completed', label: 'Terminés' },
         { id: 'cancelled', label: 'Annulés' },
     ];
+
+    const handleFilterChange = (newFilter: string) => {
+        const previousFilter = filter;
+        setFilter(newFilter as typeof filter);
+        pushAction(() => setFilter(previousFilter));
+    };
 
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
@@ -27,7 +35,7 @@ export function AppointmentsPages() {
             <Tabs
                 tabs={tabs}
                 defaultActiveTabId={filter}
-                onChange={(id) => setFilter(id as typeof filter)}
+                onChange={handleFilterChange}
             />
             <AppointmentsTable appointments={appointments} />
         </div>

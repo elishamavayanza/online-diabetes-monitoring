@@ -3,10 +3,12 @@ import { UsersTable } from '../components/UsersTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Tabs } from '@/react/components/Navigation/Tabs';
+import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/root/users/_users.scss';
 
 export function UsersPage() {
     const { users, filter, setFilter, isLoading, error } = useUsers();
+    const { pushAction } = useActionHistory();
 
     const tabs = [
         { id: 'Tous', label: 'Tous' },
@@ -14,6 +16,13 @@ export function UsersPage() {
         { id: 'Patients', label: 'Patients' },
         { id: 'Administrateurs', label: 'Administrateurs' },
     ];
+
+    const handleFilterChange = (newFilter: string) => {
+        const previousFilter = filter;
+        setFilter(newFilter as typeof filter);
+        // Action inverse : restaurer l'ancien filtre
+        pushAction(() => setFilter(previousFilter));
+    };
 
     if (isLoading) {
         return <Spinner />;
@@ -32,7 +41,7 @@ export function UsersPage() {
             <Tabs
                 tabs={tabs}
                 defaultActiveTabId={filter}
-                onChange={(id) => setFilter(id as typeof filter)}
+                onChange={handleFilterChange}
             />
             <UsersTable users={users} />
         </div>

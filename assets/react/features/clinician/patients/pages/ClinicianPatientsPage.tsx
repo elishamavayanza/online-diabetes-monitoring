@@ -3,18 +3,21 @@ import { PatientsTable } from '../components/PatientsTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Input } from '@/react/components/Forms/Input';
+import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/patients/_patients.scss';
 
 export function ClinicianPatientsPage() {
     const { patients, search, setSearch, isLoading, error } = useClinicianPatients();
+    const { pushAction } = useActionHistory();
 
-    if (isLoading) {
-        return <Spinner />;
-    }
+    const handleSearchChange = (newSearch: string) => {
+        const previousSearch = search;
+        setSearch(newSearch);
+        pushAction(() => setSearch(previousSearch));
+    };
 
-    if (error) {
-        return <Alert variant="error">{error}</Alert>;
-    }
+    if (isLoading) return <Spinner />;
+    if (error) return <Alert variant="error">{error}</Alert>;
 
     return (
         <div className="clinician-patients-page">
@@ -23,7 +26,7 @@ export function ClinicianPatientsPage() {
                 <Input
                     placeholder="Rechercher un patient..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                 />
             </div>
             <PatientsTable patients={patients} />

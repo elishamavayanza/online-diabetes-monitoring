@@ -3,10 +3,12 @@ import { AppointmentsTable } from '../components/AppointmentsTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Tabs } from '@/react/components/Navigation/Tabs';
+import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/appointments/_appointments.scss';
 
 export function AppointmentPage() {
     const { appointments, filter, setFilter, isLoading, error } = useAppointments();
+    const { pushAction } = useActionHistory();
 
     const tabs = [
         { id: 'today', label: "Aujourd'hui" },
@@ -15,13 +17,14 @@ export function AppointmentPage() {
         { id: 'cancelled', label: 'Annulés' },
     ];
 
-    if (isLoading) {
-        return <Spinner />;
-    }
+    const handleFilterChange = (newFilter: string) => {
+        const previousFilter = filter;
+        setFilter(newFilter as typeof filter);
+        pushAction(() => setFilter(previousFilter));
+    };
 
-    if (error) {
-        return <Alert variant="error">{error}</Alert>;
-    }
+    if (isLoading) return <Spinner />;
+    if (error) return <Alert variant="error">{error}</Alert>;
 
     return (
         <div className="clinician-appointments-page">
@@ -33,7 +36,7 @@ export function AppointmentPage() {
             <Tabs
                 tabs={tabs}
                 defaultActiveTabId={filter}
-                onChange={(id) => setFilter(id as typeof filter)}
+                onChange={handleFilterChange}
             />
 
             <AppointmentsTable appointments={appointments} />

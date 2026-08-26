@@ -14,6 +14,7 @@ import { useIsMobile } from '@/react/hooks/useIsMobile';
 import { useIsPortrait } from '@/react/hooks/useIsPortrait';
 import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useActionHistory } from './contexts/ActionHistoryContext';
 
 // ---------- Icônes hamburger / fermer ----------
 const MenuIcon = () => (
@@ -73,6 +74,7 @@ export function MainLayout({
     const isPortrait = useIsPortrait();
     const location = useLocation();
     const navigate = useNavigate();
+    const { undoLastAction } = useActionHistory();
 
     const isCompact = isMobile || isPortrait;
 
@@ -123,6 +125,13 @@ export function MainLayout({
             setMobileSidebarOpen(false);
         }
         sidebarTouchStart.current = null;
+    };
+
+    const handleBack = () => {
+        const undone = undoLastAction();
+        if (!undone) {
+            navigate(-1);
+        }
     };
     // --------------------------------------------------------
 
@@ -243,7 +252,7 @@ export function MainLayout({
                             {!mobileSidebarOpen && (
                                 <button
                                     className="main-layout__back-button"
-                                    onClick={() => navigate(-1)}
+                                    onClick={handleBack}
                                     aria-label="Retour à la page précédente"
                                     title="Retour"
                                 >

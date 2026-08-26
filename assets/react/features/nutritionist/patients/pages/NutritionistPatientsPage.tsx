@@ -3,10 +3,19 @@ import { NutritionistPatientsTable } from '../components/NutritionistPatientsTab
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Input } from '@/react/components/Forms/Input';
+import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/nutritionist/patients/_patients.scss';
 
 export function NutritionistPatientsPage() {
     const { patients, search, setSearch, isLoading, error } = useNutritionistPatients();
+    const { pushAction } = useActionHistory();
+
+    const handleSearchChange = (newSearch: string) => {
+        const previousSearch = search;
+        setSearch(newSearch);
+        // Enregistre l'action inverse : restaurer l'ancienne recherche
+        pushAction(() => setSearch(previousSearch));
+    };
 
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
@@ -18,7 +27,7 @@ export function NutritionistPatientsPage() {
                 <Input
                     placeholder="Rechercher un patient..."
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                 />
             </div>
             <NutritionistPatientsTable patients={patients} />
