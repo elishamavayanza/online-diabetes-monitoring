@@ -1,0 +1,130 @@
+@use '../../baseVariables/variables' as *;
+@use '../../baseVariables/mixins' as *;
+
+.tree {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &--default {
+        background: transparent;
+    }
+
+    &--bordered {
+        border: 1px solid var(--color-border);
+        border-radius: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    &--ghost {
+        background: transparent;
+    }
+
+    &--lines {
+        .tree-node__children {
+            border-left: 1px dashed var(--color-border);
+            margin-left: 12px;
+            padding-left: 8px;
+        }
+    }
+
+    &__empty {
+        padding: 1rem;
+        text-align: center;
+        color: var(--color-text);
+        opacity: 0.6;
+    }
+}
+
+.tree-node-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.tree-node {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s, color 0.2s;
+    cursor: pointer;
+
+    &--small {
+        font-size: 0.875rem;
+        padding: 0.3rem 0.4rem;
+        .tree-node__icon svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    &--medium {
+        font-size: 1rem;
+    }
+
+    &--large {
+        font-size: 1.125rem;
+        padding: 0.5rem 0.75rem;
+        .tree-node__icon svg {
+            width: 22px;
+            height: 22px;
+        }
+    }
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    &--selected {
+        background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.15);
+        color: var(--color-primary);
+    }
+
+    &--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
+    &__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        color: inherit;
+        transition: transform 0.2s;
+
+        &--expanded {
+            transform: rotate(90deg);
+        }
+    }
+
+    &__toggle-placeholder {
+        width: 16px;
+        height: 16px;
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        color: var(--color-text);
+        opacity: 0.7;
+        flex-shrink: 0;
+    }
+
+    &__label {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__actions {
+        display: inline-flex;
+        gap: 0.25rem;
+        flex-shrink: 0;
+    }
+}

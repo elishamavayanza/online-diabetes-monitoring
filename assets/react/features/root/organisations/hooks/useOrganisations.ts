@@ -1,9 +1,10 @@
+// hooks/useOrganisations.ts
 import { useEffect, useState } from 'react';
 import { fetchOrganisations } from '../services/organisationsService';
-import { Organisation } from '../types';
+import {TreeNode} from "@/react/hook-components/Data/Tree/types";
 
 export function useOrganisations() {
-    const [organisations, setOrganisations] = useState<Organisation[]>([]);
+    const [treeNodes, setTreeNodes] = useState<TreeNode[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +12,7 @@ export function useOrganisations() {
         const load = async () => {
             try {
                 const data = await fetchOrganisations();
-                setOrganisations(data.organisations);
+                setTreeNodes(data);
             } catch (err) {
                 setError('Impossible de charger les organisations.');
             } finally {
@@ -21,5 +22,5 @@ export function useOrganisations() {
         load();
     }, []);
 
-    return { organisations, isLoading, error };
+    return { treeNodes, isLoading, error };
 }

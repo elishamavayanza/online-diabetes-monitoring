@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useOrganisations } from '../hooks/useOrganisations';
-import { OrganisationsTable } from '../components/OrganisationsTable';
+import { OrganisationsTree } from '../components/OrganisationsTree';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
@@ -10,7 +10,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/root/organisations/_organisations.scss';
 
 export function OrganisationsPage() {
-    const { organisations, isLoading, error } = useOrganisations();
+    const { treeNodes, isLoading, error } = useOrganisations();
     const [modalOpen, setModalOpen] = useState(false);
     const [search, setSearch] = useState('');
     const { pushAction } = useActionHistory();
@@ -20,18 +20,8 @@ export function OrganisationsPage() {
         pushAction(() => setModalOpen(false));
     };
 
-    // Filtrer les organisations selon la recherche
-    const filteredOrganisations = organisations.filter((org) =>
-        org.nom.toLowerCase().includes(search.toLowerCase())
-    );
-
-    if (isLoading) {
-        return <Spinner />;
-    }
-
-    if (error) {
-        return <Alert variant="error">{error}</Alert>;
-    }
+    if (isLoading) return <Spinner />;
+    if (error) return <Alert variant="error">{error}</Alert>;
 
     return (
         <div className="organisations-page">
@@ -40,21 +30,20 @@ export function OrganisationsPage() {
                 <p>Liste de toutes les organisations de la plateforme</p>
             </div>
 
-            {/* Rangée recherche + bouton */}
             <div className="organisations-page__actions">
-                <div className="organisations-page__search">
-                    <SearchInput
-                        placeholder="Rechercher une organisation..."
-                        value={search}
-                        onSearch={(value: string) => setSearch(value)}
-                    />
-                </div>
+                <SearchInput
+                    placeholder="Rechercher une organisation..."
+                    value={search}
+                    onSearch={(value) => setSearch(value)}
+                    className="organisations-page__search"
+                />
                 <Button onClick={openAddModal} className="organisations-page__add-btn">
                     Ajouter une organisation
                 </Button>
             </div>
 
-            <OrganisationsTable organisations={filteredOrganisations} />
+            {/* Le composant OrganisationsTree gère l'affichage en arbre */}
+            <OrganisationsTree treeNodes={treeNodes} filter={search} />
 
             {modalOpen && (
                 <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>

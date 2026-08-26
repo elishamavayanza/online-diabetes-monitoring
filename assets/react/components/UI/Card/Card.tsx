@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCard, UseCardProps } from '../../../hook-components/UI/Card';
+import { useCard, UseCardProps } from '@/react/hook-components/UI/Card';
 
 export interface CardProps extends UseCardProps {
     header?: React.ReactNode;
