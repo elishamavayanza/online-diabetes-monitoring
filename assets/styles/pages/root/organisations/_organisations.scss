@@ -39,6 +39,24 @@
     }
 }
 
+.organisation-form-modal {
+    // ... autres styles existants
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;   // aligne les boutons à droite
+        gap: 1rem;                   // espace entre les boutons
+        margin-top: 1.5rem;
+    }
+
+    // Optionnel : disposer les champs d'adresse en grille
+    &__address {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+}
+
 .organisations-card {
     @include card;
 }

@@ -11,17 +11,21 @@
 
 .tooltip {
     position: absolute;
-    background-color: var(--color-text);
-    color: var(--color-surface);
+    background-color: color-mix(in srgb, var(--color-primary) 85%, transparent);
+    color: var(--color-on-primary);
     padding: 0.4rem 0.75rem;
-    border-radius: 0.25rem;
+    border-radius: 0.5rem;
     font-size: 0.875rem;
+    font-weight: 500;
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.2s, visibility 0.2s;
+    transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
     z-index: 3000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    // ✅ léger flou pour l'esthétique
+    backdrop-filter: blur(4px);
 
     &--visible {
         opacity: 1;

@@ -1,17 +1,7 @@
 import React from 'react';
-import {TreeNode} from "@/react/hook-components/Data/Tree/types";
-
-import {
-    OrganisationIcon,
-    HospitalIcon,
-    DiabetesIcon,
-    NutritionIcon,
-    GeneralMedicineIcon,
-    CardiologyIcon,
-    LaboratoryIcon,
-    MobileUnitIcon,
-    HomeCareIcon,
-} from '../components/OrganisationIcons';
+import { TreeNode } from "@/react/hook-components/Data/Tree/types";
+import { OrganisationIcon, HospitalIcon, DiabetesIcon, NutritionIcon, GeneralMedicineIcon, CardiologyIcon, LaboratoryIcon, MobileUnitIcon, HomeCareIcon } from '../components/OrganisationIcons';
+import { CreateOrganisationPayload } from "@/react/features/root/organisations/types";
 
 export async function fetchOrganisations(): Promise<TreeNode[]> {
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -21,19 +11,36 @@ export async function fetchOrganisations(): Promise<TreeNode[]> {
             id: 'org1',
             label: 'Clinique A',
             icon: React.createElement(OrganisationIcon),
-            children: [
-                {
-                    id: 'est1',
-                    label: 'Bâtiment principal',
-                    icon: React.createElement(HospitalIcon),
-                    children: [
-                        { id: 'dep1', label: 'Diabétologie', icon: React.createElement(DiabetesIcon) },
-                        { id: 'dep2', label: 'Nutrition', icon: React.createElement(NutritionIcon) },
-                    ],
+            data: {
+                name: 'Clinique A',
+                shortName: 'CA',
+                type: 'CLINIC',
+                email: 'contact@cliniquea.com',
+                phone: '+243990000001',
+                website: 'https://www.cliniquea.com',
+                logoUrl: '',
+                active: true,
+                address: {
+                    street: '12 rue de la Santé',
+                    city: 'Goma',
+                    postalCode: '00243',
+                    country: 'RDC',
                 },
-                // ...
-            ],
+            } as CreateOrganisationPayload,
+            children: [ /* ... */ ],
         },
         // ...
     ];
+}
+
+export async function createOrganisation(payload: CreateOrganisationPayload): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log('Organisation créée', payload);
+    // À remplacer par un vrai appel API
+}
+
+export async function updateOrganisation(payload: CreateOrganisationPayload): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log('Organisation mise à jour', payload);
+    // À remplacer par un vrai appel API
 }
