@@ -54,10 +54,10 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
         });
 
         return (
-            <div className={`${classes}__wrapper`}>
-        <span className="search-input__icon" aria-hidden="true">
-          {icon}
-        </span>
+            <div className="search-input__wrapper">
+                <span className="search-input__icon" aria-hidden="true">
+                    {icon}
+                </span>
                 <input
                     ref={ref}
                     type="search"

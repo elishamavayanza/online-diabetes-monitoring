@@ -6,16 +6,17 @@
 /* ============================================================
    Champ de recherche – SearchInput
    ============================================================ */
+
 .search-input {
     width: 100%;
-    padding: 0.75rem 2.5rem 0.75rem 2.5rem;
-    border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
-    background-color: var(--color-surface);
+    padding: 0.5rem 2.5rem 0.5rem 2.5rem;   // ✅ espace gauche/droit pour icône et bouton clear
+    border: 1px solid var(--color-border);  // ✅ UNE seule bordure, tout autour
+    background-color: color-mix(in srgb, var(--color-surface) 35%, transparent); // ✅ fond semi-transparent
+    border-radius: 999px;                   // ✅ forme pilule / demi-cercle
     color: var(--color-text);
     font-family: inherit;
     font-size: 1rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
 
     &::placeholder {
         color: rgba(var(--color-text-rgb, 30, 42, 50), 0.4);
@@ -28,7 +29,7 @@
     &:focus {
         outline: none;
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 44, 122, 123), 0.2);
+        background-color: color-mix(in srgb, var(--color-surface) 50%, transparent); // léger renforcement
     }
 
     &:hover:not(:disabled):not(:focus) {
@@ -38,29 +39,31 @@
     &--error {
         border-color: var(--color-error);
         &:focus {
-            box-shadow: 0 0 0 3px rgba(var(--color-error-rgb, 231, 74, 59), 0.2);
+            border-color: var(--color-error);
+            background-color: color-mix(in srgb, var(--color-error) 10%, transparent);
         }
     }
 
     &--success {
         border-color: var(--color-success);
         &:focus {
-            box-shadow: 0 0 0 3px rgba(var(--color-success-rgb, 76, 185, 68), 0.2);
+            border-color: var(--color-success);
+            background-color: color-mix(in srgb, var(--color-success) 10%, transparent);
         }
     }
 
     &--small {
-        padding: 0.4rem 2rem;
+        padding: 0.4rem 2rem 0.4rem 2rem;
         font-size: 0.875rem;
     }
 
     &--large {
-        padding: 1rem 3rem;
+        padding: 1rem 3rem 1rem 3rem;
         font-size: 1.125rem;
     }
 
     &--disabled {
-        background-color: rgba(0, 0, 0, 0.05);
+        background-color: color-mix(in srgb, var(--color-surface) 20%, transparent);
         cursor: not-allowed;
         opacity: 0.7;
     }
@@ -68,41 +71,42 @@
     &--full-width {
         width: 100%;
     }
+}
 
-    &__wrapper {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        width: 100%;
-    }
+.search-input__wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
 
-    &__icon {
-        position: absolute;
-        left: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        display: inline-flex;
-        align-items: center;
-        pointer-events: none;
-        color: var(--color-text);
-        opacity: 0.6;
-    }
+.search-input__icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    pointer-events: none;
+    color: var(--color-text);
+    opacity: 0.6;
+}
 
-    &__clear {
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0.25rem;
-        color: var(--color-text);
-        opacity: 0.6;
-        display: inline-flex;
-        align-items: center;
-        &:hover {
-            opacity: 1;
-        }
+.search-input__clear {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: var(--color-text);
+    opacity: 0.6;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+        opacity: 1;
     }
 }
