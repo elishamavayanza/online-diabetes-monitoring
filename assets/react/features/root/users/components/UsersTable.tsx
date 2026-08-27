@@ -6,7 +6,7 @@ import { User } from '../types';
 
 interface UsersTableProps {
     users: User[];
-    onViewDetails: (user: User) => void;   // ✅ nouveau
+    onViewDetails: (user: User) => void;
 }
 
 export function UsersTable({ users, onViewDetails }: UsersTableProps) {
@@ -46,7 +46,7 @@ export function UsersTable({ users, onViewDetails }: UsersTableProps) {
                 <Button
                     variant="secondary"
                     size="small"
-                    onClick={() => onViewDetails(row)}   // déclenche le détail
+                    onClick={() => onViewDetails(row)}
                 >
                     Détails
                 </Button>
@@ -56,7 +56,11 @@ export function UsersTable({ users, onViewDetails }: UsersTableProps) {
 
     return (
         <Card className="users-card">
-            <DataTable columns={columns} data={users} />
+            <DataTable
+                columns={columns}
+                data={users}
+                pageSize={10}   // active la pagination
+            />
         </Card>
     );
 }

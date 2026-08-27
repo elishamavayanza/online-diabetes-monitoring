@@ -15,7 +15,11 @@ export function UsersByRoleTable({ users }: UsersByRoleTableProps) {
     return (
         <Card className="users-by-role">
             <h3>Utilisateurs concernés</h3>
-            <DataTable columns={columns} data={users} />
+            <DataTable
+                columns={columns}
+                data={users}
+                pageSize={5}    // active la pagination (5 par page)
+            />
         </Card>
     );
 }

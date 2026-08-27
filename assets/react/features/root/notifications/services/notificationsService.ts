@@ -1,4 +1,8 @@
-import { Notification, NotificationFilter, NotificationType } from '../types';
+import {
+    Notification,
+    NotificationFilter,
+    CreateSystemNotificationPayload,
+} from '../types';
 
 export async function fetchNotifications(filter: NotificationFilter): Promise<Notification[]> {
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -46,4 +50,10 @@ export async function fetchNotifications(filter: NotificationFilter): Promise<No
         default:
             return all;
     }
+}
+
+export async function publishSystemNotification(payload: CreateSystemNotificationPayload): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log('Notification système publiée', payload);
+    // Appel API réel à implémenter
 }
