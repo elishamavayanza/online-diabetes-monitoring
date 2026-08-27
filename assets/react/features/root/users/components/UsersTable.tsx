@@ -6,14 +6,24 @@ import { User } from '../types';
 
 interface UsersTableProps {
     users: User[];
+    onViewDetails: (user: User) => void;   // ✅ nouveau
 }
 
-export function UsersTable({ users }: UsersTableProps) {
+export function UsersTable({ users, onViewDetails }: UsersTableProps) {
     const columns = [
         { key: 'nom', title: 'Nom' },
         { key: 'email', title: 'Email' },
         { key: 'type', title: 'Type' },
-        { key: 'organisation', title: 'Organisation', render: (row: User) => row.organisation ?? '—' },
+        {
+            key: 'organisation',
+            title: 'Organisation',
+            render: (row: User) =>
+                row.organisation ? (
+                    <Badge variant="success">{row.organisation}</Badge>
+                ) : (
+                    <Badge variant="warning">Non affecté</Badge>
+                ),
+        },
         {
             key: 'statut',
             title: 'Statut',
@@ -33,7 +43,11 @@ export function UsersTable({ users }: UsersTableProps) {
             key: 'actions',
             title: 'Actions',
             render: (row: User) => (
-                <Button variant="secondary" size="small" onClick={() => console.log('Voir', row.id)}>
+                <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={() => onViewDetails(row)}   // déclenche le détail
+                >
                     Détails
                 </Button>
             ),
@@ -42,10 +56,7 @@ export function UsersTable({ users }: UsersTableProps) {
 
     return (
         <Card className="users-card">
-            <DataTable
-                columns={columns}
-                data={users}
-            />
+            <DataTable columns={columns} data={users} />
         </Card>
     );
 }

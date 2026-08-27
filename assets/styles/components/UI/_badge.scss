@@ -105,3 +105,13 @@
         }
     }
 }
+.badge--affectation {
+    &-active {
+        background-color: var(--color-success);
+        color: white;
+    }
+    &-pending {
+        background-color: var(--color-warning);
+        color: var(--color-on-warning);
+    }
+}

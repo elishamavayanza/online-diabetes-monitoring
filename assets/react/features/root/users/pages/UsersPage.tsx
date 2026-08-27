@@ -6,10 +6,11 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Tabs } from '@/react/components/Navigation/Tabs';
 import { Button } from '@/react/components/UI/Button';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
-import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/root/users/_users.scss';
 import { UserFormModal } from '../components/UserFormModal';
+import { UserDetailsDrawer } from '../components/UserDetailsDrawer';
+import { User } from '../types'; //  import du type User
 
 const FilterIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -18,19 +19,22 @@ const FilterIcon = () => (
 );
 
 export function UsersPage() {
-    const { users, filter, setFilter, isLoading, error } = useUsers();
+    const { users, isLoading, error } = useUsers();
     const { pushAction } = useActionHistory();
     const [search, setSearch] = useState('');
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [orgFilter, setOrgFilter] = useState<string>('');
     const [showOrgFilter, setShowOrgFilter] = useState(false);
-
+    const [activeTab, setActiveTab] = useState<string>('Tous');
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [detailsOpen, setDetailsOpen] = useState(false);
 
     const tabs = [
         { id: 'Tous', label: 'Tous' },
         { id: 'Professionnels', label: 'Professionnels' },
         { id: 'Patients', label: 'Patients' },
         { id: 'Administrateurs', label: 'Administrateurs' },
+        { id: 'Non affectés', label: 'Non affectés' },
     ];
 
     // Extraire la liste unique des organisations
@@ -38,10 +42,10 @@ export function UsersPage() {
         new Set(users.map((u) => u.organisation).filter((org): org is string => !!org))
     );
 
-    const handleFilterChange = (newFilter: string) => {
-        const previousFilter = filter;
-        setFilter(newFilter as typeof filter);
-        pushAction(() => setFilter(previousFilter));
+    const handleTabChange = (newTab: string) => {
+        const previousTab = activeTab;
+        setActiveTab(newTab);
+        pushAction(() => setActiveTab(previousTab));
     };
 
     const openCreateModal = () => {
@@ -49,7 +53,32 @@ export function UsersPage() {
         pushAction(() => setCreateModalOpen(false));
     };
 
-    // Filtrer les utilisateurs selon la recherche et le filtre organisation
+    const openDetails = (user: User) => {
+        setSelectedUser(user);
+        setDetailsOpen(true);
+    };
+
+    const closeDetails = () => {
+        setDetailsOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleAffect = (user: User) => {
+        console.log('Affecter', user);
+        // À implémenter : ouvrir une modale pour choisir l'organisation
+    };
+
+    const handleModify = (user: User) => {
+        console.log('Modifier', user);
+        // À implémenter : ouvrir UserFormModal en mode édition avec les données de l'utilisateur
+    };
+
+    const handleSuspend = (user: User) => {
+        console.log('Suspendre', user);
+        // À implémenter : appeler un service de suspension
+    };
+
+    // Filtrer les utilisateurs selon l'onglet actif, la recherche et le filtre organisation
     const filteredUsers = users.filter((user) => {
         const q = search.toLowerCase();
         const matchSearch =
@@ -60,7 +89,25 @@ export function UsersPage() {
 
         const matchOrg = orgFilter ? user.organisation === orgFilter : true;
 
-        return matchSearch && matchOrg;
+        let matchTab = true;
+        switch (activeTab) {
+            case 'Professionnels':
+                matchTab = user.type === 'Professional';
+                break;
+            case 'Patients':
+                matchTab = user.type === 'Patient';
+                break;
+            case 'Administrateurs':
+                matchTab = user.type === 'Administrator';
+                break;
+            case 'Non affectés':
+                matchTab = !user.organisation;
+                break;
+            default:
+                matchTab = true;
+        }
+
+        return matchSearch && matchOrg && matchTab;
     });
 
     if (isLoading) return <Spinner />;
@@ -126,19 +173,30 @@ export function UsersPage() {
 
             <Tabs
                 tabs={tabs}
-                defaultActiveTabId={filter}
-                onChange={handleFilterChange}
+                defaultActiveTabId={activeTab}
+                onChange={handleTabChange}
             />
-            <UsersTable users={filteredUsers} />
 
-            <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)}>
-                <p>Formulaire de création d'utilisateur à implémenter.</p>
-            </Modal>
+            <UsersTable
+                users={filteredUsers}
+                onViewDetails={openDetails}   // ✅ passage de la fonction
+            />
 
+            {/* Modale de création */}
             <UserFormModal
                 isOpen={createModalOpen}
                 onClose={() => setCreateModalOpen(false)}
                 mode="create"
+            />
+
+            {/* Drawer de détails */}
+            <UserDetailsDrawer
+                user={selectedUser}
+                isOpen={detailsOpen}
+                onClose={closeDetails}
+                onAffect={handleAffect}
+                onModify={handleModify}
+                onSuspend={handleSuspend}
             />
         </div>
     );

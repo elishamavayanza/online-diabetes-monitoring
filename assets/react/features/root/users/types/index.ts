@@ -8,6 +8,7 @@ export interface User {
     organisation: string | null;
     statut: 'Active' | 'Inactive' | 'Pending';
     derniereConnexion: string;
+    avatarUrl?: string;
 }
 
 export interface UsersFilters {
