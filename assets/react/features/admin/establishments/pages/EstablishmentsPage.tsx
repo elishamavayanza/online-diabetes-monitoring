@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';   // ✅
 import { useEstablishments, EstablishmentTreeNodeData } from '../hooks/useEstablishments';
 import { EstablishmentsTreeTable } from '../components/EstablishmentsTreeTable';
 import { EstablishmentDetailsDrawer } from '../components/EstablishmentDetailsDrawer';
@@ -21,33 +22,27 @@ import { Department as DisplayDepartment } from "@/react/features/admin/departme
 import { Establishment as FormEstablishment } from "@/react/features/root/organisations/types/establishment";
 import { Department as FormDepartment } from "@/react/features/root/organisations/types/department";
 
-// Fonction de conversion d'un établissement affichage vers formulaire
 function toFormEstablishment(est: DisplayEstablishment): FormEstablishment {
     return {
         id: est.id,
-        organizationId: 'current-org', // à adapter selon l'organisation réelle
+        organizationId: 'current-org',
         name: est.nom,
         phone: est.telephone,
-        address: {
-            street: est.adresse || '',
-            city: '',
-            postalCode: '',
-            country: 'RDC',
-        },
+        address: { street: est.adresse || '', city: '', postalCode: '', country: 'RDC' },
     };
 }
 
-// Fonction de conversion d'un département affichage vers formulaire
 function toFormDepartment(dep: DisplayDepartment): FormDepartment {
     return {
         id: dep.id,
-        facilityId: '', // à remplir si l'établissement parent est connu
+        facilityId: '',
         name: dep.nom,
         specialty: dep.specialite || '',
     };
 }
 
 export function EstablishmentsPage() {
+    const navigate = useNavigate();   // ✅
     const { treeNodes, isLoading, error } = useEstablishments();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -55,7 +50,6 @@ export function EstablishmentsPage() {
     const [selectedFacilityId, setSelectedFacilityId] = useState('');
     const [selectedNode, setSelectedNode] = useState<TreeTableNode<EstablishmentTreeNodeData> | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    // États pour l'édition – utilisent les types FORMULAIRES
     const [editingEstablishment, setEditingEstablishment] = useState<FormEstablishment | null>(null);
     const [isEstablishmentEditOpen, setIsEstablishmentEditOpen] = useState(false);
     const [editingDepartment, setEditingDepartment] = useState<FormDepartment | null>(null);
@@ -63,7 +57,6 @@ export function EstablishmentsPage() {
 
     const { pushAction } = useActionHistory();
     const { user } = useAuth();
-
     const organizationId = user?.organizationId ?? 'current-org';
 
     const openAddModal = () => {
@@ -86,15 +79,20 @@ export function EstablishmentsPage() {
 
     const handleModify = (node: TreeTableNode<EstablishmentTreeNodeData>) => {
         if (node.data?.type === 'establishment' && node.data.establishment) {
-            //  Conversion vers le type formulaire
             setEditingEstablishment(toFormEstablishment(node.data.establishment as DisplayEstablishment));
             setIsEstablishmentEditOpen(true);
         } else if (node.data?.type === 'department' && node.data.department) {
-            //  Conversion vers le type formulaire
             setEditingDepartment(toFormDepartment(node.data.department as DisplayDepartment));
             setIsDepartmentEditOpen(true);
         }
         setIsDrawerOpen(false);
+    };
+
+    // ✅ Double‑clic : redirige vers la page de détail
+    const handleDoubleClick = (node: TreeTableNode<EstablishmentTreeNodeData>) => {
+        const type = node.data?.type;
+        if (!type) return;
+        navigate(`/admin/establishments/${type}/${node.id}`);
     };
 
     if (isLoading) return <Spinner />;
@@ -125,21 +123,22 @@ export function EstablishmentsPage() {
                 filter={search}
                 onAddDepartment={openDepartmentModal}
                 onViewDetails={openDetailsDrawer}
+                onNodeDoubleClick={handleDoubleClick}
             />
 
+            {/* Modales création */}
             <EstablishmentFormModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 organizationId={organizationId}
             />
-
             <DepartmentFormModal
                 isOpen={isDepartmentModalOpen}
                 onClose={() => setIsDepartmentModalOpen(false)}
                 facilityId={selectedFacilityId}
             />
 
-            {/* Modales d'édition */}
+            {/* Modales édition */}
             {editingEstablishment && (
                 <EstablishmentEditModal
                     isOpen={isEstablishmentEditOpen}

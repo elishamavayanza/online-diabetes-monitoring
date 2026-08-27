@@ -14,7 +14,6 @@ import { NotificationsPage } from '@/react/features/root/notifications/pages/Not
 import { AuditPage } from '@/react/features/root/audit/pages/AuditPage';
 import { SettingsPage } from '@/react/features/root/settings/pages/SettingsPage';
 import { AdminDashboardPage } from '@/react/features/admin/dashboard/pages/AdminDashboardPage';
-import { EstablishmentsPage } from '@/react/features/admin/establishments/pages/EstablishmentsPage';
 import { DepartmentsPage } from '@/react/features/admin/departments/pages/DepartmentsPage';
 import { ProfessionalsPage } from '@/react/features/admin/professionals/pages/ProfessionalsPage';
 import { MembersPage } from '@/react/features/admin/members/pages/MembersPage';
@@ -48,6 +47,8 @@ import {PatientMessagesPage} from "@/react/features/patient/messages/pages/Patie
 import {PatientNotificationsPage} from "@/react/features/patient/notifications/pages/PatientNotificationsPage";
 import {TeamPage} from "@/react/features/patient/team/pages/TeamPage";
 import { ProfilePage } from '@/react/features/profile/pages/ProfilePage';
+import {EstablishmentDetailPage} from "@/react/features/admin/establishments/pages/EstablishmentDetailPage";
+import {EstablishmentsPage} from "@/react/features/admin/establishments/pages/EstablishmentsPage";
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -150,6 +151,7 @@ export default function AppRoutes() {
                     <Route path="activity" element={<ActivityPage />} />
                     <Route path="notifications" element={<AdminNotificationsPage />} />
                     <Route path="settings" element={<AdminSettingsPage />} />
+                    <Route path="establishments/:type/:id" element={<EstablishmentDetailPage />} />
                 </Route>
 
                 <Route

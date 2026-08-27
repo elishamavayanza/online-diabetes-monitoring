@@ -28,6 +28,7 @@ interface EstablishmentsTreeTableProps {
     filter?: string;
     onViewDetails?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
     onAddDepartment?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
+    onNodeDoubleClick?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void; //  déjà déclarée
 }
 
 export function EstablishmentsTreeTable({
@@ -35,6 +36,7 @@ export function EstablishmentsTreeTable({
                                             filter,
                                             onViewDetails,
                                             onAddDepartment,
+                                            onNodeDoubleClick, //  AJOUT MANQUANT dans le destructuring
                                         }: EstablishmentsTreeTableProps) {
     const columns: TreeTableColumn<EstablishmentTreeNodeData>[] = [
         {
@@ -118,7 +120,7 @@ export function EstablishmentsTreeTable({
                 treeColumnKey="nom"
                 filter={filter}
                 onNodeClick={(node) => console.log('Clic simple', node.label)}
-                onNodeDoubleClick={(node) => console.log('Double clic', node.label)}
+                onNodeDoubleClick={onNodeDoubleClick} // maintenant disponible
                 selectable
                 variant="striped"
                 hoverable
