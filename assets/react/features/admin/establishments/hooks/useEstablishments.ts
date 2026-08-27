@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { fetchEstablishments } from '../services/establishmentsService';
-import { fetchDepartments } from '../../departments/services/departmentsService';  // ✅ chemin corrigé
-import {Establishment} from "@/react/features/admin/establishments/types";
-import {Department} from "@/react/features/admin/departments/types";
-import {TreeTableNode} from "@/react/hook-components/Data/TreeTable/types";             // ✅ chemin composant
+import { fetchDepartments } from '../../departments/services/departmentsService';
+import { TreeTableNode } from '@/react/hook-components/Data/TreeTable/types';
+import { Establishment } from '@/react/features/admin/establishments/types';
+import { Department } from '@/react/features/admin/departments/types';
 
 export interface EstablishmentTreeNodeData {
     type: 'establishment' | 'department';
-    establishment?: Establishment;
-    department?: Department;
+    establishment?: Establishment & {
+        personnelCount?: number;
+        patientCount?: number;
+    };
+    department?: Department & {
+        patients?: number;
+    };
 }
 
 export function useEstablishments() {
@@ -24,25 +29,36 @@ export function useEstablishments() {
                     fetchDepartments(),
                 ]);
 
-                const establishments: Establishment[] = estRes.establishments;
-                const departments: Department[] = deptRes;
+                const establishments = estRes.establishments;
+                const departments = deptRes; // Department[]
 
                 const nodes: TreeTableNode<EstablishmentTreeNodeData>[] = establishments.map((est: Establishment) => {
-                    const children: TreeTableNode<EstablishmentTreeNodeData>[] = departments
-                        .filter((dep: Department) => dep.etablissement === est.nom)
-                        .map((dep: Department) => ({
-                            id: `dept-${dep.id}`,
-                            label: dep.nom,
-                            data: { type: 'department', department: dep },
-                            icon: undefined,
-                        }));
+                    const estChildren = departments.filter((dep: Department) => dep.etablissement === est.nom);
 
                     return {
                         id: `est-${est.id}`,
                         label: est.nom,
-                        data: { type: 'establishment', establishment: est },
+                        data: {
+                            type: 'establishment',
+                            establishment: {
+                                ...est,
+                                personnelCount: estChildren.reduce((sum, dep) => sum + dep.personnel, 0),
+                                patientCount: estChildren.length * 15, // exemple
+                            },
+                        },
                         icon: undefined,
-                        children: children.length > 0 ? children : undefined,
+                        children: estChildren.map((dep: Department) => ({
+                            id: `dept-${dep.id}`,
+                            label: dep.nom,
+                            data: {
+                                type: 'department',
+                                department: {
+                                    ...dep,
+                                    patients: dep.personnel * 2, // exemple
+                                },
+                            },
+                            icon: undefined,
+                        })),
                     };
                 });
 

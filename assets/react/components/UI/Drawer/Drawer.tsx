@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useDrawer, UseDrawerProps } from '../../../hook-components/UI/Drawer';
+import { useDrawer, UseDrawerProps } from '@/react/hook-components/UI/Drawer';
 
 export interface DrawerProps extends UseDrawerProps {
     children: React.ReactNode;
