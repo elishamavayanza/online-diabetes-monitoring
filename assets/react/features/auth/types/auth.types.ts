@@ -15,6 +15,7 @@ export interface AuthUser {
     role: UserRole;
     /** URL de la photo de profil (optionnel) */
     photoUrl?: string;
+    organizationId?: string;
 }
 
 export interface AuthResponse {

@@ -1,18 +1,41 @@
 import React from 'react';
 import { TreeTable } from '@/react/components/Data/TreeTable/TreeTable';
-import { Card } from '@/react/components/UI/Card';   // import Card
+import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
+import { Tooltip } from '@/react/components/UI/Tooltip';
 import { EstablishmentTreeNodeData } from '../hooks/useEstablishments';
 import { TreeTableColumn, TreeTableNode } from "@/react/hook-components/Data/TreeTable/types";
 
+const AddIcon = () => (
+    <span className="add-icon">
+        <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+        >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+    </span>
+);
+
 interface EstablishmentsTreeTableProps {
     nodes: TreeTableNode<EstablishmentTreeNodeData>[];
-    filter?: string; // ✅ nouvelle prop
+    filter?: string;
     onViewDetails?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
+    onAddDepartment?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
 }
 
-export function EstablishmentsTreeTable({ nodes,filter, onViewDetails }: EstablishmentsTreeTableProps) {
+export function EstablishmentsTreeTable({
+                                            nodes,
+                                            filter,
+                                            onViewDetails,
+                                            onAddDepartment,
+                                        }: EstablishmentsTreeTableProps) {
     const columns: TreeTableColumn<EstablishmentTreeNodeData>[] = [
         {
             key: 'nom',
@@ -61,13 +84,28 @@ export function EstablishmentsTreeTable({ nodes,filter, onViewDetails }: Establi
             key: 'actions',
             title: 'Actions',
             render: (node) => (
-                <Button
-                    variant="secondary"
-                    size="small"
-                    onClick={() => onViewDetails?.(node)}
-                >
-                    Détails
-                </Button>
+                <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                    {node.data?.type === 'establishment' && (
+                        <Tooltip content="Ajouter un département" position="top">
+                            <button
+                                className="tree-action-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onAddDepartment?.(node);
+                                }}
+                            >
+                                <AddIcon />
+                            </button>
+                        </Tooltip>
+                    )}
+                    <Button
+                        variant="secondary"
+                        size="small"
+                        onClick={() => onViewDetails?.(node)}
+                    >
+                        Détails
+                    </Button>
+                </div>
             ),
         },
     ];

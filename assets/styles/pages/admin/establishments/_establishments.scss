@@ -51,6 +51,24 @@
     }
 }
 
+.add-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1.5px solid currentColor;
+    flex-shrink: 0;
+
+    svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
 .establishments-card {
     @include card;
 }

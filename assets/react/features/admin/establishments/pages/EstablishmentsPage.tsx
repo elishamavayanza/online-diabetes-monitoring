@@ -1,23 +1,40 @@
 import { useState } from 'react';
-import { useEstablishments } from '../hooks/useEstablishments';
+import { useEstablishments, EstablishmentTreeNodeData } from '../hooks/useEstablishments';
 import { EstablishmentsTreeTable } from '../components/EstablishmentsTreeTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
-import { Modal } from '@/react/components/UI/Modal';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useAuth } from '@/react/app/providers/AuthProvider';
 import '@/styles/pages/admin/establishments/_establishments.scss';
+import { EstablishmentFormModal } from "@/react/features/root/organisations/components/EstablishmentFormModal";
+import { DepartmentFormModal } from "@/react/features/root/organisations/components/DepartmentFormModal";
+import {TreeTableNode} from "@/react/hook-components/Data/TreeTable/types";
 
 export function EstablishmentsPage() {
     const { treeNodes, isLoading, error } = useEstablishments();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [search, setSearch] = useState('');
+    const [isDepartmentModalOpen, setIsDepartmentModalOpen] = useState(false);
+    const [selectedFacilityId, setSelectedFacilityId] = useState('');
     const { pushAction } = useActionHistory();
+    const { user } = useAuth();
+
+    const organizationId = user?.organizationId ?? 'current-org';
 
     const openAddModal = () => {
         setIsAddModalOpen(true);
         pushAction(() => setIsAddModalOpen(false));
+    };
+
+    // ✅ Paramètre typé explicitement
+    const openDepartmentModal = (node: TreeTableNode<EstablishmentTreeNodeData>) => {
+        if (node.data?.type === 'establishment' && node.data.establishment) {
+            setSelectedFacilityId(node.data.establishment.id);
+            setIsDepartmentModalOpen(true);
+            pushAction(() => setIsDepartmentModalOpen(false));
+        }
     };
 
     if (isLoading) return <Spinner />;
@@ -43,13 +60,23 @@ export function EstablishmentsPage() {
                 </Button>
             </div>
 
-            <EstablishmentsTreeTable nodes={treeNodes} filter={search} />
+            <EstablishmentsTreeTable
+                nodes={treeNodes}
+                filter={search}
+                onAddDepartment={openDepartmentModal}
+            />
 
-            {isAddModalOpen && (
-                <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
-                    <p>Formulaire d'ajout d'établissement (à implémenter).</p>
-                </Modal>
-            )}
+            <EstablishmentFormModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                organizationId={organizationId}
+            />
+
+            <DepartmentFormModal
+                isOpen={isDepartmentModalOpen}
+                onClose={() => setIsDepartmentModalOpen(false)}
+                facilityId={selectedFacilityId}
+            />
         </div>
     );
 }

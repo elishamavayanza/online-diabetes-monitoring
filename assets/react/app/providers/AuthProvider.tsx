@@ -28,6 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 // Le rôle peut être une string ou undefined, on le normalise
                 const role = (payload.role as UserRole) ?? 'PATIENT';
                 const baseUrl = (import.meta as unknown as { env: { VITE_API_BASE_URL?: string } }).env.VITE_API_BASE_URL || '';
+
+                //  Transformation sûre de la liste des organisations
+                const organizations = Array.isArray(payload.organizations)
+                    ? payload.organizations
+                    : [];
+
                 const restoredUser: AuthUser = {
                     id: payload.sub ?? 'unknown',
                     name: payload.fullName ?? payload.username ?? 'Utilisateur',
@@ -39,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             ? payload.photoUrl
                             : `${baseUrl}${payload.photoUrl}`
                         : undefined,
+                    organizationId: organizations[0]?.organization_id, //  plus d'erreur
                 };
                 setUser(restoredUser);
             }
