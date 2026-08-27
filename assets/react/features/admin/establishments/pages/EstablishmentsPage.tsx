@@ -5,12 +5,14 @@ import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
+import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/admin/establishments/_establishments.scss';
 
 export function EstablishmentsPage() {
     const { treeNodes, isLoading, error } = useEstablishments();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [search, setSearch] = useState('');
     const { pushAction } = useActionHistory();
 
     const openAddModal = () => {
@@ -29,12 +31,19 @@ export function EstablishmentsPage() {
             </div>
 
             <div className="establishments-page__actions">
+                <div className="establishments-page__search">
+                    <SearchInput
+                        placeholder="Rechercher un établissement ou un département..."
+                        value={search}
+                        onSearch={(value: string) => setSearch(value)}
+                    />
+                </div>
                 <Button variant="primary" onClick={openAddModal}>
                     + Ajouter un établissement
                 </Button>
             </div>
 
-            <EstablishmentsTreeTable nodes={treeNodes} />
+            <EstablishmentsTreeTable nodes={treeNodes} filter={search} />
 
             {isAddModalOpen && (
                 <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>

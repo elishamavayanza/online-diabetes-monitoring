@@ -8,10 +8,11 @@ import { TreeTableColumn, TreeTableNode } from "@/react/hook-components/Data/Tre
 
 interface EstablishmentsTreeTableProps {
     nodes: TreeTableNode<EstablishmentTreeNodeData>[];
+    filter?: string; // ✅ nouvelle prop
     onViewDetails?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
 }
 
-export function EstablishmentsTreeTable({ nodes, onViewDetails }: EstablishmentsTreeTableProps) {
+export function EstablishmentsTreeTable({ nodes,filter, onViewDetails }: EstablishmentsTreeTableProps) {
     const columns: TreeTableColumn<EstablishmentTreeNodeData>[] = [
         {
             key: 'nom',
@@ -72,11 +73,12 @@ export function EstablishmentsTreeTable({ nodes, onViewDetails }: Establishments
     ];
 
     return (
-        <Card className="establishments-card">   {/*  Enveloppé dans une Card */}
+        <Card className="establishments-card">
             <TreeTable
                 nodes={nodes}
                 columns={columns}
                 treeColumnKey="nom"
+                filter={filter}
                 onNodeClick={(node) => console.log('Clic simple', node.label)}
                 onNodeDoubleClick={(node) => console.log('Double clic', node.label)}
                 selectable
