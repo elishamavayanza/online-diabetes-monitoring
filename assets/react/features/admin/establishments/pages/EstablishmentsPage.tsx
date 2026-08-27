@@ -23,12 +23,19 @@ export function EstablishmentsPage() {
 
     return (
         <div className="establishments-page">
+            {/* Bloc titre uniquement */}
             <div className="establishments-page__header">
                 <h1>Établissements</h1>
+                <p>Gérez les établissements de votre organisation</p>
+            </div>
+
+            {/* Bloc actions séparé, en dessous */}
+            <div className="establishments-page__actions">
                 <Button variant="primary" onClick={openAddModal}>
                     + Ajouter un établissement
                 </Button>
             </div>
+
             <EstablishmentsTable establishments={establishments} />
 
             {isAddModalOpen && (

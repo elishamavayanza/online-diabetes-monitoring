@@ -6,9 +6,10 @@ import { Establishment } from '../types';
 
 interface EstablishmentsTableProps {
     establishments: Establishment[];
+    onViewDetails?: (establishment: Establishment) => void;
 }
 
-export function EstablishmentsTable({ establishments }: EstablishmentsTableProps) {
+export function EstablishmentsTable({ establishments, onViewDetails }: EstablishmentsTableProps) {
     const columns = [
         { key: 'nom', title: 'Nom' },
         { key: 'adresse', title: 'Adresse' },
@@ -27,7 +28,11 @@ export function EstablishmentsTable({ establishments }: EstablishmentsTableProps
             key: 'actions',
             title: 'Actions',
             render: (row: Establishment) => (
-                <Button variant="secondary" size="small" onClick={() => console.log('Détails', row.id)}>
+                <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={() => onViewDetails?.(row)}
+                >
                     Détails
                 </Button>
             ),
@@ -36,7 +41,11 @@ export function EstablishmentsTable({ establishments }: EstablishmentsTableProps
 
     return (
         <Card className="establishments-card">
-            <DataTable columns={columns} data={establishments} />
+            <DataTable
+                columns={columns}
+                data={establishments}
+                pageSize={10}
+            />
         </Card>
     );
 }

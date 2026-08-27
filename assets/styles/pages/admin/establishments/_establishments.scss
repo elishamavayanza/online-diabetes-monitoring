@@ -7,11 +7,28 @@
     gap: 1.5rem;
 
     &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        // Titre centré, sous-titre à gauche
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+            text-align: center;          // titre centré
+        }
 
-        h1 { font-size: 1.8rem; color: var(--color-primary); margin: 0; }
+        p {
+            font-size: 1rem;
+            color: var(--color-text);
+            opacity: 0.8;
+            text-align: left;             // sous-titre aligné à gauche
+            margin: 0;
+            width: 100%;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;        // bouton à droite
+        // Si vous préférez centré, remplacez par : justify-content: center;
     }
 }
 

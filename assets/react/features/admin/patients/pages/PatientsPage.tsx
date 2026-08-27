@@ -30,12 +30,19 @@ export function PatientsPage() {
 
     return (
         <div className="patients-page">
+            {/* Bloc titre uniquement */}
             <div className="patients-page__header">
                 <h1>Patients</h1>
+                <p>Gérez les patients de votre organisation</p>
+            </div>
+
+            {/* Bloc actions séparé, en dessous */}
+            <div className="patients-page__actions">
                 <Button variant="primary" onClick={openAddModal}>
                     + Ajouter un patient
                 </Button>
             </div>
+
             <PatientsFilter filters={filters} onChange={handleFilterChange} />
             <PatientsTable patients={patients} />
 

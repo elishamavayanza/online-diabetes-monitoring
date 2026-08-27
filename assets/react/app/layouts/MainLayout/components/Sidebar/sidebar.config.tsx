@@ -78,7 +78,6 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Organisation",
             items: [
                 { id: "establishments", label: "Établissements", icon: <EstablishmentIcon />, route: "/admin/establishments", permission: "ESTABLISHMENT_VIEW" },
-                { id: "departments", label: "Départements", icon: <DepartmentIcon />, route: "/admin/departments", permission: "DEPARTMENT_VIEW" },
             ],
         },
         {

@@ -23,12 +23,19 @@ export function ProfessionalsPage() {
 
     return (
         <div className="professionals-page">
+            {/* Bloc titre uniquement */}
             <div className="professionals-page__header">
                 <h1>Professionnels</h1>
+                <p>Gérez les professionnels de votre organisation</p>
+            </div>
+
+            {/* Bloc actions séparé, en dessous */}
+            <div className="professionals-page__actions">
                 <Button variant="primary" onClick={openAddModal}>
                     + Ajouter un professionnel
                 </Button>
             </div>
+
             <ProfessionalsTable professionals={professionals} />
 
             {isAddModalOpen && (
