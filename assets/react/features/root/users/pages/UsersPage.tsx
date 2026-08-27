@@ -10,6 +10,8 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/root/users/_users.scss';
 import { UserFormModal } from '../components/UserFormModal';
 import { UserDetailsDrawer } from '../components/UserDetailsDrawer';
+import { AffectationModal } from '../components/AffectationModal';
+import { AffectationData } from '../types/affectation';
 import { User, UserType } from '../types';
 
 const FilterIcon = () => (
@@ -76,6 +78,12 @@ export function UsersPage() {
     const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
     const [editingUser, setEditingUser] = useState<User | null>(null);
 
+    //  Nouveaux états pour l'affectation
+    const [affectModalOpen, setAffectModalOpen] = useState(false);
+    const [affectMode, setAffectMode] = useState<'create' | 'edit'>('create');
+    const [affectData, setAffectData] = useState<AffectationData | undefined>(undefined);
+    const [affectUserId, setAffectUserId] = useState('');
+
     const tabs = [
         { id: 'Tous', label: 'Tous' },
         { id: 'Professionnels', label: 'Professionnels' },
@@ -84,7 +92,6 @@ export function UsersPage() {
         { id: 'Non affectés', label: 'Non affectés' },
     ];
 
-    // Extraire la liste unique des organisations
     const organisations = Array.from(
         new Set(users.map((u) => u.organisation).filter((org): org is string => !!org))
     );
@@ -115,9 +122,34 @@ export function UsersPage() {
         setSelectedUser(null);
     };
 
-    const handleAffect = (user: User) => {
-        console.log('Affecter', user);
-        // À implémenter : ouvrir une modale pour choisir l'organisation
+    //  Ouverture de la modale d'affectation (création)
+    const openCreateAffectation = (user: User) => {
+        setAffectUserId(user.id);
+        setAffectMode('create');
+        setAffectData(undefined);
+        setAffectModalOpen(true);
+        setDetailsOpen(false);
+        pushAction(() => setAffectModalOpen(false));
+    };
+
+    //  Ouverture de la modale d'affectation (édition)
+    const openEditAffectation = (user: User) => {
+        setAffectUserId(user.id);
+        setAffectMode('edit');
+        // Données simulées à remplacer par un fetch réel
+        setAffectData({
+            affectationId: 'aff123',
+            userId: user.id,
+            organizationId: 'org1', // à adapter selon l'organisation actuelle
+            facilityId: '',
+            departmentId: '',
+            startDate: '2026-01-01',
+            endDate: '',
+            status: 'ACTIVE',
+        });
+        setAffectModalOpen(true);
+        setDetailsOpen(false);
+        pushAction(() => setAffectModalOpen(false));
     };
 
     const handleSuspend = (user: User) => {
@@ -125,7 +157,6 @@ export function UsersPage() {
         // À implémenter : appeler un service de suspension
     };
 
-    // Filtrer les utilisateurs selon l'onglet actif, la recherche et le filtre organisation
     const filteredUsers = users.filter((user) => {
         const q = search.toLowerCase();
         const matchSearch =
@@ -175,7 +206,6 @@ export function UsersPage() {
                     className="users-page__search"
                 />
 
-                {/* Bouton filtre organisation */}
                 <div className="users-page__filter-wrapper">
                     <button
                         className={`users-page__filter-btn ${orgFilter ? 'users-page__filter-btn--active' : ''}`}
@@ -232,7 +262,7 @@ export function UsersPage() {
                 }}
             />
 
-            {/* Modale de création/édition */}
+            {/* Modale de création/édition utilisateur */}
             <UserFormModal
                 key={formMode + (editingUser?.id || '')}
                 isOpen={formModalOpen}
@@ -253,9 +283,19 @@ export function UsersPage() {
                 user={selectedUser}
                 isOpen={detailsOpen}
                 onClose={closeDetails}
-                onAffect={handleAffect}
+                onAffect={openCreateAffectation}
+                onModifyAffectation={openEditAffectation}
                 onModify={openEditModal}
                 onSuspend={handleSuspend}
+            />
+
+            {/* Modale d'affectation */}
+            <AffectationModal
+                isOpen={affectModalOpen}
+                onClose={() => setAffectModalOpen(false)}
+                mode={affectMode}
+                userId={affectUserId}
+                affectationData={affectData}
             />
         </div>
     );

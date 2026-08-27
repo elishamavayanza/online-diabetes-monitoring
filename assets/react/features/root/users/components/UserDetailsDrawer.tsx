@@ -10,6 +10,7 @@ interface UserDetailsDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     onAffect: (user: User) => void;
+    onModifyAffectation: (user: User) => void;
     onModify: (user: User) => void;
     onSuspend: (user: User) => void;
 }
@@ -19,6 +20,7 @@ export function UserDetailsDrawer({
                                       isOpen,
                                       onClose,
                                       onAffect,
+                                      onModifyAffectation,
                                       onModify,
                                       onSuspend,
                                   }: UserDetailsDrawerProps) {
@@ -60,7 +62,11 @@ export function UserDetailsDrawer({
                 </div>
 
                 <div className="user-details__actions">
-                    {!user.organisation && (
+                    {user.organisation ? (
+                        <Button variant="primary" onClick={() => onModifyAffectation(user)}>
+                            Modifier l’affectation
+                        </Button>
+                    ) : (
                         <Button variant="primary" onClick={() => onAffect(user)}>
                             Affecter
                         </Button>

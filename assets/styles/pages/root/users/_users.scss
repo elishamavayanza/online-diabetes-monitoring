@@ -222,6 +222,40 @@
     }
 }
 
+.affectation-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+
+    // Grille de champs en 2 colonnes
+    .form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+
+        // Chaque champ occupe une cellule
+        .form-field {
+            margin-bottom: 0; // on gère l'espacement via gap
+        }
+
+        // Les actions prennent toute la largeur
+        .affectation-modal__actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+    }
+}
+
+// Sur mobile, revenir à une colonne
+@media (max-width: 600px) {
+    .affectation-modal .form {
+        grid-template-columns: 1fr;
+    }
+}
+
 .users-card {
     @include card;
 }
