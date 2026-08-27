@@ -1,84 +1,146 @@
-// features/admin/establishments/pages/EstablishmentDetailPage.tsx
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useEstablishmentDetail } from '../hooks/useEstablishmentDetail';
+import {fetchMembersByEntity, Member, MemberRole} from '../services/membersService';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
-import { Badge } from '@/react/components/UI/Badge';
 import { Card } from '@/react/components/UI/Card';
+import { Avatar } from '@/react/components/UI/Avatar';
+import { SearchInput } from '@/react/components/Forms/SearchInput';
+import { Button } from '@/react/components/UI/Button';
+import { Badge } from '@/react/components/UI/Badge';
+import { Modal } from '@/react/components/UI/Modal';
+import '@/styles/pages/admin/establishments/_establishment-detail-page.scss';
 
+
+function getRoleBadge(role: MemberRole) {
+    switch (role) {
+        case 'CLINICIAN':
+            return { label: 'Clinicien', variant: 'primary' as const };
+        case 'NUTRITIONIST':
+            return { label: 'Nutritionniste', variant: 'success' as const };
+        case 'PATIENT':
+            return { label: 'Patient', variant: 'warning' as const };
+        default:
+            return { label: role, variant: 'secondary' as const };
+    }
+}
 export function EstablishmentDetailPage() {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
     const { node, isLoading, error } = useEstablishmentDetail(id || '');
+
+    const [members, setMembers] = useState<Member[]>([]);
+    const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+    const [membersError, setMembersError] = useState<string | null>(null);
+    const [search, setSearch] = useState('');
+    const [isAffectModalOpen, setIsAffectModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (!node) return;
+
+        const loadMembers = async () => {
+            setIsLoadingMembers(true);
+            setMembersError(null);
+            try {
+                const data = await fetchMembersByEntity(
+                    node.data?.type || 'establishment',
+                    node.id
+                );
+                setMembers(data);
+            } catch (err) {
+                setMembersError('Impossible de charger les membres.');
+            } finally {
+                setIsLoadingMembers(false);
+            }
+        };
+
+        loadMembers();
+    }, [node]);
 
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
     if (!node) return <Alert variant="warning">Élément introuvable</Alert>;
 
-    const data = node.data;
-    const isEstablishment = data?.type === 'establishment';
-    const isDepartment = data?.type === 'department';
+    const isEstablishment = node.data?.type === 'establishment';
+
+    // Filtrer les membres selon la recherche
+    const filteredMembers = members.filter((member) => {
+        const q = search.toLowerCase();
+        return (
+            member.nom.toLowerCase().includes(q) ||
+            member.email.toLowerCase().includes(q)
+        );
+    });
 
     return (
         <div className="establishment-detail-page">
             <div className="establishment-detail-page__header">
-                <h1>{node.label}</h1>
+                <h1>Membres de {node.label}</h1>
                 <p>{isEstablishment ? 'Établissement' : 'Département'}</p>
             </div>
 
-            {isEstablishment && data.establishment && (
-                <div className="establishment-detail-page__sections">
-                    <Card className="detail-card">
-                        <h2>Informations</h2>
-                        <p><strong>Adresse :</strong> {data.establishment.adresse}</p>
-                        <p><strong>Téléphone :</strong> {data.establishment.telephone}</p>
-                        <p>
-                            <strong>Statut :</strong>{' '}
-                            <Badge variant={data.establishment.statut === 'Active' ? 'success' : 'error'}>
-                                {data.establishment.statut}
-                            </Badge>
-                        </p>
-                        <p><strong>Départements :</strong> {data.establishment.departementsCount}</p>
-                        <p><strong>Personnel total :</strong> {data.establishment.personnelCount ?? '—'}</p>
-                        <p><strong>Patients suivis :</strong> {data.establishment.patientCount ?? '—'}</p>
-                    </Card>
-                    <Card className="detail-card">
-                        <h2>Départements</h2>
-                        {node.children && node.children.length > 0 ? (
-                            <ul>
-                                {node.children.map(child => (
-                                    <li key={child.id}>{child.label}</li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Aucun département</p>
-                        )}
-                    </Card>
+            {/* Barre de recherche + bouton affecter */}
+            <div className="establishment-detail-page__actions">
+                <div className="establishment-detail-page__search">
+                    <SearchInput
+                        placeholder="Rechercher un membre..."
+                        value={search}
+                        onSearch={(value: string) => setSearch(value)}
+                    />
+                </div>
+                <Button
+                    variant="primary"
+                    onClick={() => setIsAffectModalOpen(true)}
+                    className="establishment-detail-page__affect-btn"
+                >
+                    Affecter un nouveau
+                </Button>
+            </div>
+
+            {isLoadingMembers ? (
+                <Spinner />
+            ) : membersError ? (
+                <Alert variant="error">{membersError}</Alert>
+            ) : (
+                <div className="members-grid">
+                    {filteredMembers.map((member) => {
+                        const roleBadge = getRoleBadge(member.role);
+                        return (
+                            <Card key={member.id} className="member-card">
+                                <div className="member-card__layout">
+                                    <Avatar
+                                        src={member.avatarUrl}
+                                        name={member.nom}
+                                        size="large"
+                                        shape="circle"
+                                    />
+                                    <div className="member-card__info">
+                                        <div className="member-card__header">
+                                            <h3>{member.nom}</h3>
+                                            <Badge variant={roleBadge.variant}>
+                                                {roleBadge.label}
+                                            </Badge>
+                                        </div>
+                                        <p className="member-card__email">{member.email}</p>
+                                        <p className="member-card__date">
+                                            Date de naissance : {member.dateNaissance}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Card>
+                        );
+                    })}
                 </div>
             )}
 
-            {isDepartment && data.department && (
-                <div className="establishment-detail-page__sections">
-                    <Card className="detail-card">
-                        <h2>Informations</h2>
-                        <p><strong>Établissement :</strong> {data.department.etablissement}</p>
-                        <p><strong>Spécialité :</strong> {data.department.specialite || '—'}</p>
-                        <p>
-                            <strong>Statut :</strong>{' '}
-                            <Badge variant={data.department.statut === 'Active' ? 'success' : 'error'}>
-                                {data.department.statut}
-                            </Badge>
-                        </p>
-                        <p><strong>Personnel :</strong> {data.department.personnel}</p>
-                        <p><strong>Patients :</strong> {data.department.patients ?? '—'}</p>
-                    </Card>
-                    <Card className="detail-card">
-                        <h2>Personnel</h2>
-                        <p>Liste du personnel à implémenter</p>
-                    </Card>
-                </div>
-            )}
+            {/* Modale factice pour l'affectation */}
+            <Modal
+                isOpen={isAffectModalOpen}
+                onClose={() => setIsAffectModalOpen(false)}
+                size="medium"
+            >
+                <p>Formulaire d'affectation à implémenter.</p>
+            </Modal>
         </div>
     );
 }

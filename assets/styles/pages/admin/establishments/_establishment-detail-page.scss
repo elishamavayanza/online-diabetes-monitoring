@@ -1,0 +1,125 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+/* ============================================================
+   Page détail établissement/département
+   ============================================================ */
+.establishment-detail-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        h1 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin: 0 0 0.25rem;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--color-text);
+            opacity: 0.8;
+            margin: 0;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+        flex-wrap: nowrap;
+
+        // Le bouton ne doit surtout pas prendre 100%
+        .btn {
+            width: auto;
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+    }
+
+    &__search {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: 100%;
+
+        // Force le SearchInput à prendre toute
+        // la largeur disponible
+        > * {
+            width: 100%;
+            min-width: 0;
+        }
+    }
+
+    &__affect-btn {
+        width: auto;
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+}
+
+/* Grille des membres : deux colonnes sur desktop */
+.members-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Carte membre */
+.member-card {
+    @include card; // réutilise le style de carte de base
+
+    &__layout {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    &__info {
+        flex: 1;
+        min-width: 0;
+
+        h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        p {
+            margin: 0.25rem 0 0;
+            font-size: 0.9rem;
+            color: var(--color-text);
+            opacity: 0.85;
+            word-break: break-word;
+        }
+    }
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    &__info h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-primary);
+    }
+
+    &__email {
+        font-weight: 500;
+    }
+
+    &__date {
+        opacity: 0.7;
+        font-size: 0.85rem;
+    }
+}
