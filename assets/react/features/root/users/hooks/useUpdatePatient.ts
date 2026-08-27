@@ -2,8 +2,25 @@ import { useState } from 'react';
 import { PatientFormValues } from '../types/userForm.types';
 import { updateUser } from "@/react/features/root/users/services/usersService";
 
+
+const defaultPatient: PatientFormValues = {
+    email: '',
+    password: '',
+    fullName: '',
+    phone: '',
+    gender: 'MALE',
+    locale: 'fr',
+    dateOfBirth: '',
+    placeOfBirth: '',
+    bloodType: '',
+    heightCm: '',
+    avatarUrl: '',
+    avatarFile: null,
+    address: { street: '', city: '', postalCode: '', country: 'RDC' },
+};
+
 export function useUpdatePatient(initialData: PatientFormValues) {
-    const [form, setForm] = useState<PatientFormValues>(initialData);
+    const [form, setForm] = useState<PatientFormValues>(initialData || defaultPatient);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

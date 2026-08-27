@@ -7,7 +7,7 @@ import { UserFormType, ProfessionalFormValues, PatientFormValues } from '../type
 
 export function useUserForm(mode: 'create' | 'edit', initialUser?: { type: UserFormType; data: any }) {
     const [userType, setUserType] = useState<UserFormType>(initialUser?.type ?? 'patient');
-    const [step, setStep] = useState(0);
+    const [step, setStep] = useState(mode === 'edit' ? 1 : 0); //  commence à l'étape 1 en édition
 
     const createProfessional = useCreateProfessional();
     const updateProfessional = useUpdateProfessional(initialUser?.data as ProfessionalFormValues);

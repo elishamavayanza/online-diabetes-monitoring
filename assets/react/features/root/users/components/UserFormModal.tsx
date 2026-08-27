@@ -32,7 +32,7 @@ export function UserFormModal({ isOpen, onClose, mode = 'create', initialUser }:
     } = useUserForm(mode, initialUser);
 
     const steps = [
-        { id: 'type', label: 'Type de compte' },
+        { id: 'type', label: 'Type de compte', disabled: mode === 'edit' }, // ❌ désactivée en édition
         { id: 'infos', label: 'Informations' },
         { id: 'address', label: 'Adresse' },
         { id: 'photo', label: 'Photo' },

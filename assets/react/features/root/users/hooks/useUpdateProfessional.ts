@@ -2,8 +2,25 @@ import { useState } from 'react';
 import { ProfessionalFormValues } from '../types/userForm.types';
 import { updateUser } from "@/react/features/root/users/services/usersService";
 
+
+const defaultProfessional: ProfessionalFormValues = {
+    email: '',
+    password: '',
+    fullName: '',
+    phone: '',
+    gender: 'MALE',
+    locale: 'fr',
+    licenseNumber: '',
+    professionalType: 'CLINICIAN',
+    specialty: '',
+    signatureUrl: '',
+    avatarUrl: '',
+    avatarFile: null,
+    address: { street: '', city: '', postalCode: '', country: 'RDC' },
+};
+
 export function useUpdateProfessional(initialData: ProfessionalFormValues) {
-    const [form, setForm] = useState<ProfessionalFormValues>(initialData);
+    const [form, setForm] = useState<ProfessionalFormValues>(initialData || defaultProfessional);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 

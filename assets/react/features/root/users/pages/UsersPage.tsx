@@ -10,13 +10,57 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/root/users/_users.scss';
 import { UserFormModal } from '../components/UserFormModal';
 import { UserDetailsDrawer } from '../components/UserDetailsDrawer';
-import { User } from '../types'; //  import du type User
+import { User, UserType } from '../types';
 
 const FilterIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
     </svg>
 );
+
+// Mapping du type User vers le type du formulaire
+function mapUserTypeToFormType(type: UserType): 'patient' | 'professional' {
+    if (type === 'Patient') return 'patient';
+    return 'professional'; // inclut Professional et Administrator
+}
+
+// Convertit un objet User en valeurs initiales pour le formulaire
+function mapUserToFormValues(user: User): any {
+    const base = {
+        email: user.email,
+        password: '', // le mot de passe n'est pas récupéré, on laisse vide
+        fullName: user.nom,
+        phone: '',
+        gender: 'UNSPECIFIED',
+        locale: 'fr',
+        avatarUrl: user.avatarUrl || '',
+        avatarFile: null,
+        address: {
+            street: '',
+            city: '',
+            postalCode: '',
+            country: 'RDC',
+        },
+    };
+
+    if (user.type === 'Professional' || user.type === 'Administrator') {
+        return {
+            ...base,
+            licenseNumber: '',
+            professionalType: 'CLINICIAN',
+            specialty: '',
+            signatureUrl: '',
+        };
+    } else {
+        return {
+            ...base,
+            dateOfBirth: '',
+            placeOfBirth: '',
+            bloodType: '',
+            heightCm: '',
+        };
+    }
+}
 
 export function UsersPage() {
     const { users, isLoading, error } = useUsers();
@@ -28,6 +72,9 @@ export function UsersPage() {
     const [activeTab, setActiveTab] = useState<string>('Tous');
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [detailsOpen, setDetailsOpen] = useState(false);
+    const [formModalOpen, setFormModalOpen] = useState(false);
+    const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+    const [editingUser, setEditingUser] = useState<User | null>(null);
 
     const tabs = [
         { id: 'Tous', label: 'Tous' },
@@ -49,13 +96,18 @@ export function UsersPage() {
     };
 
     const openCreateModal = () => {
-        setCreateModalOpen(true);
-        pushAction(() => setCreateModalOpen(false));
+        setFormMode('create');
+        setEditingUser(null);
+        setFormModalOpen(true);
+        pushAction(() => setFormModalOpen(false));
     };
 
-    const openDetails = (user: User) => {
-        setSelectedUser(user);
-        setDetailsOpen(true);
+    const openEditModal = (user: User) => {
+        setFormMode('edit');
+        setEditingUser(user);
+        setDetailsOpen(false); // fermer le drawer
+        setFormModalOpen(true);
+        pushAction(() => setFormModalOpen(false));
     };
 
     const closeDetails = () => {
@@ -66,11 +118,6 @@ export function UsersPage() {
     const handleAffect = (user: User) => {
         console.log('Affecter', user);
         // À implémenter : ouvrir une modale pour choisir l'organisation
-    };
-
-    const handleModify = (user: User) => {
-        console.log('Modifier', user);
-        // À implémenter : ouvrir UserFormModal en mode édition avec les données de l'utilisateur
     };
 
     const handleSuspend = (user: User) => {
@@ -179,14 +226,26 @@ export function UsersPage() {
 
             <UsersTable
                 users={filteredUsers}
-                onViewDetails={openDetails}   // ✅ passage de la fonction
+                onViewDetails={(user) => {
+                    setSelectedUser(user);
+                    setDetailsOpen(true);
+                }}
             />
 
-            {/* Modale de création */}
+            {/* Modale de création/édition */}
             <UserFormModal
-                isOpen={createModalOpen}
-                onClose={() => setCreateModalOpen(false)}
-                mode="create"
+                key={formMode + (editingUser?.id || '')}
+                isOpen={formModalOpen}
+                onClose={() => setFormModalOpen(false)}
+                mode={formMode}
+                initialUser={
+                    editingUser
+                        ? {
+                            type: mapUserTypeToFormType(editingUser.type),
+                            data: mapUserToFormValues(editingUser),
+                        }
+                        : undefined
+                }
             />
 
             {/* Drawer de détails */}
@@ -195,7 +254,7 @@ export function UsersPage() {
                 isOpen={detailsOpen}
                 onClose={closeDetails}
                 onAffect={handleAffect}
-                onModify={handleModify}
+                onModify={openEditModal}
                 onSuspend={handleSuspend}
             />
         </div>
