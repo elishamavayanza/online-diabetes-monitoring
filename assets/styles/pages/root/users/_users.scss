@@ -18,6 +18,89 @@
             opacity: 0.8;
         }
     }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+        flex-wrap: nowrap;
+    }
+
+    &__search {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    &__filter-wrapper {
+        position: relative;
+        flex: 0 0 auto;
+    }
+
+    &__filter-btn {
+        background: none;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--color-text);
+        transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+
+        &:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        &--active {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-on-primary);
+        }
+    }
+
+    &__filter-dropdown {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        min-width: 220px;
+        z-index: 4200;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__filter-option {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        &--selected {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+    }
+
+    &__add-btn {
+        flex: 0 0 auto;
+        width: auto;
+        max-width: fit-content;
+        white-space: nowrap;
+    }
 }
 
 .users-card {

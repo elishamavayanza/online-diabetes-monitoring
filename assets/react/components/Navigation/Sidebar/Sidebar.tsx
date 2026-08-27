@@ -58,7 +58,6 @@ export function Sidebar({
         onMobileClose,
     });
 
-
     // Forcer l’affichage des textes sur mobile (collapsible=false)
     const displayCollapsed = collapsible ? isCollapsed : false;
     const classes = collapsible

@@ -2,7 +2,7 @@
 @use '../../baseVariables/variables' as *;
 
 /* ============================================================
-   Tableau de données avancé – DataTable
+   Tableau de données avancé – DataTable (moderne)
    ============================================================ */
 .datatable {
     width: 100%;
@@ -10,6 +10,13 @@
     &__wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        border-radius: 1rem;                       //  coins arrondis
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); //  ombre douce
+        background:
+            radial-gradient(ellipse at 20% 20%, rgba(44, 122, 123, 0.25) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 80%, rgba(118, 184, 184, 0.22) 0%, transparent 60%),
+            radial-gradient(ellipse at 60% 40%, rgba(244, 162, 97, 0.15) 0%, transparent 50%),
+            rgba(255, 255, 255, 0.45);              //  fond demandé
     }
 
     &__table {
@@ -17,23 +24,33 @@
         border-collapse: collapse;
         font-family: inherit;
         color: var(--color-text);
-        background-color: var(--color-surface);
+        background-color: transparent;             //  pour laisser voir le dégradé du wrapper
+        border-radius: inherit;
+        overflow: hidden;
+    }
 
-        th, td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-border);
-            text-align: left;
-        }
+    th, td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--color-border);
+        text-align: left;
+    }
 
-        thead th {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.05);
-            font-weight: 600;
-            white-space: nowrap;
-        }
+    thead th {
+        background-color: rgba(0, 0, 0, 0.03);      // ✅ léger fond pour l'en-tête
+        font-weight: 600;
+        white-space: nowrap;
+        color: var(--color-text);                   // titre en couleur de base
+        text-transform: uppercase;                  // style moderne
+        font-size: 0.85rem;
+        letter-spacing: 0.03em;
+    }
 
-        tbody tr:hover td {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.04);
-        }
+    tbody tr {
+        transition: background-color 0.2s;
+    }
+
+    tbody tr:hover td {
+        background-color: rgba(44, 122, 123, 0.06); //  survol doux
     }
 
     &__th--sortable {
@@ -42,7 +59,7 @@
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+            background-color: rgba(44, 122, 123, 0.1);
         }
     }
 
