@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useEstablishments } from '../hooks/useEstablishments';
-import { EstablishmentsTable } from '../components/EstablishmentsTable';
+import { EstablishmentsTreeTable } from '../components/EstablishmentsTreeTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
@@ -9,7 +9,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/admin/establishments/_establishments.scss';
 
 export function EstablishmentsPage() {
-    const { establishments, isLoading, error } = useEstablishments();
+    const { treeNodes, isLoading, error } = useEstablishments();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
@@ -23,20 +23,18 @@ export function EstablishmentsPage() {
 
     return (
         <div className="establishments-page">
-            {/* Bloc titre uniquement */}
             <div className="establishments-page__header">
                 <h1>Établissements</h1>
                 <p>Gérez les établissements de votre organisation</p>
             </div>
 
-            {/* Bloc actions séparé, en dessous */}
             <div className="establishments-page__actions">
                 <Button variant="primary" onClick={openAddModal}>
                     + Ajouter un établissement
                 </Button>
             </div>
 
-            <EstablishmentsTable establishments={establishments} />
+            <EstablishmentsTreeTable nodes={treeNodes} />
 
             {isAddModalOpen && (
                 <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
