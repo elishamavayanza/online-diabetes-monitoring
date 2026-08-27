@@ -1,4 +1,6 @@
 import { User, UserType } from '../types';
+import { UserFormValues, UserFormType } from '../types/userForm.types';
+
 
 // Mapping entre le filtre et le type réel
 const filterToTypeMap: Record<string, UserType | 'Tous'> = {
@@ -46,4 +48,16 @@ export async function fetchUsers(filter: 'Tous' | 'Professionnels' | 'Patients' 
     if (filter === 'Tous') return allUsers;
     const targetType = filterToTypeMap[filter];
     return allUsers.filter((u) => u.type === targetType);
+}
+
+export async function createUser(type: UserFormType, payload: UserFormValues): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log('Création utilisateur', type, payload);
+    // Appel API à implémenter
+}
+
+export async function updateUser(type: UserFormType, userId: string, payload: UserFormValues): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    console.log('Mise à jour utilisateur', type, userId, payload);
+    // Appel API à implémenter
 }

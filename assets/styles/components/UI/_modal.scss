@@ -30,8 +30,9 @@
 
     border-radius: 0.75rem;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 500px;
+    width: fit-content;        // ✅ s'adapte au contenu
+    min-width: 300px;          // largeur minimale pour rester lisible
+    max-width: 500px;          // par défaut (medium)
     position: relative;
     display: flex;
     flex-direction: column;
@@ -46,6 +47,7 @@
         height: 100vh;
         border-radius: 0;
     }
+
 
     &__close {
         position: absolute;

@@ -9,6 +9,7 @@ import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/root/users/_users.scss';
+import { UserFormModal } from '../components/UserFormModal';
 
 const FilterIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -23,6 +24,7 @@ export function UsersPage() {
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [orgFilter, setOrgFilter] = useState<string>('');
     const [showOrgFilter, setShowOrgFilter] = useState(false);
+
 
     const tabs = [
         { id: 'Tous', label: 'Tous' },
@@ -132,6 +134,12 @@ export function UsersPage() {
             <Modal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)}>
                 <p>Formulaire de création d'utilisateur à implémenter.</p>
             </Modal>
+
+            <UserFormModal
+                isOpen={createModalOpen}
+                onClose={() => setCreateModalOpen(false)}
+                mode="create"
+            />
         </div>
     );
 }

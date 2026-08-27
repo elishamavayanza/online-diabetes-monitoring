@@ -53,6 +53,7 @@
 @use './components/Navigation/right-sidebar' as *;
 @use 'components/UI/collapsible' as *;
 @use 'components/UI/popover-menu' as *;
+@use 'components/UI/_imageEditor' as *;
 @use './layouts/layouts' as *;
 @use '../react/app/layouts/MainLayout/MainLayout' as *;
 

@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { useIconButton, UseIconButtonProps } from '../../../hook-components/UI/IconButton';
+import { useIconButton, UseIconButtonProps } from '@/react/hook-components/UI/IconButton';
 
 export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, UseIconButtonProps {
     icon: React.ReactNode;

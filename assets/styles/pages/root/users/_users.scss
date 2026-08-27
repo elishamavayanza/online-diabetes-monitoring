@@ -103,6 +103,74 @@
     }
 }
 
+.user-form-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__content {
+        // éventuellement margin-bottom
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;   // aligne à droite
+        gap: 1rem;                   // espace entre les boutons
+        flex-wrap: nowrap;           // empêche le passage à la ligne
+        margin-top: 1.5rem;
+    }
+}
+
+.avatar-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    &__preview {
+        position: relative;
+        cursor: pointer;
+    }
+
+    &__edit {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    &__remove {
+        background: none;
+        border: none;
+        color: var(--color-error);
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+}
+.user-form-modal {
+    &__summary {
+        p {
+            margin: 0.5rem 0;
+        }
+        strong {
+            color: var(--color-primary);
+            margin-right: 0.5rem;
+        }
+    }
+}
+
 .users-card {
     @include card;
 }
