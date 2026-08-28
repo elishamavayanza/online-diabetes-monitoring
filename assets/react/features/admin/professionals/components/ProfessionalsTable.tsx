@@ -6,9 +6,10 @@ import { Professional } from '../types';
 
 interface ProfessionalsTableProps {
     professionals: Professional[];
+    onViewDetails?: (professional: Professional) => void;
 }
 
-export function ProfessionalsTable({ professionals }: ProfessionalsTableProps) {
+export function ProfessionalsTable({ professionals, onViewDetails }: ProfessionalsTableProps) {
     const columns = [
         { key: 'nom', title: 'Nom' },
         { key: 'type', title: 'Type' },
@@ -28,7 +29,11 @@ export function ProfessionalsTable({ professionals }: ProfessionalsTableProps) {
             key: 'actions',
             title: 'Actions',
             render: (row: Professional) => (
-                <Button variant="secondary" size="small" onClick={() => console.log('Détails', row.id)}>
+                <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={() => onViewDetails?.(row)}
+                >
                     Détails
                 </Button>
             ),

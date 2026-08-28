@@ -28,7 +28,7 @@ interface EstablishmentsTreeTableProps {
     filter?: string;
     onViewDetails?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
     onAddDepartment?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
-    onNodeDoubleClick?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void; //  déjà déclarée
+    onNodeDoubleClick?: (node: TreeTableNode<EstablishmentTreeNodeData>) => void;
 }
 
 export function EstablishmentsTreeTable({
@@ -36,7 +36,7 @@ export function EstablishmentsTreeTable({
                                             filter,
                                             onViewDetails,
                                             onAddDepartment,
-                                            onNodeDoubleClick, //  AJOUT MANQUANT dans le destructuring
+                                            onNodeDoubleClick,
                                         }: EstablishmentsTreeTableProps) {
     const columns: TreeTableColumn<EstablishmentTreeNodeData>[] = [
         {

@@ -11,13 +11,14 @@
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
             color: var(--color-primary);
-            text-align: center;          // titre centré
+            text-align: center;
         }
+
         p {
             font-size: 1rem;
             color: var(--color-text);
             opacity: 0.8;
-            text-align: left;             // sous-titre aligné à gauche
+            text-align: left;
             margin: 0;
             width: 100%;
         }
@@ -25,7 +26,126 @@
 
     &__actions {
         display: flex;
-        justify-content: flex-end;        // bouton à droite
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    //  La barre de recherche occupe tout l'espace disponible
+    &__search {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: 100%;
+
+        // Force le wrapper interne du SearchInput à prendre toute la largeur
+        > * {
+            width: 100%;
+        }
+    }
+
+
+    // Le bouton ne prend que la largeur de son contenu
+    .btn {
+        width: auto;
+        flex: 0 0 auto;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+}
+
+/* ============================================================
+   Modal professionnel – Stepper
+   ============================================================ */
+.professional-form-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__content {
+        // espacement optionnel
+    }
+
+    // Footer du modal : Précédent à gauche, Suivant/Créer à droite
+    &__footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+
+        // Si un seul bouton, le pousse à droite
+        > .btn:only-child {
+            margin-left: auto;
+        }
+    }
+
+    &__summary {
+        p {
+            margin: 0.5rem 0;
+        }
+        strong {
+            color: var(--color-primary);
+            margin-right: 0.5rem;
+        }
+    }
+}
+
+.professional-details {
+    padding: 1rem;
+
+    &__header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+
+        h2 { margin: 0; color: var(--color-primary); }
+        p { margin: 0; color: var(--color-text); opacity: 0.8; }
+    }
+
+    &__body {
+        p {
+            margin: 0.5rem 0;
+            color: var(--color-text);
+        }
+        strong {
+            color: var(--color-primary);
+            margin-right: 0.5rem;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+}
+
+.attach-patient-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    // Grille à deux colonnes pour les champs
+    &__grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+
+        // Sur mobile, une seule colonne
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    // Actions en bas
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
     }
 }
 

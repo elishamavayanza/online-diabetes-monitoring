@@ -1,0 +1,71 @@
+@use '../../baseVariables/variables' as *;
+@use '../../baseVariables/mixins' as *;
+
+.searchable-select {
+    position: relative;
+    width: 100%;
+
+    &__input {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        background-color: color-mix(in srgb, var(--color-surface) 35%, transparent);
+        color: var(--color-text);
+        font-family: inherit;
+        font-size: 1rem;
+        transition: border-color 0.2s, background-color 0.2s;
+        outline: none;
+
+        &:focus {
+            border-color: var(--color-primary);
+            background-color: color-mix(in srgb, var(--color-surface) 50%, transparent);
+        }
+
+        &::placeholder {
+            color: rgba(30, 42, 50, 0.4);
+        }
+    }
+
+    &__dropdown {
+        position: absolute;
+        top: calc(100% + 0.25rem);
+        left: 0;
+        right: 0;
+        max-height: 220px;
+        overflow-y: auto;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.75rem;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        z-index: 1000;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__option {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        color: var(--color-text);
+        transition: background-color 0.2s, color 0.2s;
+
+        &:hover {
+            background-color: rgba(44, 122, 123, 0.08);
+        }
+
+        &--selected {
+            background-color: rgba(44, 122, 123, 0.15);
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+    }
+
+    &__empty {
+        padding: 0.75rem;
+        text-align: center;
+        color: var(--color-text);
+        opacity: 0.6;
+    }
+}
