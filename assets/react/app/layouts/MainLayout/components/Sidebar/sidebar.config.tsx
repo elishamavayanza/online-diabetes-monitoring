@@ -85,7 +85,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Personnel",
             items: [
                 { id: "professionals", label: "Professionnels", icon: <ProfessionalsIcon />, route: "/admin/professionals", permission: "PROFESSIONAL_VIEW" },
-                { id: "members", label: "Membres", icon: <MembersIcon />, route: "/admin/members", permission: "MEMBER_VIEW" },
+                // { id: "members", label: "Membres", icon: <MembersIcon />, route: "/admin/members", permission: "MEMBER_VIEW" },
             ],
         },
         {
