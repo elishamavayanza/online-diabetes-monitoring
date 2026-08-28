@@ -6,9 +6,10 @@ import { Patient } from '../types';
 
 interface PatientsTableProps {
     patients: Patient[];
+    onViewDetails?: (patient: Patient) => void;
 }
 
-export function PatientsTable({ patients }: PatientsTableProps) {
+export function PatientsTable({ patients, onViewDetails }: PatientsTableProps) {
     const columns = [
         { key: 'nom', title: 'Nom' },
         { key: 'dateNaissance', title: 'Date de naissance' },
@@ -27,7 +28,11 @@ export function PatientsTable({ patients }: PatientsTableProps) {
             key: 'actions',
             title: 'Actions',
             render: (row: Patient) => (
-                <Button variant="secondary" size="small" onClick={() => console.log('Détails', row.id)}>
+                <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={() => onViewDetails?.(row)}
+                >
                     Détails
                 </Button>
             ),
