@@ -11,28 +11,102 @@
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
             color: var(--color-primary);
-            text-align: center;          // titre centré
+            text-align: center;
         }
         p {
             font-size: 1rem;
             color: var(--color-text);
             opacity: 0.8;
-            text-align: left;             // sous-titre aligné à gauche
+            text-align: left;
             margin: 0;
             width: 100%;
         }
     }
 
+    // ✅ Utilisation de grid pour une meilleure maîtrise
     &__actions {
-        display: flex;
-        justify-content: flex-end;        // bouton à droite
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
     }
-}
 
-.patients-filter {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+    // La barre de recherche occupe la première colonne (largeur flexible)
+    &__search {
+        min-width: 0;             // permet de rétrécir
+        width: 100%;
+
+        > * {
+            width: 100%;
+        }
+    }
+
+    &__filter-wrapper {
+        position: relative;
+    }
+
+    &__filter-btn {
+        background: none;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--color-text);
+        transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+
+        &:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        &--active {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-on-primary);
+        }
+    }
+
+    &__filter-dropdown {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        min-width: 180px;
+        z-index: 4200;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__filter-option {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        &--selected {
+            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+    }
+
+    &__add-btn {
+        white-space: nowrap;
+    }
 }
 
 .patients-card {
