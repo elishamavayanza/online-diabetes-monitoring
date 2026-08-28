@@ -4,13 +4,245 @@
 .appointments-page {
     display: flex;
     flex-direction: column;
+    height: 100%;
     gap: 1.5rem;
 
     &__header {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: center;
-        h1 { font-size: 1.8rem; color: var(--color-primary); margin: 0; }
+        gap: 0.25rem;
+        flex-shrink: 0;
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin: 0;
+            text-align: center;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--color-text);
+            opacity: 0.8;
+            margin: 0;
+            text-align: left;
+            width: 100%;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
+
+    &__body {
+        flex: 1;
+        display: flex;
+        min-height: 0;
+        gap: 1rem;
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0;
+        overflow-y: auto;
+    }
+
+    // Panneau droit : conteneur du calendrier
+    &__right-content {
+        padding: 0.5rem;
+        color: var(--color-text);
+        font-size: 0.95rem;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: hidden;
+    }
+}
+
+/* ============================================================
+   Calendrier dans le panneau droit (responsive)
+   ============================================================ */
+.appointments-page__right-content {
+    .calendar {
+        width: 100%;
+        min-width: 0;               // permet de rétrécir
+        flex: 1;                    // occupe tout l'espace vertical restant
+        overflow-y: auto;           // défilement si nécessaire
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        &__header {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: nowrap;
+            padding: 0 0.25rem;
+
+            .calendar__nav {
+                width: 28px;
+                height: 28px;
+                padding: 0;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .calendar__title {
+                flex: 1;
+                text-align: center;
+                font-size: 0.95rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .calendar__today {
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
+                flex-shrink: 0;
+            }
+        }
+
+        &__weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            padding: 0 0.25rem;
+
+            .calendar__weekday {
+                font-size: 0.7rem;
+                text-align: center;
+                text-transform: uppercase;
+                font-weight: 600;
+                color: var(--color-text);
+                opacity: 0.7;
+            }
+        }
+
+        &__grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            padding: 0 0.25rem;
+        }
+
+        &__day {
+            aspect-ratio: 1 / 1;    // cellules carrées, s'adaptent à la largeur
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border-radius: 0.5rem;
+            padding: 0;
+            position: relative;
+            transition: background-color 0.2s;
+
+            &:hover {
+                background-color: rgba(44, 122, 123, 0.08);
+            }
+
+            &--today {
+                font-weight: 700;
+                border: 1px solid var(--color-primary);
+            }
+
+            &--selected {
+                background-color: var(--color-primary);
+                color: var(--color-on-primary);
+            }
+
+            &--outside {
+                opacity: 0.4;
+            }
+        }
+
+        &__markers {
+            position: absolute;
+            bottom: 2px;
+            display: flex;
+            gap: 1px;
+
+            .calendar__marker {
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background-color: var(--color-primary);
+            }
+        }
+    }
+}
+
+/* ============================================================
+   Formulaire de création de rendez-vous
+   ============================================================ */
+
+.appointment-form-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    width: 100%;
+    margin-bottom: 1rem;
+    min-width: 0;
+
+    // Chaque FormField occupe exactement sa colonne
+    > * {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    // Si FormField utilise cette classe
+    .form-field {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    // Contrôle des composants Input / Select
+    input,
+    select,
+    textarea {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.appointment-form-notes {
+    width: 100%;
+    min-width: 0;
+
+    input,
+    textarea {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.appointment-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Optionnel : médias queries pour très petit panneau */
+@media (max-width: 300px) {
+    .appointments-page__right-content {
+        .calendar {
+            &__header .calendar__title {
+                font-size: 0.85rem;
+            }
+            &__day {
+                font-size: 0.7rem;
+            }
+        }
     }
 }
 

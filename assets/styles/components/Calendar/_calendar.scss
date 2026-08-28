@@ -2,16 +2,21 @@
 @use '../../baseVariables/variables' as *;
 
 /* ============================================================
-   Calendrier – Calendar
+   Calendrier – Calendar (moderne)
    ============================================================ */
 .calendar {
     width: 100%;
     max-width: 400px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
+    border: none;
+    border-radius: 1rem;
     padding: 1rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    // ✅ Fond semi-transparent avec dégradés radiaux
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(44, 122, 123, 0.20) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(118, 184, 184, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 60% 40%, rgba(244, 162, 97, 0.12) 0%, transparent 50%),
+        rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 
     &__header {
         display: flex;
@@ -26,14 +31,16 @@
         border: none;
         cursor: pointer;
         padding: 0.5rem;
-        border-radius: 0.25rem;
+        border-radius: 50%;
         color: var(--color-text);
         display: inline-flex;
         align-items: center;
-        transition: background-color 0.2s;
+        justify-content: center;
+        transition: background-color 0.2s, color 0.2s;
 
         &:hover {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+            background-color: rgba(44, 122, 123, 0.1);
+            color: var(--color-primary);
         }
     }
 
@@ -56,13 +63,15 @@
         border: 1px solid var(--color-border);
         cursor: pointer;
         padding: 0.25rem 0.75rem;
-        border-radius: 0.25rem;
-        font-size: 0.9rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 500;
         color: var(--color-primary);
-        transition: background-color 0.2s;
+        transition: background-color 0.2s, border-color 0.2s;
 
         &:hover {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.1);
+            background-color: rgba(44, 122, 123, 0.1);
+            border-color: var(--color-primary);
         }
     }
 
@@ -70,13 +79,15 @@
     &__grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 2px;
+        gap: 4px;
     }
 
     &__weekday {
         text-align: center;
-        font-weight: 500;
-        font-size: 0.85rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         color: var(--color-text);
         opacity: 0.7;
         padding: 0.5rem 0;
@@ -90,16 +101,17 @@
         justify-content: center;
         min-height: 2.5rem;
         padding: 0.25rem;
-        background: none;
+        background: rgba(255, 255, 255, 0.3);   // léger fond pour chaque jour
         border: none;
-        border-radius: 0.25rem;
+        border-radius: 0.5rem;
         cursor: pointer;
-        transition: background-color 0.2s, color 0.2s;
+        transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
         color: var(--color-text);
         font-size: 0.9rem;
 
         &:hover:not(&--disabled) {
-            background-color: rgba(var(--color-primary-rgb, 44, 122, 123), 0.08);
+            background-color: rgba(44, 122, 123, 0.08);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
 
         &--outside {
@@ -109,11 +121,13 @@
         &--today {
             font-weight: 700;
             color: var(--color-primary);
+            box-shadow: inset 0 0 0 1px var(--color-primary);
         }
 
         &--selected {
             background-color: var(--color-primary);
             color: var(--color-on-primary);
+            box-shadow: 0 4px 12px rgba(44, 122, 123, 0.3);
             &:hover {
                 background-color: var(--color-primary);
             }
@@ -127,6 +141,7 @@
 
     &__day-number {
         line-height: 1;
+        font-weight: 500;
     }
 
     &__markers {
@@ -153,5 +168,34 @@
         &--info {
             background-color: var(--color-primary);
         }
+    }
+}
+.calendar__day--has-events {
+    // Bordure colorée pour signaler la présence d'événements
+    border: 1px solid var(--color-primary);
+    // Fond légèrement teinté
+    background-color: rgba(44, 122, 123, 0.08);
+    // Curseur (déjà pointer par défaut, mais peut être conservé)
+    cursor: pointer;
+
+    // Le numéro du jour en couleur primaire et plus gras
+    .calendar__day-number {
+        color: var(--color-primary);
+        font-weight: 700;
+    }
+
+    // Si le jour est aussi sélectionné, on garde le style de sélection prioritaire
+    &.calendar__day--selected {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        .calendar__day-number {
+            color: var(--color-on-primary);
+        }
+    }
+
+    // Si le jour est aujourd'hui, on peut ajuster (optionnel)
+    &.calendar__day--today {
+        // Par exemple, garder la bordure primaire mais renforcer le fond
+        border: 2px solid var(--color-primary);
     }
 }

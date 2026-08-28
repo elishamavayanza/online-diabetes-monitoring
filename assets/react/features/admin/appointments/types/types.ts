@@ -1,3 +1,4 @@
+// src/react/features/admin/appointments/types.ts
 export type AppointmentStatus = 'Pending' | 'Confirmed' | 'Cancelled';
 
 export interface Appointment {
@@ -5,29 +6,25 @@ export interface Appointment {
     patient: string;
     professionnel: string;
     etablissement: string;
-    date: string;
+    date: string; // 'YYYY-MM-DD'
     heure: string;
     statut: AppointmentStatus;
-    // Champs supplémentaires pour l'édition (optionnels)
-    patientId?: string;
-    professionalId?: string;
-    organizationId?: string;
-    facilityId?: string | null;
-    scheduledAt?: string;
-    durationMinutes?: number;
-    status?: string; // peut être différent du statut affiché
-    reason?: string;
-    notes?: string;
 }
+
 export type AppointmentPeriod = 'today' | 'week' | 'month' | 'history' | 'all';
 export interface AppointmentFormData {
     patientId: string;
     professionalId: string;
     organizationId: string;
     facilityId?: string | null;
-    scheduledAt: string;
+    scheduledAt: string; // format datetime-local ou ISO
     durationMinutes: number;
     status: string;
     reason?: string;
     notes?: string;
+}
+
+export interface SelectOption {
+    value: string;
+    label: string;
 }

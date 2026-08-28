@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCalendar, UseCalendarProps } from '../../../hook-components/Calendars/Calendar';
+import { useCalendar, UseCalendarProps } from '@/react/hook-components/Calendars/Calendar';
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 const MONTHS = [
@@ -87,20 +87,22 @@ export function Calendar({
                             !day.isCurrentMonth ? 'calendar__day--outside' : ''
                         } ${day.isToday ? 'calendar__day--today' : ''} ${
                             day.isSelected ? 'calendar__day--selected' : ''
-                        } ${day.isDisabled ? 'calendar__day--disabled' : ''}`}
+                        } ${day.isDisabled ? 'calendar__day--disabled' : ''} ${
+                            day.markers.length > 0 ? 'calendar__day--has-events' : ''
+                        }`}
                         onClick={() => !day.isDisabled && selectDate(day.date)}
                         disabled={day.isDisabled}
                     >
                         <span className="calendar__day-number">{day.date.getDate()}</span>
                         {day.markers.length > 0 && (
                             <span className="calendar__markers">
-                {day.markers.map((marker, idx) => (
-                    <span
-                        key={idx}
-                        className={`calendar__marker calendar__marker--${marker}`}
-                    />
-                ))}
-              </span>
+                                {day.markers.map((marker, idx) => (
+                                    <span
+                                        key={idx}
+                                        className={`calendar__marker calendar__marker--${marker}`}
+                                    />
+                                ))}
+                            </span>
                         )}
                     </button>
                 ))}
