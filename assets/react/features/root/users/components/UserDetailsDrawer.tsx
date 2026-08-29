@@ -62,21 +62,21 @@ export function UserDetailsDrawer({
                 </div>
 
                 <div className="user-details__actions">
-                    {user.organisation ? (
-                        <Button variant="primary" onClick={() => onModifyAffectation(user)}>
-                            Modifier l’affectation
-                        </Button>
-                    ) : (
-                        <Button variant="primary" onClick={() => onAffect(user)}>
-                            Affecter
-                        </Button>
-                    )}
-                    <Button variant="outline" onClick={() => onModify(user)}>
-                        Modifier
-                    </Button>
-                    <Button variant="danger" onClick={() => onSuspend(user)}>
-                        Suspendre
-                    </Button>
+                    {/*{user.organisation ? (*/}
+                    {/*    // <Button variant="primary" onClick={() => onModifyAffectation(user)}>*/}
+                    {/*    //     Modifier l’affectation*/}
+                    {/*    // </Button>*/}
+                    {/*) : (*/}
+                    {/*    // <Button variant="primary" onClick={() => onAffect(user)}>*/}
+                    {/*    //     Affecter*/}
+                    {/*    // </Button>*/}
+                    {/*)}*/}
+                    {/*/!*<Button variant="outline" onClick={() => onModify(user)}>*!/*/}
+                    {/*/!*    Modifier*!/*/}
+                    {/*/!*</Button>*!/*/}
+                    {/*<Button variant="danger" onClick={() => onSuspend(user)}>*/}
+                    {/*    Suspendre*/}
+                    {/*</Button>*/}
                 </div>
             </div>
         </Drawer>

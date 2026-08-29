@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Form } from '@/react/components/Forms/Form';
 import { FormField } from '@/react/components/Forms/FormField';
@@ -7,7 +7,9 @@ import { Select } from '@/react/components/Forms/Select';
 import { Switch } from '@/react/components/Forms/Switch';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
+import { FileUpload } from '@/react/components/Forms/FileUpload';
 import { useCreateOrganisation } from '../hooks/useCreateOrganisation';
+import {ImageEditor} from "@/react/components/UI/ImageEditor/ImageEditor";
 
 interface OrganisationFormModalProps {
     isOpen: boolean;
@@ -17,11 +19,37 @@ interface OrganisationFormModalProps {
 export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModalProps) {
     const { form, updateField, updateAddress, submit, isSubmitting, error } = useCreateOrganisation();
 
+    // États pour le logo
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [isEditorOpen, setIsEditorOpen] = useState(false);
+
     const typeOptions = [
         { value: 'HOSPITAL', label: 'Hôpital' },
         { value: 'CLINIC', label: 'Clinique' },
         { value: 'NETWORK', label: 'Réseau' },
     ];
+
+    const handleFilesSelected = (files: File[]) => {
+        if (files.length > 0) {
+            const file = files[0];
+            setLogoFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target?.result as string;
+                setLogoPreview(dataUrl);
+                updateField('logoUrl', dataUrl); // met à jour le champ logoUrl avec le dataURL
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleApplyEditedImage = (result: string, file?: File) => {
+        setLogoPreview(result);
+        updateField('logoUrl', result);
+        if (file) setLogoFile(file);
+        setIsEditorOpen(false);
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,12 +106,36 @@ export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModal
                             placeholder="https://www.diabcare.com"
                         />
                     </FormField>
-                    <FormField label="Logo URL">
-                        <Input
-                            value={form.logoUrl}
-                            onChange={(e) => updateField('logoUrl', e.target.value)}
-                            placeholder="https://storage.diabcare.com/logos/dhg.png"
-                        />
+
+                    {/* Section Logo avec upload et aperçu */}
+                    <FormField label="Logo de l'organisation">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                            <FileUpload
+                                accept="image/*"
+                                multiple={false}
+                                maxFiles={1}
+                                maxSizeInMB={5}
+                                label="Cliquez ou déposez le logo ici"
+                                hint="PNG, JPG ou SVG recommandé"
+                                onFilesSelected={handleFilesSelected}
+                            />
+                            {logoPreview && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <img
+                                        src={logoPreview}
+                                        alt="Aperçu du logo"
+                                        style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover' }}
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setIsEditorOpen(true)}
+                                    >
+                                        Éditer l'image
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                     </FormField>
 
                     {/* Adresse */}
@@ -129,6 +181,19 @@ export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModal
                     </div>
                 </Form>
             </div>
+
+            {/* Modal d'édition d'image */}
+            {isEditorOpen && logoPreview && (
+                <Modal isOpen={isEditorOpen} onClose={() => setIsEditorOpen(false)}>
+                    <ImageEditor
+                        src={logoPreview}
+                        onCancel={() => setIsEditorOpen(false)}
+                        onApply={handleApplyEditedImage}
+                        aspect={1}
+                        outputSize={300}
+                    />
+                </Modal>
+            )}
         </Modal>
     );
 }

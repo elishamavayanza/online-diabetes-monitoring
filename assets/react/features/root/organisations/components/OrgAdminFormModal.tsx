@@ -11,6 +11,7 @@ import { useCreateOrgAdmin } from '../hooks/useCreateOrgAdmin';
 interface OrgAdminFormModalProps {
     isOpen: boolean;
     onClose: () => void;
+    organizationId: string;
 }
 
 export function OrgAdminFormModal({ isOpen, onClose }: OrgAdminFormModalProps) {

@@ -85,7 +85,41 @@
     }
 }
 
+/* Styles pour le tableau des organisations */
+.organisations-table {
+    &__actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        justify-content: flex-end; // ✅ aligne les boutons à droite dans la cellule
+    }
 
+    &__avatar-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__avatar-initials {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+}
+
+/* Aligner toute la colonne Actions à droite */
+.organisations-card .datatable__table th:last-child,
+.organisations-card .datatable__table td:last-child {
+    text-align: right;
+}
 .organisations-card {
     @include card;
 }

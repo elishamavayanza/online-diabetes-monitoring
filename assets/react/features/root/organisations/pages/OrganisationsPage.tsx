@@ -19,6 +19,7 @@ import { Department } from '../types/department';
 import { TreeNode } from "@/react/hook-components/Data/Tree/types";
 import { OrgAdminFormModal } from '../components/OrgAdminFormModal';
 import { NodeDetailsPanel } from '../components/NodeDetailsPanel';
+import { OrganisationsTable } from '../components/OrganisationsTable';
 
 export function OrganisationsPage() {
     const { treeNodes, isLoading, error } = useOrganisations();
@@ -38,6 +39,7 @@ export function OrganisationsPage() {
     const [modalAdminOpen, setModalAdminOpen] = useState(false);
     const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedAdminOrgId, setSelectedAdminOrgId] = useState<string>('');
 
     const openAddModal = () => {
         setModalCreateOpen(true);
@@ -47,6 +49,28 @@ export function OrganisationsPage() {
     const handleNodeClick = (node: TreeNode) => {
         setSelectedNode(node);
         setIsDrawerOpen(true);
+    };
+
+    const handleAddAdmin = (node: TreeNode) => {
+        setSelectedAdminOrgId(node.id);
+        setModalAdminOpen(true);
+        pushAction(() => setModalAdminOpen(false));
+    };
+
+    const handleModify = (node: TreeNode) => {
+        // Votre logique de modification
+        if (node.data && typeof node.data === 'object') {
+            const data = node.data as Record<string, unknown>;
+            if (data.dataType === 'organisation') {
+                setEditingOrg(data as unknown as CreateOrganisationPayload);
+                setModalEditOpen(true);
+            }
+        }
+    };
+
+    const handleSuspend = (node: TreeNode) => {
+        console.log('Suspendre', node.label);
+        // Appeler votre service de suspension
     };
 
 
@@ -112,12 +136,27 @@ export function OrganisationsPage() {
                 <Button onClick={openAddModal} className="organisations-page__add-btn">Ajouter une organisation</Button>
             </div>
 
-            <OrganisationsTree
+            {/*<OrganisationsTree*/}
+            {/*    treeNodes={treeNodes}*/}
+            {/*    filter={search}*/}
+            {/*    onAction={handleAction}*/}
+            {/*    onNodeClick={handleNodeClick}*/}
+            {/*/>*/}
+
+            <OrganisationsTable
                 treeNodes={treeNodes}
-                filter={search}
-                onAction={handleAction}
-                onNodeClick={handleNodeClick}
+                onDetail={handleNodeClick}
+                onModify={handleModify}
+                onSuspend={handleSuspend}
+                onAddAdmin={handleAddAdmin}
             />
+
+            {/*// Modal admin :*/}
+            {/*<OrgAdminFormModal*/}
+            {/*    isOpen={modalAdminOpen}*/}
+            {/*    onClose={() => setModalAdminOpen(false)}*/}
+            {/*    organizationId={selectedAdminOrgId}*/}
+            {/*/>*/}
 
             {/* Modales organisation */}
             <OrganisationFormModal
@@ -162,6 +201,7 @@ export function OrganisationsPage() {
             <OrgAdminFormModal
                 isOpen={modalAdminOpen}
                 onClose={() => setModalAdminOpen(false)}
+                organizationId={selectedAdminOrgId}
             />
 
             <NodeDetailsPanel
@@ -169,6 +209,7 @@ export function OrganisationsPage() {
                 onClose={() => setIsDrawerOpen(false)}
                 node={selectedNode}
             />
+
         </div>
     );
 }

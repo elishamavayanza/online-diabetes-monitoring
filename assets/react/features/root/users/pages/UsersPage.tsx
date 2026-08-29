@@ -243,9 +243,9 @@ export function UsersPage() {
                     )}
                 </div>
 
-                <Button onClick={openCreateModal} className="users-page__add-btn">
-                    Créer un utilisateur
-                </Button>
+                {/*<Button onClick={openCreateModal} className="users-page__add-btn">*/}
+                {/*    Créer un utilisateur*/}
+                {/*</Button>*/}
             </div>
 
             <Tabs
