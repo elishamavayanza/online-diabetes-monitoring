@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createOrganisation } from '../services/organisationsService';
-import { CreateOrganisationPayload, OrganisationType } from '../types';
+import { CreateOrganisationPayload } from '../types';
+import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext'; // ✅ bon import
 
 const initialForm: CreateOrganisationPayload = {
     name: '',
@@ -20,7 +21,9 @@ const initialForm: CreateOrganisationPayload = {
 };
 
 export function useCreateOrganisation() {
+    const { showToast } = useToast(); // ✅ showToast
     const [form, setForm] = useState<CreateOrganisationPayload>(initialForm);
+    const [logoFile, setLogoFile] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -41,15 +44,30 @@ export function useCreateOrganisation() {
         }));
     };
 
-    const submit = async () => {
+    const setLogo = (file: File | null) => {
+        setLogoFile(file);
+    };
+
+    const submit = async (): Promise<boolean> => {
+        if (!form.name.trim()) {
+            setError('Le nom complet est obligatoire');
+            showToast({ type: 'error', message: 'Veuillez remplir les champs obligatoires.' });
+            return false;
+        }
+
         setIsSubmitting(true);
         setError(null);
         try {
-            await createOrganisation(form);
-            // Réinitialiser après succès
+            await createOrganisation(form, logoFile);
+            showToast({ type: 'success', message: 'Organisation créée avec succès.' });
             setForm(initialForm);
+            setLogoFile(null);
+            return true;
         } catch (err) {
-            setError('Erreur lors de la création.');
+            const message = err instanceof Error ? err.message : 'Erreur lors de la création.';
+            setError(message);
+            showToast({ type: 'error', message });
+            return false;
         } finally {
             setIsSubmitting(false);
         }
@@ -62,5 +80,6 @@ export function useCreateOrganisation() {
         submit,
         isSubmitting,
         error,
+        setLogo,
     };
 }

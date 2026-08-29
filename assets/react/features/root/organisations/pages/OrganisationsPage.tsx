@@ -22,10 +22,11 @@ import { NodeDetailsPanel } from '../components/NodeDetailsPanel';
 import { OrganisationsTable } from '../components/OrganisationsTable';
 
 export function OrganisationsPage() {
-    const { treeNodes, isLoading, error } = useOrganisations();
+    const { treeNodes, isLoading, error, refetch } = useOrganisations();
     const [modalCreateOpen, setModalCreateOpen] = useState(false);
     const [modalEditOpen, setModalEditOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<CreateOrganisationPayload | null>(null);
+    const [editingOrgId, setEditingOrgId] = useState<string>(''); //  ID de l'organisation à modifier
     const [modalCreateEstOpen, setModalCreateEstOpen] = useState(false);
     const [modalEditEstOpen, setModalEditEstOpen] = useState(false);
     const [editingEst, setEditingEst] = useState<Establishment | null>(null);
@@ -58,21 +59,24 @@ export function OrganisationsPage() {
     };
 
     const handleModify = (node: TreeNode) => {
-        // Votre logique de modification
         if (node.data && typeof node.data === 'object') {
             const data = node.data as Record<string, unknown>;
             if (data.dataType === 'organisation') {
                 setEditingOrg(data as unknown as CreateOrganisationPayload);
+                setEditingOrgId(node.id);
                 setModalEditOpen(true);
             }
         }
     };
 
-    const handleSuspend = (node: TreeNode) => {
-        console.log('Suspendre', node.label);
-        // Appeler votre service de suspension
+    const handleSuspend = async (node: TreeNode) => {
+        try {
+            await refetch();
+            console.log('Suspendre', node.label);
+        } catch (error) {
+            console.error('Erreur lors de la suspension :', error);
+        }
     };
-
 
     const handleAction = (action: string, node: TreeNode) => {
         switch (action) {
@@ -81,6 +85,7 @@ export function OrganisationsPage() {
                     const data = node.data as Record<string, unknown>;
                     if (data.dataType === 'organisation') {
                         setEditingOrg(data as unknown as CreateOrganisationPayload);
+                        setEditingOrgId(node.id);
                         setModalEditOpen(true);
                         pushAction(() => setModalEditOpen(false));
                     } else if (data.dataType === 'establishment') {
@@ -105,6 +110,7 @@ export function OrganisationsPage() {
                 pushAction(() => setModalCreateDepOpen(false));
                 break;
             case 'add-admin':
+                setSelectedAdminOrgId(node.id);
                 setModalAdminOpen(true);
                 pushAction(() => setModalAdminOpen(false));
                 break;
@@ -136,13 +142,6 @@ export function OrganisationsPage() {
                 <Button onClick={openAddModal} className="organisations-page__add-btn">Ajouter une organisation</Button>
             </div>
 
-            {/*<OrganisationsTree*/}
-            {/*    treeNodes={treeNodes}*/}
-            {/*    filter={search}*/}
-            {/*    onAction={handleAction}*/}
-            {/*    onNodeClick={handleNodeClick}*/}
-            {/*/>*/}
-
             <OrganisationsTable
                 treeNodes={treeNodes}
                 onDetail={handleNodeClick}
@@ -151,23 +150,19 @@ export function OrganisationsPage() {
                 onAddAdmin={handleAddAdmin}
             />
 
-            {/*// Modal admin :*/}
-            {/*<OrgAdminFormModal*/}
-            {/*    isOpen={modalAdminOpen}*/}
-            {/*    onClose={() => setModalAdminOpen(false)}*/}
-            {/*    organizationId={selectedAdminOrgId}*/}
-            {/*/>*/}
-
             {/* Modales organisation */}
             <OrganisationFormModal
                 isOpen={modalCreateOpen}
                 onClose={() => setModalCreateOpen(false)}
+                onSuccess={refetch}
             />
             {editingOrg && (
                 <OrganisationEditModal
                     isOpen={modalEditOpen}
                     onClose={() => setModalEditOpen(false)}
+                    organisationId={editingOrgId}
                     organisationData={editingOrg}
+                    onSuccess={refetch}
                 />
             )}
 
@@ -198,10 +193,13 @@ export function OrganisationsPage() {
                     department={editingDep}
                 />
             )}
+
+            {/* Modal admin */}
             <OrgAdminFormModal
                 isOpen={modalAdminOpen}
                 onClose={() => setModalAdminOpen(false)}
                 organizationId={selectedAdminOrgId}
+                onSuccess={refetch}   //  recharge après ajout admin
             />
 
             <NodeDetailsPanel
@@ -209,7 +207,6 @@ export function OrganisationsPage() {
                 onClose={() => setIsDrawerOpen(false)}
                 node={selectedNode}
             />
-
         </div>
     );
 }

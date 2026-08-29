@@ -9,15 +9,16 @@ import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { FileUpload } from '@/react/components/Forms/FileUpload';
 import { useCreateOrganisation } from '../hooks/useCreateOrganisation';
-import {ImageEditor} from "@/react/components/UI/ImageEditor/ImageEditor";
+import { ImageEditor } from '@/react/components/UI/ImageEditor/ImageEditor';
 
 interface OrganisationFormModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModalProps) {
-    const { form, updateField, updateAddress, submit, isSubmitting, error } = useCreateOrganisation();
+export function OrganisationFormModal({ isOpen, onClose, onSuccess }: OrganisationFormModalProps) {
+    const { form, updateField, updateAddress, submit, isSubmitting, error, setLogo } = useCreateOrganisation();
 
     // États pour le logo
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -34,11 +35,12 @@ export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModal
         if (files.length > 0) {
             const file = files[0];
             setLogoFile(file);
+            setLogo(file); // important pour l'upload
             const reader = new FileReader();
             reader.onload = (e) => {
                 const dataUrl = e.target?.result as string;
                 setLogoPreview(dataUrl);
-                updateField('logoUrl', dataUrl); // met à jour le champ logoUrl avec le dataURL
+                updateField('logoUrl', dataUrl);
             };
             reader.readAsDataURL(file);
         }
@@ -47,13 +49,20 @@ export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModal
     const handleApplyEditedImage = (result: string, file?: File) => {
         setLogoPreview(result);
         updateField('logoUrl', result);
-        if (file) setLogoFile(file);
+        if (file) {
+            setLogoFile(file);
+            setLogo(file);
+        }
         setIsEditorOpen(false);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        submit();
+        const success = await submit();
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
     };
 
     return (
@@ -107,7 +116,6 @@ export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModal
                         />
                     </FormField>
 
-                    {/* Section Logo avec upload et aperçu */}
                     <FormField label="Logo de l'organisation">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <FileUpload
@@ -138,7 +146,6 @@ export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModal
                         </div>
                     </FormField>
 
-                    {/* Adresse */}
                     <div className="organisation-form-modal__address">
                         <FormField label="Rue">
                             <Input
@@ -182,7 +189,6 @@ export function OrganisationFormModal({ isOpen, onClose }: OrganisationFormModal
                 </Form>
             </div>
 
-            {/* Modal d'édition d'image */}
             {isEditorOpen && logoPreview && (
                 <Modal isOpen={isEditorOpen} onClose={() => setIsEditorOpen(false)}>
                     <ImageEditor

@@ -12,10 +12,11 @@ interface OrgAdminFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     organizationId: string;
+    onSuccess?: () => void;
 }
 
-export function OrgAdminFormModal({ isOpen, onClose }: OrgAdminFormModalProps) {
-    const { form, updateField, updateAddress, submit, isSubmitting, error } = useCreateOrgAdmin();
+export function OrgAdminFormModal({ isOpen, onClose, organizationId, onSuccess }: OrgAdminFormModalProps) {
+    const { form, updateField, updateAddress, submit, isSubmitting, error } = useCreateOrgAdmin(organizationId);
 
     const genderOptions = [
         { value: 'MALE', label: 'Masculin' },
@@ -24,9 +25,13 @@ export function OrgAdminFormModal({ isOpen, onClose }: OrgAdminFormModalProps) {
         { value: 'UNSPECIFIED', label: 'Non spécifié' },
     ];
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        submit();
+        const success = await submit();
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
     };
 
     return (
@@ -84,7 +89,6 @@ export function OrgAdminFormModal({ isOpen, onClose }: OrgAdminFormModalProps) {
                         />
                     </FormField>
 
-                    {/* Adresse */}
                     <div className="organisation-form-modal__address">
                         <FormField label="Rue">
                             <Input value={form.address.street} onChange={(e) => updateAddress('street', e.target.value)} />

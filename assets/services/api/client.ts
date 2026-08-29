@@ -132,7 +132,15 @@ class HttpClient {
             };
 
             if (config.data !== undefined && config.method !== 'GET') {
-                fetchOptions.body = JSON.stringify(config.data);
+                if (config.data instanceof FormData) {
+                    fetchOptions.body = config.data;
+                    // Supprimer Content-Type pour que le navigateur définisse la boundary
+                    if (fetchOptions.headers && typeof fetchOptions.headers === 'object') {
+                        delete (fetchOptions.headers as Record<string, string>)['Content-Type'];
+                    }
+                } else {
+                    fetchOptions.body = JSON.stringify(config.data);
+                }
             }
 
             const raw = await fetch(url, fetchOptions);

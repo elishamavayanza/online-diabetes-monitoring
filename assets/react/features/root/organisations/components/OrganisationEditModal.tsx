@@ -8,25 +8,32 @@ import { Switch } from '@/react/components/Forms/Switch';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { FileUpload } from '@/react/components/Forms/FileUpload';
+import { ImageEditor } from '@/react/components/UI/ImageEditor/ImageEditor';
 import { useUpdateOrganisation } from '../hooks/useUpdateOrganisation';
 import { CreateOrganisationPayload } from '../types';
-import {ImageEditor} from "@/react/components/UI/ImageEditor/ImageEditor";
 
 interface OrganisationEditModalProps {
     isOpen: boolean;
     onClose: () => void;
+    organisationId: string;
     organisationData: CreateOrganisationPayload;
+    onSuccess?: () => void;
 }
 
-export function OrganisationEditModal({ isOpen, onClose, organisationData }: OrganisationEditModalProps) {
-    const { form, updateField, updateAddress, submit, isSubmitting, error } = useUpdateOrganisation(organisationData);
+export function OrganisationEditModal({
+                                          isOpen,
+                                          onClose,
+                                          organisationId,
+                                          organisationData,
+                                          onSuccess,
+                                      }: OrganisationEditModalProps) {
+    const { form, updateField, updateAddress, submit, isSubmitting, error, setLogo } =
+        useUpdateOrganisation(organisationId, organisationData);
 
-    // États pour le logo
     const [logoPreview, setLogoPreview] = useState<string | null>(organisationData.logoUrl || null);
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
 
-    // Synchroniser l'aperçu quand organisationData change
     useEffect(() => {
         setLogoPreview(organisationData.logoUrl || null);
     }, [organisationData]);
@@ -41,11 +48,12 @@ export function OrganisationEditModal({ isOpen, onClose, organisationData }: Org
         if (files.length > 0) {
             const file = files[0];
             setLogoFile(file);
+            setLogo(file);
             const reader = new FileReader();
             reader.onload = (e) => {
                 const dataUrl = e.target?.result as string;
                 setLogoPreview(dataUrl);
-                updateField('logoUrl', dataUrl); // met à jour le champ logoUrl avec le dataURL
+                updateField('logoUrl', dataUrl);
             };
             reader.readAsDataURL(file);
         }
@@ -54,13 +62,20 @@ export function OrganisationEditModal({ isOpen, onClose, organisationData }: Org
     const handleApplyEditedImage = (result: string, file?: File) => {
         setLogoPreview(result);
         updateField('logoUrl', result);
-        if (file) setLogoFile(file);
+        if (file) {
+            setLogoFile(file);
+            setLogo(file);
+        }
         setIsEditorOpen(false);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        submit();
+        const success = await submit();
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
     };
 
     return (
@@ -109,7 +124,6 @@ export function OrganisationEditModal({ isOpen, onClose, organisationData }: Org
                         />
                     </FormField>
 
-                    {/* Section Logo avec upload et aperçu */}
                     <FormField label="Logo de l'organisation">
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <FileUpload
@@ -140,7 +154,6 @@ export function OrganisationEditModal({ isOpen, onClose, organisationData }: Org
                         </div>
                     </FormField>
 
-                    {/* Adresse */}
                     <div className="organisation-form-modal__address">
                         <FormField label="Rue">
                             <Input value={form.address?.street ?? ''} onChange={(e) => updateAddress('street', e.target.value)} />
@@ -170,7 +183,6 @@ export function OrganisationEditModal({ isOpen, onClose, organisationData }: Org
                 </Form>
             </div>
 
-            {/* Modal d'édition d'image */}
             {isEditorOpen && logoPreview && (
                 <Modal isOpen={isEditorOpen} onClose={() => setIsEditorOpen(false)}>
                     <ImageEditor

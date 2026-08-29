@@ -1,7 +1,25 @@
 import { OrgAdminFormValues } from '../types/orgAdmin';
+import apiClient from "@/services/api/client";
 
-export async function createOrgAdmin(payload: OrgAdminFormValues): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log('Administrateur créé', payload);
-    // Appel API réel à implémenter
+interface ApiFeedback<T> {
+    status: number;
+    error: boolean;
+    message: string;
+    data: T;
+}
+
+export async function createOrgAdmin(
+    organizationId: string,
+    payload: OrgAdminFormValues
+): Promise<void> {
+    const response = await apiClient.post<ApiFeedback<unknown>>(
+        `/healthcare-organizations/${organizationId}/administrators`,
+        payload
+    );
+
+    if (response.data.error) {
+        throw new Error(
+            response.data.message || "Erreur lors de la création de l'administrateur"
+        );
+    }
 }
