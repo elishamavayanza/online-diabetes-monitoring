@@ -6,6 +6,7 @@ use App\DTO\Feedback;
 use App\DTO\Request\Identity\UserCreateRequestDTO;
 use App\Entity\Common\Gender;
 use App\Entity\Common\UserStatus;
+use App\Entity\Healthcare\OrganizationMembership;
 use App\Entity\Identity\Patient;
 use App\Entity\Identity\Role;
 use App\Mapper\Identity\UserMapper;
@@ -28,21 +29,30 @@ class UserService
     }
 
     /**
-     * Crée un compte utilisateur.
-     *
-     * Le compte est créé sans données métier spécifiques.
-     * Dans le modèle actuel, un compte utilisateur destiné au patient
-     * est représenté par l'entité Patient.
-     *
-     * Le profil patient sera complété séparément par PatientService.
+     * Crée un compte utilisateur (Patient).
      */
     public function create(UserCreateRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::MANAGE_USERS->value
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
             );
 
             // Vérification de l'unicité de l'e-mail.
@@ -54,16 +64,6 @@ class UserService
                     ->autoInitFlush();
             }
 
-            /*
-             * Dans ton héritage Doctrine actuel :
-             *
-             * User
-             *   └── Patient
-             *
-             * User étant abstraite, nous devons utiliser une classe concrète.
-             *
-             * Ce compte n'est cependant pas encore un profil patient complet.
-             */
             $user = new Patient();
 
             $user
@@ -73,7 +73,6 @@ class UserService
                 ->setGender($dto->gender !== null ? Gender::from($dto->gender) : null)
                 ->setLocale($dto->locale ?? 'fr');
 
-            // Hash du mot de passe.
             $user->setPasswordHash(
                 $this->passwordHasher->hashPassword(
                     $user,
@@ -81,21 +80,26 @@ class UserService
                 )
             );
 
-            // État initial du compte.
             $user->setStatus(
                 UserStatus::PENDING_ACTIVATION
             );
 
-            /*
-             * Le rôle définit le type d'accès.
-             *
-             * Ici, ce compte est destiné au patient.
-             */
             $user->setRoles([
                 Role::ROLE_PATIENT->value
             ]);
 
             $this->entityManager->persist($user);
+
+            // Rattachement automatique du patient à l'organisation via OrganizationMembership
+            $orgMembership = new OrganizationMembership();
+            $orgMembership->setUser($user);
+            $orgMembership->setOrganization($targetOrganization);
+            $orgMembership->setStartDate(new \DateTimeImmutable());
+            $orgMembership->setStatus(\App\Entity\Healthcare\MembershipStatus::ACTIVE);
+
+            $user->getOrganizationMemberships()->add($orgMembership);
+
+            $this->entityManager->persist($orgMembership);
             $this->entityManager->flush();
 
             return $feedback
@@ -103,12 +107,11 @@ class UserService
                     $this->mapper->mapEntityToResponse($user)
                 )
                 ->setFlushDescription(
-                    'Compte utilisateur créé avec succès.'
+                    'Compte utilisateur créé et rattaché à l’organisation avec succès.'
                 )
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
-
             return $feedback
                 ->setErrorFlushDescription(
                     'Accès refusé : ' . $e->getMessage()
@@ -116,11 +119,9 @@ class UserService
                 ->autoInitFlush();
 
         } catch (\Throwable $e) {
-
             return $feedback
                 ->setErrorFlushDescription(
-                    'Erreur lors de la création du compte utilisateur : '
-                    . $e->getMessage()
+                    'Erreur lors de la création : ' . $e->getMessage()
                 )
                 ->autoInitFlush();
         }

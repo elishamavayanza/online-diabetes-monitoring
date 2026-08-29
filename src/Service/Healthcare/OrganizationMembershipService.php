@@ -72,6 +72,79 @@ class OrganizationMembershipService
         return $feedback;
     }
 
+    /**
+     * Récupère toutes les personnes (utilisateurs rattachés via adhésion) d'une organisation spécifique.
+     */
+    public function getAllUsersForOrganization(\App\Entity\Healthcare\HealthcareOrganization $targetOrganization): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
+            );
+
+            $memberships = $this->membershipRepository->findBy(['organization' => $targetOrganization]);
+
+            $data = array_map(
+                fn($membership) => $this->mapper->mapEntityToResponse($membership),
+                $memberships
+            );
+
+            $feedback->setData($data)
+                ->setFlushDescription("Liste de toutes les personnes de l'organisation récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
+    /**
+     * Récupère tous les patients d'une organisation spécifique.
+     */
+    public function getAllPatientsForOrganization(\App\Entity\Healthcare\HealthcareOrganization $targetOrganization): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
+            );
+
+            $memberships = $this->membershipRepository->findBy(['organization' => $targetOrganization]);
+
+            // Filtrer uniquement les membres dont l'utilisateur associé est un Patient
+            $patientMemberships = array_filter($memberships, function($membership) {
+                $user = $membership->getUser();
+                return $user instanceof \App\Entity\Identity\Patient || in_array(\App\Entity\Identity\Role::ROLE_PATIENT->value, $user->getRoles(), true);
+            });
+
+            $data = array_map(
+                fn($membership) => $this->mapper->mapEntityToResponse($membership),
+                $patientMemberships
+            );
+
+            // Réindexer le tableau pour éviter des indices associatifs non séquentiels en JSON
+            $feedback->setData(array_values($data))
+                ->setFlushDescription("Liste de tous les patients de l'organisation récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
     public function create(OrganizationMembershipRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();

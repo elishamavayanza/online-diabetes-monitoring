@@ -38,6 +38,12 @@ class PatientResponseDTO
         #[OA\Property(type: 'string', nullable: true, example: 'ACTIVE', description: 'Statut du compte')]
         public readonly ?UserStatus $status,
 
+        #[OA\Property(type: 'string', nullable: true, example: 'org-uuid-123', description: 'ID de l’organisation')]
+        public readonly ?string $organizationId,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'Hôpital Général de Goma', description: 'Nom de l’organisation')]
+        public readonly ?string $organizationName,
+
         #[OA\Property(type: 'string', format: 'date', nullable: true, example: '1995-06-15', description: 'Date de naissance')]
         public readonly ?string $dateOfBirth,
 
@@ -75,6 +81,16 @@ class PatientResponseDTO
     public static function fromEntity(Patient $patient): self
     {
         $address = $patient->getAddress();
+        $orgId = null;
+        $orgName = null;
+
+        foreach ($patient->getOrganizationMemberships() as $membership) {
+            if ($membership->getStatus()?->isActive() && $membership->getOrganization() !== null) {
+                $orgId = (string) $membership->getOrganization()->getId();
+                $orgName = $membership->getOrganization()->getName();
+                break;
+            }
+        }
 
         return new self(
             id: (string) $patient->getId(),
@@ -85,6 +101,8 @@ class PatientResponseDTO
             gender: $patient->getGender(),
             locale: $patient->getLocale() ?? 'fr',
             status: $patient->getStatus(),
+            organizationId: $orgId,
+            organizationName: $orgName,
             dateOfBirth: $patient->getDateOfBirth()?->format('Y-m-d'),
             placeOfBirth: $patient->getPlaceOfBirth(),
             bloodType: $patient->getBloodType(),

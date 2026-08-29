@@ -21,6 +21,94 @@ class OrganizationMembershipController extends AbstractController
         private readonly OrganizationMembershipService $service
     ) {}
 
+    #[Route('/organization/{organizationId}/users/all', name: 'api_organization_memberships_list_users', methods: ['GET'], requirements: ['organization' => '.+'])]
+    #[OA\Get(
+        description: 'Récupère la liste de toutes les personnes (utilisateurs) rattachées à une organisation spécifique.',
+        summary: 'Lister toutes les personnes d’une organisation'
+    )]
+    #[OA\Parameter(
+        name: 'organizationId',
+        description: "L'identifiant de l'organisation de santé",
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'string')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Personnes récupérées avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: "Liste de toutes les personnes de l'organisation récupérée avec succès."),
+                new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: new Model(type: OrganizationMembershipResponseDTO::class)))
+            ]
+        )
+    )]
+    #[OA\Response(response: 404, description: 'Organisation introuvable')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Accès refusé')]
+    public function listUsers(string $organizationId, \App\Repository\Healthcare\HealthcareOrganizationRepository $organizationRepository): JsonResponse
+    {
+        $organization = $organizationRepository->find($organizationId);
+        if (!$organization) {
+            return $this->json([
+                'status' => Response::HTTP_NOT_FOUND,
+                'error' => true,
+                'message' => 'Organisation de santé introuvable.'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $feedback = $this->service->getAllUsersForOrganization($organization);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/organization/{organizationId}/patients/all', name: 'api_organization_memberships_list_patients', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère la liste de tous les patients rattachés à une organisation spécifique.',
+        summary: 'Lister tous les patients d’une organisation'
+    )]
+    #[OA\Parameter(
+        name: 'organizationId',
+        description: "L'identifiant de l'organisation de santé",
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'string')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Patients récupérés avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: "Liste de tous les patients de l'organisation récupérée avec succès."),
+                new OA\Property(property: 'data', type: 'array', items: new OA\Items(ref: new Model(type: OrganizationMembershipResponseDTO::class)))
+            ]
+        )
+    )]
+    #[OA\Response(response: 404, description: 'Organisation introuvable')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Accès refusé')]
+    public function listPatients(string $organizationId, \App\Repository\Healthcare\HealthcareOrganizationRepository $organizationRepository): JsonResponse
+    {
+        $organization = $organizationRepository->find($organizationId);
+        if (!$organization) {
+            return $this->json([
+                'status' => Response::HTTP_NOT_FOUND,
+                'error' => true,
+                'message' => 'Organisation de santé introuvable.'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $feedback = $this->service->getAllPatientsForOrganization($organization);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
     #[Route('', name: 'api_organization_memberships_create', methods: ['POST'])]
     #[OA\Post(
         description: 'Permet de rattacher un utilisateur (professionnel ou personnel) à une organisation, un établissement ou un département de santé.',

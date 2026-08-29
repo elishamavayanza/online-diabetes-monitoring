@@ -39,6 +39,12 @@ class HealthcareProfessionalResponseDTO
         #[OA\Property(type: 'string', nullable: true, example: 'ACTIVE', description: 'Statut du compte')]
         public readonly ?UserStatus $status,
 
+        #[OA\Property(type: 'string', nullable: true, example: 'org-uuid-123', description: 'ID de l’organisation')]
+        public readonly ?string $organizationId,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'Hôpital Général de Goma', description: 'Nom de l’organisation')]
+        public readonly ?string $organizationName,
+
         #[OA\Property(type: 'string', example: 'ORD-MED-2026-99', description: 'Numéro de licence')]
         public readonly string $licenseNumber,
 
@@ -76,6 +82,16 @@ class HealthcareProfessionalResponseDTO
     public static function fromEntity(HealthcareProfessional $professional): self
     {
         $address = $professional->getAddress();
+        $orgId = null;
+        $orgName = null;
+
+        foreach ($professional->getOrganizationMemberships() as $membership) {
+            if ($membership->getStatus()?->isActive() && $membership->getOrganization() !== null) {
+                $orgId = (string) $membership->getOrganization()->getId();
+                $orgName = $membership->getOrganization()->getName();
+                break;
+            }
+        }
 
         return new self(
             id: (string) $professional->getId(),
@@ -86,6 +102,8 @@ class HealthcareProfessionalResponseDTO
             gender: $professional->getGender(),
             locale: $professional->getLocale() ?? 'fr',
             status: $professional->getStatus(),
+            organizationId: $orgId,
+            organizationName: $orgName,
             licenseNumber: $professional->getLicenseNumber(),
             professionalType: $professional->getProfessionalType(),
             specialty: $professional->getSpecialty(),

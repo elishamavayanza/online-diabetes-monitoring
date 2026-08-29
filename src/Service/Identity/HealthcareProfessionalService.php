@@ -6,6 +6,7 @@ use App\DTO\Feedback;
 use App\DTO\Request\Identity\HealthcareProfessionalCreateRequestDTO;
 use App\DTO\Request\Identity\HealthcareProfessionalUpdateRequestDTO;
 use App\Entity\Common\UserStatus;
+use App\Entity\Healthcare\OrganizationMembership;
 use App\Entity\Identity\HealthcareProfessional;
 use App\Entity\Identity\ProfessionalType;
 use App\Entity\Identity\Role;
@@ -75,6 +76,7 @@ class HealthcareProfessionalService
                 ->autoInitFlush();
         }
     }
+
     /**
      * Récupère un professionnel par son ID.
      */
@@ -171,7 +173,7 @@ class HealthcareProfessionalService
             // Gestion de l'upload de l'avatar à la création
             if ($dto->avatarFile) {
                 $fileName = $this->fileUploader->upload($dto->avatarFile, 'avatars');
-                $professional->setAvatarUrl($fileName); // ou setAvatarPath selon votre entité
+                $professional->setAvatarUrl($fileName);
             }
 
             $hashedPassword = $this->passwordHasher->hashPassword(
@@ -193,10 +195,18 @@ class HealthcareProfessionalService
                 $role->value
             ]);
 
-            // Si nécessaire, rattachez le professionnel à l'organisation ici :
-            // $professional->addOrganization($targetOrganization);
-
             $this->entityManager->persist($professional);
+
+            // Rattachement automatique à l'organisation via OrganizationMembership
+            $orgMembership = new OrganizationMembership();
+            $orgMembership->setUser($professional);
+            $orgMembership->setOrganization($targetOrganization);
+            $orgMembership->setStartDate(new \DateTimeImmutable());
+            $orgMembership->setStatus(\App\Entity\Healthcare\MembershipStatus::ACTIVE);
+
+            $professional->getOrganizationMemberships()->add($orgMembership);
+
+            $this->entityManager->persist($orgMembership);
             $this->entityManager->flush();
 
             $responseDTO = $this->mapper->mapEntityToResponse(
@@ -254,7 +264,6 @@ class HealthcareProfessionalService
         try {
             $currentUser = $this->securityService->getCurrentUser();
 
-            // 1. On récupère d'abord le professionnel pour savoir qui on essaie de modifier
             $professional = $this->repository->findOneBy([
                 'id' => $id,
                 'deletedAt' => null
@@ -268,41 +277,25 @@ class HealthcareProfessionalService
                     ->autoInitFlush();
             }
 
-            // 2. Vérification des droits : Est-ce l'utilisateur lui-même OU un administrateur ?
             $isSelfUpdate = ($currentUser->getId() === $professional->getId());
 
+            $targetOrganization = null;
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée.');
+            }
+
             if (!$isSelfUpdate) {
-                // Si ce n'est pas lui-même, on applique la règle de contrôle administrateur
-                $targetOrganization = null;
-
-                foreach ($currentUser->getOrganizationMemberships() as $membership) {
-                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
-                        $targetOrganization = $membership->getOrganization();
-                        break;
-                    }
-                }
-
-                if (!$targetOrganization) {
-                    throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
-                }
-
                 $this->securityService->checkOrganizationAccess(
                     $targetOrganization,
                     SecurityAction::MANAGE_USERS
                 );
-            } else {
-                // Si c'est lui-même, on s'assure juste qu'il a une organisation active (ou selon votre règle métier de base)
-                $targetOrganization = null;
-                foreach ($currentUser->getOrganizationMemberships() as $membership) {
-                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
-                        $targetOrganization = $membership->getOrganization();
-                        break;
-                    }
-                }
-
-                if (!$targetOrganization) {
-                    throw new AccessDeniedException('Aucune organisation active trouvée.');
-                }
             }
 
             if ($dto->email !== null) {
@@ -327,14 +320,11 @@ class HealthcareProfessionalService
                 $professional
             );
 
-            // Gestion de l'upload de l'avatar à la modification
             if ($dto->avatarFile) {
-                // Supprimer l'ancienne image si elle existe
                 if ($professional->getAvatarUrl()) {
                     $this->fileUploader->remove($professional->getAvatarUrl(), 'avatars');
                 }
 
-                // Uploader la nouvelle
                 $fileName = $this->fileUploader->upload($dto->avatarFile, 'avatars');
                 $professional->setAvatarUrl($fileName);
             }

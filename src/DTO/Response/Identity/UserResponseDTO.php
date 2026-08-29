@@ -37,6 +37,12 @@ class UserResponseDTO
         #[OA\Property(type: 'string', example: 'ACTIVE', description: 'Statut')]
         public readonly string $status,
 
+        #[OA\Property(type: 'string', nullable: true, example: 'org-uuid-123', description: 'ID de l’organisation')]
+        public readonly ?string $organizationId,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'Hôpital Général de Goma', description: 'Nom de l’organisation')]
+        public readonly ?string $organizationName,
+
         #[OA\Property(ref: new Model(type: AddressResponseDTO::class), nullable: true, description: 'Adresse de l’utilisateur')]
         public readonly ?AddressResponseDTO $address,
 
@@ -52,6 +58,17 @@ class UserResponseDTO
 
     public static function fromEntity(User $user): self
     {
+        $orgId = null;
+        $orgName = null;
+
+        foreach ($user->getOrganizationMemberships() as $membership) {
+            if ($membership->getStatus()?->isActive() && $membership->getOrganization() !== null) {
+                $orgId = (string) $membership->getOrganization()->getId();
+                $orgName = $membership->getOrganization()->getName(); // Assurez-vous que getName() existe sur HealthcareOrganization
+                break;
+            }
+        }
+
         return new self(
             id: (string) $user->getId(),
             email: $user->getEmail(),
@@ -61,6 +78,8 @@ class UserResponseDTO
             gender: $user->getGender()?->value,
             locale: $user->getLocale(),
             status: $user->getStatus()?->value ?? '',
+            organizationId: $orgId,
+            organizationName: $orgName,
             address: $user->getAddress() ? AddressResponseDTO::fromEntity($user->getAddress()) : null,
             roles: $user->getRoles(),
             createdAt: $user->getCreatedAt(),
