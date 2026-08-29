@@ -21,7 +21,7 @@ class HealthcareOrganizationMapper
         $organization->setEmail($dto->email);
         $organization->setPhone($dto->phone);
         $organization->setWebsite($dto->website);
-        $organization->setLogoUrl($dto->logoUrl);
+        // Supprimé : $organization->setLogoUrl($dto->logoUrl); -> Géré par le Service via l'uploader
         $organization->setActive($dto->active);
 
         if (!empty($dto->address)) {

@@ -10,6 +10,7 @@ use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use App\Service\File\FileUploaderService;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class HealthcareOrganizationService
@@ -18,7 +19,8 @@ class HealthcareOrganizationService
         private readonly HealthcareOrganizationRepository $repository,
         private readonly HealthcareOrganizationMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly FileUploaderService $fileUploaderService
     ) {}
 
     public function getById(string $id): Feedback
@@ -84,6 +86,16 @@ class HealthcareOrganizationService
 
             $organization = $this->mapper->mapRequestToEntity($dto);
 
+            // Gestion de l'upload du logo s'il est présent
+            if ($dto->logoFile) {
+                // Upload du fichier dans un sous-dossier "organizations" par exemple
+                $fileName = $this->fileUploaderService->upload($dto->logoFile, 'organizations');
+
+                // Supposons que votre entité possède une méthode setLogoUrl ou setLogo
+                // Stockage du chemin d'accès ou du nom du fichier
+                $organization->setLogoUrl('/uploads/files/organizations/' . $fileName);
+            }
+
             $this->entityManager->persist($organization);
             $this->entityManager->flush();
 
@@ -113,8 +125,21 @@ class HealthcareOrganizationService
                 return $feedback;
             }
 
-            // Utilisation du mapper pour mettre à jour l'entité existante
+            // Utilisation du mapper pour mettre à jour les propriétés textuelles
             $this->mapper->mapRequestToEntity($dto, $organization);
+
+            // Gestion de l'upload d'un nouveau logo s'il est présent
+            if ($dto->logoFile) {
+                // Optionnel : Supprimer l'ancien logo physique si l'entité en possédait un
+                if ($organization->getLogoUrl()) {
+                    $oldFileName = basename($organization->getLogoUrl());
+                    $this->fileUploaderService->remove($oldFileName, 'organizations');
+                }
+
+                // Upload du nouveau fichier
+                $fileName = $this->fileUploaderService->upload($dto->logoFile, 'organizations');
+                $organization->setLogoUrl('/uploads/files/organizations/' . $fileName);
+            }
 
             $this->entityManager->flush();
 

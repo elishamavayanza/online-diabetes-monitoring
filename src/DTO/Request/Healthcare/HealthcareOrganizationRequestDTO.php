@@ -3,6 +3,7 @@
 namespace App\DTO\Request\Healthcare;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
@@ -14,41 +15,44 @@ class HealthcareOrganizationRequestDTO
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, example: 'DiabCare Health Group', description: 'Nom de l’organisation')]
+        #[OA\Property(description: 'Nom de l’organisation', type: 'string', example: 'DiabCare Health Group', maxLength: 150)]
         public readonly string $name,
 
         #[Assert\Length(max: 50)]
-        #[OA\Property(type: 'string', maxLength: 50, nullable: true, example: 'DHG', description: 'Nom court')]
+        #[OA\Property(description: 'Nom court', type: 'string', example: 'DHG', nullable: true, maxLength: 50)]
         public readonly ?string $shortName,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'NETWORK', description: 'Type d’organisation')]
+        #[OA\Property(description: 'Type d’organisation', type: 'string', example: 'NETWORK')]
         public readonly mixed $type,
 
         #[Assert\Email]
         #[Assert\Length(max: 180)]
-        #[OA\Property(type: 'string', format: 'email', maxLength: 180, nullable: true, example: 'contact@diabcare.com', description: 'E-mail')]
+        #[OA\Property(description: 'E-mail', type: 'string', format: 'email', example: 'contact@diabcare.com', nullable: true, maxLength: 180)]
         public readonly ?string $email,
 
         #[Assert\Length(max: 50)]
-        #[OA\Property(type: 'string', maxLength: 50, nullable: true, example: '+243990000000', description: 'Téléphone')]
+        #[OA\Property(description: 'Téléphone', type: 'string', example: '+243990000000', nullable: true, maxLength: 50)]
         public readonly ?string $phone,
 
         #[Assert\Url]
         #[Assert\Length(max: 255)]
-        #[OA\Property(type: 'string', format: 'uri', maxLength: 255, nullable: true, example: 'https://www.diabcare.com', description: 'Site Web')]
+        #[OA\Property(description: 'Site Web', type: 'string', format: 'uri', example: 'https://www.diabcare.com', nullable: true, maxLength: 255)]
         public readonly ?string $website,
 
-        #[Assert\Url]
-        #[Assert\Length(max: 500)]
-        #[OA\Property(type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://storage.diabcare.com/logos/dhg.png', description: 'Logo URL')]
-        public readonly ?string $logoUrl,
+        // Modification ici pour accepter le fichier uploadé
+        #[Assert\File(
+            maxSize: '2M',
+            mimeTypes: ['image/jpeg', 'image/png', 'image/webp']
+        )]
+        #[OA\Property(description: 'Fichier logo de l’organisation', type: 'string', format: 'binary', nullable: true)]
+        public readonly ?UploadedFile $logoFile,
 
-        #[OA\Property(type: 'object', nullable: true, description: 'Adresse postale')]
+        #[OA\Property(description: 'Adresse postale', type: 'object', nullable: true)]
         public readonly ?array $address,
 
         #[Assert\NotNull]
-        #[OA\Property(type: 'boolean', example: true, description: 'Statut actif')]
+        #[OA\Property(description: 'Statut actif', type: 'boolean', example: true)]
         public readonly bool $active
     ) {}
 }
