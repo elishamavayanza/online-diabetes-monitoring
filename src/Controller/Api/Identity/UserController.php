@@ -25,6 +25,39 @@ class UserController extends AbstractController
     ) {
     }
 
+    #[Route('', name: 'api_users_list', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère la liste de tous les utilisateurs (ou administrateurs).',
+        summary: 'Lister les utilisateurs'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Liste des utilisateurs récupérée avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Liste des utilisateurs récupérée avec succès.'),
+                new OA\Property(
+                    property: 'data',
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: UserResponseDTO::class))
+                )
+            ]
+        )
+    )]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Permission insuffisante')]
+    public function list(): JsonResponse
+    {
+        $feedback = $this->userService->getAll();
+
+        return $this->json(
+            $feedback,
+            Response::HTTP_OK
+        );
+    }
+
     #[Route('', name: 'api_users_create', methods: ['POST'])]
     #[OA\Post(
         description: <<<'DESC'
@@ -104,5 +137,48 @@ DESC,
             $feedback,
             $status
         );
+    }
+
+    #[Route('/{id}', name: 'api_users_update', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(summary: 'Modifier un utilisateur')]
+    #[OA\Patch(summary: 'Modifier partiellement un utilisateur')]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'ID de l\'utilisateur',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: UserCreateRequestDTO::class)
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Utilisateur mis à jour avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Utilisateur mis à jour avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: UserResponseDTO::class))
+            ]
+        )
+    )]
+    #[OA\Response(response: 400, description: 'Données invalides')]
+    #[OA\Response(response: 404, description: 'Utilisateur introuvable')]
+    public function update(
+        int $id,
+        #[MapRequestPayload] UserCreateRequestDTO $dto
+    ): JsonResponse {
+        $feedback = $this->userService->update($id, $dto);
+
+        $status = $feedback->hasErrors()
+            ? Response::HTTP_BAD_REQUEST
+            : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
     }
 }

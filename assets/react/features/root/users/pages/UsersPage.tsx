@@ -89,7 +89,6 @@ export function UsersPage() {
         { id: 'Professionnels', label: 'Professionnels' },
         { id: 'Patients', label: 'Patients' },
         { id: 'Administrateurs', label: 'Administrateurs' },
-        { id: 'Non affectés', label: 'Non affectés' },
     ];
 
     const organisations = Array.from(

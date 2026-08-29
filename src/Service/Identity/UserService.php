@@ -29,6 +29,115 @@ class UserService
     }
 
     /**
+     * Liste tous les utilisateurs du système.
+     */
+    public function getAll(): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkPermission(
+                SecurityAction::VIEW->value
+            );
+
+            $users = $this->repository->findBy(
+                ['deletedAt' => null],
+                ['createdAt' => 'DESC']
+            );
+
+            $data = array_map(
+                fn ($user) => $this->mapper->mapEntityToResponse($user),
+                $users
+            );
+
+            return $feedback
+                ->setData($data)
+                ->setFlushDescription('Liste des utilisateurs récupérée avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription('Erreur lors de la récupération des utilisateurs : ' . $e->getMessage())
+                ->autoInitFlush();
+        }
+    }
+
+    /**
+     * Met à jour un compte utilisateur (Administrateur/Base).
+     */
+    public function update(string $id, UserCreateRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::MANAGE_USERS
+            );
+
+            $user = $this->repository->find($id);
+            if (!$user) {
+                return $feedback->setErrorFlushDescription('Utilisateur introuvable.')->autoInitFlush();
+            }
+
+            if ($dto->email !== null) {
+                $existingUser = $this->repository->findOneBy(['email' => $dto->email]);
+                if ($existingUser && $existingUser->getId() !== $user->getId()) {
+                    return $feedback->setErrorFlushDescription('Cet e-mail est déjà utilisé.')->autoInitFlush();
+                }
+                $user->setEmail($dto->email);
+            }
+
+            if ($dto->fullName !== null) {
+                $user->setFullName($dto->fullName);
+            }
+
+            if ($dto->phone !== null) {
+                $user->setPhone($dto->phone);
+            }
+
+            if ($dto->gender !== null) {
+                $user->setGender(Gender::from($dto->gender));
+            }
+
+            if (!empty($dto->password)) {
+                $hashedPassword = $this->passwordHasher->hashPassword($user, $dto->password);
+                $user->setPasswordHash($hashedPassword);
+            }
+
+            $this->entityManager->flush();
+
+            return $feedback
+                ->setData($this->mapper->mapEntityToResponse($user))
+                ->setFlushDescription('Utilisateur mis à jour avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback->setErrorFlushDescription('Erreur lors de la mise à jour : ' . $e->getMessage())->autoInitFlush();
+        }
+    }
+
+    /**
      * Crée un compte utilisateur (Patient).
      */
     public function create(UserCreateRequestDTO $dto): Feedback

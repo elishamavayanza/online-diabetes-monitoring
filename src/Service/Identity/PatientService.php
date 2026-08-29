@@ -26,6 +26,48 @@ class PatientService
     }
 
     /**
+     * Récupère la liste de tous les patients actifs.
+     */
+    public function getAll(): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkPermission(
+                SecurityAction::VIEW->value
+            );
+
+            // Récupère uniquement les instances de Patient non supprimées
+            $patients = $this->repository->findBy(
+                ['deletedAt' => null],
+                ['createdAt' => 'DESC']
+            );
+
+            // Filtrer explicitement les instances de Patient si le repository renvoie tous types d'Users
+            $patients = array_filter($patients, fn ($user) => $user instanceof Patient);
+
+            $data = array_map(
+                fn (Patient $patient) => PatientResponseDTO::fromEntity($patient),
+                $patients
+            );
+
+            return $feedback
+                ->setData(array_values($data))
+                ->setFlushDescription('Liste des patients récupérée avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription('Erreur lors de la récupération des patients : ' . $e->getMessage())
+                ->autoInitFlush();
+        }
+    }
+
+    /**
      * Récupère le profil complet d'un patient.
      */
     public function getProfile(string $userId): Feedback

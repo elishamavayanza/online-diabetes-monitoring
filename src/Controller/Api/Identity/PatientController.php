@@ -30,6 +30,39 @@ class PatientController extends AbstractController
     {
     }
 
+    #[Route('', name: 'api_patients_list', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère la liste de tous les patients.',
+        summary: 'Lister les patients'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Liste des patients récupérée avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Liste des patients récupérée avec succès.'),
+                new OA\Property(
+                    property: 'data',
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: PatientResponseDTO::class))
+                )
+            ]
+        )
+    )]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Permission insuffisante')]
+    public function list(): JsonResponse
+    {
+        $feedback = $this->patientService->getAll();
+
+        return $this->json(
+            $feedback,
+            Response::HTTP_OK
+        );
+    }
+
     #[Route(
         '/{id}/profile',
         name: 'api_patients_get_profile',
