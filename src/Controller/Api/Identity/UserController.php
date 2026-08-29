@@ -58,6 +58,48 @@ class UserController extends AbstractController
         );
     }
 
+    #[Route('/profile', name: 'api_users_update_profile', methods: ['PUT', 'PATCH'])]
+    #[OA\Put(summary: 'Modifier son propre profil utilisateur')]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            ref: new Model(type: UserCreateRequestDTO::class)
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Profil mis à jour avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Profil mis à jour avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: UserResponseDTO::class))
+            ]
+        )
+    )]
+    public function updateProfile(
+        #[MapRequestPayload] UserCreateRequestDTO $dto
+    ): JsonResponse {
+        $currentUser = $this->securityService->getCurrentUser();
+
+        if (!$currentUser) {
+            return $this->json([
+                'status' => 401,
+                'error' => true,
+                'message' => 'Non authentifié.'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $feedback = $this->userService->update((string) $currentUser->getId(), $dto);
+
+        $status = $feedback->hasErrors()
+            ? Response::HTTP_BAD_REQUEST
+            : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
     #[Route('', name: 'api_users_create', methods: ['POST'])]
     #[OA\Post(
         description: <<<'DESC'

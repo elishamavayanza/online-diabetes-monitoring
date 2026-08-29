@@ -127,8 +127,8 @@ export default function AppRoutes() {
                     <Route path="organisations" element={<OrganisationsPage />} />
                     <Route path="users" element={<UsersPage />} />
                     <Route path="roles" element={<RolesPage />} />
-                    <Route path="notifications" element={<NotificationsPage />} />
-                    <Route path="audit" element={<AuditPage />} />
+                    {/*<Route path="notifications" element={<NotificationsPage />} />*/}
+                    {/*<Route path="audit" element={<AuditPage />} />*/}
                     <Route path="settings" element={<SettingsPage />} />
                 </Route>
 

@@ -9,11 +9,14 @@ export function useDashboard() {
 
     useEffect(() => {
         const load = async () => {
+            setIsLoading(true);
+            setError(null);
             try {
                 const result = await fetchDashboardData();
                 setData(result);
             } catch (err) {
-                setError('Impossible de charger les données du tableau de bord.');
+                console.error('Erreur dashboard:', err);
+                setError(err instanceof Error ? err.message : 'Impossible de charger les données du tableau de bord.');
             } finally {
                 setIsLoading(false);
             }

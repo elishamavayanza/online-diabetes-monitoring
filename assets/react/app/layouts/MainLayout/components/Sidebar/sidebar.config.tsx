@@ -52,8 +52,8 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             id: "system",
             label: "Système",
             items: [
-                { id: "root-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/root/notifications", permission: "NOTIFICATION_VIEW" },
-                { id: "audit-logs", label: "Journaux d’audit", icon: <AuditIcon />, route: "/root/audit", permission: "AUDIT_VIEW" },
+                // { id: "root-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/root/notifications", permission: "NOTIFICATION_VIEW" },
+                // { id: "audit-logs", label: "Journaux d’audit", icon: <AuditIcon />, route: "/root/audit", permission: "AUDIT_VIEW" },
             ],
         },
         {
