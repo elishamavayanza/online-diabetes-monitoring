@@ -7,17 +7,23 @@ import { Select } from '@/react/components/Forms/Select';
 import { Input } from '@/react/components/Forms/Input';
 import { Switch } from '@/react/components/Forms/Switch';
 import { useAttachPeople } from '../hooks/useAttachPeople';
-import {SearchableSelect} from "@/react/components/Forms/SearchableSelect/SearchableSelect";
+import { SearchableSelect } from "@/react/components/Forms/SearchableSelect/SearchableSelect";
 
 interface AttachPeopleModalProps {
     isOpen: boolean;
     onClose: () => void;
     patientId: string;
     mode?: 'create' | 'edit';
-
+    onSuccess?: () => void;
 }
 
-export function AttachPeopleModal({ isOpen, onClose, patientId,mode = 'create', }: AttachPeopleModalProps) {
+export function AttachPeopleModal({
+                                      isOpen,
+                                      onClose,
+                                      patientId,
+                                      mode = 'create',
+                                      onSuccess,
+                                  }: AttachPeopleModalProps) {
     const {
         professionals,
         assignments,
@@ -29,11 +35,13 @@ export function AttachPeopleModal({ isOpen, onClose, patientId,mode = 'create', 
         error,
     } = useAttachPeople(patientId, mode);
 
-    <h2>{mode === 'create' ? 'Attacher des professionnels' : "Modifier l'équipe de soins"}</h2>
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        submit();
+        const success = await submit();
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
     };
 
     const professionalOptions = professionals.map((p) => ({
@@ -50,7 +58,7 @@ export function AttachPeopleModal({ isOpen, onClose, patientId,mode = 'create', 
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="large">
             <div className="attach-people-modal">
-                <h2>Attacher des professionnels</h2>
+                <h2>{mode === 'create' ? 'Attacher des professionnels' : "Modifier l'équipe de soins"}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
 
                 <form onSubmit={handleSubmit}>
@@ -61,7 +69,6 @@ export function AttachPeopleModal({ isOpen, onClose, patientId,mode = 'create', 
                             {assignments.map((assignment, index) => (
                                 <div key={assignment.id} className="attach-people-modal__row">
                                     <FormField label={`Professionnel ${index + 1} *`}>
-                                        {/*  Utilisation de SearchableSelect */}
                                         <SearchableSelect
                                             options={professionalOptions}
                                             value={assignment.professionalId}

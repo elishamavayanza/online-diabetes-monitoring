@@ -1,15 +1,15 @@
-export type DiabetesType = 'Type 1' | 'Type 2' | 'Gestationnel';
+export type DiabetesType = 'TYPE_1' | 'TYPE_2' | 'GESTATIONAL' | 'OTHER';
 
 export interface Patient {
     id: string;
     nom: string;
     dateNaissance: string;
-    typeDiabete: 'Type 1' | 'Type 2' | 'Gestationnel';
+    typeDiabete: DiabetesType; //  aligné sur l'enum backend
     equipeSoins: string;
     statut: 'Active' | 'Inactive';
-    avatarUrl?: string;    // ✅ photo de profil
-    email?: string;        // ✅ e-mail
-    telephone?: string;    // ✅ téléphone
+    avatarUrl?: string;
+    email?: string;
+    telephone?: string;
 }
 
 export interface PatientsFilters {

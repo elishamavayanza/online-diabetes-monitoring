@@ -14,7 +14,6 @@ export function PatientsTable({ patients, onViewDetails }: PatientsTableProps) {
         { key: 'nom', title: 'Nom' },
         { key: 'dateNaissance', title: 'Date de naissance' },
         { key: 'typeDiabete', title: 'Type de diabète' },
-        { key: 'equipeSoins', title: 'Équipe de soins' },
         {
             key: 'statut',
             title: 'Statut',

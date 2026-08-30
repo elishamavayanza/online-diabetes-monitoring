@@ -40,7 +40,7 @@ function toPatientFormValues(patient: Patient): PatientFormValues {
 }
 
 export function PatientsPage() {
-    const { patients, isLoading, error } = usePatients();
+    const { patients, isLoading, error, refetch } = usePatients(); // récupération de refetch
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [diabeteFilter, setDiabeteFilter] = useState<string>('Tous');
@@ -73,12 +73,11 @@ export function PatientsPage() {
         setIsDrawerOpen(false);
     };
 
-    // Ouvre le formulaire d'édition
     const handleModify = (patient: Patient) => {
         setEditingPatientId(patient.id);
         setEditingPatientData(toPatientFormValues(patient));
         setIsEditModalOpen(true);
-        closeDrawer(); // ferme le drawer
+        closeDrawer();
     };
 
     const handleAttachToPeople = (patient: Patient) => {
@@ -157,19 +156,21 @@ export function PatientsPage() {
                 onViewDetails={openDetails}
             />
 
-            {/* Modale de création */}
+            {/* Modale de création  onSuccess={refetch} */}
             <PatientFormModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
+                onSuccess={refetch}
             />
 
-            {/*  Modale d'édition */}
+            {/* Modale d'édition  onSuccess={refetch} */}
             {editingPatientId && editingPatientData && (
                 <PatientEditModal
                     isOpen={isEditModalOpen}
                     onClose={() => setIsEditModalOpen(false)}
                     patientId={editingPatientId}
                     patientData={editingPatientData}
+                    onSuccess={refetch}
                 />
             )}
 
@@ -182,12 +183,14 @@ export function PatientsPage() {
                 onAttachToPeople={handleAttachToPeople}
             />
 
+            {/* Modale d'attachement  onSuccess={refetch} */}
             {selectedPatientId && (
                 <AttachPeopleModal
                     isOpen={isAttachPeopleOpen}
                     onClose={() => setIsAttachPeopleOpen(false)}
                     patientId={selectedPatientId!}
                     mode={attachMode}
+                    onSuccess={refetch}
                 />
             )}
         </div>

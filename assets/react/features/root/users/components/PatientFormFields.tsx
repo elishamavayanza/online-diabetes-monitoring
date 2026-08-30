@@ -7,17 +7,22 @@ import { PatientFormValues } from '../types/userForm.types';
 interface Props {
     form: PatientFormValues;
     updateField: (field: keyof PatientFormValues, value: any) => void;
+    showCredentials?: boolean;
 }
 
-export function PatientFormFields({ form, updateField }: Props) {
+export function PatientFormFields({ form, updateField, showCredentials = true }: Props) {
     return (
         <>
-            <FormField label="Email *">
-                <Input value={form.email} onChange={(e) => updateField('email', e.target.value)} required />
-            </FormField>
-            <FormField label="Mot de passe *">
-                <Input type="password" value={form.password} onChange={(e) => updateField('password', e.target.value)} required />
-            </FormField>
+            {showCredentials && (
+                <>
+                    <FormField label="Email *">
+                        <Input value={form.email} onChange={(e) => updateField('email', e.target.value)} required />
+                    </FormField>
+                    <FormField label="Mot de passe *">
+                        <Input type="password" value={form.password} onChange={(e) => updateField('password', e.target.value)} required />
+                    </FormField>
+                </>
+            )}
             <FormField label="Nom complet *">
                 <Input value={form.fullName} onChange={(e) => updateField('fullName', e.target.value)} required />
             </FormField>

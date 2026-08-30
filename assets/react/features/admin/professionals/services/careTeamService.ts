@@ -19,13 +19,21 @@ export async function assignPatientToProfessional(
     payload: CareTeamAssignmentFormValues
 ): Promise<void> {
     try {
+        //  Conversion des IDs en nombres pour correspondre aux types backend
+        const dataToSend = {
+            ...payload,
+            patientId: Number(payload.patientId),
+            professionalId: Number(payload.professionalId),
+        };
+
         const response = await apiClient.post<ApiFeedback<unknown>>(
             `/healthcare-organizations/${organizationId}/care-team-assignments`,
-            payload
+            dataToSend
         );
+
         if (response.data.error) {
             console.error('Réponse erreur affectation:', response.data);
-            // Extraire les détails si disponibles
+            // Extraction des erreurs détaillées si disponibles
             const errors = (response.data as any).errors;
             const errorMessage = errors
                 ? Object.values(errors).flat().join(', ')
@@ -34,7 +42,8 @@ export async function assignPatientToProfessional(
         }
     } catch (error) {
         console.error("Erreur assignPatientToProfessional:", error);
-        throw error;
+        if (error instanceof Error) throw error;
+        throw new Error("Erreur inconnue lors de l'affectation");
     }
 }
 

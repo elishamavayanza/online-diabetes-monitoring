@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Stepper } from '@/react/components/Navigation/Stepper';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
-import { useUpdatePatient } from '@/react/features/root/users/hooks/useUpdatePatient';
+import { useUpdatePatient } from '@/react/features/admin/patients/hooks/useUpdatePatient';
 import { PatientFormFields } from "@/react/features/root/users/components/PatientFormFields";
 import { AddressFields } from "@/react/features/root/users/components/AddressFields";
 import { AvatarUpload } from "@/react/features/root/users/components/AvatarUpload";
@@ -14,12 +14,23 @@ interface PatientEditModalProps {
     onClose: () => void;
     patientId: string;
     patientData: PatientFormValues;
+    onSuccess?: () => void;
 }
 
-export function PatientEditModal({ isOpen, onClose, patientId, patientData }: PatientEditModalProps) {
+export function PatientEditModal({
+                                     isOpen,
+                                     onClose,
+                                     patientId,
+                                     patientData,
+                                     onSuccess,
+                                 }: PatientEditModalProps) {
     const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } =
-        useUpdatePatient(patientData);
+        useUpdatePatient(patientData, patientId);
     const [step, setStep] = useState(0);
+
+    useEffect(() => {
+        if (isOpen) setStep(0);
+    }, [isOpen]);
 
     const steps = [
         { id: 'infos', label: 'Informations' },
@@ -38,10 +49,18 @@ export function PatientEditModal({ isOpen, onClose, patientId, patientData }: Pa
     const handleNext = () => setStep((prev) => Math.min(prev + 1, steps.length - 1));
     const handlePrev = () => setStep((prev) => Math.max(prev - 1, 0));
 
+    const handleSubmit = async () => {
+        const success = await submit();
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
+    };
+
     const renderStepContent = () => {
         switch (step) {
             case 0:
-                return <PatientFormFields form={form} updateField={updateField} />;
+                return <PatientFormFields form={form} updateField={updateField} showCredentials={false} />;
             case 1:
                 return <AddressFields address={form.address} onChange={updateAddress} />;
             case 2:
@@ -51,7 +70,6 @@ export function PatientEditModal({ isOpen, onClose, patientId, patientData }: Pa
                     <div className="patient-form-modal__summary">
                         <h3>Vérifiez les informations</h3>
                         <p><strong>Nom complet :</strong> {form.fullName}</p>
-                        <p><strong>Email :</strong> {form.email}</p>
                         <p><strong>Téléphone :</strong> {form.phone || '—'}</p>
                         <p><strong>Genre :</strong> {form.gender}</p>
                         <p><strong>Date de naissance :</strong> {form.dateOfBirth || '—'}</p>
@@ -77,7 +95,7 @@ export function PatientEditModal({ isOpen, onClose, patientId, patientData }: Pa
                     {step < steps.length - 1 ? (
                         <Button variant="primary" onClick={handleNext}>Suivant</Button>
                     ) : (
-                        <Button variant="primary" onClick={() => submit(patientId)} disabled={isSubmitting}>
+                        <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
                             {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
                         </Button>
                     )}

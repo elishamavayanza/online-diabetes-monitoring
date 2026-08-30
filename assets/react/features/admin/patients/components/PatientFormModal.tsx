@@ -3,7 +3,7 @@ import { Modal } from '@/react/components/UI/Modal';
 import { Stepper } from '@/react/components/Navigation/Stepper';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
-import { useCreatePatient } from '@/react/features/root/users/hooks/useCreatePatient';
+import { useCreatePatient } from '@/react/features/admin/patients/hooks/useCreatePatient';
 import { PatientFormFields } from "@/react/features/root/users/components/PatientFormFields";
 import { AddressFields } from "@/react/features/root/users/components/AddressFields";
 import { AvatarUpload } from "@/react/features/root/users/components/AvatarUpload";
@@ -11,10 +11,12 @@ import { AvatarUpload } from "@/react/features/root/users/components/AvatarUploa
 interface PatientFormModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-export function PatientFormModal({ isOpen, onClose }: PatientFormModalProps) {
-    const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } = useCreatePatient();
+export function PatientFormModal({ isOpen, onClose, onSuccess }: PatientFormModalProps) {
+    const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } =
+        useCreatePatient();
     const [step, setStep] = useState(0);
 
     const steps = [
@@ -33,6 +35,14 @@ export function PatientFormModal({ isOpen, onClose }: PatientFormModalProps) {
 
     const handleNext = () => setStep((prev) => Math.min(prev + 1, steps.length - 1));
     const handlePrev = () => setStep((prev) => Math.max(prev - 1, 0));
+
+    const handleSubmit = async () => {
+        const success = await submit();
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
+    };
 
     const renderStepContent = () => {
         switch (step) {
@@ -91,7 +101,7 @@ export function PatientFormModal({ isOpen, onClose }: PatientFormModalProps) {
                             Suivant
                         </Button>
                     ) : (
-                        <Button variant="primary" onClick={submit} disabled={isSubmitting}>
+                        <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
                             {isSubmitting ? 'Création...' : 'Créer'}
                         </Button>
                     )}
