@@ -157,6 +157,7 @@ export function ProfessionalsPage() {
                     isOpen={isAttachModalOpen}
                     onClose={() => setIsAttachModalOpen(false)}
                     professionalId={attachProfessionalId}
+                    onSuccess={refetch}
                 />
             )}
         </div>

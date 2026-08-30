@@ -8,20 +8,25 @@ import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { useAttachPatient } from '../hooks/useAttachPatient';
 import { SearchableSelect } from '@/react/components/Forms/SearchableSelect/SearchableSelect';
-import {Select} from "@/react/components/Forms/Select";
+import { Select } from "@/react/components/Forms/Select";
 
 interface AttachPatientModalProps {
     isOpen: boolean;
     onClose: () => void;
     professionalId: string;
+    onSuccess?: () => void; // ✅ pour rafraîchir après affectation
 }
 
-export function AttachPatientModal({ isOpen, onClose, professionalId }: AttachPatientModalProps) {
+export function AttachPatientModal({ isOpen, onClose, professionalId, onSuccess }: AttachPatientModalProps) {
     const { patients, form, updateField, submit, isSubmitting, error } = useAttachPatient(professionalId);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        submit();
+        const success = await submit();
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
     };
 
     const patientOptions = patients.map((p) => ({ value: p.id, label: p.nom }));
@@ -36,7 +41,7 @@ export function AttachPatientModal({ isOpen, onClose, professionalId }: AttachPa
                         <FormField label="Patient *">
                             <SearchableSelect
                                 value={form.patientId}
-                                onChange={(value) => updateField('patientId', value)}
+                                onChange={(value) => updateField('patientId', Number(value))} //  conversion en number
                                 options={patientOptions}
                                 placeholder="Rechercher un patient..."
                                 required

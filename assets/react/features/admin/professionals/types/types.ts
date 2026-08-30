@@ -1,5 +1,7 @@
 // features/admin/professionals/types.ts
 export type ProfessionalType = 'Clinician' | 'Nutritionist';
+export type CareTeamRole = 'PRIMARY_CLINICIAN' | 'SPECIALIST' | 'NUTRITIONIST';
+
 
 export interface Professional {
     id: string;
@@ -34,4 +36,13 @@ export interface ProfessionalFormValues {
     professionalType: string;
     specialty: string;
     signatureUrl: string;
+}
+
+export interface CareTeamAssignmentFormValues {
+    patientId: number;       //  entier
+    professionalId: number;  //  entier
+    role: CareTeamRole;
+    startDate: string;       // format 'YYYY-MM-DD'
+    endDate: string;         // format 'YYYY-MM-DD'
+    active: boolean;
 }

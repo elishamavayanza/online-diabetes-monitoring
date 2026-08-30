@@ -27,12 +27,29 @@ export function SearchableSelect({
                                  }: SearchableSelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
+    const [displayValue, setDisplayValue] = useState('');
     const wrapperRef = useRef<HTMLDivElement>(null);
+
+    // Synchroniser la valeur affichée avec la prop `value`
+    useEffect(() => {
+        const selectedOption = options.find(
+            (opt) => String(opt.value) === String(value)
+        );
+        if (selectedOption) {
+            setDisplayValue(selectedOption.label);
+            setSearch(''); // réinitialise la recherche
+        } else if (value === '') {
+            setDisplayValue('');
+        }
+    }, [value, options]);
 
     // Fermer le dropdown si clic à l'extérieur
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
-            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+            if (
+                wrapperRef.current &&
+                !wrapperRef.current.contains(e.target as Node)
+            ) {
                 setIsOpen(false);
             }
         }
@@ -47,8 +64,16 @@ export function SearchableSelect({
 
     const handleSelect = (val: string) => {
         onChange(val);
-        setIsOpen(false);
+        const selectedOption = options.find((opt) => String(opt.value) === val);
+        setDisplayValue(selectedOption?.label ?? '');
         setSearch('');
+        setIsOpen(false);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+        setDisplayValue(e.target.value); // affiche la frappe
+        setIsOpen(true);
     };
 
     return (
@@ -57,9 +82,9 @@ export function SearchableSelect({
                 type="text"
                 className="searchable-select__input"
                 placeholder={placeholder}
-                value={search}
+                value={isOpen ? search : displayValue}
                 onClick={() => setIsOpen((prev) => !prev)}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={handleInputChange}
                 disabled={disabled}
                 required={required}
             />
