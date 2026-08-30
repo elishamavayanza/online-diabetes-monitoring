@@ -12,10 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Serializer\SerializerInterface; // <-- N'oubliez pas cet import
 
 #[Route('/api/professionals')]
 #[OA\Tag(
@@ -129,6 +128,7 @@ DESC,
             $request->files->all()
         );
 
+        /** @var HealthcareProfessionalCreateRequestDTO $dto */
         $dto = $this->serializer->denormalize(
             $formData,
             HealthcareProfessionalCreateRequestDTO::class,
@@ -161,17 +161,16 @@ DESC,
         methods: ['GET']
     )]
     #[OA\Get(
-        description: 'Récupère un professionnel par son UUID.',
+        description: 'Récupère un professionnel par son ID.',
         summary: 'Récupérer un professionnel'
     )]
     #[OA\Parameter(
         name: 'id',
-        description: 'UUID du professionnel',
+        description: 'ID du professionnel',
         in: 'path',
         required: true,
         schema: new OA\Schema(
-            type: 'string',
-            format: 'uuid'
+            type: 'integer'
         )
     )]
     #[OA\Response(
@@ -206,7 +205,7 @@ DESC,
         response: 401,
         description: 'Non authentifié'
     )]
-    public function getById(string $id): JsonResponse
+    public function getById(int $id): JsonResponse
     {
         $feedback = $this->professionalService->getById($id);
 
@@ -230,6 +229,15 @@ DESC,
     )]
     #[OA\Patch(
         summary: 'Modifier partiellement un professionnel'
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'ID du professionnel',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(
+            type: 'integer'
+        )
     )]
     #[OA\RequestBody(
         required: true,
@@ -257,17 +265,16 @@ DESC,
         description: 'Permission insuffisante'
     )]
     public function update(
-        string $id,
+        int $id,
         Request $request,
         ValidatorInterface $validator
     ): JsonResponse {
-        // 1. Fusionner les données textuelles du formulaire et les fichiers reçus (avec le $)
         $formData = array_merge(
             $request->request->all(),
             $request->files->all()
         );
 
-        // 2. Désérialiser proprement dans le DTO
+        /** @var HealthcareProfessionalUpdateRequestDTO $dto */
         $dto = $this->serializer->denormalize(
             $formData,
             HealthcareProfessionalUpdateRequestDTO::class,
@@ -275,7 +282,6 @@ DESC,
             ['allow_extra_attributes' => true]
         );
 
-        // 3. Valider manuellement le DTO
         $errors = $validator->validate($dto);
         if (count($errors) > 0) {
             return $this->json([
@@ -286,7 +292,6 @@ DESC,
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        // 4. Appel du service
         $feedback = $this->professionalService->update($id, $dto);
 
         $status = $feedback->hasErrors()
@@ -306,12 +311,11 @@ DESC,
     )]
     #[OA\Parameter(
         name: 'id',
-        description: 'UUID du professionnel',
+        description: 'ID du professionnel',
         in: 'path',
         required: true,
         schema: new OA\Schema(
-            type: 'string',
-            format: 'uuid'
+            type: 'integer'
         )
     )]
     #[OA\Response(
@@ -326,7 +330,7 @@ DESC,
         response: 403,
         description: 'Permission insuffisante'
     )]
-    public function delete(string $id): JsonResponse
+    public function delete(int $id): JsonResponse
     {
         $feedback = $this->professionalService->delete($id);
 

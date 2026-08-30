@@ -3,7 +3,7 @@ import { Modal } from '@/react/components/UI/Modal';
 import { Stepper } from '@/react/components/Navigation/Stepper';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
-import { useCreateProfessional } from '@/react/features/root/users/hooks/useCreateProfessional';
+import { useCreateProfessional } from '@/react/features/admin/professionals/hooks/useCreateProfessional';
 import { ProfessionalFormFields } from "@/react/features/root/users/components/ProfessionalFormFields";
 import { AddressFields } from "@/react/features/root/users/components/AddressFields";
 import { AvatarUpload } from "@/react/features/root/users/components/AvatarUpload";
@@ -11,10 +11,12 @@ import { AvatarUpload } from "@/react/features/root/users/components/AvatarUploa
 interface ProfessionalFormModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-export function ProfessionalFormModal({ isOpen, onClose }: ProfessionalFormModalProps) {
-    const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } = useCreateProfessional();
+export function ProfessionalFormModal({ isOpen, onClose, onSuccess }: ProfessionalFormModalProps) {
+    const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } =
+        useCreateProfessional();
     const [step, setStep] = useState(0);
 
     const steps = [
@@ -33,6 +35,14 @@ export function ProfessionalFormModal({ isOpen, onClose }: ProfessionalFormModal
 
     const handleNext = () => setStep((prev) => Math.min(prev + 1, steps.length - 1));
     const handlePrev = () => setStep((prev) => Math.max(prev - 1, 0));
+
+    const handleSubmit = async () => {
+        const success = await submit(); // submit sans argument
+        if (success) {
+            onSuccess?.();
+            onClose();
+        }
+    };
 
     const renderStepContent = () => {
         switch (step) {
@@ -80,19 +90,17 @@ export function ProfessionalFormModal({ isOpen, onClose }: ProfessionalFormModal
                     {renderStepContent()}
                 </div>
                 <div className="professional-form-modal__footer">
-                    {/* Bouton Précédent à gauche */}
                     {step > 0 && (
                         <Button variant="outline" onClick={handlePrev}>
                             Précédent
                         </Button>
                     )}
-                    {/* Bouton Suivant ou Créer à droite */}
                     {step < steps.length - 1 ? (
                         <Button variant="primary" onClick={handleNext}>
                             Suivant
                         </Button>
                     ) : (
-                        <Button variant="primary" onClick={submit} disabled={isSubmitting}>
+                        <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
                             {isSubmitting ? 'Création...' : 'Créer'}
                         </Button>
                     )}

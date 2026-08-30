@@ -9,9 +9,11 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
-import { Professional } from '../types';
+import { Professional } from '../types/types';
 import { ProfessionalFormValues } from "@/react/features/root/users/types/userForm.types";
 import { AttachPatientModal } from '../components/AttachPatientModal';
+import { getProfessionalById } from '../services/professionalsService';
+
 
 import '@/styles/pages/admin/professionals/_professionals.scss';
 
@@ -40,12 +42,12 @@ function toFormValues(professional: Professional): ProfessionalFormValues {
 }
 
 export function ProfessionalsPage() {
-    const { professionals, isLoading, error } = useProfessionals();
+    // on récupère refetch pour actualiser la liste après action
+    const { professionals, isLoading, error, refetch } = useProfessionals();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    // États pour l'édition
     const [editingProfessionalId, setEditingProfessionalId] = useState<string | null>(null);
     const [editingProfessionalData, setEditingProfessionalData] = useState<ProfessionalFormValues | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -69,11 +71,16 @@ export function ProfessionalsPage() {
         setIsDrawerOpen(false);
     };
 
-    const handleModify = (professional: Professional) => {
-        setEditingProfessionalId(professional.id);
-        setEditingProfessionalData(toFormValues(professional));
-        setIsEditModalOpen(true);
-        closeDrawer();
+    const handleModify = async (professional: Professional) => {
+        try {
+            const fullData = await getProfessionalById(professional.id);
+            setEditingProfessionalId(professional.id);
+            setEditingProfessionalData(fullData);
+            setIsEditModalOpen(true);
+            closeDrawer();
+        } catch (error) {
+            console.error('Impossible de charger les données du professionnel', error);
+        }
     };
 
     const handleAttachPatient = (professional: Professional) => {
@@ -81,7 +88,6 @@ export function ProfessionalsPage() {
         setIsAttachModalOpen(true);
         closeDrawer();
     };
-
 
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
@@ -120,19 +126,21 @@ export function ProfessionalsPage() {
                 onViewDetails={openDetails}
             />
 
-            {/* Modale de création */}
+            {/* Modale de création onSuccess={refetch} */}
             <ProfessionalFormModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
+                onSuccess={refetch}
             />
 
-            {/* Modale d'édition */}
+            {/* Modale d'édition onSuccess={refetch} */}
             {editingProfessionalId && editingProfessionalData && (
                 <ProfessionalEditModal
                     isOpen={isEditModalOpen}
                     onClose={() => setIsEditModalOpen(false)}
                     professionalId={editingProfessionalId}
                     professionalData={editingProfessionalData}
+                    onSuccess={refetch}
                 />
             )}
 

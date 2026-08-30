@@ -3,7 +3,7 @@ import { Drawer } from '@/react/components/UI/Drawer';
 import { Avatar } from '@/react/components/UI/Avatar';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
-import { Professional } from '../types';
+import { Professional } from '../types/types';
 
 interface ProfessionalDetailsDrawerProps {
     professional: Professional | null;

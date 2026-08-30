@@ -1,4 +1,4 @@
-import { CareTeamAssignmentFormValues } from '../types';
+import { CareTeamAssignmentFormValues } from '../types/types';
 
 export async function assignPatientToProfessional(
     payload: CareTeamAssignmentFormValues

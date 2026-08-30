@@ -73,13 +73,13 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
                 { id: "admin-dashboard", label: "Vue générale", icon: <DashboardIcon />, route: "/admin/dashboard", permission: "DASHBOARD_VIEW" },
             ],
         },
-        {
-            id: "organisation-admin",
-            label: "Organisation",
-            items: [
-                { id: "establishments", label: "Établissements", icon: <EstablishmentIcon />, route: "/admin/establishments", permission: "ESTABLISHMENT_VIEW" },
-            ],
-        },
+        // {
+        //     id: "organisation-admin",
+        //     label: "Organisation",
+        //     items: [
+        //         { id: "establishments", label: "Établissements", icon: <EstablishmentIcon />, route: "/admin/establishments", permission: "ESTABLISHMENT_VIEW" },
+        //     ],
+        // },
         {
             id: "personnel",
             label: "Personnel",
@@ -95,22 +95,30 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
                 { id: "patients-all", label: "Patients", icon: <PatientsIcon />, route: "/admin/patients", permission: "PATIENT_VIEW" },
             ],
         },
-        {
-            id: "activity-admin",
-            label: "Activité",
-            items: [
-                { id: "admin-appointments", label: "Rendez-vous", icon: <AppointmentsIcon />, route: "/admin/appointments", permission: "APPOINTMENT_VIEW" },
-                { id: "activity-log", label: "Activité", icon: <ActivityIcon />, route: "/admin/activity", permission: "ACTIVITY_VIEW" },
-                { id: "admin-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/admin/notifications", permission: "NOTIFICATION_VIEW" },
-            ],
-        },
+        // {
+        //     id: "activity-admin",
+        //     label: "Activité",
+        //     items: [
+        //         // { id: "admin-appointments", label: "Rendez-vous", icon: <AppointmentsIcon />, route: "/admin/appointments", permission: "APPOINTMENT_VIEW" },
+        //         // { id: "activity-log", label: "Activité", icon: <ActivityIcon />, route: "/admin/activity", permission: "ACTIVITY_VIEW" },
+        //         // { id: "admin-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/admin/notifications", permission: "NOTIFICATION_VIEW" },
+        //     ],
+        // },
+
         {
             id: "settings-admin",
             label: "Paramètres",
             items: [
-                { id: "org-settings", label: "Organisation", icon: <OrganisationIcon />, route: "/admin/settings", permission: "SETTINGS_VIEW" },
+                {
+                    id: "org-settings",
+                    label: "Mon organisation",
+                    icon: <OrganisationIcon />,
+                    route: "/admin/settings",
+                    permission: "SETTINGS_VIEW",
+                },
             ],
         },
+
     ],
 
     CLINICIAN: [

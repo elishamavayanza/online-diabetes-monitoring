@@ -2,7 +2,7 @@ import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
-import { Professional } from '../types';
+import { Professional } from '../types/types';
 
 interface ProfessionalsTableProps {
     professionals: Professional[];
@@ -13,9 +13,6 @@ export function ProfessionalsTable({ professionals, onViewDetails }: Professiona
     const columns = [
         { key: 'nom', title: 'Nom' },
         { key: 'type', title: 'Type' },
-        { key: 'specialite', title: 'Spécialité' },
-        { key: 'etablissement', title: 'Établissement' },
-        { key: 'departement', title: 'Département' },
         {
             key: 'statut',
             title: 'Statut',

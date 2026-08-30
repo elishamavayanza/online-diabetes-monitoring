@@ -1,25 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { fetchProfessionals } from '../services/professionalsService';
-import { Professional } from '../types';
+import { Professional } from '../types/types';
 
 export function useProfessionals() {
     const [professionals, setProfessionals] = useState<Professional[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await fetchProfessionals();
-                setProfessionals(data);
-            } catch (err) {
-                setError('Impossible de charger les professionnels.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        load();
+    const load = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const data = await fetchProfessionals();
+            setProfessionals(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Impossible de charger les professionnels.');
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
-    return { professionals, isLoading, error };
+    useEffect(() => {
+        load();
+    }, [load]);
+
+    return { professionals, isLoading, error, refetch: load };
 }

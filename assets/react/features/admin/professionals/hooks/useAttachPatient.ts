@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { assignPatientToProfessional, fetchPatientsForAssignment } from '../services/careTeamService';
-import { CareTeamAssignmentFormValues } from '../types';
+import { CareTeamAssignmentFormValues } from '../types/types';
 
 export function useAttachPatient(professionalId: string) {
     const [patients, setPatients] = useState<{ id: string; nom: string }[]>([]);
