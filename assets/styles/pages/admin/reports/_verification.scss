@@ -1,0 +1,99 @@
+.report-verification-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--color-background);
+
+    &__card {
+        width: min(640px, 100%);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 12px 30px var(--color-shadow);
+    }
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        h1 {
+            margin: 0 0 0.25rem;
+            color: var(--color-primary);
+            font-size: 1.5rem;
+        }
+
+        p {
+            margin: 0;
+            color: var(--color-text);
+            opacity: 0.75;
+        }
+    }
+
+    &__logo {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        background: #fff;
+        border-radius: 12px;
+        padding: 0.5rem;
+        border: 1px solid var(--color-border);
+    }
+
+    &__status {
+        color: var(--color-text);
+        opacity: 0.8;
+    }
+
+    &__result {
+        border-radius: 12px;
+        padding: 1.25rem;
+
+        h2 {
+            margin: 0 0 0.5rem;
+        }
+
+        p {
+            margin: 0 0 1rem;
+            line-height: 1.5;
+        }
+
+        &--success {
+            background: rgba(76, 185, 68, 0.12);
+            border: 1px solid rgba(76, 185, 68, 0.35);
+        }
+
+        &--error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.35);
+        }
+    }
+
+    &__details {
+        display: grid;
+        gap: 0.75rem;
+        margin: 0;
+
+        div {
+            display: grid;
+            gap: 0.2rem;
+        }
+
+        dt {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--color-primary);
+        }
+
+        dd {
+            margin: 0;
+            color: var(--color-text);
+            font-weight: 600;
+        }
+    }
+}

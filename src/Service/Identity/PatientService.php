@@ -14,7 +14,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use App\Service\File\FileUploaderService;
 
-
 class PatientService
 {
     public function __construct(
@@ -26,15 +25,30 @@ class PatientService
     }
 
     /**
-     * Récupère la liste de tous les patients actifs.
+     * Récupère la liste de tous les patients actifs de l'organisation de l'administrateur connecté.
      */
     public function getAll(): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::VIEW->value
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::VIEW
             );
 
             // Récupère uniquement les instances de Patient non supprimées
@@ -43,8 +57,24 @@ class PatientService
                 ['createdAt' => 'DESC']
             );
 
-            // Filtrer explicitement les instances de Patient si le repository renvoie tous types d'Users
-            $patients = array_filter($patients, fn ($user) => $user instanceof Patient);
+            // Filtrer explicitement pour ne garder que les patients de l'organisation active
+            $patients = array_filter($patients, function ($user) use ($targetOrganization) {
+                if (!$user instanceof Patient) {
+                    return false;
+                }
+
+                foreach ($user->getOrganizationMemberships() as $membership) {
+                    if (
+                        $membership->getStatus()->isActive() &&
+                        $membership->getOrganization() !== null &&
+                        $membership->getOrganization()->getId() === $targetOrganization->getId()
+                    ) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
 
             $data = array_map(
                 fn (Patient $patient) => PatientResponseDTO::fromEntity($patient),
@@ -53,7 +83,7 @@ class PatientService
 
             return $feedback
                 ->setData(array_values($data))
-                ->setFlushDescription('Liste des patients récupérée avec succès.')
+                ->setFlushDescription('Liste des patients de l’organisation récupérée avec succès.')
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
@@ -77,7 +107,6 @@ class PatientService
         try {
             $currentUser = $this->securityService->getCurrentUser();
 
-            // 1. Recherche du patient
             $user = $this->repository->find($userId);
             if (!$user instanceof Patient) {
                 return $feedback
@@ -85,8 +114,6 @@ class PatientService
                     ->autoInitFlush();
             }
 
-            // 2. Vérification des accès basée sur la logique métier
-            // (au lieu de checkPermission qui est trop générique)
             $this->securityService->checkPatientAccess($user, SecurityAction::VIEW_PATIENT);
 
             return $feedback
@@ -107,8 +134,6 @@ class PatientService
 
     /**
      * Complète ou met à jour le profil métier d'un patient.
-     *
-     * Le compte utilisateur doit déjà exister.
      */
     public function updateProfile(
         string $userId,
@@ -119,7 +144,6 @@ class PatientService
         try {
             $currentUser = $this->securityService->getCurrentUser();
 
-            // Sécurisation de la comparaison d'IDs (conversion en string pour éviter les erreurs de type Uuid/int)
             $isSelfUpdate = ($currentUser && (string) $currentUser->getId() === (string) $userId);
 
             if (!$isSelfUpdate) {
@@ -152,7 +176,6 @@ class PatientService
                 $patient->setGender($dto->gender);
             }
 
-            // Gestion de l'upload de l'avatar
             if ($dto->avatarFile !== null) {
                 if ($patient->getAvatarUrl()) {
                     $this->fileUploader->remove($patient->getAvatarUrl(), 'avatars');

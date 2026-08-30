@@ -95,6 +95,13 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
                 { id: "patients-all", label: "Patients", icon: <PatientsIcon />, route: "/admin/patients", permission: "PATIENT_VIEW" },
             ],
         },
+        {
+            id: "reports-admin",
+            label: "Analytique",
+            items: [
+                { id: "organization-reports", label: "Rapport organisation", icon: <ActivityIcon />, route: "/admin/reports", permission: "DASHBOARD_VIEW" },
+            ],
+        },
         // {
         //     id: "activity-admin",
         //     label: "Activité",
@@ -105,19 +112,19 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
         //     ],
         // },
 
-        {
-            id: "settings-admin",
-            label: "Paramètres",
-            items: [
-                {
-                    id: "org-settings",
-                    label: "Mon organisation",
-                    icon: <OrganisationIcon />,
-                    route: "/admin/settings",
-                    permission: "SETTINGS_VIEW",
-                },
-            ],
-        },
+        // {
+        //     id: "settings-admin",
+        //     label: "Paramètres",
+        //     items: [
+        //         {
+        //             id: "org-settings",
+        //             label: "Mon organisation",
+        //             icon: <OrganisationIcon />,
+        //             route: "/admin/settings",
+        //             permission: "SETTINGS_VIEW",
+        //         },
+        //     ],
+        // },
 
     ],
 

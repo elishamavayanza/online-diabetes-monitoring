@@ -32,21 +32,51 @@ class HealthcareProfessionalService
     }
 
     /**
-     * Liste tous les professionnels actifs.
+     * Liste tous les professionnels actifs de l'organisation de l'administrateur connecté.
      */
     public function getAll(): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::VIEW->value
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::VIEW
             );
 
+            // Récupération de tous les professionnels non supprimés
             $professionals = $this->repository->findBy(
                 ['deletedAt' => null],
                 ['createdAt' => 'DESC']
             );
+
+            // Filtrage pour ne garder que ceux qui appartiennent à l'organisation active de l'admin
+            $professionals = array_filter($professionals, function (HealthcareProfessional $professional) use ($targetOrganization) {
+                foreach ($professional->getOrganizationMemberships() as $membership) {
+                    if (
+                        $membership->getStatus()->isActive() &&
+                        $membership->getOrganization() !== null &&
+                        $membership->getOrganization()->getId() === $targetOrganization->getId()
+                    ) {
+                        return true;
+                    }
+                }
+                return false;
+            });
 
             $data = array_map(
                 fn (HealthcareProfessional $professional) =>
@@ -55,9 +85,9 @@ class HealthcareProfessionalService
             );
 
             return $feedback
-                ->setData($data)
+                ->setData(array_values($data))
                 ->setFlushDescription(
-                    'Liste des professionnels récupérée avec succès.'
+                    'Liste des professionnels de l’organisation récupérée avec succès.'
                 )
                 ->autoInitFlush();
 
@@ -71,7 +101,7 @@ class HealthcareProfessionalService
         } catch (\Throwable $e) {
             return $feedback
                 ->setErrorFlushDescription(
-                    'Erreur lors de la récupération des professionnels.'
+                    'Erreur lors de la récupération des professionnels : ' . $e->getMessage()
                 )
                 ->autoInitFlush();
         }
@@ -170,7 +200,6 @@ class HealthcareProfessionalService
             /** @var HealthcareProfessional $professional */
             $professional = $this->mapper->mapCreateRequestToEntity($dto);
 
-            // Gestion de l'upload de l'avatar à la création
             if ($dto->avatarFile) {
                 $fileName = $this->fileUploader->upload($dto->avatarFile, 'avatars');
                 $professional->setAvatarUrl($fileName);
@@ -197,7 +226,6 @@ class HealthcareProfessionalService
 
             $this->entityManager->persist($professional);
 
-            // Rattachement automatique à l'organisation via OrganizationMembership
             $orgMembership = new OrganizationMembership();
             $orgMembership->setUser($professional);
             $orgMembership->setOrganization($targetOrganization);
@@ -240,9 +268,6 @@ class HealthcareProfessionalService
         }
     }
 
-    /**
-     * Détermine le rôle de sécurité à partir du type professionnel.
-     */
     private function resolveRoleFromProfessionalType(
         ProfessionalType $professionalType
     ): Role {

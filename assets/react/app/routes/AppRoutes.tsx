@@ -49,6 +49,8 @@ import {TeamPage} from "@/react/features/patient/team/pages/TeamPage";
 import { ProfilePage } from '@/react/features/profile/pages/ProfilePage';
 import {EstablishmentDetailPage} from "@/react/features/admin/establishments/pages/EstablishmentDetailPage";
 import {EstablishmentsPage} from "@/react/features/admin/establishments/pages/EstablishmentsPage";
+import { OrganizationReportPage } from '@/react/features/admin/reports/pages/OrganizationReportPage';
+import { ReportVerificationPage } from '@/react/features/admin/reports/pages/ReportVerificationPage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -90,6 +92,8 @@ export default function AppRoutes() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />} />
+
+                <Route path="/verify/report" element={<ReportVerificationPage />} />
 
                 <Route
                     path="/login"
@@ -147,10 +151,11 @@ export default function AppRoutes() {
                     <Route path="professionals" element={<ProfessionalsPage />} />
                     {/*<Route path="members" element={<MembersPage />} />*/}
                     <Route path="patients" element={<PatientsPage />} />
+                    <Route path="reports" element={<OrganizationReportPage />} />
                     {/*<Route path="appointments" element={<AppointmentsPage />} />*/}
                     {/*<Route path="activity" element={<ActivityPage />} />*/}
                     {/*<Route path="notifications" element={<AdminNotificationsPage />} />*/}
-                    <Route path="settings" element={<AdminSettingsPage />} />
+                    {/*<Route path="settings" element={<AdminSettingsPage />} />*/}
                     <Route path="establishments/:type/:id" element={<EstablishmentDetailPage />} />
                 </Route>
 

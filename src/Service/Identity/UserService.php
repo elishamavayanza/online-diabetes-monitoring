@@ -29,15 +29,30 @@ class UserService
     }
 
     /**
-     * Liste tous les utilisateurs du système.
+     * Liste tous les utilisateurs de l'organisation de l'administrateur connecté.
      */
     public function getAll(): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkPermission(
-                SecurityAction::VIEW->value
+            $currentUser = $this->securityService->getCurrentUser();
+            $targetOrganization = null;
+
+            foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                    $targetOrganization = $membership->getOrganization();
+                    break;
+                }
+            }
+
+            if (!$targetOrganization) {
+                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+            }
+
+            $this->securityService->checkOrganizationAccess(
+                $targetOrganization,
+                SecurityAction::VIEW
             );
 
             $users = $this->repository->findBy(
@@ -45,14 +60,28 @@ class UserService
                 ['createdAt' => 'DESC']
             );
 
+            // Filtrer par l'organisation de l'administrateur connecté
+            $users = array_filter($users, function ($user) use ($targetOrganization) {
+                foreach ($user->getOrganizationMemberships() as $membership) {
+                    if (
+                        $membership->getStatus()->isActive() &&
+                        $membership->getOrganization() !== null &&
+                        $membership->getOrganization()->getId() === $targetOrganization->getId()
+                    ) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+
             $data = array_map(
                 fn ($user) => $this->mapper->mapEntityToResponse($user),
                 $users
             );
 
             return $feedback
-                ->setData($data)
-                ->setFlushDescription('Liste des utilisateurs récupérée avec succès.')
+                ->setData(array_values($data))
+                ->setFlushDescription('Liste des utilisateurs de l’organisation récupérée avec succès.')
                 ->autoInitFlush();
 
         } catch (AccessDeniedException $e) {
@@ -67,7 +96,7 @@ class UserService
     }
 
     /**
-     * Met à jour un compte utilisateur (Administrateur/Base).
+     * Met à jour un compte utilisateur.
      */
     public function update(string $id, UserCreateRequestDTO $dto): Feedback
     {
@@ -164,7 +193,6 @@ class UserService
                 SecurityAction::MANAGE_USERS
             );
 
-            // Vérification de l'unicité de l'e-mail.
             if ($this->repository->findOneBy(['email' => $dto->email])) {
                 return $feedback
                     ->setErrorFlushDescription(
@@ -199,7 +227,6 @@ class UserService
 
             $this->entityManager->persist($user);
 
-            // Rattachement automatique du patient à l'organisation via OrganizationMembership
             $orgMembership = new OrganizationMembership();
             $orgMembership->setUser($user);
             $orgMembership->setOrganization($targetOrganization);
