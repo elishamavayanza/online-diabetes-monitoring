@@ -15,6 +15,9 @@ import {
     PatientProfile,
     PatientMeal,
     PatientMealItem,
+    PatientMedicalConsent,
+    PrescriptionItem,
+    PrescriptionVersion,
     PhysicalActivityMeasurement,
     WeightMeasurement,
 } from '../types';
@@ -55,6 +58,7 @@ export async function fetchPatientDossier(patientId: string): Promise<PatientDos
         allergies,
         diagnoses,
         emergencyContacts,
+        consents,
         prescriptions,
         appointments,
         bloodGlucose,
@@ -70,6 +74,7 @@ export async function fetchPatientDossier(patientId: string): Promise<PatientDos
         fetchList<PatientAllergy>(`/allergies/patient/${patientId}`),
         fetchList<PatientDiagnosis>(`/diagnoses/patient/${patientId}`),
         fetchList<PatientEmergencyContact>(`/emergency-contacts/patient/${patientId}`),
+        fetchList<PatientMedicalConsent>(`/medical-consents/patient/${patientId}`),
         fetchList<PatientPrescription>(`/prescriptions/patient/${patientId}`),
         fetchList<PatientAppointment>(`/appointments/queries/patient/${patientId}`),
         fetchList<BloodGlucoseMeasurement>(`/patients/${patientId}/blood-glucose-measurements`),
@@ -85,14 +90,30 @@ export async function fetchPatientDossier(patientId: string): Promise<PatientDos
         fetchList<PatientMealItem>(`/meal-items/patient/${patientId}`),
     ]);
 
+    const [prescriptionItems, prescriptionVersions] = await Promise.all([
+        Promise.all(
+            prescriptions.map((rx) =>
+                fetchList<PrescriptionItem>(`/prescription-items/prescription/${rx.id}`),
+            ),
+        ).then((lists) => lists.flat()),
+        Promise.all(
+            prescriptions.map((rx) =>
+                fetchList<PrescriptionVersion>(`/prescription-versions/prescription/${rx.id}`),
+            ),
+        ).then((lists) => lists.flat()),
+    ]);
+
     return {
         profile,
         record,
         allergies,
         diagnoses,
         emergencyContacts,
+        consents,
         notes,
         prescriptions,
+        prescriptionItems,
+        prescriptionVersions,
         appointments,
         meals,
         mealItems,

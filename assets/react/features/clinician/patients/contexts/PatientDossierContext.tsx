@@ -1,5 +1,14 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { MeasurementPeriod, MeasurementTypeId, PatientDossierData } from '../types';
+import {
+    MeasurementPeriod,
+    MeasurementTypeId,
+    PatientAllergy,
+    PatientDiagnosis,
+    PatientEmergencyContact,
+    PatientMedicalConsent,
+    PatientDossierData,
+    PatientPrescription,
+} from '../types';
 
 export interface PatientDossierContextValue {
     patientId: string;
@@ -15,6 +24,12 @@ export interface PatientDossierContextValue {
     openPrescriptionModal: () => void;
     openNoteModal: () => void;
     openMealModal: () => void;
+    openAllergyModal: (allergy?: PatientAllergy) => void;
+    openDiagnosisModal: (diagnosis?: PatientDiagnosis) => void;
+    openConsentModal: (consent?: PatientMedicalConsent) => void;
+    openEmergencyContactModal: (contact?: PatientEmergencyContact) => void;
+    openPrescriptionItemModal: (prescription: PatientPrescription) => void;
+    openPrescriptionVersionModal: (prescription: PatientPrescription) => void;
 }
 
 const PatientDossierContext = createContext<PatientDossierContextValue | null>(null);

@@ -142,3 +142,160 @@ export async function createMeal(data: {
     const response = await apiClient.post<ApiFeedback<unknown>>('/meals', data);
     return unwrapApiData(response.data, 'Erreur lors de l\'enregistrement du repas.');
 }
+
+// --- Allergies ---
+
+export async function createAllergy(data: {
+    patientId: string;
+    name: string;
+    severity: string;
+    reaction?: string;
+    notes?: string;
+    diagnosedAt: string;
+}) {
+    const response = await apiClient.post<ApiFeedback<unknown>>('/allergies', data);
+    return unwrapApiData(response.data, 'Erreur lors de la création de l\'allergie.');
+}
+
+export async function updateAllergy(id: string, data: {
+    patientId: string;
+    name: string;
+    severity: string;
+    reaction?: string;
+    notes?: string;
+    diagnosedAt: string;
+}) {
+    const response = await apiClient.put<ApiFeedback<unknown>>(`/allergies/${id}`, data);
+    return unwrapApiData(response.data, 'Erreur lors de la mise à jour de l\'allergie.');
+}
+
+export async function deleteAllergy(id: string) {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/allergies/${id}`);
+    return unwrapApiData(response.data, 'Erreur lors de la suppression de l\'allergie.');
+}
+
+// --- Diagnoses ---
+
+export async function createDiagnosis(data: {
+    patientId: string;
+    doctorId: string;
+    conditionName: string;
+    description?: string;
+    diagnosedAt: string;
+    status: string;
+    medicalRecordId?: string;
+}) {
+    const response = await apiClient.post<ApiFeedback<unknown>>('/diagnoses', data);
+    return unwrapApiData(response.data, 'Erreur lors de la création du diagnostic.');
+}
+
+export async function updateDiagnosis(id: string, data: {
+    patientId: string;
+    doctorId: string;
+    conditionName: string;
+    description?: string;
+    diagnosedAt: string;
+    status: string;
+    medicalRecordId?: string;
+}) {
+    const response = await apiClient.put<ApiFeedback<unknown>>(`/diagnoses/${id}`, data);
+    return unwrapApiData(response.data, 'Erreur lors de la mise à jour du diagnostic.');
+}
+
+export async function deleteDiagnosis(id: string) {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/diagnoses/${id}`);
+    return unwrapApiData(response.data, 'Erreur lors de la suppression du diagnostic.');
+}
+
+// --- Medical consents ---
+
+export async function createMedicalConsent(data: {
+    patientId: string;
+    organizationId?: string;
+    consentType: string;
+    grantedAt: string;
+    revokedAt?: string;
+    documentUrl?: string;
+}) {
+    const response = await apiClient.post<ApiFeedback<unknown>>('/medical-consents', data);
+    return unwrapApiData(response.data, 'Erreur lors de l\'enregistrement du consentement.');
+}
+
+export async function updateMedicalConsent(id: string, data: {
+    patientId: string;
+    organizationId?: string;
+    consentType: string;
+    grantedAt: string;
+    revokedAt?: string;
+    documentUrl?: string;
+}) {
+    const response = await apiClient.put<ApiFeedback<unknown>>(`/medical-consents/${id}`, data);
+    return unwrapApiData(response.data, 'Erreur lors de la mise à jour du consentement.');
+}
+
+export async function deleteMedicalConsent(id: string) {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/medical-consents/${id}`);
+    return unwrapApiData(response.data, 'Erreur lors de la suppression du consentement.');
+}
+
+// --- Emergency contacts ---
+
+export async function createEmergencyContact(data: {
+    patientId: string;
+    fullName: string;
+    relationship: string;
+    phone: string;
+    email?: string;
+}) {
+    const response = await apiClient.post<ApiFeedback<unknown>>('/emergency-contacts', data);
+    return unwrapApiData(response.data, 'Erreur lors de la création du contact.');
+}
+
+export async function updateEmergencyContact(id: string, data: {
+    patientId: string;
+    fullName: string;
+    relationship: string;
+    phone: string;
+    email?: string;
+}) {
+    const response = await apiClient.put<ApiFeedback<unknown>>(`/emergency-contacts/${id}`, data);
+    return unwrapApiData(response.data, 'Erreur lors de la mise à jour du contact.');
+}
+
+export async function deleteEmergencyContact(id: string) {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/emergency-contacts/${id}`);
+    return unwrapApiData(response.data, 'Erreur lors de la suppression du contact.');
+}
+
+// --- Prescription items & versions ---
+
+export async function createPrescriptionItem(data: {
+    prescriptionId: string;
+    medicationId: string;
+    dosage: string;
+    quantity: string;
+    morning: boolean;
+    noon: boolean;
+    evening: boolean;
+    instructions?: string;
+}) {
+    const response = await apiClient.post<ApiFeedback<unknown>>('/prescription-items', data);
+    return unwrapApiData(response.data, 'Erreur lors de l\'ajout du médicament.');
+}
+
+export async function deletePrescriptionItem(id: string) {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/prescription-items/${id}`);
+    return unwrapApiData(response.data, 'Erreur lors de la suppression du médicament.');
+}
+
+export async function createPrescriptionVersion(data: {
+    prescriptionId: string;
+    versionNumber: number;
+    changesSummary?: string;
+    data: Record<string, unknown>;
+    modifiedById: string;
+    modifiedAt: string;
+}) {
+    const response = await apiClient.post<ApiFeedback<unknown>>('/prescription-versions', data);
+    return unwrapApiData(response.data, 'Erreur lors de la création de la version.');
+}

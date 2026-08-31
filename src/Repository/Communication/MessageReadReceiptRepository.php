@@ -29,4 +29,22 @@ class MessageReadReceiptRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findReadReceiptForMessageAndUser(Message $message, User $reader): ?MessageReadReceipt
+    {
+        return $this->findByMessageAndUser($message, $reader);
+    }
+
+    /**
+     * @return MessageReadReceipt[]
+     */
+    public function findReadReceiptsForMessage(Message $message): array
+    {
+        return $this->createQueryBuilder('mrr')
+            ->andWhere('mrr.message = :message')
+            ->andWhere('mrr.deletedAt IS NULL')
+            ->setParameter('message', $message)
+            ->getQuery()
+            ->getResult();
+    }
 }

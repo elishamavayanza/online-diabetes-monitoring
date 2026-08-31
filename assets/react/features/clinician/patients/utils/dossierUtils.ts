@@ -1,5 +1,6 @@
 import { TrendSeries } from '@/react/features/admin/reports/types';
-import { MeasurementPeriod } from '../types';
+import { CalendarMarkedDate } from '@/react/hook-components/Calendars/Calendar';
+import { DossierTabId, MeasurementPeriod, PatientDossierData } from '../types';
 
 export function toDateKey(date: Date): string {
     const year = date.getFullYear();
@@ -70,23 +71,82 @@ export function buildTrendSeries(
 export function collectMarkedDates(
     appointments: { scheduledAt: string }[],
     measurements: { createdAt: string }[],
-): { date: Date; markers: string[] }[] {
-    const map = new Map<string, Set<string>>();
+): CalendarMarkedDate[] {
+    const dateKeys = new Set<string>();
 
     appointments.forEach((appt) => {
-        const key = toDateKey(new Date(appt.scheduledAt));
-        if (!map.has(key)) map.set(key, new Set());
-        map.get(key)!.add('has-appointment');
+        dateKeys.add(toDateKey(new Date(appt.scheduledAt)));
     });
 
     measurements.forEach((m) => {
-        const key = toDateKey(new Date(m.createdAt));
-        if (!map.has(key)) map.set(key, new Set());
-        map.get(key)!.add('has-measurement');
+        dateKeys.add(toDateKey(new Date(m.createdAt)));
     });
 
-    return Array.from(map.entries()).map(([dateKey, markers]) => ({
-        date: new Date(dateKey),
-        markers: Array.from(markers),
+    return Array.from(dateKeys).map((dateKey) => ({
+        date: new Date(`${dateKey}T12:00:00`),
+        type: 'info' as const,
+    }));
+}
+
+function addDateKey(keys: Set<string>, iso?: string) {
+    if (!iso) return;
+    keys.add(toDateKey(new Date(iso)));
+}
+
+/** Marqueurs du calendrier limités aux données de l'onglet actif. */
+export function collectMarkedDatesForTab(
+    tab: DossierTabId,
+    data: PatientDossierData,
+): CalendarMarkedDate[] {
+    const dateKeys = new Set<string>();
+
+    switch (tab) {
+        case 'measurements':
+            Object.values(data.measurements).forEach((items) => {
+                items.forEach((item) => addDateKey(dateKeys, item.createdAt));
+            });
+            break;
+
+        case 'prescriptions':
+            data.prescriptions.forEach((rx) => {
+                addDateKey(dateKeys, rx.startDate);
+                addDateKey(dateKeys, rx.endDate);
+            });
+            break;
+
+        case 'consultations':
+            data.appointments.forEach((appt) => addDateKey(dateKeys, appt.scheduledAt));
+            data.notes.forEach((note) => addDateKey(dateKeys, note.notedAt ?? note.createdAt));
+            break;
+
+        case 'nutrition':
+            data.meals.forEach((meal) => addDateKey(dateKeys, meal.measuredAt ?? meal.createdAt));
+            break;
+
+        case 'appointments':
+            data.appointments.forEach((appt) => addDateKey(dateKeys, appt.scheduledAt));
+            break;
+
+        case 'notes':
+            data.notes.forEach((note) => addDateKey(dateKeys, note.notedAt ?? note.createdAt));
+            break;
+
+        case 'medical-profile':
+            data.diagnoses.forEach((diag) => addDateKey(dateKeys, diag.diagnosedAt));
+            data.consents.forEach((consent) => {
+                addDateKey(dateKeys, consent.grantedAt);
+                addDateKey(dateKeys, consent.revokedAt);
+            });
+            break;
+
+        case 'overview':
+        case 'communications':
+        default:
+            break;
+    }
+
+    return Array.from(dateKeys).map((dateKey) => ({
+        date: new Date(`${dateKey}T12:00:00`),
+        type: 'info' as const,
     }));
 }

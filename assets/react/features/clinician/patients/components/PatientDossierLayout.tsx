@@ -13,8 +13,11 @@ import { useMedicalRecord } from '../hooks/useMedicalRecord';
 import { PatientDossierProvider } from '../contexts/PatientDossierContext';
 import { PatientDossierCalendar } from './PatientDossierCalendar';
 import { OverviewTab } from './tabs/OverviewTab';
+import { MedicalProfileTab } from './tabs/MedicalProfileTab';
 import { MeasurementsTab } from './tabs/MeasurementsTab';
 import { PrescriptionsTab } from './tabs/PrescriptionsTab';
+import { ConsultationsTab } from './tabs/ConsultationsTab';
+import { NutritionTab } from './tabs/NutritionTab';
 import { AppointmentsTab } from './tabs/AppointmentsTab';
 import { NotesTab } from './tabs/NotesTab';
 import { CommunicationsTab } from './tabs/CommunicationsTab';
@@ -23,12 +26,30 @@ import { MeasurementFormModal } from './modals/MeasurementFormModal';
 import { MedicalNoteFormModal } from './modals/MedicalNoteFormModal';
 import { PrescriptionFormModal } from './modals/PrescriptionFormModal';
 import { MealFormModal } from './modals/MealFormModal';
-import { DossierTabId, MeasurementPeriod, MeasurementTypeId } from '../types';
+import { AllergyFormModal } from './modals/AllergyFormModal';
+import { DiagnosisFormModal } from './modals/DiagnosisFormModal';
+import { MedicalConsentFormModal } from './modals/MedicalConsentFormModal';
+import { EmergencyContactFormModal } from './modals/EmergencyContactFormModal';
+import { PrescriptionItemFormModal } from './modals/PrescriptionItemFormModal';
+import { PrescriptionVersionFormModal } from './modals/PrescriptionVersionFormModal';
+import {
+    DossierTabId,
+    MeasurementPeriod,
+    MeasurementTypeId,
+    PatientAllergy,
+    PatientDiagnosis,
+    PatientEmergencyContact,
+    PatientMedicalConsent,
+    PatientPrescription,
+} from '../types';
 
 const DOSSIER_TABS = [
     { id: 'overview', label: "Vue d'ensemble" },
+    { id: 'medical-profile', label: 'Profil médical' },
     { id: 'measurements', label: 'Mesures' },
     { id: 'prescriptions', label: 'Prescriptions' },
+    { id: 'consultations', label: 'Consultations' },
+    { id: 'nutrition', label: 'Nutrition' },
     { id: 'appointments', label: 'Rendez-vous' },
     { id: 'notes', label: 'Notes' },
     { id: 'communications', label: 'Communication' },
@@ -39,6 +60,15 @@ const PERIOD_TABS = [
     { id: '30d', label: '30 jours' },
     { id: '90d', label: '90 jours' },
     { id: 'all', label: 'Tout' },
+];
+
+const PERIOD_FILTER_TABS: DossierTabId[] = [
+    'measurements',
+    'prescriptions',
+    'consultations',
+    'nutrition',
+    'appointments',
+    'notes',
 ];
 
 interface PatientDossierLayoutProps {
@@ -56,18 +86,32 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
     const [period, setPeriod] = useState<MeasurementPeriod>('30d');
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-    // Modal state
     const [measurementModalOpen, setMeasurementModalOpen] = useState(false);
     const [measurementModalType, setMeasurementModalType] = useState<MeasurementTypeId | undefined>(undefined);
     const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
     const [prescriptionModalOpen, setPrescriptionModalOpen] = useState(false);
     const [noteModalOpen, setNoteModalOpen] = useState(false);
     const [mealModalOpen, setMealModalOpen] = useState(false);
+    const [allergyModalOpen, setAllergyModalOpen] = useState(false);
+    const [editingAllergy, setEditingAllergy] = useState<PatientAllergy | undefined>(undefined);
+    const [diagnosisModalOpen, setDiagnosisModalOpen] = useState(false);
+    const [editingDiagnosis, setEditingDiagnosis] = useState<PatientDiagnosis | undefined>(undefined);
+    const [consentModalOpen, setConsentModalOpen] = useState(false);
+    const [editingConsent, setEditingConsent] = useState<PatientMedicalConsent | undefined>(undefined);
+    const [emergencyContactModalOpen, setEmergencyContactModalOpen] = useState(false);
+    const [editingEmergencyContact, setEditingEmergencyContact] = useState<PatientEmergencyContact | undefined>(undefined);
+    const [prescriptionItemModalOpen, setPrescriptionItemModalOpen] = useState(false);
+    const [prescriptionVersionModalOpen, setPrescriptionVersionModalOpen] = useState(false);
+    const [selectedPrescription, setSelectedPrescription] = useState<PatientPrescription | null>(null);
 
     const handleTabChange = (tabId: string) => {
         const previous = activeTab;
         setActiveTab(tabId as DossierTabId);
-        pushAction(() => setActiveTab(previous));
+        setSelectedDate(null);
+        pushAction(() => {
+            setActiveTab(previous);
+            setSelectedDate(null);
+        });
     };
 
     const handlePeriodChange = (newPeriod: string) => {
@@ -121,14 +165,25 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
         setMeasurementModalOpen(true);
     };
 
+    const closeAndReload = (setter: (open: boolean) => void) => {
+        setter(false);
+        reload();
+    };
+
     const renderTabContent = () => {
         switch (activeTab) {
             case 'overview':
                 return <OverviewTab />;
+            case 'medical-profile':
+                return <MedicalProfileTab />;
             case 'measurements':
                 return <MeasurementsTab />;
             case 'prescriptions':
                 return <PrescriptionsTab />;
+            case 'consultations':
+                return <ConsultationsTab />;
+            case 'nutrition':
+                return <NutritionTab />;
             case 'appointments':
                 return <AppointmentsTab />;
             case 'notes':
@@ -139,6 +194,10 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
                 return null;
         }
     };
+
+    const versionCount = selectedPrescription
+        ? data.prescriptionVersions.filter((v) => v.prescriptionId === selectedPrescription.id).length
+        : 0;
 
     return (
         <PatientDossierProvider
@@ -156,6 +215,30 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
                 openPrescriptionModal: () => setPrescriptionModalOpen(true),
                 openNoteModal: () => setNoteModalOpen(true),
                 openMealModal: () => setMealModalOpen(true),
+                openAllergyModal: (allergy) => {
+                    setEditingAllergy(allergy);
+                    setAllergyModalOpen(true);
+                },
+                openDiagnosisModal: (diagnosis) => {
+                    setEditingDiagnosis(diagnosis);
+                    setDiagnosisModalOpen(true);
+                },
+                openConsentModal: (consent) => {
+                    setEditingConsent(consent);
+                    setConsentModalOpen(true);
+                },
+                openEmergencyContactModal: (contact) => {
+                    setEditingEmergencyContact(contact);
+                    setEmergencyContactModalOpen(true);
+                },
+                openPrescriptionItemModal: (prescription) => {
+                    setSelectedPrescription(prescription);
+                    setPrescriptionItemModalOpen(true);
+                },
+                openPrescriptionVersionModal: (prescription) => {
+                    setSelectedPrescription(prescription);
+                    setPrescriptionVersionModalOpen(true);
+                },
             }}
         >
             <div className="clinician-record-page">
@@ -199,7 +282,7 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
 
                 <Tabs tabs={DOSSIER_TABS} defaultActiveTabId={activeTab} onChange={handleTabChange} />
 
-                {(activeTab === 'measurements' || activeTab === 'appointments') && (
+                {PERIOD_FILTER_TABS.includes(activeTab) && (
                     <Tabs tabs={PERIOD_TABS} defaultActiveTabId={period} onChange={handlePeriodChange} />
                 )}
 
@@ -221,6 +304,7 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
                         <div className="clinician-record-page__right-content">
                             <PatientDossierCalendar
                                 data={data}
+                                activeTab={activeTab}
                                 selectedDate={selectedDate}
                                 onDateSelect={handleDateSelect}
                             />
@@ -238,39 +322,79 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
                 </div>
             </div>
 
-            {/* Modals */}
             <MeasurementFormModal
                 isOpen={measurementModalOpen}
                 onClose={() => setMeasurementModalOpen(false)}
                 patientId={patientId}
                 initialType={measurementModalType}
-                onSuccess={() => { setMeasurementModalOpen(false); reload(); }}
+                onSuccess={() => closeAndReload(setMeasurementModalOpen)}
             />
             <AppointmentFormModal
                 isOpen={appointmentModalOpen}
                 onClose={() => setAppointmentModalOpen(false)}
                 data={data}
                 defaultDate={selectedDate}
-                onSuccess={() => { setAppointmentModalOpen(false); reload(); }}
+                onSuccess={() => closeAndReload(setAppointmentModalOpen)}
             />
             <MedicalNoteFormModal
                 isOpen={noteModalOpen}
                 onClose={() => setNoteModalOpen(false)}
                 data={data}
                 defaultDate={selectedDate}
-                onSuccess={() => { setNoteModalOpen(false); reload(); }}
+                onSuccess={() => closeAndReload(setNoteModalOpen)}
             />
             <PrescriptionFormModal
                 isOpen={prescriptionModalOpen}
                 onClose={() => setPrescriptionModalOpen(false)}
                 data={data}
-                onSuccess={() => { setPrescriptionModalOpen(false); reload(); }}
+                onSuccess={() => closeAndReload(setPrescriptionModalOpen)}
             />
             <MealFormModal
                 isOpen={mealModalOpen}
                 onClose={() => setMealModalOpen(false)}
                 data={data}
-                onSuccess={() => { setMealModalOpen(false); reload(); }}
+                onSuccess={() => closeAndReload(setMealModalOpen)}
+            />
+            <AllergyFormModal
+                isOpen={allergyModalOpen}
+                onClose={() => { setAllergyModalOpen(false); setEditingAllergy(undefined); }}
+                data={data}
+                allergy={editingAllergy}
+                onSuccess={() => closeAndReload(setAllergyModalOpen)}
+            />
+            <DiagnosisFormModal
+                isOpen={diagnosisModalOpen}
+                onClose={() => { setDiagnosisModalOpen(false); setEditingDiagnosis(undefined); }}
+                data={data}
+                diagnosis={editingDiagnosis}
+                onSuccess={() => closeAndReload(setDiagnosisModalOpen)}
+            />
+            <MedicalConsentFormModal
+                isOpen={consentModalOpen}
+                onClose={() => { setConsentModalOpen(false); setEditingConsent(undefined); }}
+                data={data}
+                consent={editingConsent}
+                onSuccess={() => closeAndReload(setConsentModalOpen)}
+            />
+            <EmergencyContactFormModal
+                isOpen={emergencyContactModalOpen}
+                onClose={() => { setEmergencyContactModalOpen(false); setEditingEmergencyContact(undefined); }}
+                data={data}
+                contact={editingEmergencyContact}
+                onSuccess={() => closeAndReload(setEmergencyContactModalOpen)}
+            />
+            <PrescriptionItemFormModal
+                isOpen={prescriptionItemModalOpen}
+                onClose={() => { setPrescriptionItemModalOpen(false); setSelectedPrescription(null); }}
+                prescription={selectedPrescription}
+                onSuccess={() => closeAndReload(setPrescriptionItemModalOpen)}
+            />
+            <PrescriptionVersionFormModal
+                isOpen={prescriptionVersionModalOpen}
+                onClose={() => { setPrescriptionVersionModalOpen(false); setSelectedPrescription(null); }}
+                prescription={selectedPrescription}
+                currentVersionCount={versionCount}
+                onSuccess={() => closeAndReload(setPrescriptionVersionModalOpen)}
             />
         </PatientDossierProvider>
     );

@@ -83,6 +83,38 @@ export interface PatientPrescription {
     notes?: string;
 }
 
+export interface PrescriptionItem {
+    id: string;
+    prescriptionId: string;
+    medicationId: string;
+    dosage: string;
+    quantity: string;
+    morning: boolean;
+    noon: boolean;
+    evening: boolean;
+    instructions?: string;
+}
+
+export interface PrescriptionVersion {
+    id: string;
+    prescriptionId: string;
+    versionNumber: number;
+    changesSummary?: string;
+    data: Record<string, unknown>;
+    modifiedById: string;
+    modifiedAt: string;
+}
+
+export interface PatientMedicalConsent {
+    id: string;
+    patientId: string;
+    organizationId?: string;
+    consentType?: string;
+    grantedAt: string;
+    revokedAt?: string;
+    documentUrl?: string;
+}
+
 export interface PatientAppointment {
     id: string;
     scheduledAt: string;
@@ -158,8 +190,11 @@ export interface PatientDossierData {
     allergies: PatientAllergy[];
     diagnoses: PatientDiagnosis[];
     emergencyContacts: PatientEmergencyContact[];
+    consents: PatientMedicalConsent[];
     notes: PatientMedicalNote[];
     prescriptions: PatientPrescription[];
+    prescriptionItems: PrescriptionItem[];
+    prescriptionVersions: PrescriptionVersion[];
     appointments: PatientAppointment[];
     meals: PatientMeal[];
     mealItems: PatientMealItem[];
@@ -173,13 +208,24 @@ export interface PatientDossierData {
     };
 }
 
+export interface PatientMedicalConsent {
+    id: string;
+    patientId: string;
+    organizationId?: string;
+    consentType?: string;
+    grantedAt: string;
+    revokedAt?: string;
+    documentUrl?: string;
+}
+
 export type DossierTabId =
     | 'overview'
+    | 'medical-profile'
     | 'measurements'
     | 'prescriptions'
     | 'consultations'
-    | 'appointments'
     | 'nutrition'
+    | 'appointments'
     | 'notes'
     | 'communications';
 
