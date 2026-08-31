@@ -1,0 +1,187 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+/* ============================================================
+   Page Médicaments
+   ============================================================ */
+
+.medications-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    /* ========================================================
+       En-tête
+       ======================================================== */
+
+    &__header {
+        h1 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--color-text);
+            opacity: 0.8;
+        }
+    }
+
+    /* ========================================================
+       Actions : recherche + bouton
+       ======================================================== */
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+        flex-wrap: nowrap;
+
+        /* --------------------------------------------
+           Barre de recherche
+           -------------------------------------------- */
+
+        .medications-page__search {
+            flex: 1 1 auto;
+            min-width: 0;
+            width: auto;
+            display: flex;
+
+            .search-input,
+            > * {
+                width: 100%;
+                flex: 1 1 auto;
+            }
+        }
+
+        /* --------------------------------------------
+           Bouton Ajouter
+           -------------------------------------------- */
+
+        > .btn {
+            flex: 0 0 auto;
+            width: auto !important;
+            min-width: max-content;
+            white-space: nowrap;
+        }
+    }
+}
+
+/* ============================================================
+   Formulaire médicament
+   ============================================================ */
+
+.medication-form-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        opacity: 0.5;
+        color: var(--color-text);
+    }
+}
+
+/* ============================================================
+   Grille du formulaire
+   ============================================================ */
+
+.medication-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+/* ============================================================
+   Table des médicaments
+   ============================================================ */
+
+.medications-card {
+    @include card;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .medications-page {
+        gap: 1.25rem;
+
+        &__actions {
+            flex-direction: column;
+            align-items: stretch;
+            flex-wrap: nowrap;
+
+            /* Recherche en pleine largeur */
+            .medications-page__search {
+                width: 100%;
+                min-width: 100%;
+                flex: none;
+
+                .search-input,
+                > * {
+                    width: 100%;
+                }
+            }
+
+            /* Bouton en pleine largeur sur mobile */
+            > .btn {
+                width: 100% !important;
+                flex: none;
+            }
+        }
+    }
+
+    .medication-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================
+   Très petits écrans
+   ============================================================ */
+
+@media (max-width: 480px) {
+    .medications-page {
+        gap: 1rem;
+
+        &__header {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+        }
+
+        &__actions {
+            gap: 0.75rem;
+        }
+    }
+
+    .medication-form-modal {
+        gap: 0.75rem;
+
+        &__actions {
+            flex-direction: column;
+            align-items: stretch;
+
+            > * {
+                width: 100%;
+            }
+        }
+    }
+}

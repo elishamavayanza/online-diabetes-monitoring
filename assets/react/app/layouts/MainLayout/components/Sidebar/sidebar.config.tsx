@@ -25,7 +25,7 @@ import {
     DosesIcon,
     CalendarIcon,
     TeamIcon,
-    ConfigIcon, BookAppointmentIcon,
+    ConfigIcon, BookAppointmentIcon,MedicationIcon,
 } from "./sidebar.icons";
 
 export type UserRole = "ROOT" | "ADMIN" | "CLINICIAN" | "NUTRITIONIST" | "PATIENT";
@@ -93,6 +93,13 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Patients",
             items: [
                 { id: "patients-all", label: "Patients", icon: <PatientsIcon />, route: "/admin/patients", permission: "PATIENT_VIEW" },
+            ],
+        },
+        {
+            id: "medications-admin",
+            label: "Médicaments",
+            items: [
+                { id: "medications", label: "Médicaments", icon: <MedicationIcon />, route: "/admin/medications", permission: "MEDICATION_VIEW" },
             ],
         },
         {

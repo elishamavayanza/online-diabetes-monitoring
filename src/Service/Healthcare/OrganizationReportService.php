@@ -21,6 +21,7 @@ class OrganizationReportService
     private readonly OrganizationMembershipRepository $membershipRepository,
     private readonly OrganizationReportMapper $mapper,
     private readonly SecurityServiceInterface $securityService,
+    private readonly string $frontendBaseUrl,
   ) {}
 
   public function generateReport(?string $from, ?string $to, ?string $period): Feedback

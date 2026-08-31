@@ -278,5 +278,19 @@ export const BookAppointmentIcon = ({ size = 20, className }: IconProps) => (
     </svg>
 );
 
+// export const MedicationIcon = ({ size = 20, className }: IconProps) => (
+//     <svg {...baseProps} width={size} height={size} className={className}>
+//         <path d="M4 12h16" />
+//         <path d="M12 4v16" />
+//         <circle cx="12" cy="12" r="3" />
+//     </svg>
+// );
+export const MedicationIcon = ({ size = 20, className }: IconProps) => (
+    <svg {...baseProps} width={size} height={size} className={className}>
+        <path d="M12 2a7 7 0 0 0-7 7c0 2.4 1.2 4.5 3 5.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3c1.8-1.2 3-3.3 3-5.7a7 7 0 0 0-7-7z" />
+        <path d="M8 15h8" />
+    </svg>
+);
+
 
 

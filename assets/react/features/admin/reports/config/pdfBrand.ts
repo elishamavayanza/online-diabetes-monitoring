@@ -1,5 +1,5 @@
 export const PDF_BRAND = {
-    name: 'DiabCare',
+    name: 'OnlineDIAB',
     tagline: 'Plateforme de suivi du diabète',
     primary: '#2C7A7B',
     secondary: '#76B8B8',

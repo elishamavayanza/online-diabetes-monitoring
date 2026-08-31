@@ -61,7 +61,7 @@ export function ReportVerificationPage() {
                     <img src={logo} alt="DiabCare" className="report-verification-page__logo" />
                     <div>
                         <h1>Vérification de rapport</h1>
-                        <p>Plateforme DiabCare</p>
+                        <p>Plateforme OnlineDIAB</p>
                     </div>
                 </div>
 

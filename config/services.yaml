@@ -7,6 +7,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    frontend_base_url: '%env(FRONTEND_BASE_URL)%'
+
 
 services:
     # default configuration for services in *this* file
@@ -33,4 +35,6 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
-
+    App\Service\Healthcare\OrganizationReportService:
+        arguments:
+            $frontendBaseUrl: '%frontend_base_url%'

@@ -78,6 +78,7 @@
 @use './pages/admin/activity/activity' as *;
 @use './pages/admin/appointments/appointments' as *;
 @use './pages/admin/patients/patients' as *;
+@use './pages/admin/medications/medications' as *;
 
 @use './pages/clinician/dashboard/dashboard' as *;
 @use './pages/clinician/patients/patients' as *;

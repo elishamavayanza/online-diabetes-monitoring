@@ -51,6 +51,7 @@ import {EstablishmentDetailPage} from "@/react/features/admin/establishments/pag
 import {EstablishmentsPage} from "@/react/features/admin/establishments/pages/EstablishmentsPage";
 import { OrganizationReportPage } from '@/react/features/admin/reports/pages/OrganizationReportPage';
 import { ReportVerificationPage } from '@/react/features/admin/reports/pages/ReportVerificationPage';
+import { MedicationsPage } from '@/react/features/admin/medications/pages/MedicationsPage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -151,6 +152,7 @@ export default function AppRoutes() {
                     <Route path="professionals" element={<ProfessionalsPage />} />
                     {/*<Route path="members" element={<MembersPage />} />*/}
                     <Route path="patients" element={<PatientsPage />} />
+                    <Route path="medications" element={<MedicationsPage />} />
                     <Route path="reports" element={<OrganizationReportPage />} />
                     {/*<Route path="appointments" element={<AppointmentsPage />} />*/}
                     {/*<Route path="activity" element={<ActivityPage />} />*/}

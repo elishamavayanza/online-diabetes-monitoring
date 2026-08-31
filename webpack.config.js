@@ -25,6 +25,20 @@ api.configureCssLoader((options) => {
     };
 });
 
+// webpack.config.js
+api.configureDevServerOptions(options => {
+    options.host = '0.0.0.0';
+    options.port = 8080;
+    options.allowedHosts = 'all';
+    options.historyApiFallback = true; // ✅ pour les routes SPA
+    options.proxy = {
+        '/api': {
+            target: 'http://localhost:8000',
+            changeOrigin: true,
+        },
+    };
+});
+
 // Ajout obligatoire pour Webpack Encore v7+
 api.enableSingleRuntimeChunk();
 

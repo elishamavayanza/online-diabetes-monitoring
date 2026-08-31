@@ -7,7 +7,7 @@ export async function loadImageAsDataUrl(src: string): Promise<string> {
     const response = await fetch(src);
 
     if (!response.ok) {
-        throw new Error('Impossible de charger le logo DiabCare.');
+        throw new Error('Impossible de charger le logo OnlineDIAB.');
     }
 
     const blob = await response.blob();

@@ -20,13 +20,29 @@ class MedicationService
         private readonly SecurityServiceInterface $securityService
     ) {}
 
+    /**
+     * Vérifie si l'utilisateur courant (Admin d'organisation ou Professionnel autorisé) peut gérer les médicaments.
+     */
+    private function checkMedicationAccess(): void
+    {
+        if (
+            $this->securityService->isOrganizationAdmin() ||
+            $this->securityService->isSuperAdmin()
+        ) {
+            return;
+        }
+
+        $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+    }
+
     public function all(): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+            $this->checkMedicationAccess();
 
+            // Catalogue global : on récupère tous les médicaments sans filtrer par organisation
             $medications = $this->repository->findAll();
             $responseDTOs = array_map(fn($m) => $this->mapper->mapEntityToResponse($m), $medications);
 
@@ -47,7 +63,7 @@ class MedicationService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+            $this->checkMedicationAccess();
 
             $medication = $this->repository->find($id);
             if (!$medication) {
@@ -71,10 +87,11 @@ class MedicationService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+            $this->checkMedicationAccess();
 
             $medication = $this->mapper->mapRequestToEntity($dto);
 
+            // Pas de setOrganization() puisque le catalogue est global
             $this->entityManager->persist($medication);
             $this->entityManager->flush();
 
@@ -95,7 +112,7 @@ class MedicationService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+            $this->checkMedicationAccess();
 
             $medication = $this->repository->find($id);
             if (!$medication) {
@@ -123,7 +140,7 @@ class MedicationService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+            $this->checkMedicationAccess();
 
             $medication = $this->repository->find($id);
             if (!$medication) {
