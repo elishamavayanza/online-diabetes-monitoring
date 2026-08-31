@@ -8,6 +8,7 @@ use App\DTO\Response\Identity\PatientResponseDTO;
 use App\Entity\Identity\Address;
 use App\Entity\Identity\Patient;
 use App\Repository\Appointment\AppointmentRepository;
+use App\Repository\Healthcare\CareTeamAssignmentRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Repository\Identity\UserRepository;
 use App\Security\SecurityAction;
@@ -24,7 +25,9 @@ class PatientService
         private readonly AppointmentRepository $appointmentRepository, // Adapte selon ton namespace exact d'AppointmentRepository
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly FileUploaderService $fileUploader
+        private readonly FileUploaderService $fileUploader,
+        private readonly CareTeamAssignmentRepository $careTeamAssignmentRepository
+
     ) {
     }
 
@@ -113,13 +116,17 @@ class PatientService
                 return $feedback->setErrorFlushDescription("Profil professionnel introuvable pour cet utilisateur.")->autoInitFlush();
             }
 
-            // Récupérer les patients uniques via les rendez-vous du professionnel
-            $appointments = $this->appointmentRepository->findBy(['professional' => $professional]);
+            // Récupérer les patients via les affectations de l'équipe de soins (Care Team)
+            $assignments = $this->careTeamAssignmentRepository->findByProfessional($professional);
             $patients = [];
-            foreach ($appointments as $appointment) {
-                $patient = $appointment->getPatient();
-                if ($patient && !in_array($patient, $patients, true)) {
-                    $patients[] = $patient;
+
+            foreach ($assignments as $assignment) {
+                // On vérifie que l'affectation est bien active et que le patient n'est pas déjà dans la liste
+                if ($assignment->isActive() && $assignment->getPatient()) {
+                    $patient = $assignment->getPatient();
+                    if (!in_array($patient, $patients, true)) {
+                        $patients[] = $patient;
+                    }
                 }
             }
 

@@ -71,6 +71,35 @@ class MedicalRecordService
         });
     }
 
+    public function getByPatient(string $patientId): Feedback
+    {
+        return $this->executeSafely(function (Feedback $feedback) use ($patientId) {
+            $patient = $this->patientRepository->find($patientId);
+            if (!$patient) {
+                return $feedback->setErrorFlushDescription('Patient introuvable.')->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_MEDICAL_RECORD);
+
+            $record = $this->repository->findOpenRecordForPatient($patient)
+                ?? $this->repository->findLatestRecordForPatient($patient);
+
+            if (!$record) {
+                return $feedback
+                    ->setData(null)
+                    ->setFlushDescription('Aucun dossier médical trouvé pour ce patient.')
+                    ->autoInitFlush();
+            }
+
+            $this->securityService->checkOrganizationAccess($record->getOrganization(), SecurityAction::VIEW_MEDICAL_RECORD);
+
+            return $feedback
+                ->setData($this->mapper->mapEntityToResponse($record))
+                ->setFlushDescription('Dossier médical récupéré avec succès.')
+                ->autoInitFlush();
+        });
+    }
+
     public function update(string $id, MedicalRecordRequestDTO $dto): Feedback
     {
         return $this->executeSafely(function (Feedback $feedback) use ($id, $dto) {

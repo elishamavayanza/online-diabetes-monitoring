@@ -211,6 +211,40 @@ class PrescriptionService
         }
     }
 
+    public function getByPatient(string|int $patientId): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->patientRepository->find($patientId);
+
+            if (!$patient) {
+                return $feedback
+                    ->setErrorFlushDescription('Patient introuvable.')
+                    ->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PRESCRIPTION);
+
+            $prescriptions = $this->repository->findAllByPatient($patient);
+
+            $data = array_map(
+                fn ($prescription) => $this->mapper->mapEntityToResponse($prescription),
+                $prescriptions
+            );
+
+            return $feedback
+                ->setData(array_values($data))
+                ->setFlushDescription('Prescriptions récupérées avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback->setErrorFlushDescription('Erreur : ' . $e->getMessage())->autoInitFlush();
+        }
+    }
+
     public function delete(string|int $id): Feedback
     {
         $feedback = new Feedback();

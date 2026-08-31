@@ -55,6 +55,21 @@ class MedicalRecordController extends AbstractController
         return $this->json($feedback, $status);
     }
 
+    #[Route('/patient/{patientId}', name: 'api_medical_records_get_by_patient', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère le dossier médical ouvert ou le plus récent d’un patient.',
+        summary: 'Afficher le dossier médical d’un patient'
+    )]
+    #[OA\Response(response: 200, description: 'Dossier médical récupéré avec succès')]
+    #[OA\Response(response: 404, description: 'Patient introuvable')]
+    public function getByPatient(string $patientId): JsonResponse
+    {
+        $feedback = $this->service->getByPatient($patientId);
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
     #[Route('/{id}', name: 'api_medical_records_get', methods: ['GET'])]
     #[OA\Get(
         description: 'Récupère les détails d’un dossier médical spécifique par son identifiant.',

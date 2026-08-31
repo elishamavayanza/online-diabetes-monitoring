@@ -29,4 +29,16 @@ class MedicalRecordRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function findLatestRecordForPatient(Patient $patient): ?MedicalRecord
+    {
+        return $this->createQueryBuilder('mr')
+            ->andWhere('mr.patient = :patient')
+            ->andWhere('mr.deletedAt IS NULL')
+            ->setParameter('patient', $patient)
+            ->orderBy('mr.openedAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

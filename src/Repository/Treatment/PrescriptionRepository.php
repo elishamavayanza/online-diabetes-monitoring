@@ -33,4 +33,18 @@ class PrescriptionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return Prescription[]
+     */
+    public function findAllByPatient(Patient $patient): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.patient = :patient')
+            ->andWhere('p.deletedAt IS NULL')
+            ->setParameter('patient', $patient)
+            ->orderBy('p.startDate', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

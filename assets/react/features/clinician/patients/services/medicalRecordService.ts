@@ -1,68 +1,108 @@
+import apiClient from '@/services/api/client';
+import { tokenStorage } from '@/services/storage/storage.service';
+import { decodeJwtPayload } from '@/services/security/security.utils';
+import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { MedicalRecord } from '../types';
 
-const mockRecords: Record<string, MedicalRecord> = {
-    '1': {
-        id: 'rec-001',
-        patientId: '1',
-        status: 'open',
-        heightCm: 175,
-        weightKg: 70,
-        bloodType: 'A+',
-        allergies: ['Pénicilline'],
-        diagnoses: ['Diabète type 2'],
-        createdAt: '2026-01-15T10:00:00Z',
-        updatedAt: '2026-08-01T14:30:00Z',
-    },
-    '3': {
-        id: 'rec-003',
-        patientId: '3',
-        status: 'closed',
-        heightCm: 160,
-        weightKg: 58,
-        bloodType: 'O-',
-        allergies: [],
-        diagnoses: ['Diabète type 1'],
-        createdAt: '2026-02-20T09:00:00Z',
-        updatedAt: '2026-08-10T11:00:00Z',
-    },
-};
+interface ApiMedicalRecord {
+    id: string;
+    patientId: string;
+    organizationId: string;
+    status: string;
+    openedAt: string;
+    closedAt?: string | null;
+    createdAt?: string;
+    updatedAt?: string | null;
+}
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+function mapStatus(status: string): MedicalRecord['status'] {
+    const normalized = status.toUpperCase();
+    if (normalized === 'CLOSED') return 'closed';
+    if (normalized === 'OPEN') return 'open';
+    return 'none';
+}
+
+function mapApiToMedicalRecord(api: ApiMedicalRecord): MedicalRecord {
+    return {
+        id: api.id,
+        patientId: api.patientId,
+        organizationId: api.organizationId,
+        status: mapStatus(api.status),
+        createdAt: api.createdAt ?? api.openedAt,
+        updatedAt: api.updatedAt ?? undefined,
+        openedAt: api.openedAt,
+        closedAt: api.closedAt ?? undefined,
+    };
+}
+
+function getOrganizationIdFromToken(): string | null {
+    const token = tokenStorage.getAccessToken();
+    if (!token) return null;
+    try {
+        const payload = decodeJwtPayload(token);
+        const orgs = payload?.organizations;
+        if (Array.isArray(orgs) && orgs.length > 0 && orgs[0]?.organization_id) {
+            return String(orgs[0].organization_id);
+        }
+    } catch {
+        return null;
+    }
+    return null;
+}
 
 export async function fetchMedicalRecord(patientId: string): Promise<MedicalRecord | null> {
-    await delay(500);
-    return mockRecords[patientId] ?? null;
+    const response = await apiClient.get<ApiFeedback<ApiMedicalRecord | null>>(
+        `/medical-records/patient/${patientId}`,
+    );
+    const data = unwrapApiData(response.data, 'Impossible de charger le dossier médical.');
+    return data ? mapApiToMedicalRecord(data) : null;
 }
 
-export async function createMedicalRecord(patientId: string): Promise<MedicalRecord> {
-    await delay(800);
-    const newRecord: MedicalRecord = {
-        id: `rec-${Date.now()}`,
-        patientId,
-        status: 'open',
-        heightCm: undefined,
-        weightKg: undefined,
-        bloodType: undefined,
-        allergies: [],
-        diagnoses: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: undefined, // ✅ au lieu de null
-    };
-    mockRecords[patientId] = newRecord;
-    return newRecord;
-}
-
-export async function reopenMedicalRecord(patientId: string): Promise<MedicalRecord> {
-    await delay(800);
-    const existing = mockRecords[patientId];
-    if (!existing) {
-        throw new Error('Aucun dossier à rouvrir.');
+export async function createMedicalRecord(patientId: string, organizationId?: string): Promise<MedicalRecord> {
+    const orgId = organizationId ?? getOrganizationIdFromToken();
+    if (!orgId) {
+        throw new Error('Organisation introuvable pour créer le dossier.');
     }
-    const reopened: MedicalRecord = {
-        ...existing,
-        status: 'open',
-        updatedAt: new Date().toISOString(),
+
+    const payload = {
+        patientId,
+        organizationId: orgId,
+        status: 'OPEN',
+        openedAt: new Date().toISOString(),
+        closedAt: null,
     };
-    mockRecords[patientId] = reopened;
-    return reopened;
+
+    const response = await apiClient.post<ApiFeedback<ApiMedicalRecord>>('/medical-records', payload);
+    const data = unwrapApiData(response.data, 'Erreur lors de la création du dossier.');
+    return mapApiToMedicalRecord(data);
 }
+
+export async function updateMedicalRecord(record: MedicalRecord, patch: Partial<{
+    status: 'OPEN' | 'CLOSED';
+    closedAt: string | null;
+}>): Promise<MedicalRecord> {
+    const payload = {
+        patientId: record.patientId,
+        organizationId: record.organizationId,
+        status: patch.status ?? record.status.toUpperCase(),
+        openedAt: record.openedAt ?? record.createdAt ?? new Date().toISOString(),
+        closedAt: patch.closedAt !== undefined ? patch.closedAt : (record.closedAt ?? null),
+    };
+
+    const response = await apiClient.patch<ApiFeedback<ApiMedicalRecord>>(
+        `/medical-records/${record.id}`,
+        payload,
+    );
+    const data = unwrapApiData(response.data, 'Erreur lors de la mise à jour du dossier.');
+    return mapApiToMedicalRecord(data);
+}
+
+export async function reopenMedicalRecord(record: MedicalRecord): Promise<MedicalRecord> {
+    return updateMedicalRecord(record, { status: 'OPEN', closedAt: null });
+}
+
+export async function closeMedicalRecord(record: MedicalRecord): Promise<MedicalRecord> {
+    return updateMedicalRecord(record, { status: 'CLOSED', closedAt: new Date().toISOString() });
+}
+
+

@@ -21,6 +21,21 @@ class PrescriptionController extends AbstractController
         private readonly PrescriptionService $service
     ) {}
 
+    #[Route('/patient/{patientId}', name: 'api_prescriptions_by_patient', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Permet de récupérer toutes les prescriptions d’un patient.',
+        summary: 'Lister les prescriptions d’un patient'
+    )]
+    #[OA\Response(response: 200, description: 'Prescriptions récupérées avec succès')]
+    #[OA\Response(response: 404, description: 'Patient introuvable')]
+    public function listByPatient(string $patientId): JsonResponse
+    {
+        $feedback = $this->service->getByPatient($patientId);
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
     #[Route('/{id}', name: 'api_prescriptions_show', methods: ['GET'])]
     #[OA\Get(
         description: 'Permet de récupérer les détails d’une prescription par son ID.',
