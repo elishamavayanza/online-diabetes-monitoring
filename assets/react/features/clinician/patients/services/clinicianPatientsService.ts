@@ -10,6 +10,7 @@ export async function fetchClinicianPatients(search: string): Promise<ClinicianP
             derniereConsultation: '2026-08-20',
             prochainRendezVous: '2026-08-28 09:00',
             statut: 'Active',
+            medicalRecordStatus: 'open', // ✅ dossier ouvert
         },
         {
             id: '2',
@@ -17,6 +18,7 @@ export async function fetchClinicianPatients(search: string): Promise<ClinicianP
             derniereConsultation: '2026-08-18',
             prochainRendezVous: '2026-08-26 10:30',
             statut: 'Active',
+            medicalRecordStatus: 'none', // ✅ pas encore de dossier
         },
         {
             id: '3',
@@ -24,6 +26,7 @@ export async function fetchClinicianPatients(search: string): Promise<ClinicianP
             derniereConsultation: '2026-08-10',
             prochainRendezVous: '—',
             statut: 'Inactive',
+            medicalRecordStatus: 'closed', // ✅ dossier fermé
         },
     ];
 

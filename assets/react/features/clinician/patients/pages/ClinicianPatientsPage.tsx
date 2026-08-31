@@ -2,7 +2,7 @@ import { useClinicianPatients } from '../hooks/useClinicianPatients';
 import { PatientsTable } from '../components/PatientsTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
-import { Input } from '@/react/components/Forms/Input';
+import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/patients/_patients.scss';
 
@@ -23,12 +23,18 @@ export function ClinicianPatientsPage() {
         <div className="clinician-patients-page">
             <div className="clinician-patients-page__header">
                 <h1>Mes patients</h1>
-                <Input
+                <p>Suivez et gérez vos patients assignés.</p>
+            </div>
+
+            <div className="clinician-patients-page__search-wrapper">
+                <SearchInput
+                    fullWidth
                     placeholder="Rechercher un patient..."
                     value={search}
-                    onChange={(e) => handleSearchChange(e.target.value)}
+                    onSearch={handleSearchChange}
                 />
             </div>
+
             <PatientsTable patients={patients} />
         </div>
     );

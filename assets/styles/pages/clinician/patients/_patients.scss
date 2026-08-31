@@ -1,22 +1,228 @@
 @use '../../../baseVariables/variables' as *;
 @use '../../../baseVariables/mixins' as *;
 
+/* ============================================================
+   Page Patients
+   ============================================================ */
+
 .clinician-patients-page {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    width: 100%;
+
+    /* ========================================================
+       Header
+       ======================================================== */
 
     &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
+        margin-bottom: 1rem;
 
-        h1 { font-size: 1.8rem; color: var(--color-primary); margin: 0; }
+        h1 {
+            margin: 0 0 0.5rem;
+            font-size: 1.8rem;
+            color: var(--color-primary);
+        }
+
+        p {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--color-text);
+            opacity: 0.8;
+        }
+    }
+
+    /* ========================================================
+       Barre de recherche
+       ======================================================== */
+
+    &__search-wrapper {
+        width: 100%;
+        margin-bottom: 1rem;
+
+        .search-input {
+            width: 100%;
+        }
     }
 }
 
-.clinician-patients-card {
-    @include card;
+/* ============================================================
+   Grille des cartes patients
+   ============================================================ */
+
+.clinician-patients-cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+/* ============================================================
+   Carte patient
+   ============================================================ */
+
+.clinician-patient-card {
+
+    /* Corps interne du composant Card */
+    .card__body {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 1rem 1.25rem;
+    }
+
+    /* ========================================================
+       Photo
+       ======================================================== */
+
+    &__photo {
+        flex: 0 0 72px;
+
+        width: 72px;
+        height: 72px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .avatar,
+        img {
+            width: 72px;
+            height: 72px;
+
+            min-width: 72px;
+            min-height: 72px;
+
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    }
+
+    /* ========================================================
+       Informations
+       ======================================================== */
+
+    &__info {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    &__name {
+        margin: 0 0 0.35rem;
+
+        font-size: 1.1rem;
+        font-weight: 600;
+
+        color: var(--color-primary);
+    }
+
+    &__detail {
+        margin: 0.15rem 0;
+
+        font-size: 0.95rem;
+        line-height: 1.35;
+
+        color: var(--color-text);
+    }
+
+    &__label {
+        opacity: 0.75;
+        font-weight: 500;
+    }
+
+    /* ========================================================
+       Statut
+       ======================================================== */
+
+    &__status {
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
+
+    &__action {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+    }
+
+    &__closed-badge {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+    }
+}
+
+/* ============================================================
+   Responsive tablette / mobile
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .clinician-patients-page {
+
+        &__header {
+            margin-bottom: 0.75rem;
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 0.95rem;
+            }
+        }
+
+        &__search-wrapper {
+            margin-bottom: 1rem;
+        }
+    }
+
+    .clinician-patients-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================
+   Petit écran
+   ============================================================ */
+
+@media (max-width: 480px) {
+
+    .clinician-patients-page {
+
+        &__search-wrapper {
+            margin-bottom: 0.85rem;
+        }
+    }
+
+    .clinician-patient-card {
+
+        .card__body {
+            gap: 1rem;
+            padding: 0.9rem;
+        }
+
+        &__photo {
+            flex: 0 0 60px;
+
+            width: 60px;
+            height: 60px;
+
+            .avatar,
+            img {
+                width: 60px;
+                height: 60px;
+
+                min-width: 60px;
+                min-height: 60px;
+            }
+        }
+
+        &__name {
+            font-size: 1rem;
+        }
+
+        &__detail {
+            font-size: 0.875rem;
+        }
+    }
+
 }

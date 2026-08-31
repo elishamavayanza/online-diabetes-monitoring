@@ -52,6 +52,11 @@ import {EstablishmentsPage} from "@/react/features/admin/establishments/pages/Es
 import { OrganizationReportPage } from '@/react/features/admin/reports/pages/OrganizationReportPage';
 import { ReportVerificationPage } from '@/react/features/admin/reports/pages/ReportVerificationPage';
 import { MedicationsPage } from '@/react/features/admin/medications/pages/MedicationsPage';
+import {ClinicianPatientRecordPage} from "@/react/features/clinician/patients/pages/ClinicianPatientRecordPage";
+import {ClinicianPatientRecordInitPage} from "@/react/features/clinician/patients/pages/ClinicianPatientRecordInitPage";
+import {
+    ClinicianPatientRecordClosedPage
+} from "@/react/features/clinician/patients/pages/ClinicianPatientRecordClosedPage";
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -176,6 +181,10 @@ export default function AppRoutes() {
                     <Route path="appointments" element={<AppointmentPage />} />
                     <Route path="messages" element={<MessagesPage />} />
                     <Route path="notifications" element={<ClinicianNotificationsPage />} />
+                    <Route path="patients/:patientId/record" element={<ClinicianPatientRecordPage />} />
+                    <Route path="patients/:patientId/record/init" element={<ClinicianPatientRecordInitPage />} />
+                    <Route path="patients/:patientId/record/closed" element={<ClinicianPatientRecordClosedPage />} />
+
                 </Route>
 
                 <Route
