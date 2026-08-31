@@ -67,6 +67,32 @@ class AppointmentService
         return $feedback;
     }
 
+    public function getConnectedProfessionalAppointments(): Feedback
+    {
+        $feedback = new Feedback();
+        try {
+            $currentUser = $this->securityService->getCurrentUser();
+
+            // Correction : Utilisation de find() avec l'ID de l'utilisateur connecté
+            $professional = $this->professionalRepository->find($currentUser->getId());
+
+            if (!$professional) {
+                return $feedback->setErrorFlushDescription("Utilisateur non associé à un profil professionnel.")->autoInitFlush();
+            }
+
+            // Filtrer les rendez-vous par ce professionnel
+            $appointments = $this->repository->findBy(['professional' => $professional], ['scheduledAt' => 'DESC']);
+            $responseDTOs = array_map(fn($app) => $this->mapper->mapEntityToResponse($app), $appointments);
+
+            $feedback->setData($responseDTOs)
+                ->setFlushDescription("Vos rendez-vous ont été récupérés avec succès.")
+                ->autoInitFlush();
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+        return $feedback;
+    }
+
     public function create(AppointmentRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();

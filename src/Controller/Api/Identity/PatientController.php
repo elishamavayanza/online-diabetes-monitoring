@@ -63,6 +63,19 @@ class PatientController extends AbstractController
         );
     }
 
+    #[Route('/assigned', name: 'api_patients_assigned', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère uniquement les patients assignés au professionnel de santé connecté.',
+        summary: 'Lister mes patients assignés'
+    )]
+    #[OA\Response(response: 200, description: 'Liste des patients récupérée avec succès')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function getAssignedPatients(): JsonResponse
+    {
+        $feedback = $this->patientService->getAssignedPatientsForCurrentProfessional();
+        return $this->json($feedback, $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK);
+    }
+
     #[Route(
         '/{id}/profile',
         name: 'api_patients_get_profile',

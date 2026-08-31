@@ -7,6 +7,8 @@ use App\DTO\Request\Identity\PatientRequestDTO;
 use App\DTO\Response\Identity\PatientResponseDTO;
 use App\Entity\Identity\Address;
 use App\Entity\Identity\Patient;
+use App\Repository\Appointment\AppointmentRepository;
+use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Repository\Identity\UserRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
@@ -18,6 +20,8 @@ class PatientService
 {
     public function __construct(
         private readonly UserRepository $repository,
+        private readonly HealthcareProfessionalRepository $professionalRepository,
+        private readonly AppointmentRepository $appointmentRepository, // Adapte selon ton namespace exact d'AppointmentRepository
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
         private readonly FileUploaderService $fileUploader
@@ -94,6 +98,43 @@ class PatientService
             return $feedback
                 ->setErrorFlushDescription('Erreur lors de la récupération des patients : ' . $e->getMessage())
                 ->autoInitFlush();
+        }
+    }
+    public function getAssignedPatientsForCurrentProfessional(): Feedback
+    {
+        $feedback = new Feedback();
+        try {
+            $currentUser = $this->securityService->getCurrentUser();
+
+            // Récupérer le professionnel via l'ID de l'utilisateur connecté
+            $professional = $this->professionalRepository->find($currentUser->getId());
+
+            if (!$professional) {
+                return $feedback->setErrorFlushDescription("Profil professionnel introuvable pour cet utilisateur.")->autoInitFlush();
+            }
+
+            // Récupérer les patients uniques via les rendez-vous du professionnel
+            $appointments = $this->appointmentRepository->findBy(['professional' => $professional]);
+            $patients = [];
+            foreach ($appointments as $appointment) {
+                $patient = $appointment->getPatient();
+                if ($patient && !in_array($patient, $patients, true)) {
+                    $patients[] = $patient;
+                }
+            }
+
+            $responseDTOs = array_map(
+                fn (Patient $patient) => PatientResponseDTO::fromEntity($patient),
+                $patients
+            );
+
+            return $feedback
+                ->setData(array_values($responseDTOs))
+                ->setFlushDescription("Liste de vos patients assignés récupérée avec succès.")
+                ->autoInitFlush();
+
+        } catch (\Throwable $e) {
+            return $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
         }
     }
 

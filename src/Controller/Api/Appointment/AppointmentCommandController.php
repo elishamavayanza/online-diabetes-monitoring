@@ -79,6 +79,19 @@ class AppointmentCommandController extends AbstractController
         return $this->json($feedback, $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK);
     }
 
+    #[Route('/mine', name: 'api_appointments_mine', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Permet au professionnel connecté de voir uniquement ses rendez-vous.',
+        summary: 'Lister mes rendez-vous médicaux'
+    )]
+    #[OA\Response(response: 200, description: 'Liste de vos rendez-vous récupérée avec succès')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function getMyAppointments(): JsonResponse
+    {
+        $feedback = $this->service->getConnectedProfessionalAppointments();
+        return $this->json($feedback, $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK);
+    }
+
     #[Route('/{id}/confirm', name: 'api_appointments_confirm', methods: ['PATCH', 'POST'])]
     #[OA\Patch(
         description: "Permet de confirmer un rendez-vous médical.",
