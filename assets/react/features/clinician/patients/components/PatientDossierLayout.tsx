@@ -32,6 +32,7 @@ import { MedicalConsentFormModal } from './modals/MedicalConsentFormModal';
 import { EmergencyContactFormModal } from './modals/EmergencyContactFormModal';
 import { PrescriptionItemFormModal } from './modals/PrescriptionItemFormModal';
 import { PrescriptionVersionFormModal } from './modals/PrescriptionVersionFormModal';
+import { FollowUpReportModal } from './FollowUpReportModal';
 import {
     DossierTabId,
     MeasurementPeriod,
@@ -103,6 +104,7 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
     const [prescriptionItemModalOpen, setPrescriptionItemModalOpen] = useState(false);
     const [prescriptionVersionModalOpen, setPrescriptionVersionModalOpen] = useState(false);
     const [selectedPrescription, setSelectedPrescription] = useState<PatientPrescription | null>(null);
+    const [followUpReportModalOpen, setFollowUpReportModalOpen] = useState(false);
 
     const handleTabChange = (tabId: string) => {
         const previous = activeTab;
@@ -268,6 +270,9 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
                         <Button variant="secondary" onClick={() => navigate('/clinician/my-patients')}>
                             Retour aux patients
                         </Button>
+                        <Button variant="secondary" onClick={() => setFollowUpReportModalOpen(true)}>
+                            Générer un rapport
+                        </Button>
                         {isReadOnly ? (
                             <Button variant="primary" onClick={handleReopen} disabled={isSaving}>
                                 {isSaving ? 'Réouverture...' : 'Rouvrir le dossier'}
@@ -395,6 +400,12 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
                 prescription={selectedPrescription}
                 currentVersionCount={versionCount}
                 onSuccess={() => closeAndReload(setPrescriptionVersionModalOpen)}
+            />
+            <FollowUpReportModal
+                isOpen={followUpReportModalOpen}
+                onClose={() => setFollowUpReportModalOpen(false)}
+                patientId={patientId}
+                patientName={data.profile.fullName}
             />
         </PatientDossierProvider>
     );
