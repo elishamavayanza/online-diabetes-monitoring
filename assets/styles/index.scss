@@ -86,6 +86,8 @@
 @use './pages/clinician/appointments/appointments' as *;
 @use './pages/clinician/messages/messages' as *;
 @use './pages/clinician/notifications/notifications' as *;
+@use './pages/clinician/patients/record' as *;
+
 
 @use './pages/nutritionist/dashboard/dashboard' as *;
 @use './pages/nutritionist/foods/foods' as *;

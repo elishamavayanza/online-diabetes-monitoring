@@ -12,6 +12,7 @@ use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use App\Service\File\FileUploaderService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class MedicalConsentService
@@ -177,5 +178,37 @@ class MedicalConsentService
         }
 
         return $feedback;
+    }
+    public function downloadDocument(string $id): BinaryFileResponse|Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $consent = $this->consentRepository->find($id);
+            if (!$consent) {
+                return $feedback->setErrorFlushDescription("Consentement médical introuvable.")->autoInitFlush();
+            }
+
+            $patient = $consent->getPatient();
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_MEDICAL_CONSENT);
+
+            $fileName = $consent->getDocumentUrl();
+            if (!$fileName) {
+                return $feedback->setErrorFlushDescription("Aucun document n'est associé à ce consentement.")->autoInitFlush();
+            }
+
+            $filePath = $this->fileUploaderService->getTargetDirectory() . '/medical-consents/' . $fileName;
+
+            if (!file_exists($filePath)) {
+                return $feedback->setErrorFlushDescription("Le fichier physique est introuvable sur le serveur.")->autoInitFlush();
+            }
+
+            return new BinaryFileResponse($filePath);
+
+        } catch (AccessDeniedException $e) {
+            return $feedback->setErrorFlushDescription("Accès refusé : " . $e->getMessage())->autoInitFlush();
+        } catch (\Exception $e) {
+            return $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
     }
 }

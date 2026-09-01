@@ -14,7 +14,8 @@ import {
     PatientEmergencyContact,
     PatientMedicalConsent,
 } from '../../types';
-import {useMedicalProfileTab} from "@/react/features/clinician/patients/hooks/useMedicalProfileTab";
+import { useMedicalProfileTab } from "@/react/features/clinician/patients/hooks/useMedicalProfileTab";
+import { useAuth } from '@/react/app/providers/AuthProvider'; // ✅ import
 
 export function MedicalProfileTab() {
     const {
@@ -29,7 +30,12 @@ export function MedicalProfileTab() {
         isDeleting,
         handleDelete,
         handleRevokeConsent,
+        handleDownloadConsentDocument,
     } = useMedicalProfileTab();
+
+    const { user } = useAuth();
+    // ✅ Un clinicien ou nutritionniste ne peut pas modifier les consentements ni les contacts d'urgence
+    const isClinician = user?.role === 'CLINICIAN' || user?.role === 'NUTRITIONIST';
 
     const { allergies, diagnoses, consents, emergencyContacts } = data;
 
@@ -116,11 +122,11 @@ export function MedicalProfileTab() {
                 )}
             </div>
 
-            {/* Section Consentements médicaux */}
+            {/* Section Consentements médicaux (lecture seule pour clinicien/nutritionniste) */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
                     <h3>Consentements médicaux</h3>
-                    {!isReadOnly && (
+                    {!isReadOnly && !isClinician && ( // ✅ pas de bouton pour clinicien
                         <Button variant="primary" size="small" onClick={() => openConsentModal()}>
                             + Enregistrer un consentement
                         </Button>
@@ -143,23 +149,44 @@ export function MedicalProfileTab() {
                                     <p><strong>Révoqué le :</strong> {formatDisplayDateTime(consent.revokedAt)}</p>
                                 )}
                                 {consent.documentUrl && (
-                                    <p>
+                                    <p className="patient-dossier-tab__document">
                                         <strong>Document :</strong>{' '}
-                                        <a href={consent.documentUrl} target="_blank" rel="noopener noreferrer">
-                                            Voir le document
-                                        </a>
+                                        <button
+                                            type="button"
+                                            className="download-button"
+                                            onClick={() => handleDownloadConsentDocument(consent)}
+                                        >
+                                            <svg
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                aria-hidden="true"
+                                            >
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                <polyline points="7 10 12 15 17 10" />
+                                                <line x1="12" y1="15" x2="12" y2="3" />
+                                            </svg>
+                                            Télécharger le document
+                                        </button>
                                     </p>
                                 )}
-                                {renderActions(
-                                    'consent',
-                                    consent.id,
-                                    getConsentTypeLabel(consent.consentType),
-                                    () => openConsentModal(consent),
-                                    !isReadOnly && !consent.revokedAt ? (
-                                        <Button variant="outline" size="small" onClick={() => handleRevokeConsent(consent)}>
-                                            Révoquer
-                                        </Button>
-                                    ) : null,
+                                {!isReadOnly && !isClinician && (
+                                    renderActions(
+                                        'consent',
+                                        consent.id,
+                                        getConsentTypeLabel(consent.consentType),
+                                        () => openConsentModal(consent),
+                                        !consent.revokedAt ? (
+                                            <Button variant="outline" size="small" onClick={() => handleRevokeConsent(consent)}>
+                                                Révoquer
+                                            </Button>
+                                        ) : null,
+                                    )
                                 )}
                             </Card>
                         ))}
@@ -167,11 +194,11 @@ export function MedicalProfileTab() {
                 )}
             </div>
 
-            {/* Section Contacts d'urgence */}
+            {/* Section Contacts d'urgence (lecture seule pour clinicien/nutritionniste) */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
                     <h3>Contacts d'urgence</h3>
-                    {!isReadOnly && (
+                    {!isReadOnly && !isClinician && ( // ✅ pas de bouton pour clinicien
                         <Button variant="primary" size="small" onClick={() => openEmergencyContactModal()}>
                             + Ajouter un contact
                         </Button>
@@ -186,7 +213,9 @@ export function MedicalProfileTab() {
                                 <h4>{contact.fullName}</h4>
                                 {contact.relationship && <p><strong>Relation :</strong> {contact.relationship}</p>}
                                 {contact.phone && <p><strong>Téléphone :</strong> {contact.phone}</p>}
-                                {renderActions('contact', contact.id, contact.fullName, () => openEmergencyContactModal(contact))}
+                                {!isReadOnly && !isClinician && ( //  actions masquées pour clinicien
+                                    renderActions('contact', contact.id, contact.fullName, () => openEmergencyContactModal(contact))
+                                )}
                             </Card>
                         ))}
                     </div>

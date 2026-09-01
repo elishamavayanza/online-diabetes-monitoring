@@ -299,6 +299,37 @@
     margin-bottom: 1rem;
 }
 
+.download-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;         /* pilule */
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+    svg {
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        border-color: var(--color-primary);
+        box-shadow: 0 4px 8px rgba(44, 122, 123, 0.2);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
 /* Responsive : une seule colonne sur petit écran */
 @media (max-width: 600px) {
     .measurement-type-grid {
@@ -412,5 +443,11 @@
         margin: 0;
         color: var(--color-danger, #c0392b);
         font-size: 0.9rem;
+    }
+}
+@media (max-width: 480px) {
+    .download-button {
+        width: 100%;
+        justify-content: center;
     }
 }

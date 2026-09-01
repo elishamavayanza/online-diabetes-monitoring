@@ -1,6 +1,7 @@
 import apiClient from '@/services/api/client';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { MeasurementTypeId } from '../types';
+import { tokenStorage } from '@/services/storage/storage.service';
 
 export async function createBloodGlucose(patientId: string, data: {
     value: string;
@@ -298,5 +299,41 @@ export async function createPrescriptionVersion(data: {
 }) {
     const response = await apiClient.post<ApiFeedback<unknown>>('/prescription-versions', data);
     return unwrapApiData(response.data, 'Erreur lors de la création de la version.');
+}
+
+export async function downloadMedicalConsentFile(consentId: string): Promise<void> {
+    const token = tokenStorage.getAccessToken();
+    if (!token) {
+        throw new Error('Token manquant, veuillez vous reconnecter.');
+    }
+
+    const response = await fetch(`/api/medical-consents/${consentId}/download`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Téléchargement impossible (${response.status})`);
+    }
+
+    // Extraire le nom du fichier depuis le header Content-Disposition s'il existe
+    const disposition = response.headers.get('Content-Disposition');
+    let filename = `consent-${consentId}`;
+    if (disposition && disposition.includes('filename=')) {
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        if (match) filename = match[1];
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(downloadUrl);
 }
 

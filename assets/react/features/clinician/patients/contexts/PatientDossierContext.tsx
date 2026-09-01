@@ -9,6 +9,7 @@ import {
     PatientDossierData,
     PatientPrescription,
 } from '../types';
+import '@/styles/pages/clinician/patients/_record.scss';
 
 export interface PatientDossierContextValue {
     patientId: string;

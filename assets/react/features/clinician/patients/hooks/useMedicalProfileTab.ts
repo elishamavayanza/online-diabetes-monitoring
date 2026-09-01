@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { usePatientDossierContext } from '../contexts/PatientDossierContext';
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { useAuth } from '@/react/app/providers/AuthProvider';
 import {
     deleteAllergy,
     deleteDiagnosis,
     deleteEmergencyContact,
-    deleteMedicalConsent,
+    deleteMedicalConsent, downloadMedicalConsentFile,
     updateMedicalConsent,
 } from '../services/dossierActionsService';
 import { PatientMedicalConsent } from '../types';
@@ -30,6 +31,8 @@ export function useMedicalProfileTab() {
 
     const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const { user } = useAuth();
+    const isClinician = user?.role === 'CLINICIAN' || user?.role === 'NUTRITIONIST';
 
     const handleDelete = async () => {
         if (!deleteTarget) return;
@@ -83,6 +86,15 @@ export function useMedicalProfileTab() {
             showToast({ type: 'error', message });
         }
     };
+    const handleDownloadConsentDocument = async (consent: PatientMedicalConsent) => {
+        try {
+            await downloadMedicalConsentFile(consent.id);
+            showToast({ type: 'success', message: 'Téléchargement démarré.' });
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Erreur lors du téléchargement.';
+            showToast({ type: 'error', message });
+        }
+    };
 
     return {
         data,
@@ -97,5 +109,6 @@ export function useMedicalProfileTab() {
         isDeleting,
         handleDelete,
         handleRevokeConsent,
+        handleDownloadConsentDocument,
     };
 }

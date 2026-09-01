@@ -107,4 +107,19 @@ class MedicalConsentController extends AbstractController
 
         return $this->json($feedback, $status);
     }
+
+    #[Route('/{id}/download', name: 'api_medical_consents_download', methods: ['GET'])]
+    #[OA\Get(description: 'Télécharger le document d’un consentement médical', summary: 'Télécharger un document')]
+    public function download(string $id): Response
+    {
+        $result = $this->consentService->downloadDocument($id);
+
+        if ($result instanceof Feedback) {
+            $status = $result->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_BAD_REQUEST;
+            return $this->json($result, $status);
+        }
+
+        // Retourne directement le fichier binaire pour le téléchargement
+        return $result;
+    }
 }
