@@ -20,6 +20,8 @@ const STATUS_OPTIONS = [
     { value: 'SCHEDULED', label: 'Planifié' },
     { value: 'CONFIRMED', label: 'Confirmé' },
     { value: 'COMPLETED', label: 'Terminé' },
+    { value: 'CANCELLED', label: 'Annulé' },
+    { value: 'NO_SHOW', label: 'lapin' },
 ];
 
 export function AppointmentEditModal({

@@ -1,7 +1,8 @@
 import { TrendSeries } from '@/react/features/admin/reports/types';
 import { CalendarMarkedDate } from '@/react/hook-components/Calendars/Calendar';
 import { DossierTabId, MeasurementPeriod, PatientDossierData } from '../types';
-import { CandlestickDataPoint } from '@/react/hook-components/Data/CandlestickChart/useCandlestickChart'; // ✅ import
+import { CandlestickDataPoint } from '@/react/hook-components/Data/CandlestickChart/useCandlestickChart';
+import {BadgeVariant} from "@/react/hook-components/UI/Badge"; // ✅ import
 
 export function toDateKey(date: Date): string {
     const year = date.getFullYear();
@@ -184,4 +185,21 @@ export function buildCandlestickData(items: { createdAt: string; value: number }
     });
 
     return result;
+}
+export function getAppointmentStatusBadgeVariant(status: string): BadgeVariant {
+    switch (status) {
+        case 'COMPLETED':
+            return 'success';
+        case 'CONFIRMED':
+            return 'info';
+        case 'CANCELLED':
+            return 'error';          // au lieu de 'danger'
+        case 'NO_SHOW':
+            return 'error';          //
+        case 'RESCHEDULE_REQUESTED':
+            return 'warning';
+        case 'SCHEDULED':
+        default:
+            return 'info';
+    }
 }
