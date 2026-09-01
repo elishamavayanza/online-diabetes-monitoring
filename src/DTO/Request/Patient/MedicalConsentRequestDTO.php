@@ -3,36 +3,48 @@
 namespace App\DTO\Request\Patient;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     title: 'MedicalConsentRequestDTO',
-    description: 'Structure de requête pour la création d’un consentement médical'
+    description: 'Structure de requête pour la création ou modification d’un consentement médical avec fichier joint'
 )]
 class MedicalConsentRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID du patient')]
+        #[OA\Property(description: 'ID du patient', type: 'integer', example: 123)]
         public readonly string $patientId,
 
-        #[OA\Property(type: 'string', format: 'uuid', nullable: true, example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID de l’organisation')]
+        #[OA\Property(description: 'ID de l’organisation', type: 'integer', example: 45, nullable: true)]
         public readonly ?string $organizationId,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', example: 'DATA_SHARING', description: 'Type de consentement')]
+        #[OA\Property(description: 'Type de consentement', type: 'string', example: 'DATA_SHARING')]
         public readonly mixed $consentType,
 
         #[Assert\NotBlank]
-        #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T10:00:00Z', description: 'Date d’octroi')]
+        #[OA\Property(description: 'Date d’octroi', type: 'string', format: 'date-time', example: '2026-08-10T10:00:00Z')]
         public readonly \DateTimeImmutable $grantedAt,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de révocation')]
+        #[OA\Property(description: 'Date de révocation', type: 'string', format: 'date-time', example: null, nullable: true)]
         public readonly ?\DateTimeImmutable $revokedAt,
 
-        #[Assert\Url]
-        #[Assert\Length(max: 500)]
-        #[OA\Property(type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://example.com/doc.pdf', description: 'URL du document')]
-        public readonly ?string $documentUrl
+        #[Assert\File(
+            maxSize: '10M',
+            mimeTypes: [
+                'application/pdf',
+                'application/x-pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ],
+            mimeTypesMessage: 'Veuillez uploader un fichier valide (PDF, Word ou Image JPEG/PNG/WebP).'
+        )]
+        #[OA\Property(description: 'Fichier document (PDF, Word ou Image)', type: 'string', format: 'binary', nullable: true)]
+        public readonly ?UploadedFile $documentFile = null
     ) {}
 }

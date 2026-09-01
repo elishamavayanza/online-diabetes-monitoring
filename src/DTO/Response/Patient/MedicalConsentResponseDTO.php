@@ -13,31 +13,31 @@ use OpenApi\Attributes as OA;
 class MedicalConsentResponseDTO
 {
     public function __construct(
-        #[OA\Property(type: 'string', format: 'uuid', example: '99001122-3344-5566-7788-99aabbccddeev', description: 'Identifiant unique')]
+        #[OA\Property(description: 'Identifiant unique', type: 'integer', example: 1)]
         public readonly string $id,
 
-        #[OA\Property(type: 'string', format: 'uuid', example: '33bb1245-12f4-4b53-8811-7a6543210999', description: 'ID du patient')]
+        #[OA\Property(description: 'ID du patient', type: 'integer', example: 123)]
         public readonly string $patientId,
 
-        #[OA\Property(type: 'string', format: 'uuid', nullable: true, example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID de l’organisation')]
+        #[OA\Property(description: 'ID de l’organisation', type: 'integer', example: 45, nullable: true)]
         public readonly ?string $organizationId,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'DATA_SHARING', description: 'Type de consentement')]
+        #[OA\Property(description: 'Type de consentement', type: 'string', example: 'DATA_SHARING', nullable: true)]
         public readonly ?string $consentType,
 
-        #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T10:00:00Z', description: 'Date d’octroi')]
+        #[OA\Property(description: 'Date d’octroi', type: 'string', format: 'date-time', example: '2026-08-10T10:00:00Z')]
         public readonly \DateTimeImmutable $grantedAt,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de révocation')]
+        #[OA\Property(description: 'Date de révocation', type: 'string', format: 'date-time', example: null, nullable: true)]
         public readonly ?\DateTimeImmutable $revokedAt,
 
-        #[OA\Property(type: 'string', format: 'uri', nullable: true, example: 'https://example.com/doc.pdf', description: 'URL du document')]
+        #[OA\Property(description: 'Nom/Chemin du fichier document', type: 'string', example: 'nom-du-fichier-unique.pdf', nullable: true)]
         public readonly ?string $documentUrl,
 
-        #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T10:30:00Z', description: 'Date de création')]
+        #[OA\Property(description: 'Date de création', type: 'string', format: 'date-time', example: '2026-08-10T10:30:00Z')]
         public readonly \DateTimeImmutable $createdAt,
 
-        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de mise à jour')]
+        #[OA\Property(description: 'Date de mise à jour', type: 'string', format: 'date-time', example: null, nullable: true)]
         public readonly ?\DateTimeImmutable $updatedAt
     ) {}
 

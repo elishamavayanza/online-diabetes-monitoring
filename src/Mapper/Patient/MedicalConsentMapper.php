@@ -7,7 +7,7 @@ use App\DTO\Response\Patient\MedicalConsentResponseDTO;
 use App\Entity\Healthcare\HealthcareOrganization;
 use App\Entity\Identity\Patient;
 use App\Entity\Patient\MedicalConsent;
-use App\Entity\Patient\ConsentType; // <-- Importez votre Enum
+use App\Entity\Patient\ConsentType;
 
 class MedicalConsentMapper
 {
@@ -27,7 +27,9 @@ class MedicalConsentMapper
 
         $consent->setGrantedAt($dto->grantedAt);
         $consent->setRevokedAt($dto->revokedAt);
-        $consent->setDocumentUrl($dto->documentUrl);
+
+        // Note : Le documentFile est géré directement par le MedicalConsentService
+        // via le FileUploaderService, on ne touche donc pas au documentUrl ici.
 
         return $consent;
     }

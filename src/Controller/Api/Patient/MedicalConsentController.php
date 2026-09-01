@@ -8,8 +8,8 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/medical-consents')]
@@ -31,19 +31,67 @@ class MedicalConsentController extends AbstractController
     }
 
     #[Route('', name: 'api_medical_consents_create', methods: ['POST'])]
-    #[OA\Post(description: 'Enregistrer un consentement médical', summary: 'Créer un consentement')]
-    public function create(#[MapRequestPayload] MedicalConsentRequestDTO $dto): JsonResponse
+    #[OA\Post(
+        description: 'Enregistrer un consentement médical avec fichier',
+        summary: 'Créer un consentement',
+        requestBody: new OA\RequestBody(
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(ref: new Model(type: MedicalConsentRequestDTO::class))
+            )
+        )
+    )]
+    public function create(Request $request): JsonResponse
     {
+        $revokedAtStr = $request->request->get('revokedAt');
+        $revokedAt = (!empty($revokedAtStr) && $revokedAtStr !== 'null') ? new \DateTimeImmutable($revokedAtStr) : null;
+
+        $grantedAtStr = $request->request->get('grantedAt');
+        $grantedAt = (!empty($grantedAtStr) && $grantedAtStr !== 'null') ? new \DateTimeImmutable($grantedAtStr) : new \DateTimeImmutable();
+
+        $dto = new MedicalConsentRequestDTO(
+            patientId: $request->request->get('patientId'),
+            organizationId: $request->request->get('organizationId'),
+            consentType: $request->request->get('consentType'),
+            grantedAt: $grantedAt,
+            revokedAt: $revokedAt,
+            documentFile: $request->files->get('documentFile')
+        );
+
         $feedback = $this->consentService->create($dto);
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
 
         return $this->json($feedback, $status);
     }
 
-    #[Route('/{id}', name: 'api_medical_consents_update', methods: ['PUT', 'PATCH'])]
-    #[OA\Put(description: 'Modifier un consentement médical existant', summary: 'Mettre à jour un consentement')]
-    public function update(string $id, #[MapRequestPayload] MedicalConsentRequestDTO $dto): JsonResponse
+    #[Route('/{id}', name: 'api_medical_consents_update', methods: ['PATCH'])]
+    #[OA\Patch(
+        description: 'Modifier un consentement médical existant (multipart/form-data)',
+        summary: 'Mettre à jour un consentement',
+        requestBody: new OA\RequestBody(
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(ref: new Model(type: MedicalConsentRequestDTO::class))
+            )
+        )
+    )]
+    public function update(string $id, Request $request): JsonResponse
     {
+        $revokedAtStr = $request->request->get('revokedAt');
+        $revokedAt = (!empty($revokedAtStr) && $revokedAtStr !== 'null') ? new \DateTimeImmutable($revokedAtStr) : null;
+
+        $grantedAtStr = $request->request->get('grantedAt');
+        $grantedAt = (!empty($grantedAtStr) && $grantedAtStr !== 'null') ? new \DateTimeImmutable($grantedAtStr) : new \DateTimeImmutable();
+
+        $dto = new MedicalConsentRequestDTO(
+            patientId: $request->request->get('patientId'),
+            organizationId: $request->request->get('organizationId'),
+            consentType: $request->request->get('consentType'),
+            grantedAt: $grantedAt,
+            revokedAt: $revokedAt,
+            documentFile: $request->files->get('documentFile')
+        );
+
         $feedback = $this->consentService->update($id, $dto);
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
@@ -59,6 +107,4 @@ class MedicalConsentController extends AbstractController
 
         return $this->json($feedback, $status);
     }
-
-
 }

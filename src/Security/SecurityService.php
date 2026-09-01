@@ -616,6 +616,10 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_EMERGENCY_CONTACT,
             SecurityAction::VIEW_MEDICAL_CONSENT,
 
+            SecurityAction::VIEW_MEDICAL_CONSENT,
+            SecurityAction::CREATE_MEDICAL_CONSENT,
+            SecurityAction::REVOKE_MEDICAL_CONSENT,
+
             SecurityAction::CREATE_REMINDER_RULE,
 
             SecurityAction::CREATE_NOTIFICATION,

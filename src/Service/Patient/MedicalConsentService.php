@@ -10,6 +10,7 @@ use App\Repository\Healthcare\HealthcareOrganizationRepository;
 use App\Repository\Patient\MedicalConsentRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\File\FileUploaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -21,7 +22,8 @@ class MedicalConsentService
         private readonly HealthcareOrganizationRepository $organizationRepository,
         private readonly MedicalConsentMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly FileUploaderService $fileUploaderService
     ) {}
 
     public function getByPatient(string $patientId): Feedback
@@ -70,10 +72,15 @@ class MedicalConsentService
                 }
             }
 
-            // Seul le patient (ou un admin/superadmin global) peut donner son propre consentement
             $this->securityService->checkPatientAccess($patient, SecurityAction::CREATE_MEDICAL_CONSENT);
 
             $consent = $this->mapper->mapRequestToEntity($dto, $patient, $organization);
+
+            // Gestion de l'upload du fichier si présent
+            if ($dto->documentFile) {
+                $fileName = $this->fileUploaderService->upload($dto->documentFile, 'medical-consents');
+                $consent->setDocumentUrl($fileName); // ou setDocumentPath selon le nommage de ton entité
+            }
 
             $this->entityManager->persist($consent);
             $this->entityManager->flush();
@@ -112,6 +119,16 @@ class MedicalConsentService
                 }
             }
 
+            // Gestion du nouveau fichier uploadé en remplacement
+            if ($dto->documentFile) {
+                // Supprimer l'ancien fichier s'il existe
+                if ($consent->getDocumentUrl()) {
+                    $this->fileUploaderService->remove($consent->getDocumentUrl(), 'medical-consents');
+                }
+                $fileName = $this->fileUploaderService->upload($dto->documentFile, 'medical-consents');
+                $consent->setDocumentUrl($fileName);
+            }
+
             $this->mapper->mapRequestToEntity($dto, $patient, $organization, $consent);
             $this->entityManager->flush();
 
@@ -141,6 +158,11 @@ class MedicalConsentService
             $patient = $consent->getPatient();
             $this->securityService->checkPatientAccess($patient, SecurityAction::REVOKE_MEDICAL_CONSENT);
 
+            // Supprimer le fichier physique associé s'il existe
+            if ($consent->getDocumentUrl()) {
+                $this->fileUploaderService->remove($consent->getDocumentUrl(), 'medical-consents');
+            }
+
             $this->entityManager->remove($consent);
             $this->entityManager->flush();
 
@@ -156,6 +178,4 @@ class MedicalConsentService
 
         return $feedback;
     }
-
-
 }
