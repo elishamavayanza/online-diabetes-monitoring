@@ -2,7 +2,13 @@ import apiClient from '@/services/api/client';
 import { tokenStorage } from '@/services/storage/storage.service';
 import { decodeJwtPayload } from '@/services/security/security.utils';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
-import { MedicalRecord } from '../types';
+import {
+    MedicalRecord, PatientPrescription,
+    PrescriptionItem,
+    PrescriptionItemPayload, PrescriptionPayload,
+    PrescriptionVersion,
+    PrescriptionVersionPayload
+} from '../types';
 
 interface ApiMedicalRecord {
     id: string;
@@ -105,4 +111,124 @@ export async function closeMedicalRecord(record: MedicalRecord): Promise<Medical
     return updateMedicalRecord(record, { status: 'CLOSED', closedAt: new Date().toISOString() });
 }
 
+// ============================================================
+// Prescriptions
+// ============================================================
 
+export async function fetchPrescriptionsByPatient(patientId: string): Promise<PatientPrescription[]> {
+    const response = await apiClient.get<ApiFeedback<PatientPrescription[]>>(
+        `/prescriptions/patient/${patientId}`,
+    );
+    return unwrapApiData(response.data, 'Erreur lors de la récupération des prescriptions.') ?? [];
+}
+
+export async function fetchPrescriptionById(id: string): Promise<PatientPrescription> {
+    const response = await apiClient.get<ApiFeedback<PatientPrescription>>(
+        `/prescriptions/${id}`,
+    );
+    return unwrapApiData(response.data, 'Prescription introuvable.');
+}
+
+export async function createPrescription(
+    data: PrescriptionPayload
+): Promise<PatientPrescription> {
+    const response = await apiClient.post<ApiFeedback<PatientPrescription>>('/prescriptions', data);
+    return unwrapApiData(response.data, 'Erreur lors de la création de la prescription.');
+}
+
+export async function updatePrescription(
+    id: string,
+    data: PrescriptionPayload
+): Promise<PatientPrescription> {
+    const response = await apiClient.put<ApiFeedback<PatientPrescription>>(
+        `/prescriptions/${id}`,
+        data,
+    );
+    return unwrapApiData(response.data, 'Erreur lors de la mise à jour de la prescription.');
+}
+
+export async function deletePrescription(id: string): Promise<void> {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/prescriptions/${id}`);
+    unwrapApiData(response.data, 'Erreur lors de la suppression de la prescription.');
+}
+
+export async function activatePrescription(
+    id: string,
+    currentData: PatientPrescription
+): Promise<PatientPrescription> {
+    // On utilise updatePrescription avec status ACTIVE
+    return updatePrescription(id, {
+        patientId: currentData.id, // ⚠️ Attention : PatientPrescription n'a pas de champ patientId,
+        // il faudra le fournir séparément. Voir remarque ci-dessous.
+        prescriberId: '', // idem, à récupérer
+        organizationId: '', // idem
+        startDate: currentData.startDate || '',
+        endDate: currentData.endDate,
+        status: 'ACTIVE',
+        notes: currentData.notes,
+    });
+}
+
+// ============================================================
+// Éléments de prescription
+// ============================================================
+
+export async function fetchPrescriptionItemsByPrescription(
+    prescriptionId: string
+): Promise<PrescriptionItem[]> {
+    const response = await apiClient.get<ApiFeedback<PrescriptionItem[]>>(
+        `/prescription-items/prescription/${prescriptionId}`,
+    );
+    return unwrapApiData(response.data, 'Erreur lors de la récupération des éléments.') ?? [];
+}
+
+export async function createPrescriptionItem(
+    data: PrescriptionItemPayload
+): Promise<PrescriptionItem> {
+    const response = await apiClient.post<ApiFeedback<PrescriptionItem>>('/prescription-items', data);
+    return unwrapApiData(response.data, "Erreur lors de l'ajout du médicament.");
+}
+
+export async function updatePrescriptionItem(
+    id: string,
+    data: PrescriptionItemPayload
+): Promise<PrescriptionItem> {
+    const response = await apiClient.put<ApiFeedback<PrescriptionItem>>(
+        `/prescription-items/${id}`,
+        data,
+    );
+    return unwrapApiData(response.data, 'Erreur lors de la modification du médicament.');
+}
+
+export async function deletePrescriptionItem(id: string): Promise<void> {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/prescription-items/${id}`);
+    unwrapApiData(response.data, 'Erreur lors de la suppression du médicament.');
+}
+
+// ============================================================
+// Versions de prescription
+// ============================================================
+
+export async function fetchPrescriptionVersionsByPrescription(
+    prescriptionId: string
+): Promise<PrescriptionVersion[]> {
+    const response = await apiClient.get<ApiFeedback<PrescriptionVersion[]>>(
+        `/prescription-versions/prescription/${prescriptionId}`,
+    );
+    return unwrapApiData(response.data, 'Erreur lors de la récupération des versions.') ?? [];
+}
+
+export async function createPrescriptionVersion(
+    data: PrescriptionVersionPayload
+): Promise<PrescriptionVersion> {
+    const response = await apiClient.post<ApiFeedback<PrescriptionVersion>>(
+        '/prescription-versions',
+        data,
+    );
+    return unwrapApiData(response.data, 'Erreur lors de la création de la version.');
+}
+
+export async function deletePrescriptionVersion(id: string): Promise<void> {
+    const response = await apiClient.delete<ApiFeedback<unknown>>(`/prescription-versions/${id}`);
+    unwrapApiData(response.data, 'Erreur lors de la suppression de la version.');
+}

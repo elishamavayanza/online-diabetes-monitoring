@@ -238,3 +238,33 @@ export type MeasurementTypeId =
     | 'weight'
     | 'physicalActivity'
     | 'laboratory';
+
+export interface PrescriptionPayload {
+    patientId: string;
+    prescriberId: string;
+    organizationId: string;
+    startDate: string;
+    endDate?: string;
+    status: 'ACTIVE' | 'DRAFT';
+    notes?: string;
+}
+
+export interface PrescriptionItemPayload {
+    prescriptionId: string;
+    medicationId: string;
+    dosage: string;
+    quantity: string;
+    morning: boolean;
+    noon: boolean;
+    evening: boolean;
+    instructions?: string;
+}
+
+export interface PrescriptionVersionPayload {
+    prescriptionId: string;
+    versionNumber: number;
+    changesSummary?: string;
+    data: Record<string, unknown>;
+    modifiedById: string;
+    modifiedAt: string;
+}

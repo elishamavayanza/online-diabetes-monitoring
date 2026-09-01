@@ -7,7 +7,17 @@ import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDate, formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
 import { formatSchedule } from '../../utils/labelUtils';
-import { deletePrescriptionItem } from '../../services/dossierActionsService';
+import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { PatientPrescription, PrescriptionItem } from '../../types';
+import {
+    deletePrescriptionItem,
+} from '../../services/dossierActionsService';
+import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
+import {updatePrescription} from "@/react/features/clinician/patients/services/medicalRecordService";
+import {PrescriptionEditModal} from "@/react/features/clinician/patients/components/modals/PrescriptionEditModal";
+import {
+    PrescriptionItemEditModal
+} from "@/react/features/clinician/patients/components/modals/PrescriptionItemEditModal";
 
 export function PrescriptionsTab() {
     const {
@@ -21,9 +31,13 @@ export function PrescriptionsTab() {
         reload,
     } = usePatientDossierContext();
 
+    const { showToast } = useToast();
     const { prescriptions, prescriptionItems, prescriptionVersions } = data;
+
     const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [editingRx, setEditingRx] = useState<PatientPrescription | null>(null);
+    const [editingItem, setEditingItem] = useState<PrescriptionItem | null>(null);
 
     const filtered = prescriptions.filter((rx) => {
         const date = rx.startDate ?? rx.endDate;
@@ -31,7 +45,7 @@ export function PrescriptionsTab() {
     });
 
     const itemsByPrescription = useMemo(() => {
-        const map = new Map<string, typeof prescriptionItems>();
+        const map = new Map<string, PrescriptionItem[]>();
         prescriptionItems.forEach((item) => {
             const list = map.get(item.prescriptionId) ?? [];
             list.push(item);
@@ -55,12 +69,44 @@ export function PrescriptionsTab() {
         setIsDeleting(true);
         try {
             await deletePrescriptionItem(deleteItemId);
+            showToast({ type: 'success', message: 'Médicament retiré.' });
             reload();
             setDeleteItemId(null);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Erreur lors de la suppression.';
+            showToast({ type: 'error', message });
         } finally {
             setIsDeleting(false);
         }
     };
+
+    const handleActivatePrescription = async (rx: PatientPrescription) => {
+        const prescriberId = getCurrentUserIdFromToken();
+        const organizationId = data.profile.organizationId;
+        if (!prescriberId || !organizationId) {
+            showToast({ type: 'error', message: 'Prescripteur ou organisation introuvable.' });
+            return;
+        }
+        try {
+            await updatePrescription(rx.id, {
+                patientId: data.profile.id,
+                prescriberId,
+                organizationId,
+                startDate: rx.startDate || new Date().toISOString(),
+                endDate: rx.endDate,
+                status: 'ACTIVE',
+                notes: rx.notes || undefined,
+            });
+            showToast({ type: 'success', message: 'Prescription activée.' });
+            reload();
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Erreur lors de l'activation.";
+            showToast({ type: 'error', message });
+        }
+    };
+
+    const handleEditRx = (rx: PatientPrescription) => setEditingRx(rx);
+    const handleEditItem = (item: PrescriptionItem) => setEditingItem(item);
 
     return (
         <div className="patient-dossier-tab patient-dossier-tab--prescriptions">
@@ -94,9 +140,23 @@ export function PrescriptionsTab() {
 
                                 {!isReadOnly && (
                                     <div className="patient-dossier-tab__item-actions">
-                                        <Button variant="secondary" size="small" onClick={() => openPrescriptionItemModal(rx)}>
-                                            + Médicament
+                                        {rx.status === 'DRAFT' && (
+                                            <Button
+                                                variant="success"
+                                                size="small"
+                                                onClick={() => handleActivatePrescription(rx)}
+                                            >
+                                                Activer
+                                            </Button>
+                                        )}
+                                        <Button variant="secondary" size="small" onClick={() => handleEditRx(rx)}>
+                                            Modifier
                                         </Button>
+                                        {rx.status === 'ACTIVE' && (
+                                            <Button variant="secondary" size="small" onClick={() => openPrescriptionItemModal(rx)}>
+                                                + Médicament
+                                            </Button>
+                                        )}
                                         <Button variant="secondary" size="small" onClick={() => openPrescriptionVersionModal(rx)}>
                                             Archiver version
                                         </Button>
@@ -119,9 +179,14 @@ export function PrescriptionsTab() {
                                                         {item.instructions && <p><em>{item.instructions}</em></p>}
                                                     </div>
                                                     {!isReadOnly && (
-                                                        <Button variant="danger" size="small" onClick={() => setDeleteItemId(item.id)}>
-                                                            Retirer
-                                                        </Button>
+                                                        <div className="patient-dossier-tab__item-actions">
+                                                            <Button variant="secondary" size="small" onClick={() => handleEditItem(item)}>
+                                                                Modifier
+                                                            </Button>
+                                                            <Button variant="danger" size="small" onClick={() => setDeleteItemId(item.id)}>
+                                                                Retirer
+                                                            </Button>
+                                                        </div>
                                                     )}
                                                 </li>
                                             ))}
@@ -164,6 +229,25 @@ export function PrescriptionsTab() {
                 confirmLabel={isDeleting ? 'Suppression...' : 'Retirer'}
                 cancelLabel="Annuler"
             />
+
+            {editingRx && (
+                <PrescriptionEditModal
+                    isOpen={!!editingRx}
+                    onClose={() => setEditingRx(null)}
+                    data={data}
+                    prescription={editingRx}
+                    onSuccess={reload}
+                />
+            )}
+
+            {editingItem && (
+                <PrescriptionItemEditModal
+                    isOpen={!!editingItem}
+                    onClose={() => setEditingItem(null)}
+                    item={editingItem}
+                    onSuccess={reload}
+                />
+            )}
         </div>
     );
 }

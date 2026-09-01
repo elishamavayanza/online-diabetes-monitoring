@@ -6,22 +6,24 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { PatientPrescription } from '../../types';
-import {usePrescriptionItemForm} from "@/react/features/clinician/patients/hooks/prescription/usePrescriptionItemForm";
+import { PrescriptionItem } from '../../types';
+import {
+    useEditPrescriptionItemForm
+} from "@/react/features/clinician/patients/hooks/prescription/useEditPrescriptionItemForm";
 
-interface PrescriptionItemFormModalProps {
+interface PrescriptionItemEditModalProps {
     isOpen: boolean;
     onClose: () => void;
-    prescription: PatientPrescription | null;
+    item: PrescriptionItem | null; // ✅ PrescriptionItem au lieu de PatientPrescriptionItem
     onSuccess: () => void;
 }
 
-export function PrescriptionItemFormModal({
+export function PrescriptionItemEditModal({
                                               isOpen,
                                               onClose,
-                                              prescription,
+                                              item,
                                               onSuccess,
-                                          }: PrescriptionItemFormModalProps) {
+                                          }: PrescriptionItemEditModalProps) {
     const {
         form,
         medications,
@@ -29,10 +31,10 @@ export function PrescriptionItemFormModal({
         error,
         handleChange,
         handleSubmit,
-    } = usePrescriptionItemForm({ isOpen, onClose, prescription, onSuccess });
+    } = useEditPrescriptionItemForm({ isOpen, onClose, item, onSuccess });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Ajouter un médicament">
+        <Modal isOpen={isOpen} onClose={onClose} title="Modifier le médicament">
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
@@ -98,7 +100,7 @@ export function PrescriptionItemFormModal({
                         variant="primary"
                         disabled={isLoading || !form.medicationId}
                     >
-                        {isLoading ? <Spinner size="small" /> : 'Ajouter'}
+                        {isLoading ? <Spinner size="small" /> : 'Enregistrer'}
                     </Button>
                 </div>
             </form>

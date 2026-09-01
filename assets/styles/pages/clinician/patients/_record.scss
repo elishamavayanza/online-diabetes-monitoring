@@ -186,9 +186,30 @@
     }
 
     &__collapsible-trigger {
-        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.75rem;
         cursor: pointer;
+        font-weight: 600;
         color: var(--color-primary);
+        transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+
+        &:hover {
+            background-color: rgba(44, 122, 123, 0.1);
+            border-color: var(--color-primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        // Ajouter une flèche pour indiquer l’interactivité
+        &::after {
+            content: '▾';
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+        }
     }
 
     &__meal-items {
