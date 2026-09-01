@@ -31,6 +31,7 @@
 @use './components/UI/skeleton' as *;
 @use './components/Data/pagination' as *;
 @use './components/Data/datatable' as *;
+@use './components/Data/candlestick-chart' as *;
 @use './components/Data/empty-state' as *;
 @use './components/Navigation/navbar' as *;
 @use './components/Navigation/sidebar' as *;
@@ -87,7 +88,6 @@
 @use './pages/clinician/messages/messages' as *;
 @use './pages/clinician/notifications/notifications' as *;
 @use './pages/clinician/patients/record' as *;
-
 
 @use './pages/nutritionist/dashboard/dashboard' as *;
 @use './pages/nutritionist/foods/foods' as *;

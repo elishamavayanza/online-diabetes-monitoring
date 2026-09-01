@@ -1,0 +1,58 @@
+@use '../../baseVariables/variables' as *;
+@use '../../baseVariables/mixins' as *;
+
+.candlestick-chart {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    background-color: var(--color-surface);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    box-shadow: 0 2px 8px var(--color-shadow);
+    overflow: hidden;
+
+    &__empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--color-text);
+        opacity: 0.6;
+    }
+
+    &__axis {
+        text {
+            fill: var(--color-text);
+            opacity: 0.7;
+            user-select: none;
+        }
+    }
+
+    &__candle {
+        transition: opacity 0.2s;
+        &:hover {
+            opacity: 0.85;
+        }
+    }
+
+    &__tooltip {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        color: var(--color-text);
+        pointer-events: none;
+        z-index: 10;
+        white-space: nowrap;
+
+        &-date {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--color-primary);
+        }
+    }
+}
