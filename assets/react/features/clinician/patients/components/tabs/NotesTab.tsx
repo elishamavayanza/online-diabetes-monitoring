@@ -1,10 +1,17 @@
+import { useState } from 'react';
 import { Card } from '@/react/components/UI/Card';
 import { Button } from '@/react/components/UI/Button';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
+import { PatientMedicalNote } from '../../types';
+import {MedicalNoteEditModal} from "@/react/features/clinician/patients/components/modals/MedicalNoteEditModal";
 
 export function NotesTab() {
-    const { data, period, selectedDate, isReadOnly, openNoteModal } = usePatientDossierContext();
+    const { data, period, selectedDate, isReadOnly, openNoteModal, reload } =
+        usePatientDossierContext();
+
+    const [editingNote, setEditingNote] = useState<PatientMedicalNote | null>(null);
+
     const notes = data.notes
         .filter((note) => isInPeriod(note.notedAt ?? note.createdAt, period, selectedDate))
         .sort((a, b) => new Date(b.notedAt ?? b.createdAt).getTime() - new Date(a.notedAt ?? a.createdAt).getTime());
@@ -21,7 +28,9 @@ export function NotesTab() {
             </div>
 
             {notes.length === 0 ? (
-                <Card><p>Aucune note sur la période sélectionnée.</p></Card>
+                <Card>
+                    <p>Aucune note sur la période sélectionnée.</p>
+                </Card>
             ) : (
                 <div className="patient-dossier-tab__notes">
                     {notes.map((note) => (
@@ -31,9 +40,31 @@ export function NotesTab() {
                                 {note.authorName && ` — ${note.authorName}`}
                             </p>
                             <p>{note.content}</p>
+
+                            {!isReadOnly && (
+                                <div className="patient-dossier-tab__item-actions">
+                                    <Button
+                                        variant="secondary"
+                                        size="small"
+                                        onClick={() => setEditingNote(note)}
+                                    >
+                                        Modifier
+                                    </Button>
+                                </div>
+                            )}
                         </Card>
                     ))}
                 </div>
+            )}
+
+            {editingNote && (
+                <MedicalNoteEditModal
+                    isOpen={!!editingNote}
+                    onClose={() => setEditingNote(null)}
+                    data={data}
+                    note={editingNote}
+                    onSuccess={reload}
+                />
             )}
         </div>
     );

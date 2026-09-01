@@ -347,3 +347,33 @@ export async function createLaboratoryResultWithFile(patientId: string, formData
     return unwrapApiData(response.data, "Erreur lors de l'enregistrement du fichier laboratoire.");
 }
 
+export async function updateAppointment(
+    id: string,
+    data: {
+        patientId: string;
+        professionalId: string;
+        organizationId: string;
+        scheduledAt: string;
+        durationMinutes: number;
+        status: string;
+        reason?: string;
+        notes?: string;
+        facilityId?: string;
+    }
+) {
+    const response = await apiClient.put<ApiFeedback<unknown>>(`/appointments/${id}`, data);
+    return unwrapApiData(response.data, 'Erreur lors de la mise à jour du rendez-vous.');
+}
+
+export async function updateMedicalNote(
+    id: string,
+    data: {
+        medicalRecordId: string;
+        authorId: string;
+        content: string;
+        notedAt: string;
+    }
+) {
+    const response = await apiClient.put<ApiFeedback<unknown>>(`/medical-notes/${id}`, data);
+    return unwrapApiData(response.data, 'Erreur lors de la mise à jour de la note médicale.');
+}

@@ -121,6 +121,7 @@ export interface PatientAppointment {
     status: string;
     reason?: string;
     durationMinutes?: number;
+    notes?: string;
 }
 
 export interface BloodGlucoseMeasurement {
