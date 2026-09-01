@@ -3,11 +3,10 @@ import { Card } from '@/react/components/UI/Card';
 import { Button } from '@/react/components/UI/Button';
 import { TrendChart } from '@/react/features/admin/reports/components/TrendChart';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
-import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext'; // ✅ import
+import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { MEASUREMENT_TYPES } from '../../config/measurementTypes';
 import { MeasurementTypeId } from '../../types';
 import { buildTrendSeries, formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
-
 function countForType(
     data: ReturnType<typeof usePatientDossierContext>['data'],
     type: MeasurementTypeId,
@@ -153,12 +152,16 @@ export function MeasurementsTab() {
                             key={type.id}
                             className="measurement-type-card"
                             interactive
-                            onClick={() => handleSelectType(type.id)} // utiliser handleSelectType
+                            onClick={() => handleSelectType(type.id)}
                         >
-                            <span className="measurement-type-card__icon">{type.icon}</span>
-                            <h3>{type.label}</h3>
+                            <span className="measurement-type-card__icon">
+                                {type.icon}
+                            </span>
+                                                    <h3>{type.label}</h3>
                             <p>{type.description}</p>
-                            <span className="measurement-type-card__count">{count} mesure{count !== 1 ? 's' : ''}</span>
+                            <span className="measurement-type-card__count">
+                                {count} mesure{count !== 1 ? 's' : ''}
+                            </span>
                         </Card>
                     );
                 })}

@@ -15,7 +15,7 @@ import {
     PatientMedicalConsent,
 } from '../../types';
 import { useMedicalProfileTab } from "@/react/features/clinician/patients/hooks/useMedicalProfileTab";
-import { useAuth } from '@/react/app/providers/AuthProvider'; // ✅ import
+import { useAuth } from '@/react/app/providers/AuthProvider';
 
 export function MedicalProfileTab() {
     const {
@@ -34,7 +34,7 @@ export function MedicalProfileTab() {
     } = useMedicalProfileTab();
 
     const { user } = useAuth();
-    // ✅ Un clinicien ou nutritionniste ne peut pas modifier les consentements ni les contacts d'urgence
+    // Un clinicien ou nutritionniste ne peut pas modifier les consentements ni les contacts d'urgence
     const isClinician = user?.role === 'CLINICIAN' || user?.role === 'NUTRITIONIST';
 
     const { allergies, diagnoses, consents, emergencyContacts } = data;
