@@ -5,8 +5,8 @@ import { Input } from '@/react/components/Forms/Input';
 import { FormField } from '@/react/components/Forms/FormField';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { createEmergencyContact, updateEmergencyContact } from '../../services/dossierActionsService';
-import { PatientDossierData, PatientEmergencyContact } from '../../types';
+import { createEmergencyContact, updateEmergencyContact } from '../../../services/dossierActionsService';
+import { PatientDossierData, PatientEmergencyContact } from '../../../types';
 
 interface EmergencyContactFormModalProps {
     isOpen: boolean;

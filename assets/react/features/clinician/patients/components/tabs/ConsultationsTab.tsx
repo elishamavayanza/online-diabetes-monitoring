@@ -26,20 +26,20 @@ export function ConsultationsTab() {
     });
 
     return (
-        <div className="patient-dossier-tab patient-dossier-tab--consultations">
-            <div className="patient-dossier-tab__toolbar">
-                <p className="patient-dossier-tab__hint">Consultations et comptes-rendus cliniques.</p>
-                {!isReadOnly && (
-                    <>
-                        <Button variant="secondary" onClick={() => openAppointmentModal()}>
-                            + Planifier consultation
-                        </Button>
-                        <Button variant="primary" onClick={openNoteModal}>
-                            + Note de consultation
-                        </Button>
-                    </>
-                )}
-            </div>
+            <div className="patient-dossier-tab patient-dossier-tab--consultations">
+                <div className="patient-dossier-tab__toolbar">
+                    <p className="patient-dossier-tab__hint">Consultations et comptes-rendus cliniques.</p>
+                    {!isReadOnly && (
+                        <div className="consultations-tab__actions">
+                            <Button variant="secondary" onClick={() => openAppointmentModal()}>
+                                + Planifier consultation
+                            </Button>
+                            <Button variant="primary" onClick={openNoteModal}>
+                                + Note de consultation
+                            </Button>
+                        </div>
+                    )}
+                </div>
 
             <div className="patient-dossier-tab__section">
                 <h3>Consultations</h3>

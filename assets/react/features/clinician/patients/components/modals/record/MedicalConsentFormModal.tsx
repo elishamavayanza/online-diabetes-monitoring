@@ -6,8 +6,8 @@ import { Select } from '@/react/components/Forms/Select';
 import { FormField } from '@/react/components/Forms/FormField';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { createMedicalConsent, updateMedicalConsent } from '../../services/dossierActionsService';
-import { PatientDossierData, PatientMedicalConsent } from '../../types';
+import { createMedicalConsent, updateMedicalConsent } from '../../../services/dossierActionsService';
+import { PatientDossierData, PatientMedicalConsent } from '../../../types';
 
 interface MedicalConsentFormModalProps {
     isOpen: boolean;

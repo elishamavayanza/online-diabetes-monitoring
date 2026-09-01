@@ -22,16 +22,16 @@ import { AppointmentsTab } from './tabs/AppointmentsTab';
 import { NotesTab } from './tabs/NotesTab';
 import { CommunicationsTab } from './tabs/CommunicationsTab';
 import { AppointmentFormModal } from './modals/AppointmentFormModal';
-import { MeasurementFormModal } from './modals/MeasurementFormModal';
+import { MeasurementFormModal } from '@/react/features/clinician/patients/components/modals/record/MeasurementFormModal';
 import { MedicalNoteFormModal } from './modals/MedicalNoteFormModal';
-import { PrescriptionFormModal } from './modals/PrescriptionFormModal';
+import { PrescriptionFormModal } from './modals/prescription/PrescriptionFormModal';
 import { MealFormModal } from './modals/MealFormModal';
-import { AllergyFormModal } from './modals/AllergyFormModal';
-import { DiagnosisFormModal } from './modals/DiagnosisFormModal';
-import { MedicalConsentFormModal } from './modals/MedicalConsentFormModal';
-import { EmergencyContactFormModal } from './modals/EmergencyContactFormModal';
-import { PrescriptionItemFormModal } from './modals/PrescriptionItemFormModal';
-import { PrescriptionVersionFormModal } from './modals/PrescriptionVersionFormModal';
+import { AllergyFormModal } from '@/react/features/clinician/patients/components/modals/record/AllergyFormModal';
+import { DiagnosisFormModal } from '@/react/features/clinician/patients/components/modals/record/DiagnosisFormModal';
+import { MedicalConsentFormModal } from '@/react/features/clinician/patients/components/modals/record/MedicalConsentFormModal';
+import { EmergencyContactFormModal } from '@/react/features/clinician/patients/components/modals/record/EmergencyContactFormModal';
+import { PrescriptionItemFormModal } from './modals/prescription/PrescriptionItemFormModal';
+import { PrescriptionVersionFormModal } from './modals/prescription/PrescriptionVersionFormModal';
 import { FollowUpReportModal } from './FollowUpReportModal';
 import {
     DossierTabId,

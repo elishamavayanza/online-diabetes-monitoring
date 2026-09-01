@@ -6,14 +6,13 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { PatientDossierData, PatientPrescription } from '../../types';
-import {useEditPrescriptionForm} from "@/react/features/clinician/patients/hooks/prescription/useEditPrescriptionForm";
+import { PatientDossierData } from '../../../types';
+import {usePrescriptionForm} from "@/react/features/clinician/patients/hooks/prescription/usePrescriptionForm";
 
-interface PrescriptionEditModalProps {
+interface PrescriptionFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     data: PatientDossierData;
-    prescription: PatientPrescription | null;
     onSuccess: () => void;
 }
 
@@ -22,23 +21,22 @@ const STATUS_OPTIONS = [
     { value: 'DRAFT', label: 'Brouillon' },
 ];
 
-export function PrescriptionEditModal({
+export function PrescriptionFormModal({
                                           isOpen,
                                           onClose,
                                           data,
-                                          prescription,
                                           onSuccess,
-                                      }: PrescriptionEditModalProps) {
-    const { form, handleChange, handleSubmit, isLoading, error } = useEditPrescriptionForm({
-        isOpen,
-        onClose,
-        data,
-        prescription,
-        onSuccess,
-    });
+                                      }: PrescriptionFormModalProps) {
+    const {
+        form,
+        handleChange,
+        handleSubmit,
+        isLoading,
+        error,
+    } = usePrescriptionForm({ isOpen, onClose, data, onSuccess });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Modifier la prescription">
+        <Modal isOpen={isOpen} onClose={onClose} title="Nouvelle prescription">
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
@@ -89,7 +87,7 @@ export function PrescriptionEditModal({
                         Annuler
                     </Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : 'Enregistrer'}
+                        {isLoading ? <Spinner size="small" /> : 'Créer'}
                     </Button>
                 </div>
             </form>

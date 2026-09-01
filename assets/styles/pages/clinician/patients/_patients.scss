@@ -45,6 +45,20 @@
     }
 }
 
+.consultations-tab__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: nowrap;
+    width: 100%;          // Prendre toute la largeur disponible
+    // ou flex: 1;        // Équivalent dans un parent flex
+}
+
+.consultations-tab__actions .button {   // Ou directement sur les <Button>
+    flex: 1;              // Chaque bouton s'étire également
+    text-align: center;   // Centre le texte
+}
+
 /* ============================================================
    Grille des cartes patients
    ============================================================ */

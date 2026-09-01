@@ -6,7 +6,7 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { PatientPrescription } from '../../types';
+import { PatientPrescription } from '../../../types';
 import {usePrescriptionItemForm} from "@/react/features/clinician/patients/hooks/prescription/usePrescriptionItemForm";
 
 interface PrescriptionItemFormModalProps {

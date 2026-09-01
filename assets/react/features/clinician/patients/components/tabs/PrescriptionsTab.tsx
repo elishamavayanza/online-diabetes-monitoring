@@ -14,10 +14,10 @@ import {
 } from '../../services/dossierActionsService';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 import {updatePrescription} from "@/react/features/clinician/patients/services/medicalRecordService";
-import {PrescriptionEditModal} from "@/react/features/clinician/patients/components/modals/PrescriptionEditModal";
+import {PrescriptionEditModal} from "@/react/features/clinician/patients/components/modals/prescription/PrescriptionEditModal";
 import {
     PrescriptionItemEditModal
-} from "@/react/features/clinician/patients/components/modals/PrescriptionItemEditModal";
+} from "@/react/features/clinician/patients/components/modals/prescription/PrescriptionItemEditModal";
 
 export function PrescriptionsTab() {
     const {

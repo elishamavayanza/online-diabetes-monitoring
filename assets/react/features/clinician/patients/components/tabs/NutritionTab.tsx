@@ -26,11 +26,11 @@ export function NutritionTab() {
         <div className="patient-dossier-tab patient-dossier-tab--nutrition">
             <div className="patient-dossier-tab__toolbar">
                 <p className="patient-dossier-tab__hint">Suivi nutritionnel et repas enregistrés.</p>
-                {!isReadOnly && (
-                    <Button variant="primary" onClick={openMealModal}>
-                        + Enregistrer un repas
-                    </Button>
-                )}
+                {/*{!isReadOnly && (*/}
+                {/*    // <Button variant="primary" onClick={openMealModal}>*/}
+                {/*    //     + Enregistrer un repas*/}
+                {/*    // </Button>*/}
+                {/*)}*/}
             </div>
 
             {filtered.length === 0 ? (

@@ -7,9 +7,9 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { FileUpload } from '@/react/components/Forms/FileUpload';
-import { MeasurementTypeId } from '../../types';
-import { MEASUREMENT_TYPES } from '../../config/measurementTypes';
-import { PHYSICAL_ACTIVITY_OPTIONS } from '../../config/physicalActivities';
+import { MeasurementTypeId } from '../../../types';
+import { MEASUREMENT_TYPES } from '../../../config/measurementTypes';
+import { PHYSICAL_ACTIVITY_OPTIONS } from '../../../config/physicalActivities';
 import { useMeasurementForm } from '@/react/features/clinician/patients/hooks/useMeasurementForm';
 
 interface MeasurementFormModalProps {

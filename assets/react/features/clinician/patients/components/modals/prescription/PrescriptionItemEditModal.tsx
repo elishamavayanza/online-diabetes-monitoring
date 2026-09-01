@@ -6,7 +6,7 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { PrescriptionItem } from '../../types';
+import { PrescriptionItem } from '../../../types';
 import {
     useEditPrescriptionItemForm
 } from "@/react/features/clinician/patients/hooks/prescription/useEditPrescriptionItemForm";

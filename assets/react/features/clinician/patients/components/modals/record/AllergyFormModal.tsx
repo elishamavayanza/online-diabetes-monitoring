@@ -6,61 +6,55 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { PatientDiagnosis, PatientDossierData } from '../../types';
-import {useDiagnosisForm} from "@/react/features/clinician/patients/hooks/record/useDiagnosisForm";
+import { PatientAllergy, PatientDossierData } from '../../../types';
+import { useAllergyForm } from "@/react/features/clinician/patients/hooks/record/useAllergyForm";
 
-interface DiagnosisFormModalProps {
+interface AllergyFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     data: PatientDossierData;
-    diagnosis?: PatientDiagnosis;
+    allergy?: PatientAllergy;
     onSuccess: () => void;
 }
 
-const STATUS_OPTIONS = [
-    { value: 'CONFIRMED', label: 'Confirmé' },
-    { value: 'SUSPECTED', label: 'Suspecté' },
-    { value: 'RULED_OUT', label: 'Écarté' },
-    { value: 'IN_REMISSION', label: 'En rémission' },
+const SEVERITY_OPTIONS = [
+    { value: 'MILD', label: 'Légère' },
+    { value: 'MODERATE', label: 'Modérée' },
+    { value: 'SEVERE', label: 'Sévère' },
 ];
 
-export function DiagnosisFormModal({
-                                       isOpen,
-                                       onClose,
-                                       data,
-                                       diagnosis,
-                                       onSuccess,
-                                   }: DiagnosisFormModalProps) {
-    const { form, handleChange, handleSubmit, isLoading, error, isEdit } = useDiagnosisForm({
+export function AllergyFormModal({ isOpen, onClose, data, allergy, onSuccess }: AllergyFormModalProps) {
+    const { form, handleChange, handleSubmit, isLoading, error, isEdit } = useAllergyForm({
         isOpen,
-        onClose,
         data,
-        diagnosis,
+        allergy,
         onSuccess,
+        onClose,
     });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? 'Modifier le diagnostic' : 'Ajouter un diagnostic'}>
+        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? "Modifier l'allergie" : 'Ajouter une allergie'}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
+                {/* ✅ La grille existe déjà, elle passera à deux colonnes grâce au SCSS ci-dessous */}
                 <div className="dossier-form__grid">
-                    <FormField label="Affection" htmlFor="conditionName" required>
+                    <FormField label="Allergène" htmlFor="name" required>
                         <Input
-                            id="conditionName"
-                            name="conditionName"
-                            value={form.conditionName}
+                            id="name"
+                            name="name"
+                            value={form.name}
                             onChange={handleChange}
-                            placeholder="Ex : Diabète de type 2, Hypertension..."
+                            placeholder="Ex : Pénicilline, Arachide..."
                             required
                         />
                     </FormField>
-                    <FormField label="Statut" htmlFor="status" required>
+                    <FormField label="Sévérité" htmlFor="severity" required>
                         <Select
-                            id="status"
-                            name="status"
-                            value={form.status}
+                            id="severity"
+                            name="severity"
+                            value={form.severity}
                             onChange={handleChange}
-                            options={STATUS_OPTIONS}
+                            options={SEVERITY_OPTIONS}
                         />
                     </FormField>
                     <FormField label="Date du diagnostic" htmlFor="diagnosedAt" required>
@@ -73,14 +67,23 @@ export function DiagnosisFormModal({
                             required
                         />
                     </FormField>
-                    <FormField label="Description" htmlFor="description" className="dossier-form__field--full">
-                        <Textarea
-                            id="description"
-                            name="description"
-                            rows={4}
-                            value={form.description}
+                    <FormField label="Réaction" htmlFor="reaction">
+                        <Input
+                            id="reaction"
+                            name="reaction"
+                            value={form.reaction}
                             onChange={handleChange}
-                            placeholder="Ex : Découverte fortuite lors d'un bilan sanguin..."
+                            placeholder="Ex : Éruption cutanée, œdème..."
+                        />
+                    </FormField>
+                    <FormField label="Notes" htmlFor="notes" className="dossier-form__field--full">
+                        <Textarea
+                            id="notes"
+                            name="notes"
+                            rows={3}
+                            value={form.notes}
+                            onChange={handleChange}
+                            placeholder="Ex : Éviter tout contact, porter un bracelet..."
                             fullWidth
                         />
                     </FormField>

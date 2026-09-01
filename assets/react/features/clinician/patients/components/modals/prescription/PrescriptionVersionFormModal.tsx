@@ -6,9 +6,9 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { createPrescriptionVersion } from '../../services/dossierActionsService';
+import { createPrescriptionVersion } from '../../../services/dossierActionsService';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
-import { PatientPrescription } from '../../types';
+import { PatientPrescription } from '../../../types';
 
 interface PrescriptionVersionFormModalProps {
     isOpen: boolean;
