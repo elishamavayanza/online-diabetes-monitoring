@@ -15,7 +15,10 @@ class LaboratoryResultMapper
 
         $result->setPatient($patient);
         $result->setTestName($dto->testName);
-        $result->setFileUrl($dto->fileUrl);
+
+        // Le fichier physique est géré par le service (FileUploaderService) qui assigne le nom via setFileUrl().
+        // On ne mappe plus directement $dto->fileUrl puisque $dto->file est un UploadedFile.
+
         $result->setLabName($dto->labName);
 
         // Gestion de la date de mesure (measuredAt) pour éviter l'erreur SQL

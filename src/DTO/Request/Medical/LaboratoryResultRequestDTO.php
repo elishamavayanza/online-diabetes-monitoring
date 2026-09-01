@@ -3,6 +3,7 @@
 namespace App\DTO\Request\Medical;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
@@ -14,16 +15,25 @@ class LaboratoryResultRequestDTO
     public function __construct(
         #[Assert\NotBlank]
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, example: 'Bilan lipidique complet', description: 'Nom de l’examen de laboratoire')]
+        #[OA\Property(description: 'Nom de l’examen de laboratoire', type: 'string', example: 'Bilan lipidique complet', maxLength: 150)]
         public readonly string $testName,
 
-        #[Assert\Url]
-        #[Assert\Length(max: 500)]
-        #[OA\Property(type: 'string', format: 'uri', maxLength: 500, nullable: true, example: 'https://storage.diabcare.com/labs/result-123.pdf', description: 'URL du fichier')]
-        public readonly ?string $fileUrl,
+        #[Assert\File(
+            maxSize: '10M',
+            mimeTypes: [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg',
+                'image/png',
+            ],
+            mimeTypesMessage: 'Veuillez uploader un fichier PDF, Word ou une image valide (JPEG, PNG).'
+        )]
+        #[OA\Property(description: 'Fichier du résultat (PDF, Word, Image)', type: 'string', format: 'binary', nullable: true)]
+        public readonly ?UploadedFile $file, // Remplacé de fileUrl vers file
 
         #[Assert\Length(max: 150)]
-        #[OA\Property(type: 'string', maxLength: 150, nullable: true, example: 'Laboratoire Central Goma', description: 'Nom du laboratoire')]
+        #[OA\Property(description: 'Nom du laboratoire', type: 'string', example: 'Laboratoire Central Goma', nullable: true, maxLength: 150)]
         public readonly ?string $labName
     ) {}
 }

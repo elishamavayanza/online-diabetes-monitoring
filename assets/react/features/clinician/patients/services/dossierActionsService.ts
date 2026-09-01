@@ -336,4 +336,14 @@ export async function downloadMedicalConsentFile(consentId: string): Promise<voi
     document.body.removeChild(link);
     URL.revokeObjectURL(downloadUrl);
 }
+// Ajoutez cette fonction dans dossierActionsService.ts
+export async function createLaboratoryResultWithFile(patientId: string, formData: FormData) {
+    const response = await apiClient.post<ApiFeedback<unknown>>(
+        `/patients/${patientId}/laboratory-results`,
+        formData,
+        // Ne pas mettre Content-Type, le navigateur le fera avec la boundary
+        { headers: { 'Content-Type': undefined } as any }
+    );
+    return unwrapApiData(response.data, "Erreur lors de l'enregistrement du fichier laboratoire.");
+}
 
