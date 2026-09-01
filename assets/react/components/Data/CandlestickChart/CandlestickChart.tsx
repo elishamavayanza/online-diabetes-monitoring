@@ -1,5 +1,6 @@
-// components/CandlestickChart.tsx
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
+//  Import du style décommenté
+import '../../../../styles/components/Data/_candlestick-chart.scss';
 import {
     CandlestickDataPoint,
     useCandlestickChart
@@ -7,7 +8,6 @@ import {
 
 interface CandlestickChartProps {
     data: CandlestickDataPoint[];
-    width?: number;
     height?: number;
     margin?: { top: number; right: number; bottom: number; left: number };
     upColor?: string;
@@ -19,7 +19,6 @@ interface CandlestickChartProps {
 
 export function CandlestickChart({
                                      data,
-                                     width = 600,
                                      height = 300,
                                      margin,
                                      upColor,
@@ -28,11 +27,29 @@ export function CandlestickChart({
                                      formatDate = (d) => String(d),
                                      formatPrice = (p) => p.toFixed(2),
                                  }: CandlestickChartProps) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [chartWidth, setChartWidth] = useState<number>(0);
+
+    useLayoutEffect(() => {
+        if (!containerRef.current) return;
+        const measure = () => {
+            setChartWidth(containerRef.current?.clientWidth ?? 0);
+        };
+        measure();
+
+        const resizeObserver = new ResizeObserver(measure);
+        resizeObserver.observe(containerRef.current);
+
+        return () => resizeObserver.disconnect();
+    }, []);
+
+    const finalWidth = chartWidth > 0 ? chartWidth : 600;
+
     const {
         width: w,
         height: h,
         margin: m,
-        chartWidth,
+        chartWidth: innerChartWidth,
         chartHeight,
         minPrice,
         maxPrice,
@@ -45,7 +62,14 @@ export function CandlestickChart({
         handleMouseLeave,
         upColor: up,
         downColor: down,
-    } = useCandlestickChart({ data, width, height, margin, upColor, downColor });
+    } = useCandlestickChart({
+        data,
+        width: finalWidth,
+        height,
+        margin,
+        upColor,
+        downColor,
+    });
 
     if (data.length === 0) {
         return <div className="candlestick-chart__empty">Aucune donnée</div>;
@@ -53,28 +77,29 @@ export function CandlestickChart({
 
     return (
         <div
+            ref={containerRef}
             className="candlestick-chart"
-            style={{ width: w, height: h }}
+            style={{ height: h }}
             onMouseLeave={handleMouseLeave}
         >
             <svg width={w} height={h}>
                 {/* Axe horizontal (dates) */}
                 {showAxis && (
                     <g className="candlestick-chart__axis">
-                        {data.map((d, i) => (
-                            i % Math.ceil(data.length / 6) === 0 && (
+                        {data.map((d, i) =>
+                            i % Math.ceil(data.length / 6) === 0 ? (
                                 <text
                                     key={i}
                                     x={getX(i)}
-                                    y={h - 5}
+                                    y={h - 12} // plus haut pour ne pas être coupé
                                     textAnchor="middle"
                                     fontSize="10"
                                     fill="currentColor"
                                 >
                                     {formatDate(d.date)}
                                 </text>
-                            )
-                        ))}
+                            ) : null
+                        )}
                     </g>
                 )}
 
@@ -84,7 +109,7 @@ export function CandlestickChart({
                         {[maxPrice, (maxPrice + minPrice) / 2, minPrice].map((price, idx) => (
                             <text
                                 key={idx}
-                                x={m.left - 5}
+                                x={m.left - 10} // plus à gauche
                                 y={getY(price) + 4}
                                 textAnchor="end"
                                 fontSize="10"
@@ -116,7 +141,6 @@ export function CandlestickChart({
                             className="candlestick-chart__candle"
                             style={{ cursor: 'pointer' }}
                         >
-                            {/* Mèche haute/basse */}
                             <line
                                 x1={getX(i)}
                                 x2={getX(i)}
@@ -125,13 +149,12 @@ export function CandlestickChart({
                                 stroke={color}
                                 strokeWidth={1}
                             />
-                            {/* Corps */}
                             <rect
                                 x={x}
                                 y={bodyTop}
                                 width={candleWidth}
                                 height={bodyHeight}
-                                fill={isUp ? color : color}
+                                fill={color}
                                 rx={1}
                                 stroke="none"
                             />
@@ -143,10 +166,10 @@ export function CandlestickChart({
             {/* Tooltip */}
             {hoveredIndex !== null && (
                 <div
-                    className="candlestick-chart__tooltip"
+                    className="tooltip tooltip--top candlestick-chart__tooltip"
                     style={{
-                        left: getX(hoveredIndex),
-                        top: Math.min(getY(data[hoveredIndex].high), getY(data[hoveredIndex].low)) - 10,
+                        left: Math.min(Math.max(getX(hoveredIndex), 80), w - 80),
+                        top: Math.max(getY(data[hoveredIndex].high) - 10, 10),
                     }}
                 >
                     <div className="candlestick-chart__tooltip-date">

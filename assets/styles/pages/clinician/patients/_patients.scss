@@ -150,6 +150,15 @@
     }
 }
 
+.measurement-detail__actions {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    flex-wrap: nowrap !important;   /* ❗ force une seule ligne */
+    margin-bottom: 1rem;
+}
+
 /* ============================================================
    Responsive tablette / mobile
    ============================================================ */

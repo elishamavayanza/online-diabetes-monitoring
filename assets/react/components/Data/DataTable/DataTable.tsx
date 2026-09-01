@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDataTable, UseDataTableProps } from '../../../hook-components/Data/DataTable';
+import { useDataTable, UseDataTableProps } from '@/react/hook-components/Data/DataTable';
 import { Pagination } from '../Pagination';
 
 export interface DataTableProps<T> extends UseDataTableProps<T> {}

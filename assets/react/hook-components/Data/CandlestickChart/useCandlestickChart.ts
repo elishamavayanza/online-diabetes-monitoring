@@ -1,8 +1,7 @@
-// hooks/useCandlestickChart.ts
 import { useMemo, useState } from 'react';
 
 export interface CandlestickDataPoint {
-    date: string | number; // timestamp ou date affichable
+    date: string | number;
     open: number;
     high: number;
     low: number;
@@ -22,7 +21,8 @@ export function useCandlestickChart({
                                         data,
                                         width = 600,
                                         height = 300,
-                                        margin = { top: 20, right: 20, bottom: 30, left: 50 },
+                                        // Marges augmentées pour éviter que les libellés soient coupés
+                                        margin = { top: 30, right: 30, bottom: 50, left: 70 },
                                         upColor = 'var(--color-success, #2ecc71)',
                                         downColor = 'var(--color-error, #e74c3c)',
                                     }: UseCandlestickChartProps) {
@@ -31,18 +31,16 @@ export function useCandlestickChart({
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
-    // Calculer min/max des prix (high/low)
-    const minPrice = useMemo(() => Math.min(...data.map(d => d.low)), [data]);
-    const maxPrice = useMemo(() => Math.max(...data.map(d => d.high)), [data]);
+    const minPrice = data.length > 0 ? Math.min(...data.map(d => d.low)) : 0;
+    const maxPrice = data.length > 0 ? Math.max(...data.map(d => d.high)) : 1;
 
-    // Échelles
     const xStep = data.length > 0 ? chartWidth / data.length : 0;
-    const candleWidth = Math.max(4, xStep * 0.7); // largeur du corps
+    const candleWidth = Math.max(4, xStep * 0.7);
 
     const getX = (index: number) => margin.left + xStep * index + xStep / 2;
-    const getY = (price: number) => margin.top + ((maxPrice - price) / (maxPrice - minPrice)) * chartHeight;
+    const getY = (price: number) =>
+        margin.top + ((maxPrice - price) / (maxPrice - minPrice)) * chartHeight;
 
-    // Gérer le survol
     const handleMouseMove = (index: number) => setHoveredIndex(index);
     const handleMouseLeave = () => setHoveredIndex(null);
 
