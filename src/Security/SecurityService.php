@@ -612,6 +612,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::CREATE_ALLERGY,
             SecurityAction::VIEW_ALLERGY,
             SecurityAction::UPDATE_ALLERGY,
+            SecurityAction::DELETE_ALLERGY,
             SecurityAction::VIEW_EMERGENCY_CONTACT,
             SecurityAction::VIEW_MEDICAL_CONSENT,
 

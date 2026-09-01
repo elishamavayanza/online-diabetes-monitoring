@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useConfirmDialog, UseConfirmDialogProps } from '../../../hook-components/UI/ConfirmDialog';
+import { useConfirmDialog, UseConfirmDialogProps } from '@/react/hook-components/UI/ConfirmDialog';
 
 export interface ConfirmDialogProps extends UseConfirmDialogProps {}
 

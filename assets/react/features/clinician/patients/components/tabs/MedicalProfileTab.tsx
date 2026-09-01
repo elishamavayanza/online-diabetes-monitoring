@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
-import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDate, formatDisplayDateTime } from '../../utils/dossierUtils';
 import {
     getAllergySeverityLabel,
@@ -11,70 +9,29 @@ import {
     getDiagnosisStatusLabel,
 } from '../../utils/labelUtils';
 import {
-    deleteAllergy,
-    deleteDiagnosis,
-    deleteEmergencyContact,
-    deleteMedicalConsent,
-    updateMedicalConsent,
-} from '../../services/dossierActionsService';
-import { PatientAllergy, PatientDiagnosis, PatientEmergencyContact, PatientMedicalConsent } from '../../types';
+    PatientAllergy,
+    PatientDiagnosis,
+    PatientEmergencyContact,
+    PatientMedicalConsent,
+} from '../../types';
+import {useMedicalProfileTab} from "@/react/features/clinician/patients/hooks/useMedicalProfileTab";
 
 export function MedicalProfileTab() {
     const {
         data,
-        reload,
         isReadOnly,
         openAllergyModal,
         openDiagnosisModal,
         openConsentModal,
         openEmergencyContactModal,
-    } = usePatientDossierContext();
+        deleteTarget,
+        setDeleteTarget,
+        isDeleting,
+        handleDelete,
+        handleRevokeConsent,
+    } = useMedicalProfileTab();
 
-    const { allergies, diagnoses, consents, emergencyContacts, profile } = data;
-
-    const [deleteTarget, setDeleteTarget] = useState<{
-        type: 'allergy' | 'diagnosis' | 'consent' | 'contact';
-        id: string;
-        label: string;
-    } | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    const handleDelete = async () => {
-        if (!deleteTarget) return;
-        setIsDeleting(true);
-        try {
-            switch (deleteTarget.type) {
-                case 'allergy':
-                    await deleteAllergy(deleteTarget.id);
-                    break;
-                case 'diagnosis':
-                    await deleteDiagnosis(deleteTarget.id);
-                    break;
-                case 'consent':
-                    await deleteMedicalConsent(deleteTarget.id);
-                    break;
-                case 'contact':
-                    await deleteEmergencyContact(deleteTarget.id);
-                    break;
-            }
-            reload();
-            setDeleteTarget(null);
-        } finally {
-            setIsDeleting(false);
-        }
-    };
-
-    const handleRevokeConsent = async (consent: PatientMedicalConsent) => {
-        await updateMedicalConsent(consent.id, {
-            patientId: profile.id,
-            organizationId: consent.organizationId,
-            consentType: consent.consentType ?? 'DATA_PROCESSING',
-            grantedAt: consent.grantedAt,
-            revokedAt: new Date().toISOString(),
-            documentUrl: consent.documentUrl,
-        });
-        reload();
-    };
+    const { allergies, diagnoses, consents, emergencyContacts } = data;
 
     const renderActions = (
         type: 'allergy' | 'diagnosis' | 'consent' | 'contact',
@@ -97,6 +54,7 @@ export function MedicalProfileTab() {
 
     return (
         <div className="patient-dossier-tab patient-dossier-tab--medical-profile">
+            {/* Section Allergies */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
                     <h3>Allergies</h3>
@@ -129,6 +87,7 @@ export function MedicalProfileTab() {
                 )}
             </div>
 
+            {/* Section Diagnostics */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
                     <h3>Diagnostics</h3>
@@ -157,6 +116,7 @@ export function MedicalProfileTab() {
                 )}
             </div>
 
+            {/* Section Consentements médicaux */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
                     <h3>Consentements médicaux</h3>
@@ -207,6 +167,7 @@ export function MedicalProfileTab() {
                 )}
             </div>
 
+            {/* Section Contacts d'urgence */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
                     <h3>Contacts d'urgence</h3>

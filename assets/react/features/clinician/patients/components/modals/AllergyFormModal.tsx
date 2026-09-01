@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Button } from '@/react/components/UI/Button';
 import { Input } from '@/react/components/Forms/Input';
@@ -7,8 +6,8 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { createAllergy, updateAllergy } from '../../services/dossierActionsService';
 import { PatientAllergy, PatientDossierData } from '../../types';
+import { useAllergyForm } from "@/react/features/clinician/patients/hooks/useAllergyForm";
 
 interface AllergyFormModalProps {
     isOpen: boolean;
@@ -25,83 +24,68 @@ const SEVERITY_OPTIONS = [
 ];
 
 export function AllergyFormModal({ isOpen, onClose, data, allergy, onSuccess }: AllergyFormModalProps) {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [form, setForm] = useState({
-        name: '',
-        severity: 'MODERATE',
-        reaction: '',
-        notes: '',
-        diagnosedAt: '',
+    const { form, handleChange, handleSubmit, isLoading, error, isEdit } = useAllergyForm({
+        isOpen,
+        data,
+        allergy,
+        onSuccess,
+        onClose,
     });
 
-    const isEdit = !!allergy;
-
-    useEffect(() => {
-        if (isOpen) {
-            setForm({
-                name: allergy?.name ?? '',
-                severity: allergy?.severity ?? 'MODERATE',
-                reaction: allergy?.reaction ?? '',
-                notes: allergy?.notes ?? '',
-                diagnosedAt: allergy
-                    ? new Date().toISOString().slice(0, 16)
-                    : new Date().toISOString().slice(0, 16),
-            });
-            setError(null);
-        }
-    }, [isOpen, allergy]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError(null);
-        try {
-            const payload = {
-                patientId: data.profile.id,
-                name: form.name,
-                severity: form.severity,
-                reaction: form.reaction || undefined,
-                notes: form.notes || undefined,
-                diagnosedAt: new Date(form.diagnosedAt).toISOString(),
-            };
-            if (isEdit && allergy) {
-                await updateAllergy(allergy.id, payload);
-            } else {
-                await createAllergy(payload);
-            }
-            onSuccess();
-            onClose();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de l\'enregistrement.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? 'Modifier l\'allergie' : 'Ajouter une allergie'}>
+        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? "Modifier l'allergie" : 'Ajouter une allergie'}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
+                {/* ✅ La grille existe déjà, elle passera à deux colonnes grâce au SCSS ci-dessous */}
                 <div className="dossier-form__grid">
                     <FormField label="Allergène" htmlFor="name" required>
-                        <Input id="name" name="name" value={form.name} onChange={handleChange} required />
+                        <Input
+                            id="name"
+                            name="name"
+                            value={form.name}
+                            onChange={handleChange}
+                            placeholder="Ex : Pénicilline, Arachide..."
+                            required
+                        />
                     </FormField>
                     <FormField label="Sévérité" htmlFor="severity" required>
-                        <Select id="severity" name="severity" value={form.severity} onChange={handleChange} options={SEVERITY_OPTIONS} />
+                        <Select
+                            id="severity"
+                            name="severity"
+                            value={form.severity}
+                            onChange={handleChange}
+                            options={SEVERITY_OPTIONS}
+                        />
                     </FormField>
                     <FormField label="Date du diagnostic" htmlFor="diagnosedAt" required>
-                        <Input id="diagnosedAt" name="diagnosedAt" type="datetime-local" value={form.diagnosedAt} onChange={handleChange} required />
+                        <Input
+                            id="diagnosedAt"
+                            name="diagnosedAt"
+                            type="datetime-local"
+                            value={form.diagnosedAt}
+                            onChange={handleChange}
+                            required
+                        />
                     </FormField>
                     <FormField label="Réaction" htmlFor="reaction">
-                        <Input id="reaction" name="reaction" value={form.reaction} onChange={handleChange} />
+                        <Input
+                            id="reaction"
+                            name="reaction"
+                            value={form.reaction}
+                            onChange={handleChange}
+                            placeholder="Ex : Éruption cutanée, œdème..."
+                        />
                     </FormField>
-                    <FormField label="Notes" htmlFor="notes">
-                        <Textarea id="notes" name="notes" rows={3} value={form.notes} onChange={handleChange} fullWidth />
+                    <FormField label="Notes" htmlFor="notes" className="dossier-form__field--full">
+                        <Textarea
+                            id="notes"
+                            name="notes"
+                            rows={3}
+                            value={form.notes}
+                            onChange={handleChange}
+                            placeholder="Ex : Éviter tout contact, porter un bracelet..."
+                            fullWidth
+                        />
                     </FormField>
                 </div>
                 <div className="dossier-form__actions">

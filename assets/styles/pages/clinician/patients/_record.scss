@@ -158,8 +158,10 @@
 
     &__item-actions {
         display: flex;
+        align-items: center;
         gap: 0.5rem;
-        flex-wrap: wrap;
+        justify-content: flex-end;   // aligne les boutons à droite
+        flex-wrap: nowrap;           // force une seule ligne
         margin-top: 0.75rem;
     }
 
@@ -219,6 +221,30 @@
         margin-bottom: 1rem;
         opacity: 0.8;
     }
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+
+    &__field--full {
+        grid-column: 1 / -1;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    // ✅ Opacité faible des placeholders
+    input::placeholder,
+    textarea::placeholder {
+        opacity: 0.5;
+        color: var(--color-text);
+    }
+
 }
 .measurement-type-grid {
     display: grid;
@@ -289,6 +315,10 @@
         &__body {
             flex-direction: column;
         }
+    }
+    .patient-dossier-tab__item-actions {
+        flex-wrap: wrap;   // autorise le retour à la ligne si nécessaire sur mobile
+        justify-content: flex-end;
     }
 }
 
