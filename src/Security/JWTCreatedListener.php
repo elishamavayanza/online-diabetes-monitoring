@@ -18,6 +18,8 @@ class JWTCreatedListener
 
         $payload = $event->getData();
 
+        $payload['sub'] = (string) $user->getId();
+
         $roles = $user->getRoles();
 
         // Rôles Symfony standard

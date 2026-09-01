@@ -299,3 +299,4 @@ export async function createPrescriptionVersion(data: {
     const response = await apiClient.post<ApiFeedback<unknown>>('/prescription-versions', data);
     return unwrapApiData(response.data, 'Erreur lors de la création de la version.');
 }
+

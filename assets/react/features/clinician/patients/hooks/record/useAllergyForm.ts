@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { createAllergy, updateAllergy } from '../services/dossierActionsService';
-import { PatientAllergy, PatientDossierData } from '../types';
+import { createAllergy, updateAllergy } from '../../services/dossierActionsService';
+import { PatientAllergy, PatientDossierData } from '../../types';
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 
 interface UseAllergyFormProps {
