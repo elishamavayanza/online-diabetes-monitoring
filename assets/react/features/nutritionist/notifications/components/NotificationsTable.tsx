@@ -8,11 +8,11 @@ interface NotificationsTableProps {
 }
 
 const typeVariant: Record<NotificationType, 'success' | 'warning' | 'error' | 'primary'> = {
+    PRESCRIPTION_UPDATED: 'warning',
     NEW_APPOINTMENT: 'primary',
-    PLAN_UPDATED: 'warning',
+    APPOINTMENT_IN_30_MIN: 'error',
     NEW_MESSAGE: 'success',
-    APPOINTMENT_SOON: 'error',
-    PATIENT_ADDED: 'primary',
+    PATIENT_ADDED_TO_TEAM: 'primary',
 };
 
 export function NotificationsTable({ notifications }: NotificationsTableProps) {

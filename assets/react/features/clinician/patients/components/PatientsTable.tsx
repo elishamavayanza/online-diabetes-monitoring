@@ -7,21 +7,22 @@ import { ClinicianPatient } from '../types';
 
 interface PatientsTableProps {
     patients: ClinicianPatient[];
+    basePath?: string;
 }
 
-export function PatientsTable({ patients }: PatientsTableProps) {
+export function PatientsTable({ patients, basePath = '/clinician' }: PatientsTableProps) {
     const navigate = useNavigate();
 
     const handleOpenRecord = (patient: ClinicianPatient) => {
-        navigate(`/clinician/patients/${patient.id}/record`);
+        navigate(`${basePath}/patients/${patient.id}/record`);
     };
 
     const handleInitRecord = (patient: ClinicianPatient) => {
-        navigate(`/clinician/patients/${patient.id}/record/init`);
+        navigate(`${basePath}/patients/${patient.id}/record/init`);
     };
 
     const handleClosedRecord = (patient: ClinicianPatient) => {
-        navigate(`/clinician/patients/${patient.id}/record/closed`);
+        navigate(`${basePath}/patients/${patient.id}/record/closed`);
     };
 
     return (

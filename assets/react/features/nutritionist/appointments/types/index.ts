@@ -2,6 +2,7 @@ export type AppointmentStatus = 'Confirmé' | 'En attente' | 'Terminé' | 'Annul
 
 export interface Appointment {
     id: string;
+    patientId: string;
     patient: string;
     date: string;
     heure: string;

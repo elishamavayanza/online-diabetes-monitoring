@@ -1,37 +1,102 @@
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/react/components/UI/Card';
-import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
+import { Avatar } from '@/react/components/UI/Avatar';
 import { Button } from '@/react/components/UI/Button';
 import { NutritionistPatient } from '../types';
 
-interface PatientsTableProps {
+interface NutritionistPatientsTableProps {
     patients: NutritionistPatient[];
 }
 
-export function NutritionistPatientsTable({ patients }: PatientsTableProps) {
-    const columns = [
-        { key: 'nom', title: 'Patient' },
-        { key: 'dernierPlan', title: 'Dernier plan', render: (row: NutritionistPatient) => row.dernierPlan ?? '—' },
-        { key: 'prochainRendezVous', title: 'Prochain RDV', render: (row: NutritionistPatient) => row.prochainRendezVous ?? '—' },
-        {
-            key: 'statut',
-            title: 'Statut',
-            render: (row: NutritionistPatient) => (
-                <Badge variant={row.statut === 'Actif' ? 'success' : 'error'}>{row.statut}</Badge>
-            ),
-        },
-        {
-            key: 'actions',
-            title: 'Actions',
-            render: (row: NutritionistPatient) => (
-                <Button variant="secondary" size="small" onClick={() => console.log('Dossier', row.id)}>Dossier</Button>
-            ),
-        },
-    ];
+export function NutritionistPatientsTable({ patients }: NutritionistPatientsTableProps) {
+    const navigate = useNavigate();
+    const basePath = '/nutritionist';
+
+    const handleOpenRecord = (patient: NutritionistPatient) => {
+        navigate(`${basePath}/patients/${patient.id}/record`);
+    };
+
+    const handleInitRecord = (patient: NutritionistPatient) => {
+        navigate(`${basePath}/patients/${patient.id}/record/init`);
+    };
+
+    const handleClosedRecord = (patient: NutritionistPatient) => {
+        navigate(`${basePath}/patients/${patient.id}/record/closed`);
+    };
 
     return (
-        <Card className="nutritionist-patients-card">
-            <DataTable columns={columns} data={patients} />
-        </Card>
+        <div className="clinician-patients-cards">
+            {patients.map((patient) => {
+                const isOpen = patient.medicalRecordStatus === 'open';
+                const isClosed = patient.medicalRecordStatus === 'closed';
+                const hasNoRecord = patient.medicalRecordStatus === 'none';
+                const isClickable = isOpen || isClosed;
+
+                return (
+                    <Card
+                        key={patient.id}
+                        className="clinician-patient-card"
+                        interactive={isClickable}
+                        onClick={
+                            isClickable
+                                ? () => {
+                                    if (isOpen) handleOpenRecord(patient);
+                                    else if (isClosed) handleClosedRecord(patient);
+                                }
+                                : undefined
+                        }
+                    >
+                        <div className="clinician-patient-card__photo">
+                            <Avatar
+                                src={patient.avatarUrl}
+                                name={patient.nom}
+                                size="xlarge"
+                                shape="circle"
+                            />
+                        </div>
+
+                        <div className="clinician-patient-card__info">
+                            <h3 className="clinician-patient-card__name">{patient.nom}</h3>
+                            <p className="clinician-patient-card__detail">
+                                <span className="clinician-patient-card__label">Date de naissance :</span>{' '}
+                                {patient.dateNaissance ?? 'Non renseignée'}
+                            </p>
+                            <p className="clinician-patient-card__detail">
+                                <span className="clinician-patient-card__label">Téléphone :</span>{' '}
+                                {patient.telephone ?? 'Non renseigné'}
+                            </p>
+                        </div>
+
+                        <div className="clinician-patient-card__status">
+                            <Badge variant={patient.statut === 'Active' ? 'success' : 'error'}>
+                                {patient.statut}
+                            </Badge>
+                        </div>
+
+                        {hasNoRecord && (
+                            <div className="clinician-patient-card__action">
+                                <Button
+                                    variant="primary"
+                                    size="small"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleInitRecord(patient);
+                                    }}
+                                >
+                                    Ouvrir un dossier
+                                </Button>
+                            </div>
+                        )}
+
+                        {isClosed && (
+                            <div className="clinician-patient-card__closed-badge">
+                                <Badge variant="warning">Dossier fermé</Badge>
+                            </div>
+                        )}
+                    </Card>
+                );
+            })}
+        </div>
     );
 }

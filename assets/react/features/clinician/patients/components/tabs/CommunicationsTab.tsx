@@ -6,7 +6,7 @@ import { getOrCreatePatientConversation } from '../../services/dossierActionsSer
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 
 export function CommunicationsTab() {
-    const { data } = usePatientDossierContext();
+    const { data, basePath } = usePatientDossierContext();
     const { profile } = data;
     const navigate = useNavigate();
     const { showToast } = useToast();
@@ -17,7 +17,7 @@ export function CommunicationsTab() {
                 profile.id,
                 profile.organizationId
             );
-            navigate(`/clinician/messages?conversationId=${conversationId}`);
+            navigate(`${basePath}/messages?conversationId=${conversationId}`);
         } catch (error) {
             console.error(error);
             showToast({

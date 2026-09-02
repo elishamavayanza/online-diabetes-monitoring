@@ -7,7 +7,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/nutritionist/appointments/_appointments.scss';
 
 export function AppointmentsPages() {
-    const { appointments, filter, setFilter, isLoading, error } = useAppointments();
+    const { appointments, filter, setFilter, isLoading, error, reload } = useAppointments();
     const { pushAction } = useActionHistory();
 
     const tabs = [
@@ -37,7 +37,7 @@ export function AppointmentsPages() {
                 defaultActiveTabId={filter}
                 onChange={handleFilterChange}
             />
-            <AppointmentsTable appointments={appointments} />
+            <AppointmentsTable appointments={appointments} onActionSuccess={reload} />
         </div>
     );
 }

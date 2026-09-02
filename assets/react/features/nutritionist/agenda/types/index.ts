@@ -3,6 +3,7 @@ export interface AgendaAppointment {
     time: string;
     patient: string;
     motif: string;
+    type?: 'Consultation' | 'Suivi diabète';
 }
 
 export interface AgendaDay {

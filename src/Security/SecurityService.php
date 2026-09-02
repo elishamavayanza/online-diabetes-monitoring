@@ -643,26 +643,68 @@ final class SecurityService implements SecurityServiceInterface
     ): void {
         $allowed = [
             SecurityAction::VIEW_PATIENT,
+            SecurityAction::VIEW_NUTRITION,
+            SecurityAction::VIEW_MEDICAL_RECORD,
+            SecurityAction::CREATE_MEDICAL_RECORD,
+            SecurityAction::VIEW_MEDICAL_NOTES,
+            SecurityAction::EDIT_MEDICAL_NOTE,
+            SecurityAction::DELETE_MEDICAL_NOTE,
+
+            SecurityAction::CREATE_DIAGNOSIS,
+            SecurityAction::UPDATE_DIAGNOSIS,
+            SecurityAction::CREATE_MEDICAL_NOTE,
+
+            SecurityAction::MANAGE_MEDICATION,
+            SecurityAction::DELETE_MEDICATION_INTAKE,
+
+            SecurityAction::RECORD_GLUCOSE,
+            SecurityAction::RECORD_BLOOD_PRESSURE,
+            SecurityAction::RECORD_HBA1C,
+            SecurityAction::RECORD_WEIGHT,
+            SecurityAction::RECORD_ACTIVITY,
+
             SecurityAction::VIEW_MEASUREMENTS,
 
-            SecurityAction::VIEW_NUTRITION,
+            SecurityAction::VIEW_LABORATORY_RESULT,
+            SecurityAction::UPLOAD_LABORATORY_RESULT,
+
+            SecurityAction::VIEW_PRESCRIPTION,
+            SecurityAction::CREATE_PRESCRIPTION,
+            SecurityAction::UPDATE_PRESCRIPTION,
+            SecurityAction::CANCEL_PRESCRIPTION,
+            SecurityAction::VALIDATE_PRESCRIPTION,
+
+            SecurityAction::VIEW_APPOINTMENT,
+            SecurityAction::CREATE_APPOINTMENT,
+            SecurityAction::UPDATE_APPOINTMENT,
+            SecurityAction::CANCEL_APPOINTMENT,
+            SecurityAction::CONFIRM_APPOINTMENT,
+            SecurityAction::REQUEST_RESCHEDULE,
+            SecurityAction::DELETE_APPOINTMENT,
+
+            SecurityAction::VIEW_APPOINTMENT_REMINDER,
+            SecurityAction::CREATE_APPOINTMENT_REMINDER,
+            SecurityAction::UPDATE_APPOINTMENT_REMINDER,
+            SecurityAction::DELETE_APPOINTMENT_REMINDER,
+
+            SecurityAction::SEND_MESSAGE,
+            SecurityAction::READ_MESSAGE,
+            SecurityAction::DOWNLOAD_ATTACHMENT,
+            SecurityAction::CREATE_CONVERSATION,
+
+            SecurityAction::CREATE_ALLERGY,
+            SecurityAction::VIEW_ALLERGY,
+            SecurityAction::UPDATE_ALLERGY,
+            SecurityAction::DELETE_ALLERGY,
+            SecurityAction::VIEW_EMERGENCY_CONTACT,
+            SecurityAction::VIEW_MEDICAL_CONSENT,
+            SecurityAction::CREATE_MEDICAL_CONSENT,
+            SecurityAction::REVOKE_MEDICAL_CONSENT,
 
             SecurityAction::MANAGE_FOOD,
             SecurityAction::MANAGE_FOOD_CATEGORY,
             SecurityAction::MANAGE_MEAL,
             SecurityAction::CREATE_NUTRITION_ADVICE,
-
-            SecurityAction::RECORD_GLUCOSE,
-
-            SecurityAction::VIEW_APPOINTMENT,
-
-            SecurityAction::SEND_MESSAGE,
-            SecurityAction::READ_MESSAGE,
-            SecurityAction::DOWNLOAD_ATTACHMENT,
-
-            SecurityAction::VIEW_ALLERGY,
-            SecurityAction::VIEW_EMERGENCY_CONTACT,
-            SecurityAction::VIEW_MEDICAL_CONSENT,
 
             SecurityAction::CREATE_REMINDER_RULE,
 

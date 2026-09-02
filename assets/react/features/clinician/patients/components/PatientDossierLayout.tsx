@@ -75,9 +75,10 @@ const PERIOD_FILTER_TABS: DossierTabId[] = [
 interface PatientDossierLayoutProps {
     patientId: string;
     mode: 'open' | 'closed';
+    basePath?: string;
 }
 
-export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutProps) {
+export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' }: PatientDossierLayoutProps) {
     const navigate = useNavigate();
     const { pushAction } = useActionHistory();
     const { data, isLoading, error, reload } = usePatientDossier(patientId);
@@ -132,30 +133,30 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
     const handleClose = async () => {
         const success = await close();
         if (success) {
-            navigate(`/clinician/patients/${patientId}/record/closed`);
+            navigate(`${basePath}/patients/${patientId}/record/closed`);
         }
     };
 
     const handleReopen = async () => {
         const success = await reopen();
         if (success) {
-            navigate(`/clinician/patients/${patientId}/record`);
+            navigate(`${basePath}/patients/${patientId}/record`);
         }
     };
 
     useEffect(() => {
         if (!data) return;
         if (!data.record) {
-            navigate(`/clinician/patients/${patientId}/record/init`, { replace: true });
+            navigate(`${basePath}/patients/${patientId}/record/init`, { replace: true });
             return;
         }
         if (mode === 'open' && data.record.status === 'closed') {
-            navigate(`/clinician/patients/${patientId}/record/closed`, { replace: true });
+            navigate(`${basePath}/patients/${patientId}/record/closed`, { replace: true });
         }
         if (mode === 'closed' && data.record.status === 'open') {
-            navigate(`/clinician/patients/${patientId}/record`, { replace: true });
+            navigate(`${basePath}/patients/${patientId}/record`, { replace: true });
         }
-    }, [data, mode, navigate, patientId]);
+    }, [data, mode, navigate, patientId, basePath]);
 
     if (isLoading) return <Spinner />;
     if (error || !data) return <Alert variant="error">{error ?? 'Dossier introuvable.'}</Alert>;
@@ -205,6 +206,7 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
         <PatientDossierProvider
             value={{
                 patientId,
+                basePath,
                 data,
                 reload,
                 isReadOnly,
@@ -267,7 +269,7 @@ export function PatientDossierLayout({ patientId, mode }: PatientDossierLayoutPr
                     </div>
 
                     <div className="clinician-record-page__actions">
-                        <Button variant="secondary" onClick={() => navigate('/clinician/my-patients')}>
+                        <Button variant="secondary" onClick={() => navigate(`${basePath}/my-patients`)}>
                             Retour aux patients
                         </Button>
                         <Button variant="secondary" onClick={() => setFollowUpReportModalOpen(true)}>

@@ -13,6 +13,7 @@ import '@/styles/pages/clinician/patients/_record.scss';
 
 export interface PatientDossierContextValue {
     patientId: string;
+    basePath: string;
     data: PatientDossierData;
     reload: () => void;
     isReadOnly: boolean;

@@ -36,6 +36,9 @@ import {NotificationPages} from "@/react/features/nutritionist/notifications/pag
 import {MessagesPages} from "@/react/features/nutritionist/messages/pages/MessagesPages";
 import {AppointmentsPages} from "@/react/features/nutritionist/appointments/pages/AppointmentsPages";
 import {AgendaPages} from "@/react/features/nutritionist/agenda/pages/AgendaPages";
+import { NutritionistPatientRecordPage } from '@/react/features/nutritionist/patients/pages/NutritionistPatientRecordPage';
+import { NutritionistPatientRecordInitPage } from '@/react/features/nutritionist/patients/pages/NutritionistPatientRecordInitPage';
+import { NutritionistPatientRecordClosedPage } from '@/react/features/nutritionist/patients/pages/NutritionistPatientRecordClosedPage';
 import {PatientDashboardPage} from "@/react/features/patient/dashboard/pages/PatientDashboardPage";
 import {MeasurementsPage} from "@/react/features/patient/health/pages/MeasurementsPage";
 import {MedicalRecordPage} from "@/react/features/patient/medical-record/pages/MedicalRecordPage";
@@ -204,6 +207,9 @@ export default function AppRoutes() {
                     <Route path="appointments" element={<AppointmentsPages />} />
                     <Route path="messages" element={<MessagesPages />} />
                     <Route path="notifications" element={<NotificationPages />} />
+                    <Route path="patients/:patientId/record" element={<NutritionistPatientRecordPage />} />
+                    <Route path="patients/:patientId/record/init" element={<NutritionistPatientRecordInitPage />} />
+                    <Route path="patients/:patientId/record/closed" element={<NutritionistPatientRecordClosedPage />} />
                 </Route>
 
                 <Route
