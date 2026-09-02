@@ -1,67 +1,92 @@
-import { Conversation, ConversationThread } from '../types';
+// services/messagesService.ts
+import apiClient from '@/services/api/client';
+import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback';
+import { Conversation, ConversationThread, Message, MessageAttachment } from '../types';
 
-export async function fetchConversations(): Promise<Conversation[]> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    return [
-        {
-            id: 'c1',
-            participant: 'Marie Zawadi',
-            type: 'Patient',
-            dernierMessage: 'Merci docteur, je suivrai vos conseils.',
-            dateDernierMessage: '2026-08-25 08:12',
-            nonLus: 2,
-        },
-        {
-            id: 'c2',
-            participant: 'Nutritionniste Sarah K.',
-            type: 'Professionnel',
-            dernierMessage: 'Pouvez-vous vérifier le plan alimentaire ?',
-            dateDernierMessage: '2026-08-24 16:45',
-            nonLus: 0,
-        },
-        {
-            id: 'c3',
-            participant: 'Membre équipe Diabétologie',
-            type: 'Membre',
-            dernierMessage: 'Réunion demain à 9h.',
-            dateDernierMessage: '2026-08-24 09:30',
-            nonLus: 1,
-        },
-    ];
+interface ConversationSummaryResponse {
+    id: string;
+    subject: string;
+    patientName: string | null;
+    lastMessageContent: string | null;
+    lastMessageAt: string | null;
+    unreadCount: number;
+    createdAt: string;
 }
 
-export async function fetchConversationThread(id: string): Promise<ConversationThread> {
-    await new Promise((resolve) => setTimeout(resolve, 300));
+interface MessageDetailResponse {
+    id: string;
+    content: string;
+    sentAt: string;
+    isMine: boolean;
+    attachments: MessageAttachment[];
+}
 
-    // Simulation de thread selon la conversation sélectionnée
-    const threads: Record<string, ConversationThread> = {
-        c1: {
-            id: 'c1',
-            participant: 'Marie Zawadi',
-            messages: [
-                { id: 'm1', contenu: 'Bonjour docteur, j\'ai des questions sur mon traitement.', date: '2026-08-25 08:00', emetteur: 'autre' },
-                { id: 'm2', contenu: 'Bonjour Marie, je vous écoute.', date: '2026-08-25 08:05', emetteur: 'moi' },
-                { id: 'm3', contenu: 'Merci docteur, je suivrai vos conseils.', date: '2026-08-25 08:12', emetteur: 'autre' },
-            ],
-        },
-        c2: {
-            id: 'c2',
-            participant: 'Nutritionniste Sarah K.',
-            messages: [
-                { id: 'm4', contenu: 'Bonjour, le plan de Jean est prêt.', date: '2026-08-24 16:40', emetteur: 'autre' },
-                { id: 'm5', contenu: 'Merci, je vais vérifier.', date: '2026-08-24 16:45', emetteur: 'moi' },
-            ],
-        },
-        c3: {
-            id: 'c3',
-            participant: 'Membre équipe Diabétologie',
-            messages: [
-                { id: 'm6', contenu: 'Pensez à remplir le compte-rendu.', date: '2026-08-24 09:00', emetteur: 'autre' },
-                { id: 'm7', contenu: 'Je le ferai avant la réunion.', date: '2026-08-24 09:30', emetteur: 'moi' },
-            ],
-        },
+interface MessageResponse {
+    id: string;
+    conversationId: string;
+    senderId: string;
+    content: string;
+    sentAt: string;
+}
+
+// ==========================================
+// LECTURE
+// ==========================================
+
+export async function fetchConversations(): Promise<Conversation[]> {
+    const response = await apiClient.get<ApiFeedback<ConversationSummaryResponse[]>>('/conversations');
+    const conversations = unwrapApiData(response.data, 'Erreur lors du chargement des conversations.');
+
+    return conversations.map((conversation) => ({
+        id: conversation.id,
+        participant: conversation.patientName ?? conversation.subject,
+        type: 'Patient',
+        dernierMessage: conversation.lastMessageContent ?? '',
+        dateDernierMessage: conversation.lastMessageAt ?? conversation.createdAt,
+        nonLus: conversation.unreadCount,
+    }));
+}
+
+export async function fetchConversationThread(id: string, participant = 'Conversation'): Promise<ConversationThread> {
+    const response = await apiClient.get<ApiFeedback<MessageDetailResponse[]>>(`/conversations/${id}/messages`);
+    const messages = unwrapApiData(response.data, 'Erreur lors du chargement de la discussion.');
+
+    return {
+        id,
+        participant,
+        messages: messages.map((message) => ({
+            id: message.id,
+            contenu: message.content,
+            date: message.sentAt,
+            emetteur: message.isMine ? 'moi' : 'autre',
+            attachments: message.attachments,
+        })),
     };
+}
 
-    return threads[id] || threads['c1'];
+// ==========================================
+// ECRITURE (ENVOI DE MESSAGES & FICHIERS)
+// ==========================================
+
+export async function postMessage(conversationId: string, content: string): Promise<MessageResponse> {
+    const payload = { conversationId, content };
+
+    const response = await apiClient.post<ApiFeedback<MessageResponse>>('/messages', payload);
+    return unwrapApiData(response.data, 'Erreur lors de l\'envoi du message.');
+}
+
+export async function uploadMessageAttachment(messageId: string, file: File): Promise<unknown> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('messageId', messageId);
+
+    // Content-Type sera défini automatiquement par le navigateur (multipart/form-data)
+    const response = await apiClient.post<ApiFeedback<unknown>>('/message-attachments', formData, {
+    });
+    return unwrapApiData(response.data, 'Erreur lors de l\'envoi du fichier.');
+}
+
+export async function markMessageAsRead(messageId: string): Promise<void> {
+    const payload = { message: `/api/messages/${messageId}` };
+    await apiClient.post('/message-read-receipts', payload);
 }

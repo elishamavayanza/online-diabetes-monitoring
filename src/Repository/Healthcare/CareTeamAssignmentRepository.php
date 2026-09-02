@@ -48,6 +48,21 @@ class CareTeamAssignmentRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return CareTeamAssignment[]
+     */
+    public function findActiveByProfessional(HealthcareProfessional $professional): array
+    {
+        return $this->createQueryBuilder('cta')
+            ->andWhere('cta.professional = :professional')
+            ->andWhere('cta.active = :active')
+            ->andWhere('cta.deletedAt IS NULL')
+            ->setParameter('professional', $professional)
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getResult();
+    }
+
     /** @return CareTeamAssignment[] */
     public function findByOrganization(HealthcareOrganization $organization): array
     {

@@ -7,7 +7,7 @@ use App\DTO\Request\Communication\MessageRequestDTO;
 use App\Mapper\Communication\MessageMapper;
 use App\Repository\Communication\MessageRepository;
 use App\Repository\Communication\ConversationRepository;
-use App\Repository\Identity\UserRepository;
+use App\Entity\Identity\Patient;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,7 +18,6 @@ class MessageService
     public function __construct(
         private readonly MessageRepository $repository,
         private readonly ConversationRepository $conversationRepository,
-        private readonly UserRepository $userRepository,
         private readonly MessageMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService
@@ -35,13 +34,15 @@ class MessageService
             if (!$conversation) {
                 return $feedback->setErrorFlushDescription("Conversation introuvable.")->autoInitFlush();
             }
-
-            $sender = $this->userRepository->find($dto->senderId);
-            if (!$sender) {
-                return $feedback->setErrorFlushDescription("Expéditeur introuvable.")->autoInitFlush();
+            $patient = $conversation->getPatient();
+            if (!$patient instanceof Patient) {
+                return $feedback->setErrorFlushDescription("Patient de la conversation introuvable.")->autoInitFlush();
             }
+            $this->securityService->checkPatientAccess($patient, SecurityAction::SEND_MESSAGE);
 
-            $message = $this->mapper->mapRequestToEntity($dto, $conversation, $sender);
+            // L'expéditeur et l'horodatage proviennent du contexte serveur : le
+            // client ne peut donc pas usurper un autre utilisateur.
+            $message = $this->mapper->mapRequestToEntity($dto, $conversation, $this->securityService->getCurrentUser());
 
             $this->entityManager->persist($message);
             $this->entityManager->flush();
@@ -100,14 +101,14 @@ class MessageService
             if (!$conversation) {
                 return $feedback->setErrorFlushDescription("Conversation introuvable.")->autoInitFlush();
             }
-
-            $sender = $this->userRepository->find($dto->senderId);
-            if (!$sender) {
-                return $feedback->setErrorFlushDescription("Expéditeur introuvable.")->autoInitFlush();
+            $patient = $conversation->getPatient();
+            if (!$patient instanceof Patient) {
+                return $feedback->setErrorFlushDescription("Patient de la conversation introuvable.")->autoInitFlush();
             }
+            $this->securityService->checkPatientAccess($patient, SecurityAction::SEND_MESSAGE);
 
             // Mise à jour de l'entité existante via le mapper
-            $this->mapper->mapRequestToEntity($dto, $conversation, $sender, $message);
+            $this->mapper->mapRequestToEntity($dto, $conversation, $this->securityService->getCurrentUser(), $message);
 
             $this->entityManager->flush();
 

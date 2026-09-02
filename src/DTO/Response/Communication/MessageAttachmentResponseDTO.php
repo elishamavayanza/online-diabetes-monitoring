@@ -38,12 +38,12 @@ class MessageAttachmentResponseDTO
         public readonly ?\DateTimeImmutable $updatedAt
     ) {}
 
-    public static function fromEntity(MessageAttachment $attachment): self
+    public static function fromEntity(MessageAttachment $attachment, ?string $fileUrl = null): self
     {
         return new self(
             id: (string) $attachment->getId(),
             messageId: (string) $attachment->getMessage()?->getId(),
-            fileUrl: $attachment->getFileUrl(),
+            fileUrl: $fileUrl ?? $attachment->getFileUrl(),
             fileName: $attachment->getFileName(),
             mimeType: $attachment->getMimeType(),
             sizeBytes: $attachment->getSizeBytes(),

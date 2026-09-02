@@ -21,8 +21,11 @@ class MessageMapper
         $message->setConversation($conversation);
         $message->setSender($sender);
         $message->setContent($dto->content);
-        $message->setSentAt($dto->sentAt);
-        $message->setEditedAt($dto->editedAt);
+        if ($message->getId() === null) {
+            $message->setSentAt(new \DateTimeImmutable());
+        } else {
+            $message->setEditedAt(new \DateTimeImmutable());
+        }
 
         return $message;
     }

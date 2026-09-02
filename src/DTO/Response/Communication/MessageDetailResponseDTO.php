@@ -32,13 +32,21 @@ class MessageDetailResponseDTO
         public readonly ?\DateTimeImmutable $editedAt,
 
         #[OA\Property(type: 'boolean')]
+        public readonly bool $isMine,
+
+        #[OA\Property(type: 'boolean')]
         public readonly bool $isRead,
+
+        /** @var MessageAttachmentResponseDTO[] */
+        #[OA\Property(type: 'array', items: new OA\Items(ref: new \Nelmio\ApiDocBundle\Attribute\Model(type: MessageAttachmentResponseDTO::class)))]
+        public readonly array $attachments,
 
         #[OA\Property(type: 'string', format: 'date-time', nullable: true)]
         public readonly ?\DateTimeImmutable $readAt,
     ) {}
 
-    public static function fromEntity(Message $message, bool $isRead, ?\DateTimeImmutable $readAt): self
+    /** @param MessageAttachmentResponseDTO[] $attachments */
+    public static function fromEntity(Message $message, bool $isMine, bool $isRead, ?\DateTimeImmutable $readAt, array $attachments = []): self
     {
         return new self(
             id: (string) $message->getId(),
@@ -47,7 +55,9 @@ class MessageDetailResponseDTO
             content: $message->getContent(),
             sentAt: $message->getSentAt(),
             editedAt: $message->getEditedAt(),
+            isMine: $isMine,
             isRead: $isRead,
+            attachments: $attachments,
             readAt: $readAt,
         );
     }

@@ -1,13 +1,23 @@
+import { Card } from '@/react/components/UI/Card';
 import { useMessages } from '../hooks/useMessages';
 import { ConversationList } from '../components/ConversationList';
-import { MessageThread } from '../components/MessageThread';
+import { MessageList } from '../components/MessageList';
+import { MessageComposer } from '../components/MessageComposer';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/messages/_messages.scss';
 
 export function MessagesPage() {
-    const { conversations, selectedConversation, selectConversation, isLoading, error } = useMessages();
+    const {
+        conversations,
+        selectedConversation,
+        selectConversation,
+        sendMessage,
+        isLoading,
+        error,
+        sendError,
+    } = useMessages();
     const { pushAction } = useActionHistory();
 
     const handleSelectConversation = (id: string) => {
@@ -19,13 +29,14 @@ export function MessagesPage() {
     };
 
     if (isLoading) return <Spinner />;
-    if (error) return <Alert variant="error">{error}</Alert>;
+    if (error && !selectedConversation) return <Alert variant="error">{error}</Alert>;
 
     return (
         <div className="messages-page">
             <div className="messages-page__header">
                 <h1>Messages</h1>
                 <p>Vos conversations</p>
+                {sendError && <Alert variant="error">{sendError}</Alert>}
             </div>
             <div className="messages-page__layout">
                 <ConversationList
@@ -33,7 +44,16 @@ export function MessagesPage() {
                     selectedId={selectedConversation?.id}
                     onSelect={handleSelectConversation}
                 />
-                {selectedConversation && <MessageThread thread={selectedConversation} />}
+                {selectedConversation && (
+                    <Card className="message-thread">
+                        <MessageList thread={selectedConversation} />
+                        <MessageComposer
+                            onSendMessage={(content, media) =>
+                                sendMessage(selectedConversation.id, content, media)
+                            }
+                        />
+                    </Card>
+                )}
             </div>
         </div>
     );

@@ -12,6 +12,14 @@ export interface Message {
     contenu: string;
     date: string;
     emetteur: 'moi' | 'autre';
+    attachments?: MessageAttachment[];
+}
+
+export interface MessageAttachment {
+    id: string;
+    fileUrl: string;
+    fileName: string;
+    mimeType: string;
 }
 
 export interface ConversationThread {

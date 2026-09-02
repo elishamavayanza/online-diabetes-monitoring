@@ -4,14 +4,18 @@ namespace App\Service\Communication;
 
 use App\DTO\Feedback;
 use App\DTO\Response\Communication\ConversationSummaryResponseDTO;
+use App\DTO\Response\Communication\MessageAttachmentResponseDTO;
 use App\DTO\Response\Communication\MessageDetailResponseDTO;
 use App\Entity\Communication\Conversation;
 use App\Entity\Communication\Message;
+use App\Entity\Healthcare\CareTeamAssignment;
+use App\Entity\Identity\HealthcareProfessional;
 use App\Entity\Identity\Patient;
 use App\Entity\Identity\User;
 use App\Repository\Communication\ConversationRepository;
 use App\Repository\Communication\MessageReadReceiptRepository;
 use App\Repository\Communication\MessageRepository;
+use App\Repository\Healthcare\CareTeamAssignmentRepository;
 use App\Repository\Identity\PatientRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
@@ -25,6 +29,7 @@ class ConversationQueryService
         private readonly MessageRepository $messageRepository,
         private readonly MessageReadReceiptRepository $readReceiptRepository,
         private readonly PatientRepository $patientRepository,
+        private readonly CareTeamAssignmentRepository $careTeamAssignmentRepository,
         private readonly SecurityServiceInterface $securityService,
         private readonly EntityManagerInterface $entityManager,
     ) {}
@@ -37,10 +42,20 @@ class ConversationQueryService
             $this->securityService->checkPermission(SecurityAction::READ_MESSAGE->value);
             $currentUser = $this->securityService->getCurrentUser();
 
-            $patients = $this->patientRepository->findAssignedToProfessional($currentUser);
-            $patientIds = array_map(static fn (Patient $p) => (string) $p->getId(), $patients);
-
-            $conversations = $this->conversationRepository->findByPatientUserIds($patientIds);
+            // Un patient consulte ses propres échanges. Les professionnels, eux,
+            // ne voient que ceux des patients qui leur sont attribués.
+            if ($currentUser instanceof Patient) {
+                $conversations = $this->conversationRepository->findByPatientUser((string) $currentUser->getId());
+            } elseif ($currentUser instanceof HealthcareProfessional) {
+                $assignments = $this->careTeamAssignmentRepository->findActiveByProfessional($currentUser);
+                $patientIds = array_map(
+                    static fn (CareTeamAssignment $assignment) => (string) $assignment->getPatient()?->getId(),
+                    $assignments
+                );
+                $conversations = $this->conversationRepository->findByPatientUserIds($patientIds);
+            } else {
+                $conversations = [];
+            }
             $summaries = array_map(
                 fn (Conversation $c) => $this->buildSummary($c, $currentUser),
                 $conversations
@@ -102,6 +117,12 @@ class ConversationQueryService
                 return $feedback->setErrorFlushDescription('Conversation introuvable.')->autoInitFlush();
             }
 
+            $patient = $conversation->getPatient();
+            if (!$patient instanceof Patient) {
+                return $feedback->setErrorFlushDescription('Patient de la conversation introuvable.')->autoInitFlush();
+            }
+            $this->securityService->checkPatientAccess($patient, SecurityAction::READ_MESSAGE);
+
             $messages = $this->messageRepository->findByConversationOrderedAsc($conversation);
             $details = array_map(
                 fn (Message $message) => $this->buildMessageDetail($message, $currentUser),
@@ -148,6 +169,13 @@ class ConversationQueryService
         $senderId = (string) $message->getSender()?->getId();
         $currentUserId = (string) $currentUser->getId();
         $isMine = $senderId === $currentUserId;
+        $attachments = array_map(
+            static fn ($attachment) => MessageAttachmentResponseDTO::fromEntity(
+                $attachment,
+                sprintf('/api/message-attachments/%s/download', $attachment->getId())
+            ),
+            $message->getAttachments()->toArray()
+        );
 
         if ($isMine) {
             $receipts = $this->readReceiptRepository->findReadReceiptsForMessage($message);
@@ -159,15 +187,17 @@ class ConversationQueryService
                 }
             }
 
-            return MessageDetailResponseDTO::fromEntity($message, $recipientRead !== null, $recipientRead);
+            return MessageDetailResponseDTO::fromEntity($message, true, $recipientRead !== null, $recipientRead, $attachments);
         }
 
         $myReceipt = $this->readReceiptRepository->findByMessageAndUser($message, $currentUser);
 
         return MessageDetailResponseDTO::fromEntity(
             $message,
+            false,
             $myReceipt !== null,
-            $myReceipt?->getReadAt()
+            $myReceipt?->getReadAt(),
+            $attachments
         );
     }
 

@@ -59,6 +59,8 @@
 
 | Méthode | Chemin | Nom de route | Description | Corps | Accès |
 |---|---|---|---|---|---|
+| GET | `/api/conversations` | `api_conversations_list` | Lister les conversations accessibles à l'utilisateur connecté. | — | Authentifié |
+| GET | `/api/conversations/{id}/messages` | `api_conversations_messages_list` | Lister les messages d'une conversation et les marquer lus. | — | Authentifié |
 | POST | `/api/conversations` | `api_conversations_create` | Créer une conversation (fil de discussion), rattachée optionnellement à une organisation. | `ConversationRequestDTO` | Authentifié |
 
 ### `MessageController` — préfixe `/api/messages`

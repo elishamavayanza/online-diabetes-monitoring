@@ -6,6 +6,7 @@ use App\DTO\Feedback;
 use App\Mapper\Communication\MessageAttachmentMapper;
 use App\Repository\Communication\MessageAttachmentRepository;
 use App\Repository\Communication\MessageRepository;
+use App\Entity\Identity\Patient;
 use App\Service\File\FileUploaderService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
@@ -36,6 +37,11 @@ class MessageAttachmentService
             if (!$message) {
                 return $feedback->setErrorFlushDescription("Message introuvable.")->autoInitFlush();
             }
+            $patient = $message->getConversation()?->getPatient();
+            if (!$patient instanceof Patient) {
+                return $feedback->setErrorFlushDescription("Patient de la conversation introuvable.")->autoInitFlush();
+            }
+            $this->securityService->checkPatientAccess($patient, SecurityAction::SEND_MESSAGE);
 
             // Gestion intelligente du dossier : s'il s'agit d'un audio/vocal, on peut le stocker dans 'voices', sinon 'attachments'
             $mimeType = $file->getMimeType() ?? 'application/octet-stream';
@@ -81,6 +87,11 @@ class MessageAttachmentService
             if (!$attachment) {
                 return $feedback->setErrorFlushDescription("Pièce jointe introuvable.")->autoInitFlush();
             }
+            $patient = $attachment->getMessage()?->getConversation()?->getPatient();
+            if (!$patient instanceof Patient) {
+                return $feedback->setErrorFlushDescription("Patient de la conversation introuvable.")->autoInitFlush();
+            }
+            $this->securityService->checkPatientAccess($patient, SecurityAction::DOWNLOAD_ATTACHMENT);
 
             // Détermination dynamique du dossier en fonction du type MIME enregistré en base
             $subFolder = str_starts_with((string)$attachment->getMimeType(), 'audio/') ? 'voices' : 'attachments';

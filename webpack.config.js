@@ -41,6 +41,9 @@ api.configureDevServerOptions(options => {
 
 // Ajout obligatoire pour Webpack Encore v7+
 api.enableSingleRuntimeChunk();
+// Les noms hashés empêchent le navigateur de mélanger un ancien runtime Webpack
+// avec un nouveau bundle applicatif après une recompilation.
+api.enableVersioning();
 
 api.enableSourceMaps(!api.isProduction());
 
