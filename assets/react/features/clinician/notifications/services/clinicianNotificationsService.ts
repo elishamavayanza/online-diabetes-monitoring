@@ -1,53 +1,53 @@
-import { ClinicianNotification, ClinicianNotificationFilter } from '../types';
+// services/clinicianNotificationsService.ts
+import apiClient from '@/services/api/client';
+import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback';
+import { ClinicianNotification, ClinicianNotificationFilter, ClinicianNotificationType } from '../types';
 
-export async function fetchClinicianNotifications(filter: ClinicianNotificationFilter): Promise<ClinicianNotification[]> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+interface BackendNotification {
+    id: string;
+    type: string;
+    title: string;
+    body: string;
+    readAt: string | null;
+    createdAt: string;
+}
 
-    const all: ClinicianNotification[] = [
-        {
-            id: '1',
-            titre: 'Prescription mise à jour',
-            message: 'La prescription de Jean Dupont a été modifiée.',
-            type: 'PRESCRIPTION_UPDATED',
-            estLue: false,
-            date: '2026-08-25 09:30',
-        },
-        {
-            id: '2',
-            titre: 'Nouveau rendez-vous',
-            message: 'Rendez-vous ajouté avec Marie Zawadi.',
-            type: 'NEW_APPOINTMENT',
-            estLue: false,
-            date: '2026-08-25 08:45',
-        },
-        {
-            id: '3',
-            titre: 'Rendez-vous dans 30 minutes',
-            message: 'Patient A à 10:30.',
-            type: 'APPOINTMENT_IN_30_MIN',
-            estLue: false,
-            date: '2026-08-25 10:00',
-        },
-        {
-            id: '4',
-            titre: 'Nouveau message',
-            message: 'Nutritionniste Sarah K. vous a écrit.',
-            type: 'NEW_MESSAGE',
-            estLue: true,
-            date: '2026-08-24 16:45',
-        },
-        {
-            id: '5',
-            titre: 'Patient ajouté à votre équipe',
-            message: 'Paul K. a rejoint votre équipe.',
-            type: 'PATIENT_ADDED_TO_TEAM',
-            estLue: true,
-            date: '2026-08-23 11:20',
-        },
-    ];
+const typeMapping: Record<string, ClinicianNotificationType> = {
+    PRESCRIPTION_UPDATED: 'PRESCRIPTION_UPDATED',
+    NEW_APPOINTMENT: 'NEW_APPOINTMENT',
+    APPOINTMENT_IN_30_MIN: 'APPOINTMENT_IN_30_MIN',
+    NEW_MESSAGE: 'NEW_MESSAGE',
+    PATIENT_ADDED_TO_TEAM: 'PATIENT_ADDED_TO_TEAM',
+};
+
+function mapType(type: string): ClinicianNotificationType {
+    return typeMapping[type] ?? 'NEW_MESSAGE';
+}
+
+export async function fetchClinicianNotifications(
+    filter: ClinicianNotificationFilter
+): Promise<ClinicianNotification[]> {
+    const response = await apiClient.get<ApiFeedback<BackendNotification[]>>('/notifications/me');
+    const notifications = unwrapApiData(response.data, 'Erreur lors du chargement des notifications.');
+
+    const mapped: ClinicianNotification[] = notifications.map((n) => ({
+        id: n.id,
+        titre: n.title,
+        message: n.body,
+        type: mapType(n.type),
+        estLue: !!n.readAt,
+        date: n.createdAt ? new Date(n.createdAt).toLocaleString('fr-FR') : '',
+    }));
 
     if (filter === 'Non lues') {
-        return all.filter((n) => !n.estLue);
+        return mapped.filter((n) => !n.estLue);
     }
-    return all;
+    return mapped;
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<void> {
+    const response = await apiClient.patch<ApiFeedback<unknown>>(`/notifications/${notificationId}`, {
+        readAt: new Date().toISOString(),
+    });
+    unwrapApiData(response.data, "Erreur lors du marquage de la notification comme lue.");
 }
