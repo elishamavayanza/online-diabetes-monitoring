@@ -14,13 +14,28 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
     const photoInputRef = useRef<HTMLInputElement>(null);
     const recorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Ajuste automatiquement la hauteur du textarea en fonction du contenu
+    const autoResize = () => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`; // hauteur max 150px
+    };
 
     const send = async (content: string, media?: File) => {
         if ((!content.trim() && !media) || isSending) return;
         setIsSending(true);
         try {
             await onSendMessage(content, media);
-            if (!media) setText('');
+            if (!media) {
+                setText('');
+                // Réinitialiser la hauteur
+                if (textareaRef.current) {
+                    textareaRef.current.style.height = 'auto';
+                }
+            }
         } finally {
             setIsSending(false);
         }
@@ -30,11 +45,16 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
         void send(text.trim());
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSend();
         }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setText(e.target.value);
+        autoResize();
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +86,6 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
                 const audioFile = new File([audioBlob], `vocal-${Date.now()}.webm`, { type: mimeType });
 
                 setIsRecording(false);
-                // On passe une chaîne vide comme contenu pour qu'il n'y ait pas de texte "Message vocal" indésirable dans la bulle
                 void send('', audioFile);
             };
 
@@ -89,13 +108,15 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
                 </button>
 
                 <div className="message-thread__input-container">
-                    <input
-                        type="text"
+                    <textarea
+                        ref={textareaRef}
+                        rows={1}
                         placeholder={isRecording ? 'Enregistrement du message vocal...' : 'Écrivez un message...'}
                         value={text}
                         disabled={isRecording || isSending}
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={handleChange}
                         onKeyDown={handleKeyDown}
+                        className="message-thread__textarea"
                     />
                     <button type="button" className="icon-button" title="Envoyer une photo" onClick={() => photoInputRef.current?.click()}>
                         <CameraIcon />

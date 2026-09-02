@@ -858,11 +858,32 @@
     flex: 1;
     min-width: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end; // aligner en bas si plusieurs lignes
     background-color: var(--color-background);
     border-radius: 1.5rem;
     padding: 0.25rem 0.75rem;
     border: 1px solid var(--color-border);
+}
+
+.message-thread__textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    outline: none;
+    font-size: 0.95rem;
+    color: var(--color-text);
+    resize: none;
+    line-height: 1.4;
+    max-height: 150px;
+    overflow-y: auto;
+
+    /* Masquer la barre de défilement */
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* Internet Explorer / Edge legacy */
+    &::-webkit-scrollbar {
+        display: none;              /* Chrome, Safari, Edge Chromium */
+    }
 }
 
 @media (max-width: 768px) {
