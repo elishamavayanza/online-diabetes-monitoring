@@ -107,7 +107,7 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
                         <SendIcon />
                     </button>
                 ) : (
-                    <button type="button" className={`icon-button ${isRecording ? 'icon-button--recording' : ''}`} title="Message vocal" onClick={handleMicDictClick => { void handleMicClick(); }} disabled={isSending}>
+                    <button type="button" className={`icon-button ${isRecording ? 'icon-button--recording' : ''}`} title="Message vocal" onClick={handleMicClick} disabled={isSending}>
                         <MicIcon />
                     </button>
                 )}

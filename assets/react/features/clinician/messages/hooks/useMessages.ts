@@ -150,23 +150,24 @@ export function useMessages() {
     const deleteMessage = async (
         messageId: string
     ) => {
-        if (!selectedConversation) {
+        const currentThread = selectedConversation;
+
+        if (!currentThread) {
             return;
         }
 
         const conversationId =
-            selectedConversation.id;
+            currentThread.id;
 
         const participant =
-            selectedConversation.participant;
+            currentThread.participant;
 
-        // Sauvegarde pour rollback
         const previousMessages =
-            selectedConversation.messages;
+            currentThread.messages;
 
-        // --------------------------------------------------------
-        // SUPPRESSION OPTIMISTE
-        // --------------------------------------------------------
+        // ========================================================
+        // 1. SUPPRESSION IMMÉDIATE DE L'INTERFACE
+        // ========================================================
 
         setSelectedConversation((prev) => {
             if (!prev) {
@@ -175,27 +176,25 @@ export function useMessages() {
 
             return {
                 ...prev,
-
-                messages:
-                    prev.messages.filter(
-                        (message) =>
-                            message.id !== messageId
-                    ),
+                messages: prev.messages.filter(
+                    (message) =>
+                        message.id !== messageId
+                ),
             };
         });
 
         try {
-            // ----------------------------------------------------
-            // SUPPRESSION API
-            // ----------------------------------------------------
+            // ====================================================
+            // 2. SUPPRESSION SERVEUR
+            // ====================================================
 
             await deleteMessageFromApi(
                 messageId
             );
 
-            // ----------------------------------------------------
-            // RECHARGER LE THREAD
-            // ----------------------------------------------------
+            // ====================================================
+            // 3. RECHARGER LE THREAD
+            // ====================================================
 
             const refreshedThread =
                 await fetchConversationThread(
@@ -203,15 +202,24 @@ export function useMessages() {
                     participant
                 );
 
+            // ====================================================
+            // 4. METTRE À JOUR L'INTERFACE
+            // ====================================================
+
             setSelectedConversation(
                 refreshedThread
             );
 
-            // ----------------------------------------------------
-            // RECHARGER LA LISTE DES CONVERSATIONS
-            // ----------------------------------------------------
+            // ====================================================
+            // 5. ACTUALISER LA LISTE DES CONVERSATIONS
+            // ========================================================
 
-            await refreshConversations();
+            const updatedConversations =
+                await fetchConversations();
+
+            setConversations(
+                updatedConversations
+            );
 
         } catch (err) {
             console.error(
@@ -219,9 +227,9 @@ export function useMessages() {
                 err
             );
 
-            // ----------------------------------------------------
-            // ROLLBACK
-            // ----------------------------------------------------
+            // ====================================================
+            // ROLLBACK SI ERREUR
+            // ====================================================
 
             setSelectedConversation(
                 (prev) => {

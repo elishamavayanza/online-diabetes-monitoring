@@ -6,8 +6,8 @@ import { MessageComposer } from '../components/MessageComposer';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+
 import '@/styles/pages/clinician/messages/_messages.scss';
-import {deleteMessage} from "@/react/features/clinician/messages/services/messagesService";
 
 export function MessagesPage() {
     const {
@@ -15,50 +15,102 @@ export function MessagesPage() {
         selectedConversation,
         selectConversation,
         sendMessage,
+        deleteMessage, // utiliser la même instance
         isLoading,
         error,
         sendError,
     } = useMessages();
+
     const { pushAction } = useActionHistory();
-    const { deleteMessage } = useMessages();
 
     const handleSelectConversation = (id: string) => {
-        const previousId = selectedConversation?.id ?? null;
-        if (previousId && previousId !== id) {
-            pushAction(() => selectConversation(previousId));
+        const previousId =
+            selectedConversation?.id ?? null;
+
+        if (
+            previousId &&
+            previousId !== id
+        ) {
+            pushAction(() =>
+                selectConversation(previousId)
+            );
         }
-        selectConversation(id);
+
+        void selectConversation(id);
     };
 
-    if (isLoading) return <Spinner />;
-    if (error && !selectedConversation) return <Alert variant="error">{error}</Alert>;
+    if (isLoading) {
+        return <Spinner />;
+    }
+
+    if (
+        error &&
+        !selectedConversation
+    ) {
+        return (
+            <Alert variant="error">
+                {error}
+            </Alert>
+        );
+    }
 
     return (
         <div className="messages-page">
+
             <div className="messages-page__header">
                 <h1>Messages</h1>
-                <p>Vos conversations</p>
-                {sendError && <Alert variant="error">{sendError}</Alert>}
+
+                <p>
+                    Vos conversations
+                </p>
+
+                {sendError && (
+                    <Alert variant="error">
+                        {sendError}
+                    </Alert>
+                )}
             </div>
+
             <div className="messages-page__layout">
+
                 <ConversationList
                     conversations={conversations}
-                    selectedId={selectedConversation?.id}
-                    onSelect={handleSelectConversation}
+                    selectedId={
+                        selectedConversation?.id
+                    }
+                    onSelect={
+                        handleSelectConversation
+                    }
                 />
+
                 {selectedConversation && (
                     <Card className="message-thread">
+
                         <MessageList
-                            thread={selectedConversation}
-                            onDeleteMessage={deleteMessage}
-                        />
-                        <MessageComposer
-                            onSendMessage={(content, media) =>
-                                sendMessage(selectedConversation.id, content, media)
+                            thread={
+                                selectedConversation
+                            }
+                            onDeleteMessage={
+                                deleteMessage
                             }
                         />
+
+                        <MessageComposer
+                            onSendMessage={(
+                                content,
+                                media
+                            ) =>
+                                sendMessage(
+                                    selectedConversation.id,
+                                    content,
+                                    media
+                                )
+                            }
+                        />
+
                     </Card>
                 )}
+
             </div>
         </div>
     );
