@@ -1,8 +1,10 @@
 export type AppointmentStatus = 'today' | 'upcoming' | 'completed' | 'cancelled';
 
+// types.ts
 export interface Appointment {
     id: string;
-    patient: string;
+    patientId: string;   // identifiant technique
+    patient: string;     // nom complet affiché
     date: string;
     heure: string;
     motif: string;
