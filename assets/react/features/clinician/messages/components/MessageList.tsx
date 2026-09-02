@@ -6,10 +6,7 @@ import {
     DoubleCheckIcon,
     SingleCheckIcon
 } from "@/react/features/clinician/messages/components/MessageIcons";
-
-// ==========================================
-// ICÔNES SVG LOCALES
-// ==========================================
+import { usePresence } from '../hooks/usePresence';
 
 interface MessageListProps {
     thread: ConversationThread;
@@ -18,6 +15,7 @@ interface MessageListProps {
 
 export function MessageList({ thread, onDeleteMessage }: MessageListProps) {
     const messagesContainerRef = useRef<HTMLDivElement>(null);
+    const isOnline = usePresence(thread.participantId);
 
     useEffect(() => {
         const container = messagesContainerRef.current;
@@ -39,7 +37,13 @@ export function MessageList({ thread, onDeleteMessage }: MessageListProps) {
                     </div>
                     <div>
                         <h3>{thread.participant}</h3>
-                        <span className="message-thread__status">En ligne</span>
+                        <span
+                            className={`message-thread__status ${
+                                isOnline ? 'message-thread__status--online' : 'message-thread__status--offline'
+                            }`}
+                        >
+                            {isOnline ? 'En ligne' : 'Hors ligne'}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -64,7 +68,6 @@ export function MessageList({ thread, onDeleteMessage }: MessageListProps) {
                                     isMine ? 'message-bubble--mine' : 'message-bubble--other'
                                 }`}
                             >
-                                {/* Bouton supprimer (visible au survol) */}
                                 <button
                                     className="message-bubble__delete-btn"
                                     onClick={() => onDeleteMessage(msg.id)}
@@ -73,19 +76,16 @@ export function MessageList({ thread, onDeleteMessage }: MessageListProps) {
                                     <DeleteIcon />
                                 </button>
 
-                                {/* Pièces jointes */}
                                 {msg.attachments?.map((attachment: MessageAttachment) => (
                                     <div key={attachment.id} className="message-bubble__attachment">
                                         <AttachmentPreview attachment={attachment} />
                                     </div>
                                 ))}
 
-                                {/* Contenu texte */}
                                 {msg.contenu && (
                                     <p className="message-bubble__content">{msg.contenu}</p>
                                 )}
 
-                                {/* Métadonnées : heure + statut */}
                                 <div className="message-bubble__meta">
                                     <span className="message-bubble__time">
                                         {new Date(msg.date).toLocaleTimeString([], {

@@ -802,6 +802,19 @@
     }
 }
 
+.message-thread__status {
+    font-size: 0.75rem;
+    margin-top: 0.1rem;
+
+    &--online {
+        color: #10b981; // vert
+    }
+
+    &--offline {
+        color: #9ca3af; // gris
+    }
+}
+
 /* ============================================================
    RESPONSIVE (ajouts récents)
    ============================================================ */

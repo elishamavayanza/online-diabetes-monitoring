@@ -27,5 +27,6 @@ export interface MessageAttachment {
 export interface ConversationThread {
     id: string;
     participant: string;
+    participantId: string;
     messages: Message[];
 }

@@ -377,3 +377,31 @@ export async function updateMedicalNote(
     const response = await apiClient.put<ApiFeedback<unknown>>(`/medical-notes/${id}`, data);
     return unwrapApiData(response.data, 'Erreur lors de la mise à jour de la note médicale.');
 }
+
+// Vérifier/créer une conversation avec un patient
+export async function getOrCreatePatientConversation(
+    patientId: string,
+    organizationId?: string
+): Promise<string> {
+    // 1. Récupérer toutes les conversations du professionnel
+    const response = await apiClient.get<ApiFeedback<any[]>>('/conversations');
+    const conversations = unwrapApiData(response.data, 'Erreur lors de la récupération des conversations.');
+
+    // 2. Chercher une conversation avec ce patient
+    const existing = conversations.find(
+        (conv) => conv.patientId === patientId || conv.patient?.id === patientId
+    );
+    if (existing) {
+        return existing.id;
+    }
+
+    // 3. Créer une nouvelle conversation
+    const payload: any = {
+        patientId,
+        organizationId,
+        subject: `Conversation avec le patient ${patientId}`,
+    };
+    const createResponse = await apiClient.post<ApiFeedback<any>>('/conversations', payload);
+    const created = unwrapApiData(createResponse.data, 'Erreur lors de la création de la conversation.');
+    return created.id;
+}
