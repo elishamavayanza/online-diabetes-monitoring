@@ -893,6 +893,57 @@
     .icon-button {
         padding: 0.4rem;
     }
+    .whatsapp-audio-bubble {
+        min-width: 220px;      /* réduit la largeur minimale */
+        gap: 0.4rem;           /* espacement resserré */
+        padding: 0.25rem;
+    }
+
+    .whatsapp-audio-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .whatsapp-audio-mic-badge {
+        width: 14px;
+        height: 14px;
+        bottom: -2px;
+        right: -2px;
+    }
+
+    .whatsapp-audio-play-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .whatsapp-audio-play-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .whatsapp-audio-waveform {
+        height: 28px;          /* hauteur réduite */
+        gap: 2px;
+    }
+
+    .whatsapp-audio-wave-bar {
+        width: 2px;            /* barres plus fines */
+        min-width: 2px;
+    }
+
+    .whatsapp-audio-time {
+        font-size: 0.6rem;
+    }
+
+    .whatsapp-download-icon {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .whatsapp-download-icon svg {
+        width: 12px;
+        height: 12px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -917,5 +968,49 @@
     .icon-button svg {
         width: 20px;
         height: 20px;
+    }
+    .whatsapp-audio-bubble {
+        min-width: 180px;
+        max-width: 240px;      /* limite sur très petit écran */
+        gap: 0.3rem;
+        padding: 0.2rem;
+    }
+
+    .whatsapp-audio-avatar {
+        width: 26px;
+        height: 26px;
+    }
+
+    .whatsapp-audio-mic-badge {
+        width: 12px;
+        height: 12px;
+    }
+
+    .whatsapp-audio-play-btn {
+        width: 24px;
+        height: 24px;
+    }
+
+    .whatsapp-audio-play-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .whatsapp-audio-waveform {
+        height: 22px;
+    }
+
+    .whatsapp-audio-wave-bar {
+        width: 2px;
+        min-width: 2px;
+    }
+
+    .whatsapp-audio-time {
+        font-size: 0.55rem;
+    }
+
+    .whatsapp-download-icon {
+        width: 20px !important;
+        height: 20px !important;
     }
 }
