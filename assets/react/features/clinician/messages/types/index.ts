@@ -2,6 +2,7 @@ export interface Conversation {
     id: string;
     participant: string;
     type: 'Patient' | 'Professionnel' | 'Membre';
+    participantId?: string;
     dernierMessage: string;
     dateDernierMessage: string;
     nonLus: number;

@@ -1,4 +1,5 @@
-import { Card } from '@/react/components/UI/Card'; // ✅ Import ajouté
+import { useState } from 'react';
+import { Card } from '@/react/components/UI/Card';
 import { useMessages } from '../hooks/useMessages';
 import { ConversationList } from '../components/ConversationList';
 import { MessageList } from '../components/MessageList';
@@ -8,12 +9,13 @@ import { Alert } from '@/react/components/UI/Alert';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/messages/_messages.scss';
 import { useSearchParams } from 'react-router-dom';
+import { useIsMobile } from '@/react/hooks/useIsMobile'; // chemin à adapter
 
 export function MessagesPage() {
     const [searchParams] = useSearchParams();
     const initialConversationId = searchParams.get('conversationId') || undefined;
+    const isMobile = useIsMobile(); // détection mobile
 
-    // ✅ Passer initialConversationId à useMessages
     const {
         conversations,
         selectedConversation,
@@ -25,8 +27,12 @@ export function MessagesPage() {
         sendError,
     } = useMessages(initialConversationId);
 
-    // ✅ Retirer l'argument de useActionHistory
     const { pushAction } = useActionHistory();
+
+    // État local pour la vue mobile
+    const [mobileView, setMobileView] = useState<'list' | 'thread'>(
+        initialConversationId ? 'thread' : 'list'
+    );
 
     const handleSelectConversation = (id: string) => {
         const previousId = selectedConversation?.id ?? null;
@@ -34,6 +40,13 @@ export function MessagesPage() {
             pushAction(() => selectConversation(previousId));
         }
         void selectConversation(id);
+        if (isMobile) {
+            setMobileView('thread'); //  basculer vers le fil sur mobile
+        }
+    };
+
+    const handleBackToList = () => {
+        setMobileView('list');
     };
 
     if (isLoading) {
@@ -44,6 +57,41 @@ export function MessagesPage() {
         return <Alert variant="error">{error}</Alert>;
     }
 
+    // ==============================
+    // RENDU MOBILE
+    // ==============================
+    if (isMobile) {
+        return (
+            <div className="messages-page messages-page--mobile">
+                {mobileView === 'list' ? (
+                    <ConversationList
+                        conversations={conversations}
+                        selectedId={selectedConversation?.id}
+                        onSelect={handleSelectConversation}
+                    />
+                ) : (
+                    selectedConversation && (
+                        <Card className="message-thread message-thread--mobile">
+                            <MessageList
+                                thread={selectedConversation}
+                                onDeleteMessage={deleteMessage}
+                                onBack={handleBackToList} //  bouton retour
+                            />
+                            <MessageComposer
+                                onSendMessage={(content, media) =>
+                                    sendMessage(selectedConversation.id, content, media)
+                                }
+                            />
+                        </Card>
+                    )
+                )}
+            </div>
+        );
+    }
+
+    // ==============================
+    // RENDU DESKTOP / TABLETTE
+    // ==============================
     return (
         <div className="messages-page">
             <div className="messages-page__header">

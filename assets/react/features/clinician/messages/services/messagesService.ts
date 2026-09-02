@@ -7,6 +7,7 @@ interface ConversationSummaryResponse {
     id: string;
     subject: string;
     patientName: string | null;
+    patientId: string;
     lastMessageContent: string | null;
     lastMessageAt: string | null;
     unreadCount: number;
@@ -40,7 +41,8 @@ export async function fetchConversations(): Promise<Conversation[]> {
     return conversations.map((conversation) => ({
         id: conversation.id,
         participant: conversation.patientName ?? conversation.subject,
-        type: 'Patient',
+        participantId: conversation.patientId, // ✅ ajout
+        type: 'Patient' as const,
         dernierMessage: conversation.lastMessageContent ?? '',
         dateDernierMessage: conversation.lastMessageAt ?? conversation.createdAt,
         nonLus: conversation.unreadCount,
@@ -49,38 +51,22 @@ export async function fetchConversations(): Promise<Conversation[]> {
 
 export async function fetchConversationThread(
     id: string,
-    participant = 'Conversation'
+    participant = 'Conversation',
+    participantId?: string
 ): Promise<ConversationThread> {
-    const response =
-        await apiClient.get<
-            ApiFeedback<MessageDetailResponse[]>
-        >(
-            `/conversations/${id}/messages`
-        );
-
-    const messages =
-        unwrapApiData(
-            response.data,
-            'Erreur lors du chargement de la discussion.'
-        );
+    const response = await apiClient.get<ApiFeedback<MessageDetailResponse[]>>(`/conversations/${id}/messages`);
+    const messages = unwrapApiData(response.data, 'Erreur lors du chargement de la discussion.');
 
     return {
         id,
         participant,
-
+        participantId: participantId ?? '', // ✅ ou undefined si type optionnel, mais on met une chaîne vide pour éviter undefined
         messages: messages.map((message) => ({
             id: message.id,
-
             contenu: message.content,
-
             date: message.sentAt,
-
-            emetteur: message.isMine
-                ? 'moi'
-                : 'autre',
-
-            attachments:
-                message.attachments ?? [],
+            emetteur: message.isMine ? 'moi' : 'autre',
+            attachments: message.attachments ?? [],
         })),
     };
 }
