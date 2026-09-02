@@ -24,7 +24,7 @@ export function AgendaDayCard({ day }: AgendaDayCardProps) {
                                 <span className="agenda-appointment__motif">{appt.motif}</span>
                             </div>
                             <span className={`agenda-appointment__type agenda-appointment__type--${appt.type === 'Consultation' ? 'consultation' : 'suivi'}`}>
-                                {appt.type}
+                                {appt.type === 'Consultation' ? 'Consult.' : 'Suivi'}
                             </span>
                         </li>
                     ))}
