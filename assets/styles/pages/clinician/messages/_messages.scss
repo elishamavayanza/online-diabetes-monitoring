@@ -11,7 +11,7 @@
         p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
     }
 
-    &__layout {
+    &__layout { // ✅ Correction : ajout du &
         display: grid;
         grid-template-columns: 300px 1fr;
         gap: 1.5rem;
@@ -59,42 +59,85 @@
 }
 
 /* ============================================================
-   ZONE DE DISCUSSION
+   ZONE DE DISCUSSION & CONTENEUR GLOBAL
    ============================================================ */
-.message-thread {
+.message-thread-wrapper {
+    @include card;
     display: flex;
     flex-direction: column;
     height: 70vh;
     min-height: 0;
     overflow: hidden;
+    padding: 0;
+}
 
-    // Card ajoute un conteneur .card__body entre le Card et nos composants.
-    // Sans cette règle, la liste s'agrandit après chaque message et pousse le
-    // composeur hors de la carte au lieu de défiler.
+.message-thread {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+
     .card__body {
         display: flex;
         flex: 1;
         flex-direction: column;
         min-height: 0;
         overflow: hidden;
+        padding: 0;
     }
 
     &__header {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.25rem;
         border-bottom: 1px solid var(--color-border);
-        padding-bottom: 0.5rem;
-        flex-shrink: 0;             /* le header ne se compresse pas */
-        h3 { margin: 0; color: var(--color-primary); }
+        background-color: var(--color-surface);
+        flex-shrink: 0;
+    }
+
+    &__participant-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: var(--color-primary);
+        }
+    }
+
+    &__avatar-placeholder {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    &__status {
+        font-size: 0.75rem;
+        color: #10b981;
+        display: block;
+        margin-top: 0.1rem;
     }
 
     &__messages {
         flex: 1;
         min-height: 0;
         overflow-y: auto;
-        padding: 1rem;
+        padding: 1.25rem;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
-        background-color: rgba(0, 0, 0, 0.02);
+        gap: 1rem;
+        background-color: rgba(0, 0, 0, 0.015);
     }
 
     &__footer,
@@ -105,7 +148,7 @@
         padding: 0.75rem 1rem;
         border-top: 1px solid var(--color-border);
         background-color: var(--color-surface);
-        flex-shrink: 0;             /* le footer ne disparaît jamais */
+        flex-shrink: 0;
     }
 
     &__input-container,
@@ -131,27 +174,102 @@
 }
 
 /* ============================================================
-   BULLES DE MESSAGE
+   SÉPARATEUR DE DATE & ARTICLES
+   ============================================================ */
+.message-date-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5rem 0;
+
+    span {
+        background-color: rgba(0, 0, 0, 0.06);
+        color: var(--color-text);
+        opacity: 0.7;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.75rem;
+        border-radius: 1rem;
+        font-weight: 500;
+    }
+}
+
+.message-item-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* ============================================================
+   BULLES DE MESSAGE MODERNISÉES
    ============================================================ */
 .message-bubble {
-    max-width: 70%;
-    padding: 0.5rem 0.75rem;
-    border-radius: 1rem;
+    position: relative; // ✅ Nécessaire pour positionner le bouton supprimer
+    max-width: 75%;
+    padding: 0.65rem 0.85rem;
+    border-radius: 1.15rem;
     background-color: rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 
     &--mine {
         align-self: flex-end;
         background-color: var(--color-primary);
         color: var(--color-on-primary);
+        border-bottom-right-radius: 0.25rem;
+
+        .message-bubble__time {
+            color: rgba(255, 255, 255, 0.8);
+        }
     }
+
     &--other {
         align-self: flex-start;
         background-color: var(--color-surface);
         border: 1px solid var(--color-border);
+        border-bottom-left-radius: 0.25rem;
+
+        .message-bubble__time {
+            opacity: 0.6;
+        }
     }
 
-    &__content { margin: 0; font-size: 0.9rem; }
-    &__date { font-size: 0.7rem; opacity: 0.7; display: block; margin-top: 0.25rem; }
+    &__content {
+        margin: 0;
+        font-size: 0.92rem;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+    &__attachment {
+        margin-bottom: 0.25rem;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.35rem;
+        margin-top: 0.1rem;
+    }
+
+    &__time {
+        font-size: 0.68rem;
+    }
+
+    &__status-icon {
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: rgba(255, 255, 255, 0.9);
+        letter-spacing: -2px;
+        display: flex;
+        align-items: center;
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
 
     &__file {
         display: flex;
@@ -167,6 +285,334 @@
     }
 
     &__audio { display: block; max-width: 100%; margin-top: 0.5rem; }
+
+    // ✅ Bouton supprimer (visible au survol)
+    &__delete-btn {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        z-index: 2;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #ef4444;
+        }
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+
+    &:hover .message-bubble__delete-btn {
+        display: flex;
+    }
+}
+
+/* ============================================================
+   PIÈCES JOINTES MODERNES (IMAGES, VIDÉOS, AUDIO, FICHIERS)
+   ============================================================ */
+
+/* --- Conteneurs d'image --- */
+.attachment-image-container {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.attachment-image {
+    max-width: 240px;
+    max-height: 240px;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    display: block;
+    object-fit: cover;
+}
+
+.attachment-image-actions {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+
+    .attachment-image-container:hover &,
+    .attachment-video-container:hover & {
+        opacity: 1;
+    }
+}
+
+/* --- Conteneurs et lecteur Vidéo --- */
+.attachment-video-container {
+    position: relative;
+    display: inline-block;
+    max-width: 260px;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #000;
+}
+
+.attachment-video-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        .attachment-video-overlay-play {
+            background: rgba(0, 0, 0, 0.6);
+            transform: scale(1.05);
+        }
+    }
+}
+
+.attachment-video {
+    max-width: 100%;
+    max-height: 200px;
+    display: block;
+    border-radius: 0.75rem;
+    object-fit: cover;
+}
+
+.attachment-video-overlay-play {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.2s ease;
+
+    svg {
+        width: 20px;
+        height: 20px;
+        margin-left: 2px;
+    }
+}
+
+.attachment-fullscreen-video {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Bouton d'action générique --- */
+.attachment-action-btn {
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* --- Visionneuse plein écran globale --- */
+.attachment-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.attachment-fullscreen-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+
+    img {
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+}
+
+.attachment-close-btn {
+    position: absolute;
+    top: -1.5rem;
+    right: -1.5rem;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    color: #333;
+}
+
+.attachment-download-btn {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: background 0.2s;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* --- Conteneur audio --- */
+.attachment-audio-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 0.75rem;
+    min-width: 220px;
+}
+
+.attachment-audio-play-btn {
+    background: var(--color-primary);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.1s;
+    flex-shrink: 0;
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+/* --- Progression audio --- */
+.attachment-audio-progress {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.attachment-audio-progress-bar {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+}
+
+.attachment-audio-progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: 3px;
+    transition: width 0.1s linear;
+}
+
+.attachment-audio-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    opacity: 0.7;
+}
+
+/* --- Volume audio --- */
+.attachment-audio-volume {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.attachment-audio-volume-slider {
+    width: 50px;
+    accent-color: var(--color-primary);
+}
+
+/* --- Fichier (document) --- */
+.attachment-file-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.attachment-file-name {
+    flex: 1;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+/* --- États d'erreur et de chargement --- */
+.attachment-error,
+.attachment-loading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    padding: 0.25rem;
 }
 
 /* ============================================================
@@ -210,4 +656,139 @@
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+
+/* ============================================================
+   LECTEUR VOCAL STYLE WHATSAPP
+   ============================================================ */
+
+.whatsapp-audio-bubble {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 280px;
+    max-width: 360px;
+    padding: 0.35rem 0.25rem;
+}
+
+.whatsapp-audio-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.whatsapp-audio-mic-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--color-surface);
+
+    svg {
+        width: 9px;
+        height: 9px;
+    }
+}
+
+.whatsapp-audio-play-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+.whatsapp-audio-waveform-container {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.whatsapp-audio-waveform {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    height: 38px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.whatsapp-audio-wave-bar {
+    display: block;
+    width: 3px;
+    min-width: 3px;
+    border-radius: 3px;
+    background: currentColor;
+    opacity: 0.35;
+    transition: opacity 0.15s ease;
+}
+
+.whatsapp-audio-wave-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: var(--color-primary);
+    opacity: 0.85;
+    mix-blend-mode: multiply;
+}
+
+.whatsapp-audio-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    opacity: 0.75;
+}
+
+.whatsapp-download-icon {
+    background: transparent !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    opacity: 0.65;
+    flex-shrink: 0;
+
+    &:hover {
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.08) !important;
+    }
+
+    svg {
+        width: 15px;
+        height: 15px;
+    }
 }

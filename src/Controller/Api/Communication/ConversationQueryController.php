@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/conversations')]
-#[OA\Tag(name: 'Communication - Conversations', description: 'Consultation des conversations et de leurs messages')]
+#[OA\Tag(name: 'Communication - Conversations')]
 class ConversationQueryController extends AbstractController
 {
     public function __construct(

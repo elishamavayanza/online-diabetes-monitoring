@@ -13,6 +13,8 @@ export interface Message {
     date: string;
     emetteur: 'moi' | 'autre';
     attachments?: MessageAttachment[];
+    status?: 'sent' | 'read';   // ✅ ajout
+
 }
 
 export interface MessageAttachment {

@@ -7,6 +7,7 @@ import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/messages/_messages.scss';
+import {deleteMessage} from "@/react/features/clinician/messages/services/messagesService";
 
 export function MessagesPage() {
     const {
@@ -19,6 +20,7 @@ export function MessagesPage() {
         sendError,
     } = useMessages();
     const { pushAction } = useActionHistory();
+    const { deleteMessage } = useMessages();
 
     const handleSelectConversation = (id: string) => {
         const previousId = selectedConversation?.id ?? null;
@@ -46,7 +48,10 @@ export function MessagesPage() {
                 />
                 {selectedConversation && (
                     <Card className="message-thread">
-                        <MessageList thread={selectedConversation} />
+                        <MessageList
+                            thread={selectedConversation}
+                            onDeleteMessage={deleteMessage}
+                        />
                         <MessageComposer
                             onSendMessage={(content, media) =>
                                 sendMessage(selectedConversation.id, content, media)

@@ -47,19 +47,40 @@ export async function fetchConversations(): Promise<Conversation[]> {
     }));
 }
 
-export async function fetchConversationThread(id: string, participant = 'Conversation'): Promise<ConversationThread> {
-    const response = await apiClient.get<ApiFeedback<MessageDetailResponse[]>>(`/conversations/${id}/messages`);
-    const messages = unwrapApiData(response.data, 'Erreur lors du chargement de la discussion.');
+export async function fetchConversationThread(
+    id: string,
+    participant = 'Conversation'
+): Promise<ConversationThread> {
+    const response =
+        await apiClient.get<
+            ApiFeedback<MessageDetailResponse[]>
+        >(
+            `/conversations/${id}/messages`
+        );
+
+    const messages =
+        unwrapApiData(
+            response.data,
+            'Erreur lors du chargement de la discussion.'
+        );
 
     return {
         id,
         participant,
+
         messages: messages.map((message) => ({
             id: message.id,
+
             contenu: message.content,
+
             date: message.sentAt,
-            emetteur: message.isMine ? 'moi' : 'autre',
-            attachments: message.attachments,
+
+            emetteur: message.isMine
+                ? 'moi'
+                : 'autre',
+
+            attachments:
+                message.attachments ?? [],
         })),
     };
 }
@@ -75,18 +96,34 @@ export async function postMessage(conversationId: string, content: string): Prom
     return unwrapApiData(response.data, 'Erreur lors de l\'envoi du message.');
 }
 
-export async function uploadMessageAttachment(messageId: string, file: File): Promise<unknown> {
+export async function uploadMessageAttachment(
+    messageId: string,
+    file: File
+): Promise<MessageAttachment> {
     const formData = new FormData();
+
     formData.append('file', file);
     formData.append('messageId', messageId);
 
-    // Content-Type sera défini automatiquement par le navigateur (multipart/form-data)
-    const response = await apiClient.post<ApiFeedback<unknown>>('/message-attachments', formData, {
-    });
-    return unwrapApiData(response.data, 'Erreur lors de l\'envoi du fichier.');
+    const response =
+        await apiClient.post<
+            ApiFeedback<MessageAttachment>
+        >(
+            '/message-attachments',
+            formData
+        );
+
+    return unwrapApiData(
+        response.data,
+        "Erreur lors de l'envoi du fichier."
+    );
 }
 
 export async function markMessageAsRead(messageId: string): Promise<void> {
     const payload = { message: `/api/messages/${messageId}` };
     await apiClient.post('/message-read-receipts', payload);
+}
+export async function deleteMessage(messageId: string): Promise<void> {
+    const response = await apiClient.delete<ApiFeedback<null>>(`/messages/${messageId}`);
+    unwrapApiData(response.data, 'Erreur lors de la suppression du message.');
 }

@@ -1,105 +1,113 @@
-import { useEffect, useRef, useState } from 'react';
-import { Card } from '@/react/components/UI/Card';
-import { tokenStorage } from '@/services/storage/storage.service';
+import { useEffect, useRef } from 'react';
 import { ConversationThread, Message, MessageAttachment } from '../types';
+import { AttachmentPreview } from './AttachmentPreview';
+import {
+    DeleteIcon,
+    DoubleCheckIcon,
+    SingleCheckIcon
+} from "@/react/features/clinician/messages/components/MessageIcons";
 
-// Icône pour les fichiers
-const FileIcon = () => (
-    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-        <polyline points="13 2 13 9 20 9"></polyline>
-    </svg>
-);
-
-function AttachmentPreview({ attachment }: { attachment: MessageAttachment }) {
-    const [objectUrl, setObjectUrl] = useState<string | null>(null);
-    const [loadError, setLoadError] = useState(false);
-
-    useEffect(() => {
-        const controller = new AbortController();
-        const token = tokenStorage.getAccessToken();
-
-        fetch(attachment.fileUrl, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-            signal: controller.signal,
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('Téléchargement impossible');
-                return response.blob();
-            })
-            .then((blob) => setObjectUrl(URL.createObjectURL(blob)))
-            .catch((error: unknown) => {
-                if (!(error instanceof DOMException && error.name === 'AbortError')) setLoadError(true);
-            });
-
-        return () => {
-            controller.abort();
-            setObjectUrl((currentUrl) => {
-                if (currentUrl) URL.revokeObjectURL(currentUrl);
-                return null;
-            });
-        };
-    }, [attachment.fileUrl]);
-
-    if (loadError) return <span>Pièce jointe indisponible : {attachment.fileName}</span>;
-    if (!objectUrl) return <span>Chargement de {attachment.fileName}…</span>;
-    if (attachment.mimeType.startsWith('image/')) {
-        return <img src={objectUrl} alt={attachment.fileName} className="message-bubble__image" />;
-    }
-    if (attachment.mimeType.startsWith('audio/')) {
-        return <audio controls src={objectUrl} className="message-bubble__audio">Votre navigateur ne lit pas cet audio.</audio>;
-    }
-
-    return (
-        <a href={objectUrl} download={attachment.fileName} className="message-bubble__file">
-            <FileIcon />
-            <span>{attachment.fileName}</span>
-        </a>
-    );
-}
+// ==========================================
+// ICÔNES SVG LOCALES
+// ==========================================
 
 interface MessageListProps {
     thread: ConversationThread;
+    onDeleteMessage: (messageId: string) => void;
 }
 
-export function MessageList({ thread }: MessageListProps) {
+export function MessageList({ thread, onDeleteMessage }: MessageListProps) {
     const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-    // Défilement automatique vers le bas à chaque changement de messages ou de conversation
     useEffect(() => {
         const container = messagesContainerRef.current;
         if (container) {
-            container.scrollTop = container.scrollHeight;
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth',
+            });
         }
     }, [thread.messages, thread.id]);
 
     return (
-        <>
-            {/* Entête de la discussion */}
+        <div className="message-thread-wrapper">
+            {/* En-tête de la discussion */}
             <div className="message-thread__header">
-                <h3>{thread.participant}</h3>
+                <div className="message-thread__participant-info">
+                    <div className="message-thread__avatar-placeholder">
+                        {thread.participant.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <h3>{thread.participant}</h3>
+                        <span className="message-thread__status">En ligne</span>
+                    </div>
+                </div>
             </div>
 
             {/* Liste des messages */}
             <div className="message-thread__messages" ref={messagesContainerRef}>
-                {thread.messages.map((msg: Message) => {
+                {thread.messages.map((msg: Message, index: number) => {
                     const isMine = msg.emetteur === 'moi';
+                    const prevMsg = thread.messages[index - 1];
+                    const showDateSeparator = !prevMsg || prevMsg.date !== msg.date;
+
                     return (
-                        <div
-                            key={msg.id}
-                            className={`message-bubble ${isMine ? 'message-bubble--mine' : 'message-bubble--other'}`}
-                        >
-                            {msg.contenu && (
-                                <p className="message-bubble__content">{msg.contenu}</p>
+                        <div key={msg.id} className="message-item-wrapper">
+                            {showDateSeparator && (
+                                <div className="message-date-separator">
+                                    <span>{new Date(msg.date).toLocaleDateString()}</span>
+                                </div>
                             )}
-                            {msg.attachments?.map((attachment: MessageAttachment) => (
-                                <AttachmentPreview key={attachment.id} attachment={attachment} />
-                            ))}
-                            <span className="message-bubble__date">{msg.date}</span>
+
+                            <div
+                                className={`message-bubble ${
+                                    isMine ? 'message-bubble--mine' : 'message-bubble--other'
+                                }`}
+                            >
+                                {/* Bouton supprimer (visible au survol) */}
+                                <button
+                                    className="message-bubble__delete-btn"
+                                    onClick={() => onDeleteMessage(msg.id)}
+                                    title="Supprimer"
+                                >
+                                    <DeleteIcon />
+                                </button>
+
+                                {/* Pièces jointes */}
+                                {msg.attachments?.map((attachment: MessageAttachment) => (
+                                    <div key={attachment.id} className="message-bubble__attachment">
+                                        <AttachmentPreview attachment={attachment} />
+                                    </div>
+                                ))}
+
+                                {/* Contenu texte */}
+                                {msg.contenu && (
+                                    <p className="message-bubble__content">{msg.contenu}</p>
+                                )}
+
+                                {/* Métadonnées : heure + statut */}
+                                <div className="message-bubble__meta">
+                                    <span className="message-bubble__time">
+                                        {new Date(msg.date).toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
+                                    </span>
+                                    {isMine && (
+                                        <span className="message-bubble__status-icon">
+                                            {msg.status === 'read' ? (
+                                                <DoubleCheckIcon />
+                                            ) : (
+                                                <SingleCheckIcon />
+                                            )}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     );
                 })}
             </div>
-        </>
+        </div>
     );
 }
