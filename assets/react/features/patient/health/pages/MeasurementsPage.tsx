@@ -8,10 +8,13 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import { RightSidebar } from '@/react/components/Navigation/RightSidebar';
 import { Calendar } from '@/react/components/Calendars/Calendar';
 import { MeasurementsTable } from '../components/MeasurementsTable';
+import { CandlestickChart } from '@/react/components/Data/CandlestickChart/CandlestickChart';
+import { Tabs } from '@/react/components/Navigation/Tabs'; // ✅ import du composant Tabs
 import { MeasurementFormModal } from '@/react/features/clinician/patients/components/modals/record/MeasurementFormModal';
 import { MeasurementType } from '../types';
 import { MeasurementTypeId } from '@/react/features/clinician/patients/types';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
+import type { CandlestickDataPoint } from '@/react/hook-components/Data/CandlestickChart/useCandlestickChart';
 import {
     BloodGlucoseIcon,
     BloodPressureIcon,
@@ -21,7 +24,6 @@ import {
 } from '@/react/features/clinician/patients/config/measurementIcons';
 import '@/styles/pages/patient/health/_measurements.scss';
 
-// Mapping entre MeasurementType (patient) et MeasurementTypeId (clinician)
 const TYPE_TO_ID: Record<MeasurementType, MeasurementTypeId> = {
     'Glycémie': 'bloodGlucose',
     'Tension': 'bloodPressure',
@@ -74,10 +76,23 @@ const MEASUREMENT_TYPES: {
     },
 ];
 
+function extractNumericValue(value: string): number | null {
+    const normalized = value.replace(',', '.');
+    const match = normalized.match(/-?\d+(\.\d+)?/);
+    return match ? parseFloat(match[0]) : null;
+}
+
+// Définition des onglets pour la vue détail
+const detailTabs = [
+    { id: 'table', label: 'Historique' },
+    { id: 'chart', label: 'Graphique' },
+];
+
 export function MeasurementsPage() {
     const { type, setType, records, isLoading, error, refetch } = useMeasurements();
     const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid');
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [detailTab, setDetailTab] = useState<'table' | 'chart'>('table');
     const [isPrelevementModalOpen, setIsPrelevementModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
@@ -88,9 +103,7 @@ export function MeasurementsPage() {
             const normalized = new Date(d.getFullYear(), d.getMonth(), d.getDate());
             dates.add(normalized.toDateString());
         });
-        return Array.from(dates).map((dateStr) => ({
-            date: new Date(dateStr),
-        }));
+        return Array.from(dates).map((dateStr) => ({ date: new Date(dateStr) }));
     }, [records]);
 
     const handleSelectType = (selected: MeasurementType) => {
@@ -98,6 +111,7 @@ export function MeasurementsPage() {
         const previousMode = viewMode;
         setType(selected);
         setViewMode('detail');
+        setDetailTab('table');
         pushAction(() => {
             setType(previousType);
             setViewMode(previousMode);
@@ -116,13 +130,8 @@ export function MeasurementsPage() {
         pushAction(() => setSelectedDate(previousDate));
     };
 
-    const openPrelevementModal = () => {
-        setIsPrelevementModalOpen(true);
-    };
-
-    const closePrelevementModal = () => {
-        setIsPrelevementModalOpen(false);
-    };
+    const openPrelevementModal = () => setIsPrelevementModalOpen(true);
+    const closePrelevementModal = () => setIsPrelevementModalOpen(false);
 
     const handlePrelevementSuccess = () => {
         closePrelevementModal();
@@ -132,13 +141,27 @@ export function MeasurementsPage() {
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
 
-    // Filtrer les enregistrements par date si une date est sélectionnée
     const filteredRecords = selectedDate
         ? records.filter(
             (record) =>
                 new Date(record.date).toDateString() === selectedDate.toDateString()
         )
         : records;
+
+    // Préparation des données pour le graphique
+    const chartData: CandlestickDataPoint[] = [];
+    for (const record of filteredRecords) {
+        const value = extractNumericValue(record.value);
+        if (value !== null) {
+            chartData.push({
+                date: new Date(record.date).getTime(),
+                open: value,
+                high: value,
+                low: value,
+                close: value,
+            });
+        }
+    }
 
     const currentPatientId = getCurrentUserIdFromToken() ?? '';
 
@@ -172,10 +195,33 @@ export function MeasurementsPage() {
                         </Button>
                     )}
                 </div>
-                <h3 className="measurements-page__table-title">
-                    Historique — {MEASUREMENT_TYPES.find((t) => t.id === type)?.label}
-                </h3>
-                <MeasurementsTable records={filteredRecords} />
+
+                {/* Utilisation du composant Tabs */}
+                <Tabs
+                    key={detailTab} // force la réinitialisation à la sélection courante
+                    tabs={detailTabs}
+                    defaultActiveTabId={detailTab}
+                    onChange={(id) => setDetailTab(id as 'table' | 'chart')}
+                    renderContent={(activeId) =>
+                        activeId === 'table' ? (
+                            <>
+                                <h3 className="measurements-page__table-title">
+                                    Historique — {MEASUREMENT_TYPES.find((t) => t.id === type)?.label}
+                                </h3>
+                                <MeasurementsTable records={filteredRecords} />
+                            </>
+                        ) : (
+                            <CandlestickChart
+                                data={chartData}
+                                height={300}
+                                formatDate={(timestamp) =>
+                                    new Date(Number(timestamp)).toLocaleDateString('fr-FR')
+                                }
+                                formatPrice={(price) => `${price}`}
+                            />
+                        )
+                    }
+                />
             </>
         );
 

@@ -106,6 +106,33 @@
     color: var(--color-primary);
 }
 
+.measurement-detail__tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.measurement-detail__tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: var(--color-surface);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+
+    &:hover {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+
+    &--active {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-on-primary);
+    }
+}
+
 /* Boutons d'action dans le détail */
 .measurement-detail__actions {
     display: flex;
