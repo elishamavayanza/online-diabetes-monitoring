@@ -153,7 +153,12 @@ class PrescriptionItemService
 
         $this->securityService->checkPatientAccess($item->getPrescription()->getPatient(), SecurityAction::UPDATE_PRESCRIPTION);
 
-        $this->mapper->mapRequestToEntity($dto, $item->getPrescription(), $this->medicationRepository->find($dto->medicationId), $item);
+        $medication = $this->medicationRepository->find($dto->medicationId);
+        if (!$medication) {
+            return $feedback->setErrorFlushDescription('Médicament introuvable.')->autoInitFlush();
+        }
+
+        $this->mapper->mapRequestToEntity($dto, $item->getPrescription(), $medication, $item);
 
         $this->entityManager->flush();
         return $feedback->setFlushDescription('Mis à jour avec succès.')->setData($this->mapper->mapEntityToResponse($item));

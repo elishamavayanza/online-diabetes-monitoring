@@ -120,4 +120,5 @@ enum SecurityAction: string
     case REVOKE_MEDICAL_CONSENT = 'revoke_medical_consent';
 
 
+    case VIEW_MEDICATION = 'view_medication';
 }

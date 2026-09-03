@@ -63,7 +63,10 @@ class MedicationService
         $feedback = new Feedback();
 
         try {
-            $this->checkMedicationAccess();
+            // Délègue la vérification au SecurityService global
+            // qui autorise à la fois les rôles professionnels et le ROLE_PATIENT
+            // pour l'action VIEW_MEDICATION.
+            $this->securityService->checkPermission(SecurityAction::VIEW_MEDICATION->value);
 
             $medication = $this->repository->find($id);
             if (!$medication) {

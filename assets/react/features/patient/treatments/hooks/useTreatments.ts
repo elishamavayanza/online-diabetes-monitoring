@@ -1,3 +1,4 @@
+// hooks/useTreatments.ts
 import { useEffect, useState } from 'react';
 import { fetchTreatments } from '../services/treatmentsService';
 import { Treatment } from '../types';
@@ -13,6 +14,7 @@ export function useTreatments() {
                 const data = await fetchTreatments();
                 setTreatments(data.treatments);
             } catch (err) {
+                console.error(err);
                 setError('Impossible de charger les traitements.');
             } finally {
                 setIsLoading(false);

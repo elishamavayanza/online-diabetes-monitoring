@@ -6,6 +6,11 @@ export interface Treatment {
     nom: string;
     dosage: string;
     horaires: string[];
+    instructions?: string;        // ✅ nouveau
+    quantity?: string;            // ✅ nouveau
+    startDate?: string;           // ✅ nouveau (date de début de la prescription)
+    endDate?: string;             // ✅ nouveau (date de fin)
+    prescriberName?: string;      // ✅ nouveau si disponible
 }
 
 export interface TreatmentsData {

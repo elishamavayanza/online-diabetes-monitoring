@@ -74,7 +74,7 @@ class PrescriptionItemController extends AbstractController
     )]
     #[OA\Response(response: 404, description: 'Élément introuvable')]
     #[OA\Response(response: 401, description: 'Non authentifié')]
-    public function getOne(int $id): JsonResponse
+    public function getOne(string $id): JsonResponse
     {
         $feedback = $this->service->getOne($id);
         $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
@@ -105,7 +105,7 @@ class PrescriptionItemController extends AbstractController
     )]
     #[OA\Response(response: 404, description: 'Prescription introuvable')]
     #[OA\Response(response: 401, description: 'Non authentifié')]
-    public function list(int $prescriptionId): JsonResponse
+    public function list(string $prescriptionId): JsonResponse
     {
         $feedback = $this->service->getAllByPrescription($prescriptionId);
         $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
@@ -140,7 +140,7 @@ class PrescriptionItemController extends AbstractController
     #[OA\Response(response: 400, description: 'Données de la requête invalides')]
     #[OA\Response(response: 404, description: 'Élément introuvable')]
     #[OA\Response(response: 401, description: 'Non authentifié')]
-    public function update(int $id, #[MapRequestPayload] PrescriptionItemRequestDTO $dto): JsonResponse
+    public function update(string $id, #[MapRequestPayload] PrescriptionItemRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->update($id, $dto);
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
@@ -166,7 +166,7 @@ class PrescriptionItemController extends AbstractController
     )]
     #[OA\Response(response: 404, description: 'Élément introuvable')]
     #[OA\Response(response: 401, description: 'Non authentifié')]
-    public function delete(int $id): JsonResponse
+    public function delete(string $id): JsonResponse
     {
         $feedback = $this->service->delete($id);
         $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;

@@ -507,6 +507,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::MANAGE_ORGANIZATION,
             SecurityAction::MANAGE_FACILITY,
             SecurityAction::MANAGE_DEPARTMENT,
+            SecurityAction::VIEW_MEDICATION,
 
             SecurityAction::MANAGE_USERS,
             SecurityAction::SUSPEND_USER,
@@ -573,6 +574,7 @@ final class SecurityService implements SecurityServiceInterface
 
             SecurityAction::MANAGE_MEDICATION,
             SecurityAction::DELETE_MEDICATION_INTAKE,
+            SecurityAction::VIEW_MEDICATION,
 
             SecurityAction::RECORD_GLUCOSE,
             SecurityAction::RECORD_BLOOD_PRESSURE,
@@ -656,6 +658,7 @@ final class SecurityService implements SecurityServiceInterface
 
             SecurityAction::MANAGE_MEDICATION,
             SecurityAction::DELETE_MEDICATION_INTAKE,
+            SecurityAction::VIEW_MEDICATION,
 
             SecurityAction::RECORD_GLUCOSE,
             SecurityAction::RECORD_BLOOD_PRESSURE,
@@ -748,6 +751,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::MANAGE_MEAL,
 
             SecurityAction::VIEW_PRESCRIPTION,
+            SecurityAction::VIEW_MEDICATION,
 
             SecurityAction::VIEW_ALLERGY,
 
