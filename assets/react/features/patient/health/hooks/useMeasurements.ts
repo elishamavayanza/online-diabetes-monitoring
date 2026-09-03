@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// hooks/useMeasurements.ts
+import { useEffect, useState, useCallback } from 'react';
 import { fetchMeasurements } from '../services/measurementsService';
 import { MeasurementType, MeasurementRecord } from '../types';
 
@@ -8,21 +9,26 @@ export function useMeasurements() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const load = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const data = await fetchMeasurements(type);
-                setRecords(data);
-            } catch (err) {
-                setError('Impossible de charger les mesures.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        load();
-    }, [type]);
+    const load = useCallback(async (selectedType: MeasurementType) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const data = await fetchMeasurements(selectedType);
+            setRecords(data);
+        } catch (err) {
+            setError('Impossible de charger les mesures.');
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
-    return { type, setType, records, isLoading, error };
+    useEffect(() => {
+        load(type);
+    }, [type, load]);
+
+    const refetch = useCallback(() => {
+        load(type);
+    }, [load, type]);
+
+    return { type, setType, records, isLoading, error, refetch };
 }

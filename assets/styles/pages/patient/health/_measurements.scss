@@ -12,6 +12,113 @@
     }
 }
 
-.measurements-card {
-    @include card;
+/* Grille des cartes de type de mesure */
+.measurement-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+/* Carte individuelle */
+.measurement-type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    background-color: var(--color-surface);
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background-color: rgba(0, 0, 0, 0.05);
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: var(--color-primary);
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--color-text);
+        opacity: 0.8;
+    }
+
+    &__count {
+        align-self: flex-end;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--color-primary);
+        background-color: rgba(44, 122, 123, 0.1);
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+    }
+}
+.measurements-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__body {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__right-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    // Vous pouvez ajuster le calendrier si nécessaire
+    .calendar {
+        width: 100%;
+    }
+}
+.measurements-page__table-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: var(--color-primary);
+}
+
+/* Boutons d'action dans le détail */
+.measurement-detail__actions {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .measurement-type-grid {
+        grid-template-columns: 1fr;
+    }
 }
