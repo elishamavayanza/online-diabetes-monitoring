@@ -14,5 +14,6 @@ export interface Treatment {
 }
 
 export interface TreatmentsData {
-    treatments: Treatment[];
+    treatments: Treatment[];       // actifs
+    pastTreatments: Treatment[];   // terminés
 }

@@ -5,6 +5,7 @@ import { Treatment } from '../types';
 
 export function useTreatments() {
     const [treatments, setTreatments] = useState<Treatment[]>([]);
+    const [pastTreatments, setPastTreatments] = useState<Treatment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -13,6 +14,7 @@ export function useTreatments() {
             try {
                 const data = await fetchTreatments();
                 setTreatments(data.treatments);
+                setPastTreatments(data.pastTreatments);
             } catch (err) {
                 console.error(err);
                 setError('Impossible de charger les traitements.');
@@ -23,5 +25,5 @@ export function useTreatments() {
         load();
     }, []);
 
-    return { treatments, isLoading, error };
+    return { treatments, pastTreatments, isLoading, error };
 }

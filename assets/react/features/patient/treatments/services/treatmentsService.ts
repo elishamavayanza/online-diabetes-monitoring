@@ -96,28 +96,28 @@ export async function fetchTreatments(): Promise<TreatmentsData> {
     );
     const prescriptions = unwrapApiData(prescResponse.data, 'Erreur lors du chargement des prescriptions.');
 
-    const active = prescriptions.filter(
-        (p) => p.status === 'ACTIVE' && (!p.endDate || new Date(p.endDate) > new Date())
-    );
-
     const treatments: Treatment[] = [];
-    for (const prescription of active) {
+    const pastTreatments: Treatment[] = [];
+
+    for (const prescription of prescriptions) {
         const itemsResponse = await apiClient.get<ApiFeedback<PrescriptionItemResponse[]>>(
             `/prescription-items/prescription/${prescription.id}`
         );
         const items = unwrapApiData(itemsResponse.data, 'Erreur lors du chargement des médicaments.');
 
+        // Déterminer si la prescription est active
+        const isActive =
+            prescription.status === 'ACTIVE' &&
+            (!prescription.endDate || new Date(prescription.endDate) > new Date());
+
         for (const item of items) {
-
             const medicationInfo = await fetchMedicationInfo(item.medicationId);
-
-            // Utiliser la catégorie réelle si disponible, sinon fallback
             const category = medicationInfo.category ?? fallbackCategory(
                 item.medicationName ?? medicationInfo.name,
                 item.dosage
             );
 
-            treatments.push({
+            const treatment: Treatment = {
                 id: item.id,
                 categorie: category,
                 nom: item.medicationName ?? medicationInfo.name,
@@ -128,9 +128,17 @@ export async function fetchTreatments(): Promise<TreatmentsData> {
                 startDate: prescription.startDate,
                 endDate: prescription.endDate,
                 prescriberName: prescription.prescriber?.fullName ?? '',
-            });
+            };
+
+            // Ajouter à la liste appropriée
+            if (isActive) {
+                treatments.push(treatment);
+            } else {
+                pastTreatments.push(treatment);
+            }
         }
     }
 
-    return { treatments };
+    return { treatments, pastTreatments };
 }
+

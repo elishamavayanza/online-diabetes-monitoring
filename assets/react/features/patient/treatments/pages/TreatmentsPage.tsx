@@ -8,8 +8,17 @@ import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/patient/treatments/_treatments.scss';
 
+// Icône historique (horloge)
+const HistoryIcon = () => (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+    </svg>
+);
+
 export function TreatmentsPage() {
-    const { treatments, isLoading, error } = useTreatments();
+    const { treatments, pastTreatments, isLoading, error } = useTreatments();
+    const [viewMode, setViewMode] = useState<'active' | 'history'>('active');
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
@@ -18,17 +27,39 @@ export function TreatmentsPage() {
         pushAction(() => setIsHelpOpen(false));
     };
 
+    const toggleView = () => {
+        setViewMode((prev) => (prev === 'active' ? 'history' : 'active'));
+    };
+
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
+
+    const displayedTreatments = viewMode === 'active' ? treatments : pastTreatments;
 
     return (
         <div className="treatments-page">
             <div className="treatments-page__header">
-                <h1>Mes traitements</h1>
-                <p>Ce qui vous est prescrit</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{viewMode === 'active' ? 'Mes traitements' : 'Historique des traitements'}</h1>
+                <p>{viewMode === 'active' ? 'Ce qui vous est prescrit actuellement' : 'Traitements terminés ou arrêtés'}</p>
+                <div className="treatments-page__header-actions">
+                    {/* Bouton Aide à droite */}
+                    <Button variant="secondary" onClick={openHelp}>
+                        Aide
+                    </Button>
+                    {/* Bouton historique à gauche, forme circulaire */}
+                    <button
+                        className="treatments-page__history-btn"
+                        onClick={toggleView}
+                        title={viewMode === 'active' ? 'Voir l’historique' : 'Voir les traitements actifs'}
+                        aria-label="Basculer historique"
+                    >
+                        <HistoryIcon />
+                    </button>
+
+                </div>
             </div>
-            <TreatmentsList treatments={treatments} />
+
+            <TreatmentsList treatments={displayedTreatments} />
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
