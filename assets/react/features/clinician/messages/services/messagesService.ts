@@ -19,6 +19,8 @@ interface MessageDetailResponse {
     content: string;
     sentAt: string;
     isMine: boolean;
+    senderId: string;
+    authorName?: string;   // ✅ renvoyé par le backend
     attachments: MessageAttachment[];
 }
 
@@ -41,7 +43,7 @@ export async function fetchConversations(): Promise<Conversation[]> {
     return conversations.map((conversation) => ({
         id: conversation.id,
         participant: conversation.patientName ?? conversation.subject,
-        participantId: conversation.patientId, // ✅ ajout
+        participantId: conversation.patientId,
         type: 'Patient' as const,
         dernierMessage: conversation.lastMessageContent ?? '',
         dateDernierMessage: conversation.lastMessageAt ?? conversation.createdAt,
@@ -60,19 +62,20 @@ export async function fetchConversationThread(
     return {
         id,
         participant,
-        participantId: participantId ?? '', // ✅ ou undefined si type optionnel, mais on met une chaîne vide pour éviter undefined
+        participantId: participantId ?? '',
         messages: messages.map((message) => ({
             id: message.id,
             contenu: message.content,
             date: message.sentAt,
             emetteur: message.isMine ? 'moi' : 'autre',
+            authorName: message.isMine ? undefined : message.authorName,
             attachments: message.attachments ?? [],
         })),
     };
 }
 
 // ==========================================
-// ECRITURE (ENVOI DE MESSAGES & FICHIERS)
+// ÉCRITURE (ENVOI DE MESSAGES & FICHIERS)
 // ==========================================
 
 export async function postMessage(conversationId: string, content: string): Promise<MessageResponse> {
@@ -91,25 +94,17 @@ export async function uploadMessageAttachment(
     formData.append('file', file);
     formData.append('messageId', messageId);
 
-    const response =
-        await apiClient.post<
-            ApiFeedback<MessageAttachment>
-        >(
-            '/message-attachments',
-            formData
-        );
-
-    return unwrapApiData(
-        response.data,
-        "Erreur lors de l'envoi du fichier."
-    );
+    const response = await apiClient.post<ApiFeedback<MessageAttachment>>('/message-attachments', formData);
+    return unwrapApiData(response.data, "Erreur lors de l'envoi du fichier.");
 }
 
 export async function markMessageAsRead(messageId: string): Promise<void> {
     const payload = { message: `/api/messages/${messageId}` };
     await apiClient.post('/message-read-receipts', payload);
 }
+
 export async function deleteMessage(messageId: string): Promise<void> {
     const response = await apiClient.delete<ApiFeedback<null>>(`/messages/${messageId}`);
     unwrapApiData(response.data, 'Erreur lors de la suppression du message.');
 }
+

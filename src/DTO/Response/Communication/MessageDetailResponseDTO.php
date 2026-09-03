@@ -22,6 +22,9 @@ class MessageDetailResponseDTO
         #[OA\Property(type: 'string')]
         public readonly string $senderId,
 
+        #[OA\Property(type: 'string', nullable: true)]
+        public readonly ?string $authorName,   // ✅ nouveau champ
+
         #[OA\Property(type: 'string')]
         public readonly string $content,
 
@@ -46,12 +49,19 @@ class MessageDetailResponseDTO
     ) {}
 
     /** @param MessageAttachmentResponseDTO[] $attachments */
-    public static function fromEntity(Message $message, bool $isMine, bool $isRead, ?\DateTimeImmutable $readAt, array $attachments = []): self
-    {
+    public static function fromEntity(
+        Message $message,
+        bool $isMine,
+        bool $isRead,
+        ?\DateTimeImmutable $readAt,
+        array $attachments = [],
+        ?string $authorName = null   // ✅ paramètre optionnel
+    ): self {
         return new self(
             id: (string) $message->getId(),
             conversationId: (string) $message->getConversation()?->getId(),
             senderId: (string) $message->getSender()?->getId(),
+            authorName: $authorName,   // ✅ transmettre le nom
             content: $message->getContent(),
             sentAt: $message->getSentAt(),
             editedAt: $message->getEditedAt(),

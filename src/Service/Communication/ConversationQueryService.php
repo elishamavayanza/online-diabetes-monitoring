@@ -169,6 +169,13 @@ class ConversationQueryService
         $senderId = (string) $message->getSender()?->getId();
         $currentUserId = (string) $currentUser->getId();
         $isMine = $senderId === $currentUserId;
+
+        // Récupérer le nom de l'expéditeur
+        $sender = $message->getSender();
+        $authorName = $sender && method_exists($sender, 'getFullName')
+            ? $sender->getFullName()
+            : null;
+
         $attachments = array_map(
             static fn ($attachment) => MessageAttachmentResponseDTO::fromEntity(
                 $attachment,
@@ -187,7 +194,14 @@ class ConversationQueryService
                 }
             }
 
-            return MessageDetailResponseDTO::fromEntity($message, true, $recipientRead !== null, $recipientRead, $attachments);
+            return MessageDetailResponseDTO::fromEntity(
+                $message,
+                true,
+                $recipientRead !== null,
+                $recipientRead,
+                $attachments,
+                $authorName
+            );
         }
 
         $myReceipt = $this->readReceiptRepository->findByMessageAndUser($message, $currentUser);
@@ -197,7 +211,8 @@ class ConversationQueryService
             false,
             $myReceipt !== null,
             $myReceipt?->getReadAt(),
-            $attachments
+            $attachments,
+            $authorName
         );
     }
 

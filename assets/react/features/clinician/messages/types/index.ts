@@ -15,6 +15,7 @@ export interface Message {
     emetteur: 'moi' | 'autre';
     attachments?: MessageAttachment[];
     status?: 'sent' | 'read';   // ✅ ajout
+    authorName?: string;
 
 }
 

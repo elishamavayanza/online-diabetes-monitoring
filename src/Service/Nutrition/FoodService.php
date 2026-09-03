@@ -11,7 +11,10 @@ use App\Repository\Nutrition\FoodCategoryRepository;
 use App\Repository\Nutrition\FoodRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\File\FileUploaderService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class FoodService
@@ -22,7 +25,8 @@ class FoodService
         private readonly UserRepository $userRepository,
         private readonly FoodMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly FileUploaderService $fileUploaderService
     ) {
     }
 
@@ -239,6 +243,40 @@ class FoodService
         } catch (\Throwable $e) {
             return $feedback
                 ->setErrorFlushDescription("Erreur : " . $e->getMessage())
+                ->autoInitFlush();
+        }
+    }
+
+    public function uploadPhoto(UploadedFile $file, Request $request): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $this->securityService->checkProfessionalAccess(
+                SecurityAction::MANAGE_FOOD
+            );
+
+            if (!str_starts_with((string) $file->getMimeType(), 'image/')) {
+                return $feedback
+                    ->setErrorFlushDescription('Le fichier doit être une image.')
+                    ->autoInitFlush();
+            }
+
+            $fileName = $this->fileUploaderService->upload($file, 'foods');
+            $relativePath = '/uploads/files/foods/' . $fileName;
+            $absoluteUrl = rtrim($request->getSchemeAndHttpHost(), '/') . $relativePath;
+
+            return $feedback
+                ->setData(['url' => $absoluteUrl])
+                ->setFlushDescription('Photo téléversée avec succès.')
+                ->autoInitFlush();
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription('Erreur : ' . $e->getMessage())
                 ->autoInitFlush();
         }
     }

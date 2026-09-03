@@ -507,6 +507,22 @@
         display: flex;
     }
 }
+.message-bubble__author {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.4),
+        rgba(255, 255, 255, 0.1)
+    );
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    opacity: 0.85;               /* léger estompage */
+    margin-bottom: 0.15rem;
+    align-self: flex-start;      /* aligné à gauche dans la bulle */
+    backdrop-filter: blur(2px);  /* optionnel pour un effet doux */
+}
 
 /* ============================================================
    PIÈCES JOINTES — IMAGE

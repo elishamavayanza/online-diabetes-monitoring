@@ -9,6 +9,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -75,6 +76,42 @@ class FoodController extends AbstractController
     {
         $feedback = $this->service->getById($id);
         $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/upload-photo', name: 'api_foods_upload_photo', methods: ['POST'])]
+    #[OA\Post(
+        description: 'Permet de téléverser une photo pour un aliment.',
+        summary: 'Téléverser une photo d\'aliment'
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                required: ['photo'],
+                properties: [
+                    new OA\Property(property: 'photo', type: 'string', format: 'binary')
+                ]
+            )
+        )
+    )]
+    #[OA\Response(response: 201, description: 'Photo téléversée avec succès')]
+    public function uploadPhoto(Request $request): JsonResponse
+    {
+        $file = $request->files->get('photo');
+
+        if (!$file) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Le champ photo est obligatoire.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $feedback = $this->service->uploadPhoto($file, $request);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
 
         return $this->json($feedback, $status);
     }
