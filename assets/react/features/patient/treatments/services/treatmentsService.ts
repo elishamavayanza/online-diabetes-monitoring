@@ -1,4 +1,3 @@
-// services/treatmentsService.ts
 import apiClient from '@/services/api/client';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
@@ -9,9 +8,9 @@ interface PrescriptionResponse {
     status: string;
     startDate?: string;
     endDate?: string;
-    prescriber?: {
-        fullName?: string;
-    } | null;
+    prescriber?: { fullName?: string } | null;
+    stopReason?: string;
+    notes?: string;
 }
 
 interface PrescriptionItemResponse {
@@ -27,12 +26,11 @@ interface PrescriptionItemResponse {
     instructions?: string;
 }
 
-// Nouvelle interface pour la réponse d'un médicament
 interface MedicationResponse {
     id: string;
     name: string;
-    categorie?: string;
     category?: string;
+    categorie?: string;
 }
 
 function buildHoraires(morning: boolean, noon: boolean, evening: boolean): string[] {
@@ -43,7 +41,6 @@ function buildHoraires(morning: boolean, noon: boolean, evening: boolean): strin
     return horaires.length > 0 ? horaires : ['Selon prescription'];
 }
 
-// Fonction de secours si la catégorie n'est pas disponible
 function fallbackCategory(name: string, dosage: string): TreatmentCategory {
     const lower = (name + ' ' + dosage).toLowerCase();
     if (lower.includes('insuline') || lower.includes('unité')) return 'INSULINE';
@@ -51,37 +48,22 @@ function fallbackCategory(name: string, dosage: string): TreatmentCategory {
     return 'AUTRE';
 }
 
-// Convertit la catégorie brute du backend en type frontend
 function mapCategory(category?: string): TreatmentCategory | null {
     if (!category) return null;
-    const normalized = category
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-
+    const normalized = category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (normalized === 'insulin') return 'INSULINE';
     if (normalized === 'tablet') return 'COMPRIMÉ';
     if (normalized === 'other') return 'AUTRE';
-    // fallback pour d'éventuelles anciennes valeurs
     if (normalized === 'comprime' || normalized === 'comprimé') return 'COMPRIMÉ';
     return null;
 }
 
-// Récupère le nom et la catégorie d'un médicament via son ID
-async function fetchMedicationInfo(medicationId: string): Promise<{
-    name: string;
-    category: TreatmentCategory | null;
-}> {
+async function fetchMedicationInfo(medicationId: string): Promise<{ name: string; category: TreatmentCategory | null }> {
     try {
-        const response = await apiClient.get<ApiFeedback<MedicationResponse>>(
-            `/medications/${medicationId}`
-        );
+        const response = await apiClient.get<ApiFeedback<MedicationResponse>>(`/medications/${medicationId}`);
         const med = unwrapApiData(response.data, 'Erreur médicament');
         const rawCategory = med.categorie ?? med.category;
-        return {
-            name: med.name || 'Médicament',
-            category: mapCategory(rawCategory),
-        };
+        return { name: med.name || 'Médicament', category: mapCategory(rawCategory) };
     } catch {
         return { name: 'Médicament', category: null };
     }
@@ -105,20 +87,16 @@ export async function fetchTreatments(): Promise<TreatmentsData> {
         );
         const items = unwrapApiData(itemsResponse.data, 'Erreur lors du chargement des médicaments.');
 
-        // Déterminer si la prescription est active
-        const isActive =
-            prescription.status === 'ACTIVE' &&
+        const isActive = prescription.status === 'ACTIVE' &&
             (!prescription.endDate || new Date(prescription.endDate) > new Date());
 
         for (const item of items) {
             const medicationInfo = await fetchMedicationInfo(item.medicationId);
-            const category = medicationInfo.category ?? fallbackCategory(
-                item.medicationName ?? medicationInfo.name,
-                item.dosage
-            );
+            const category = medicationInfo.category ?? fallbackCategory(item.medicationName ?? medicationInfo.name, item.dosage);
 
             const treatment: Treatment = {
                 id: item.id,
+                prescriptionId: prescription.id,
                 categorie: category,
                 nom: item.medicationName ?? medicationInfo.name,
                 dosage: item.dosage || item.quantity || 'Dosage inconnu',
@@ -128,9 +106,10 @@ export async function fetchTreatments(): Promise<TreatmentsData> {
                 startDate: prescription.startDate,
                 endDate: prescription.endDate,
                 prescriberName: prescription.prescriber?.fullName ?? '',
+                stopReason: prescription.notes,
+                status: prescription.status,
             };
 
-            // Ajouter à la liste appropriée
             if (isActive) {
                 treatments.push(treatment);
             } else {
@@ -142,3 +121,10 @@ export async function fetchTreatments(): Promise<TreatmentsData> {
     return { treatments, pastTreatments };
 }
 
+export async function stopTreatment(prescriptionId: string, reason?: string): Promise<void> {
+    const response = await apiClient.patch<ApiFeedback<unknown>>(
+        `/prescriptions/${prescriptionId}/stop`,
+        { reason: reason || null }
+    );
+    unwrapApiData(response.data, "Erreur lors de l'arrêt du traitement.");
+}

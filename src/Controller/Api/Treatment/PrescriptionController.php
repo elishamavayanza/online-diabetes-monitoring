@@ -3,7 +3,9 @@
 namespace App\Controller\Api\Treatment;
 
 use App\DTO\Request\Treatment\PrescriptionRequestDTO;
+use App\DTO\Request\Treatment\StopPrescriptionRequestDTO;
 use App\DTO\Response\Treatment\PrescriptionResponseDTO;
+use App\Entity\Identity\User;
 use App\Service\Treatment\PrescriptionService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
@@ -125,6 +127,51 @@ class PrescriptionController extends AbstractController
     public function update(string $id, #[MapRequestPayload] PrescriptionRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->update($id, $dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}/stop', name: 'api_prescriptions_stop', methods: ['POST', 'PATCH'])]
+    #[OA\Patch(
+        description: 'Permet d’arrêter ou d’annuler une prescription médicale en cours.',
+        summary: 'Arrêter une prescription'
+    )]
+    #[OA\RequestBody(
+        description: 'Motif de l’arrêt de la prescription',
+        required: false,
+        content: new OA\JsonContent(
+            ref: new Model(type: StopPrescriptionRequestDTO::class)
+        )
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Traitement arrêté avec succès',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Traitement arrêté avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: PrescriptionResponseDTO::class))
+            ]
+        )
+    )]
+    #[OA\Response(response: 400, description: 'Requête invalide ou prescription non active')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Accès refusé')]
+    #[OA\Response(response: 404, description: 'Prescription introuvable')]
+    public function stop(string $id, #[MapRequestPayload] StopPrescriptionRequestDTO $dto): JsonResponse
+    {
+        /** @var User|null $currentUser */
+        $currentUser = $this->getUser();
+
+        if (!$currentUser) {
+            return $this->json(['error' => true, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Utilisation correcte de $this->service au lieu de $this->prescriptionService
+        $feedback = $this->service->stop($id, $dto->reason, $currentUser);
+
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);

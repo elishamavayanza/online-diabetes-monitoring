@@ -4,6 +4,8 @@ namespace App\Service\Treatment;
 
 use App\DTO\Feedback;
 use App\DTO\Request\Treatment\PrescriptionRequestDTO;
+use App\Entity\Identity\User;
+use App\Entity\Treatment\PrescriptionStatus;
 use App\Mapper\Treatment\PrescriptionMapper;
 use App\Repository\Healthcare\HealthcareOrganizationRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
@@ -242,6 +244,62 @@ class PrescriptionService
             return $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())->autoInitFlush();
         } catch (\Throwable $e) {
             return $feedback->setErrorFlushDescription('Erreur : ' . $e->getMessage())->autoInitFlush();
+        }
+    }
+    public function stop(string|int $id, ?string $reason, User $currentUser): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $prescription = $this->repository->find($id);
+
+            if (!$prescription) {
+                return $feedback->setErrorFlushDescription('Prescription introuvable.')->autoInitFlush();
+            }
+
+            // 1. Vérifier si l'utilisateur connecté est le patient propriétaire de la prescription
+            // (Ajustez getPatient()->getUser() ou getPatient() selon la relation exacte entre votre entité Patient et User)
+            $isPatientOwner = $prescription->getPatient()->getId() === $currentUser->getId()
+                || (method_exists($prescription->getPatient(), 'getUser') && $prescription->getPatient()->getUser()?->getId() === $currentUser->getId());
+
+            if ($isPatientOwner) {
+                // Vérification de sécurité pour le patient
+                $this->securityService->checkPatientAccess($prescription->getPatient(), SecurityAction::VIEW_PRESCRIPTION);
+            } else {
+                // Sinon, c'est un professionnel de santé, on vérifie ses droits dans l'organisation
+                $this->securityService->checkOrganizationAccess($prescription->getOrganization(), SecurityAction::CANCEL_PRESCRIPTION);
+            }
+
+            // 2. Vérifier que la prescription est active
+            if ($prescription->getStatus() !== PrescriptionStatus::ACTIVE) {
+                return $feedback->setErrorFlushDescription('Cette prescription n\'est pas active.')->autoInitFlush();
+            }
+
+            // 3. Marquer comme annulée/arrêtée
+            $prescription->setStatus(PrescriptionStatus::CANCELLED);
+
+            // Si vous avez ajouté les champs stoppedAt et stopReason, utilisez-les de préférence :
+            if (method_exists($prescription, 'setStoppedAt')) {
+                $prescription->setStoppedAt(new \DateTimeImmutable());
+            }
+            if (method_exists($prescription, 'setStopReason')) {
+                $prescription->setStopReason($reason);
+            } else {
+                // Fallback sur notes si les champs n'existent pas encore
+                $prescription->setNotes($reason ?: 'Traitement arrêté');
+            }
+
+            $this->entityManager->flush();
+
+            return $feedback
+                ->setData($this->mapper->mapEntityToResponse($prescription))
+                ->setFlushDescription('Traitement arrêté avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback->setErrorFlushDescription('Erreur : ' . $e->getMessage() . ' dans ' . $e->getFile() . ' à la ligne ' . $e->getLine())->autoInitFlush();
         }
     }
 
