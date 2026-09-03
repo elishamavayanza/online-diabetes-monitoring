@@ -2,6 +2,18 @@ import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { MedicalRecordData } from '../types';
 
+// Fonction locale pour formater une date ISO en format lisible
+function formatDate(dateStr: string): string {
+    if (!dateStr) return '—';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr; // retourner tel quel si invalide
+    return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
+}
+
 interface MedicalRecordSectionsProps {
     data: MedicalRecordData;
 }
@@ -12,7 +24,7 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
             <Card>
                 <h3>Informations personnelles</h3>
                 <p><strong>Nom :</strong> {data.personalInfo.nom}</p>
-                <p><strong>Date de naissance :</strong> {data.personalInfo.dateNaissance}</p>
+                <p><strong>Date de naissance :</strong> {formatDate(data.personalInfo.dateNaissance)}</p>
                 <p><strong>Email :</strong> {data.personalInfo.email}</p>
                 <p><strong>Téléphone :</strong> {data.personalInfo.telephone}</p>
             </Card>
@@ -20,7 +32,7 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
             <Card>
                 <h3>Diabète</h3>
                 <p><strong>Type :</strong> {data.diabetesInfo.type}</p>
-                <p><strong>Date du diagnostic :</strong> {data.diabetesInfo.dateDiagnostic}</p>
+                <p><strong>Date du diagnostic :</strong> {formatDate(data.diabetesInfo.dateDiagnostic)}</p>
             </Card>
 
             <Card>
@@ -43,7 +55,7 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
                 <h3>Diagnostics</h3>
                 {data.diagnostics.map((diag) => (
                     <div key={diag.id}>
-                        {diag.nom} — {diag.date}
+                        {diag.nom} — {formatDate(diag.date)}
                     </div>
                 ))}
             </Card>
