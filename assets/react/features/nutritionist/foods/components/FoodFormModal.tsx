@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Form } from '@/react/components/Forms/Form';
 import { FormField } from '@/react/components/Forms/FormField';
@@ -10,16 +10,19 @@ import { Alert } from '@/react/components/UI/Alert';
 import { useCreateFood } from '../hooks/useCreateFood';
 import { FoodCategory } from '../types';
 import { FoodPhotoField } from './FoodPhotoField';
+import { FoodCategoryFormModal } from './FoodCategoryFormModal';
 
 interface FoodFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess?: () => void;
     categories: FoodCategory[];
+    onCategoryCreated: (category: FoodCategory) => void;
 }
 
-export function FoodFormModal({ isOpen, onClose, onSuccess, categories }: FoodFormModalProps) {
+export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCategoryCreated }: FoodFormModalProps) {
     const { form, updateField, setPhotoFile, submit, isSubmitting, error, reset } = useCreateFood();
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
     const categoryOptions = categories.map((c) => ({ value: c.id, label: c.label }));
 
@@ -37,6 +40,12 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories }: FoodFo
         }
     };
 
+    const handleCategoryCreated = (newCategory: FoodCategory) => {
+        onCategoryCreated(newCategory);
+        // Sélectionner automatiquement la nouvelle catégorie
+        updateField('categoryId', newCategory.id);
+    };
+
     return (
         <Modal isOpen={isOpen} onClose={handleClose} title="Ajouter un aliment">
             <div className="food-form-modal">
@@ -52,12 +61,24 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories }: FoodFo
                             />
                         </FormField>
                         <FormField label="Catégorie *">
-                            <Select
-                                value={form.categoryId}
-                                onChange={(e) => updateField('categoryId', e.target.value)}
-                                options={[{ value: '', label: 'Sélectionner...' }, ...categoryOptions]}
-                                required
-                            />
+                            <div className="food-category-select-container">
+                                <Select
+                                    value={form.categoryId}
+                                    onChange={(e) => updateField('categoryId', e.target.value)}
+                                    options={[{ value: '', label: 'Sélectionner...' }, ...categoryOptions]}
+                                    required
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setIsCategoryModalOpen(true)}
+                                    title="Créer une nouvelle catégorie"
+                                    aria-label="Créer une nouvelle catégorie"
+                                    className="food-category-add-btn"
+                                >
+                                    +
+                                </Button>
+                            </div>
                         </FormField>
                         <FormField label="Calories (kcal/100g) *">
                             <Input
@@ -120,6 +141,13 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories }: FoodFo
                     </div>
                 </Form>
             </div>
+
+            {/* Modale de création de catégorie */}
+            <FoodCategoryFormModal
+                isOpen={isCategoryModalOpen}
+                onClose={() => setIsCategoryModalOpen(false)}
+                onSuccess={handleCategoryCreated}
+            />
         </Modal>
     );
 }

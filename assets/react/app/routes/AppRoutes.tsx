@@ -201,7 +201,7 @@ export default function AppRoutes() {
                     <Route index element={<Navigate to="/nutritionist/dashboard" replace />} />
                     <Route path="dashboard" element={<NutritionistDashboardPage />} />
                     <Route path="my-patients" element={<NutritionistPatientsPage />} />
-                    <Route path="plans" element={<MealPlansPage />} />
+                    {/*<Route path="plans" element={<MealPlansPage />} />*/}
                     <Route path="foods" element={<FoodsPage />} />
                     <Route path="agenda" element={<AgendaPages />} />
                     <Route path="appointments" element={<AppointmentsPages />} />

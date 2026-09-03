@@ -72,3 +72,12 @@ export function foodToFormValues(food: Food): FoodFormValues {
         fatPer100g: food.fatPer100g,
     };
 }
+
+// services/foodsService.ts
+export async function createFoodCategory(data: { label: string; description?: string }): Promise<FoodCategory> {
+    const response = await apiClient.post<ApiFeedback<FoodCategory>>('/food-categories', {
+        label: data.label,
+        description: data.description || null,
+    });
+    return unwrapApiData(response.data, 'Erreur lors de la création de la catégorie.');
+}

@@ -187,7 +187,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             id: "nutrition",
             label: "Nutrition",
             items: [
-                { id: "meal-plans", label: "Plans alimentaires", icon: <PlansIcon />, route: "/nutritionist/plans", permission: "NUTRITION_PLAN_VIEW" },
+                // { id: "meal-plans", label: "Plans alimentaires", icon: <PlansIcon />, route: "/nutritionist/plans", permission: "NUTRITION_PLAN_VIEW" },
                 { id: "foods", label: "Aliments", icon: <FoodIcon />, route: "/nutritionist/foods", permission: "FOOD_VIEW" },
             ],
         },
