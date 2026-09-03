@@ -1,14 +1,27 @@
 @use '../../../baseVariables/variables' as *;
 @use '../../../baseVariables/mixins' as *;
 
+/* ============================================================
+   PAGE DOSES
+   ============================================================ */
+
 .doses-page {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
 
     &__header {
-        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
-        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
+
+        p {
+            font-size: 1rem;
+            color: var(--color-text);
+            opacity: 0.8;
+        }
     }
 }
 
@@ -21,27 +34,184 @@
     }
 }
 
+.doses-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    opacity: 0.9;
+
+    &__total { font-weight: 600; }
+    &__taken { color: #10b981; }
+    &__pending { color: #3b82f6; }
+    &__skipped { color: #ef4444; }
+    &__delayed { color: #f59e0b; }
+}
+
+.doses-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.dose-group {
+    &__name {
+        margin: 0 0 0.5rem;
+        color: var(--color-primary);
+        font-size: 1.1rem;
+    }
+}
+
 .doses-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
+/* ============================================================
+   LIGNE DE PRISE (composant List)
+   ============================================================ */
+
 .dose-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
     padding: 0.6rem 0;
     border-bottom: 1px solid var(--color-border);
 
-    &:last-child { border-bottom: none; }
+    &:last-child {
+        border-bottom: none;
+    }
+
+    .list__content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; // espacement automatique
+        gap: 1rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+        flex-shrink: 0; // ne se réduit pas
+    }
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0; // ne se réduit pas
+    }
 
     &__time {
         font-weight: 600;
         min-width: 60px;
     }
+}
+
+/* ============================================================
+   MODAL D'ACTION SUR UNE PRISE
+   ============================================================ */
+
+.intake-action-modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    &__actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+}
+
+.intake-action-modal__medication {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.dose-period {
+    margin-bottom: 1.5rem;
+
+    &__title {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        color: var(--color-primary);
+        border-bottom: 1px dashed var(--color-border);
+        padding-bottom: 0.25rem;
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.dose-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--color-border);
+    gap: 1rem;
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
 
     &__medication {
-        flex: 1;
+        font-weight: 500;
+        min-width: 120px;
+    }
+
+    &__time {
+        font-weight: 600;
+        min-width: 60px;
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .dose-item {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .dose-item__actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .dose-item__info {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 600px) {
+    .dose-item .list__content {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .dose-item__actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .dose-item__info {
+        width: 100%;
+        justify-content: flex-start;
     }
 }

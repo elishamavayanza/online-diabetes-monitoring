@@ -1,21 +1,38 @@
 import { useState } from 'react';
 import { useDoses } from '../hooks/useDoses';
 import { DosesList } from '../components/DosesList';
+import { IntakeActionModal } from '../components/IntakeActionModal';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { MedicationIntake, IntakeStatus } from '../types';
 import '@/styles/pages/patient/doses/_doses.scss';
 
 export function DosesPage() {
-    const { intakes, isLoading, error } = useDoses();
+    const { intakes, isLoading, error, recordIntake } = useDoses();
+    const [selectedIntake, setSelectedIntake] = useState<MedicationIntake | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
     const openHelp = () => {
         setIsHelpOpen(true);
         pushAction(() => setIsHelpOpen(false));
+    };
+
+    const handleAction = (intake: MedicationIntake, newStatus: IntakeStatus) => {
+        // Pour les actions rapides, on ouvre le modal avec le statut prérempli
+        setSelectedIntake({ ...intake, statut: newStatus });
+    };
+
+    const confirmAction = async (status: IntakeStatus, time: string, quantity: string) => {
+        if (!selectedIntake) return;
+        setIsSubmitting(true);
+        await recordIntake(selectedIntake.prescriptionItemId, status, time, quantity);
+        setIsSubmitting(false);
+        setSelectedIntake(null);
     };
 
     if (isLoading) return <Spinner />;
@@ -28,13 +45,22 @@ export function DosesPage() {
                 <p>Historique réel de vos prises</p>
                 <Button variant="secondary" onClick={openHelp}>Aide</Button>
             </div>
-            <DosesList intakes={intakes} />
+
+            <DosesList intakes={intakes} onAction={handleAction} />
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
                     <p>Cette page montre les prises de médicaments d'aujourd'hui.</p>
                 </Modal>
             )}
+
+            <IntakeActionModal
+                isOpen={!!selectedIntake}
+                onClose={() => setSelectedIntake(null)}
+                intake={selectedIntake}
+                onConfirm={confirmAction}
+                isSubmitting={isSubmitting}
+            />
         </div>
     );
 }
