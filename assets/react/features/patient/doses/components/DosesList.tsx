@@ -23,6 +23,8 @@ const LockIcon = () => (
 interface DosesListProps {
     intakes: MedicationIntake[];
     onAction: (intake: MedicationIntake, newStatus: IntakeStatus) => void;
+    title: string;
+
 }
 
 const statusVariant: Record<string, 'success' | 'warning' | 'error' | 'primary'> = {
@@ -46,7 +48,7 @@ function getPeriodFromTime(time: string): string {
     return 'Soir';
 }
 
-export function DosesList({ intakes, onAction }: DosesListProps) {
+export function DosesList({ intakes, onAction, title }: DosesListProps) {
     const summary = {
         total: intakes.length,
         taken: intakes.filter((i) => i.statut === 'TAKEN').length,
@@ -63,7 +65,7 @@ export function DosesList({ intakes, onAction }: DosesListProps) {
 
     return (
         <Card className="doses-card">
-            <h2>Aujourd'hui</h2>
+            <h2>{title}</h2>
 
             <div className="doses-summary">
                 <span className="doses-summary__total">{summary.total} prises</span>

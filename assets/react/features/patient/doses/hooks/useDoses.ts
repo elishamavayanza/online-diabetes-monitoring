@@ -1,4 +1,3 @@
-// hooks/useDoses.ts
 import { useCallback, useEffect, useState } from 'react';
 import { fetchDoses, recordIntake as recordIntakeApi } from '../services/dosesService';
 import { MedicationIntake, IntakeStatus } from '../types';
@@ -7,6 +6,8 @@ import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 export function useDoses() {
     const { showToast } = useToast();
     const [intakes, setIntakes] = useState<MedicationIntake[]>([]);
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [markedDates, setMarkedDates] = useState<{ date: Date }[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -14,14 +15,15 @@ export function useDoses() {
         setIsLoading(true);
         setError(null);
         try {
-            const data = await fetchDoses();
+            const data = await fetchDoses(selectedDate);
             setIntakes(data.today);
+            setMarkedDates(data.markedDates ?? []);
         } catch (err) {
             setError('Impossible de charger les prises.');
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [selectedDate]);
 
     useEffect(() => {
         load();
@@ -42,5 +44,5 @@ export function useDoses() {
         }
     }, [load, showToast]);
 
-    return { intakes, isLoading, error, recordIntake, reload: load };
+    return { intakes, selectedDate, setSelectedDate, markedDates, isLoading, error, recordIntake, reload: load };
 }

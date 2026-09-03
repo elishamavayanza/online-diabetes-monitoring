@@ -12,4 +12,6 @@ export interface MedicationIntake {
 
 export interface DosesData {
     today: MedicationIntake[];
+    markedDates?: { date: Date }[];
+
 }
