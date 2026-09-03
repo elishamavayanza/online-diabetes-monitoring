@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Button } from '@/react/components/UI/Button';
 import { FormField } from '@/react/components/Forms/FormField';
@@ -20,24 +20,43 @@ const STATUS_OPTIONS = [
     { value: 'DELAYED', label: 'Retardée' },
 ];
 
+const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => ({
+    value: String(i).padStart(2, '0'),
+    label: `${String(i).padStart(2, '0')} h`,
+}));
+
+//  Toutes les minutes de 00 à 59
+const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => ({
+    value: String(i).padStart(2, '0'),
+    label: String(i).padStart(2, '0'),
+}));
+
 export function IntakeActionModal({ isOpen, onClose, intake, onConfirm, isSubmitting }: IntakeActionModalProps) {
     const [status, setStatus] = useState<IntakeStatus>('TAKEN');
-    const [time, setTime] = useState('');
+    const [hour, setHour] = useState('08');
+    const [minute, setMinute] = useState('00');
     const [quantity, setQuantity] = useState('1');
+
+    useEffect(() => {
+        if (intake) {
+            const [h, m] = intake.time.split(':');
+            setHour(h);
+            setMinute(m);
+            setQuantity('1');
+            setStatus('TAKEN');
+        }
+    }, [intake, isOpen]);
 
     if (!intake) return null;
 
     const handleConfirm = async () => {
-        await onConfirm(status, time || intake.time, quantity);
-        setStatus('TAKEN');
-        setTime('');
-        setQuantity('1');
+        const time = `${hour}:${minute}`;
+        await onConfirm(status, time, quantity);
     };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Enregistrer la prise">
             <div className="intake-action-modal">
-                {/* Affichage du médicament */}
                 <div className="intake-action-modal__medication">
                     <strong>Médicament :</strong> {intake.medication}
                 </div>
@@ -49,14 +68,23 @@ export function IntakeActionModal({ isOpen, onClose, intake, onConfirm, isSubmit
                         options={STATUS_OPTIONS}
                     />
                 </FormField>
+
                 <FormField label="Heure">
-                    <Input
-                        type="time"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                        placeholder={intake.time}
-                    />
+                    <div className="time-picker-24h">
+                        <Select
+                            value={hour}
+                            onChange={(e) => setHour(e.target.value)}
+                            options={HOUR_OPTIONS}
+                        />
+                        <span>:</span>
+                        <Select
+                            value={minute}
+                            onChange={(e) => setMinute(e.target.value)}
+                            options={MINUTE_OPTIONS}
+                        />
+                    </div>
                 </FormField>
+
                 <FormField label="Quantité">
                     <Input
                         type="number"
@@ -66,9 +94,10 @@ export function IntakeActionModal({ isOpen, onClose, intake, onConfirm, isSubmit
                         onChange={(e) => setQuantity(e.target.value)}
                     />
                 </FormField>
+
                 <div className="intake-action-modal__actions">
-                    <Button variant="secondary" onClick={onClose}>Annuler</Button>
-                    <Button variant="primary" onClick={handleConfirm} disabled={isSubmitting}>
+                    <Button type="button" variant="secondary" onClick={onClose}>Annuler</Button>
+                    <Button type="button" variant="primary" onClick={handleConfirm} disabled={isSubmitting}>
                         {isSubmitting ? 'Enregistrement...' : 'Valider'}
                     </Button>
                 </div>

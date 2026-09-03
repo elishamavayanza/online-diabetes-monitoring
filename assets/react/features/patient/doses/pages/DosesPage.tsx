@@ -26,11 +26,24 @@ export function DosesPage() {
         // Pour les actions rapides, on ouvre le modal avec le statut prérempli
         setSelectedIntake({ ...intake, statut: newStatus });
     };
-
+    // DosesPage.tsx
     const confirmAction = async (status: IntakeStatus, time: string, quantity: string) => {
         if (!selectedIntake) return;
+
+        // Construire une date du jour avec l'heure choisie
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateTime = new Date(`${year}-${month}-${day}T${time}:00`);
+
         setIsSubmitting(true);
-        await recordIntake(selectedIntake.prescriptionItemId, status, time, quantity);
+        await recordIntake(
+            selectedIntake.prescriptionItemId,
+            status,
+            dateTime.toISOString(), // envoi en ISO complet
+            quantity
+        );
         setIsSubmitting(false);
         setSelectedIntake(null);
     };

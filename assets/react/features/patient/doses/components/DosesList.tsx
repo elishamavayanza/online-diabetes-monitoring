@@ -1,7 +1,24 @@
+// DosesList.tsx
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { MedicationIntake, IntakeStatus } from '../types';
+
+const LockIcon = () => (
+    <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+);
 
 interface DosesListProps {
     intakes: MedicationIntake[];
@@ -61,35 +78,44 @@ export function DosesList({ intakes, onAction }: DosesListProps) {
                     <section key={period} className="dose-period">
                         <h3 className="dose-period__title">{period}</h3>
                         <div className="dose-period__list">
-                            {intakes.map((intake) => (
-                                <div key={intake.id} className="dose-item">
-                                    <div className="dose-item__actions">
-                                        {intake.statut === 'PENDING' ? (
-                                            <>
-                                                <Button size="small" variant="success" onClick={() => onAction(intake, 'TAKEN')}>
+                            {intakes.map((intake) => {
+                                const isDone = intake.statut !== 'PENDING';
+                                return (
+                                    <div key={intake.id} className={`dose-item ${isDone ? 'dose-item--done' : ''}`}>
+                                        <div className="dose-item__info">
+                                            <span className="dose-item__medication">{intake.medication}</span>
+                                            <span className="dose-item__time">{intake.time}</span>
+
+                                            {isDone && intake.quantityTaken && (
+                                                <span className="dose-item__taken-at">
+                                                — {intake.quantityTaken}
+                                            </span>
+                                            )}
+
+                                            <Badge variant={statusVariant[intake.statut]}>
+                                                {statusLabel[intake.statut]}
+                                            </Badge>
+                                        </div>
+
+                                        <div className="dose-item__actions">
+                                            {!isDone ? (
+                                                <Button
+                                                    type="button"
+                                                    size="small"
+                                                    variant="success"
+                                                    onClick={() => onAction(intake, 'TAKEN')}
+                                                >
                                                     Prise
                                                 </Button>
-                                                <Button size="small" variant="danger" onClick={() => onAction(intake, 'SKIPPED')}>
-                                                    Ignorée
-                                                </Button>
-                                                <Button size="small" variant="secondary" onClick={() => onAction(intake, 'DELAYED')}>
-                                                    Retardée
-                                                </Button>
-                                            </>
-                                        ) : (
-                                            <span className="dose-item__locked">🔒</span>
-                                        )}
+                                            ) : (
+                                                <span className="dose-item__locked" title="Prise verrouillée">
+                                            <LockIcon />
+                                        </span>
+                                            )}
+                                        </div>
                                     </div>
-
-                                    <div className="dose-item__info">
-                                        <span className="dose-item__medication">{intake.medication}</span>
-                                        <span className="dose-item__time">{intake.time}</span>
-                                        <Badge variant={statusVariant[intake.statut]}>
-                                            {statusLabel[intake.statut]}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </section>
                 ) : null
