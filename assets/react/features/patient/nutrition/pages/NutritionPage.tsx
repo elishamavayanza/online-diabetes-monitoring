@@ -12,6 +12,7 @@ import {PlanTab} from "@/react/features/patient/nutrition/componenets/PlanTab";
 import {PlanCreationModal} from "@/react/features/patient/nutrition/componenets/Forms/PlanCreationModal";
 import {MealFormModal} from "@/react/features/patient/nutrition/componenets/Forms/MealFormModal";
 import {MealItemFormModal} from "@/react/features/patient/nutrition/componenets/Forms/MealItemFormModal";
+
 export function NutritionPage() {
     const {
         meals,
@@ -28,6 +29,7 @@ export function NutritionPage() {
         addItem,
         removeItem,
         createPlan,
+        categories,
     } = useNutrition();
 
     const [activeTab, setActiveTab] = useState<'foods' | 'plan'>('foods');
@@ -90,6 +92,7 @@ export function NutritionPage() {
             {activeTab === 'foods' ? (
                 <FoodsTab
                     foods={foods}
+                    categories={categories}   // ✅ prop passée
                     selectedFoods={selectedFoods}
                     setSelectedFoods={setSelectedFoods}
                     onCreatePlan={() => setIsPlanModalOpen(true)}
@@ -108,7 +111,6 @@ export function NutritionPage() {
                 />
             )}
 
-            {/* Modales */}
             <PlanCreationModal
                 isOpen={isPlanModalOpen}
                 onClose={() => setIsPlanModalOpen(false)}

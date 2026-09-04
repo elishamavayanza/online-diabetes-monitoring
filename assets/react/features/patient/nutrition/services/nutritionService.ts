@@ -30,11 +30,19 @@ export async function fetchNutrition(): Promise<NutritionData> {
 export async function fetchFoods(): Promise<FoodOption[]> {
     const response = await apiClient.get<ApiFeedback<any[]>>('/foods');
     const foods = unwrapApiData(response.data, 'Erreur lors du chargement des aliments.');
+
+    // Récupère les catégories pour construire une table de correspondance
+    const categories = await fetchFoodCategories();
+    const categoryMap = new Map(categories.map((c) => [c.id, c.label]));
+
     return foods.map((f) => ({
         id: String(f.id),
         name: f.name,
-        photoUrl: f.photoUrl ?? '', // ✅ si le backend renvoie ce champ
-        category: f.category ?? '',
+        photoUrl: f.photoUrl ?? '',
+        // ✅ Utilise categoryId pour retrouver le libellé de la catégorie
+        category: f.categoryId
+            ? (categoryMap.get(String(f.categoryId)) ?? '')
+            : (f.category ?? ''),
     }));
 }
 
@@ -83,5 +91,17 @@ export async function createMealPlan(mealIds: string[]): Promise<MealPlan> {
         mealIds,
     });
     return unwrapApiData(response.data, 'Erreur lors de la création du plan.');
+}
+
+// services/nutritionService.ts
+
+// Récupère les catégories d'aliments avec leur ID et libellé
+export async function fetchFoodCategories(): Promise<{ id: string; label: string }[]> {
+    const response = await apiClient.get<ApiFeedback<any[]>>('/food-categories');
+    const categories = unwrapApiData(response.data, 'Erreur lors du chargement des catégories.');
+    return categories.map((c) => ({
+        id: String(c.id),
+        label: c.label ?? c.name ?? '',
+    }));
 }
 

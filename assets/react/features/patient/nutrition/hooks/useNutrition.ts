@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
     fetchNutrition,
     createMeal,
+    fetchFoodCategories,
     deleteMeal,
     addMealItem,
     deleteMealItem,
@@ -19,14 +20,20 @@ export function useNutrition() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [categories, setCategories] = useState<string[]>([]);
+
 
     const load = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
-            const data = await fetchNutrition();
+            const [data, cats] = await Promise.all([
+                fetchNutrition(),
+                fetchFoodCategories(),
+            ]);
             setMeals(data.meals);
             setMealItems(data.mealItems);
+            setCategories(Array.from(new Set(cats.map((c) => c.label))));
         } catch (err) {
             setError('Impossible de charger les données de nutrition.');
         } finally {
@@ -49,7 +56,7 @@ export function useNutrition() {
         );
     });
 
-    // ✅ Correction : type guard pour s'assurer que createdAt est une string
+    //  Correction : type guard pour s'assurer que createdAt est une string
     const markedDates = meals
         .filter((meal): meal is PatientMeal & { createdAt: string } => !!meal.createdAt)
         .map((meal) => {
@@ -148,6 +155,7 @@ export function useNutrition() {
         setSelectedDate,
         isLoading,
         error,
+        categories,
         addMeal,
         removeMeal,
         addItem,

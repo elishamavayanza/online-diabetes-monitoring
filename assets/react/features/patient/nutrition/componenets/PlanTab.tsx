@@ -1,19 +1,28 @@
 // components/PlanTab.tsx
+import { useState } from 'react';
 import { RightSidebar } from '@/react/components/Navigation/RightSidebar';
 import { Calendar } from '@/react/components/Calendars/Calendar';
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
+import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
 import { PatientMeal, PatientMealItem, FoodOption } from '../types';
 
-// ✅ Traduction des types de repas
 const MEAL_TYPE_LABELS: Record<string, string> = {
     BREAKFAST: 'Petit-déjeuner',
     LUNCH: 'Déjeuner',
     DINNER: 'Dîner',
     SNACK: 'Collation',
-    // Les types personnalisés (OTHER) seront affichés tels quels
 };
+
+const TrashIcon = () => (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <line x1="10" y1="11" x2="10" y2="17" />
+        <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+);
 
 interface PlanTabProps {
     meals: PatientMeal[];
@@ -38,7 +47,16 @@ export function PlanTab({
                             onRemoveItem,
                             onAddItem,
                         }: PlanTabProps) {
+    const [mealToDelete, setMealToDelete] = useState<string | null>(null);
+
     const foodMap = new Map(foods.map((food) => [food.id, food]));
+
+    const handleConfirmDeleteMeal = () => {
+        if (mealToDelete) {
+            onRemoveMeal(mealToDelete);
+        }
+        setMealToDelete(null);
+    };
 
     return (
         <div className="nutrition-page__plan-layout">
@@ -54,14 +72,13 @@ export function PlanTab({
                             <Card key={meal.id} className="meal-card">
                                 <div className="meal-card__header">
                                     <h3>{meal.name}</h3>
-                                    {/* ✅ Affichage traduit */}
                                     <Badge variant="info">
                                         {MEAL_TYPE_LABELS[meal.mealType] || meal.mealType}
                                     </Badge>
                                     <Button
                                         variant="danger"
                                         size="small"
-                                        onClick={() => onRemoveMeal(meal.id)}
+                                        onClick={() => setMealToDelete(meal.id)}
                                     >
                                         Supprimer
                                     </Button>
@@ -95,13 +112,15 @@ export function PlanTab({
                                                             {item.breadUnits} UP
                                                         </span>
                                                     )}
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="small"
+                                                    <button
+                                                        type="button"
+                                                        className="meal-item__remove-btn"
                                                         onClick={() => onRemoveItem(item.id)}
+                                                        title="Retirer"
+                                                        aria-label="Retirer cet aliment"
                                                     >
-                                                        Retirer
-                                                    </Button>
+                                                        <TrashIcon />
+                                                    </button>
                                                 </div>
                                             );
                                         })
@@ -140,6 +159,16 @@ export function PlanTab({
                     />
                 </div>
             </RightSidebar>
+
+            <ConfirmDialog
+                isOpen={!!mealToDelete}
+                onClose={() => setMealToDelete(null)}
+                onConfirm={handleConfirmDeleteMeal}
+                title="Supprimer le repas"
+                message="Voulez-vous vraiment supprimer ce repas ?"
+                confirmLabel="Supprimer"
+                cancelLabel="Annuler"
+            />
         </div>
     );
 }

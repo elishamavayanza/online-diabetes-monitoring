@@ -7,18 +7,115 @@
     gap: 1.5rem;
 
     &__header {
-        h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--color-primary); }
-        p { font-size: 1rem; color: var(--color-text); opacity: 0.8; }
-    }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
 
+        p {
+            font-size: 1rem;
+            color: var(--color-text);
+            opacity: 0.8;
+        }
+    }
 
     &__meals {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); /* ✅ largeur minimale augmentée */
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
         gap: 1rem;
+    }
+
+    // ✅ Barre d'actions : bouton plan + filtre + recherche
+    &__header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    // ✅ Bouton "Créer un plan" avec grande largeur sur desktop
+    &__plan-action {
+        flex: 3 1 auto;          // ✅ prend plus de place que la recherche (3/2)
+        min-width: 200px;
+    }
+
+    &__plan-button {
+        width: 100%;
+    }
+
+    // ✅ Recherche : largeur moindre sur desktop
+    &__search {
+        flex: 2 1 auto;
+        min-width: 200px;
+    }
+
+    // ✅ Filtre icône
+    &__filter-wrapper {
+        position: relative;
+        flex: 0 0 auto;
+    }
+
+    &__filter-btn {
+        background: none;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--color-text);
+        transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+
+        &:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        &--active {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-on-primary);
+        }
+    }
+
+    &__filter-dropdown {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        min-width: 220px;
+        z-index: 4200;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__filter-option {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        &--selected {
+            background-color: rgba(44, 122, 123, 0.1);
+            color: var(--color-primary);
+            font-weight: 500;
+        }
     }
 }
 
+// Carte repas
 .meal-card {
     display: flex;
     flex-direction: column;
@@ -30,7 +127,10 @@
         gap: 0.5rem;
         flex-wrap: wrap;
 
-        h3 { margin: 0; flex: 1; }
+        h3 {
+            margin: 0;
+            flex: 1;
+        }
     }
 
     &__desc {
@@ -45,15 +145,69 @@
     }
 }
 
+// Item d'un repas (ligne aliment)
 .meal-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.4rem 0.6rem;
-    background: rgba(0,0,0,0.03);
+    background: rgba(0, 0, 0, 0.03);
     border-radius: 0.5rem;
+    flex-wrap: wrap;
+
+    &__photo {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    &__placeholder {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 50%;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    &__name {
+        flex: 1;
+        font-weight: 500;
+    }
+
+    &__portion,
+    &__bread-units {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+    &__remove-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-text);
+        opacity: 0.6;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.3rem;
+        border-radius: 50%;
+        transition: color 0.2s, opacity 0.2s, background-color 0.2s;
+        margin-left: auto;
+
+        &:hover {
+            color: #ef4444; // rouge au survol
+            opacity: 1;
+            background-color: rgba(239, 68, 68, 0.08);
+        }
+    }
 }
 
+// Sélection de repas (ancienne section, conservée si utilisée)
 .plan-selection-card {
     margin-bottom: 1rem;
 
@@ -85,6 +239,7 @@
     }
 }
 
+// Grille de sélection d'aliments
 .food-selection-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -141,6 +296,7 @@
     }
 }
 
+// Modal de création de plan : liste des aliments sélectionnés
 .plan-food-list {
     display: flex;
     flex-direction: column;
@@ -159,6 +315,7 @@
     }
 }
 
+// Layout de l'onglet "Mon plan"
 .nutrition-page__plan-layout {
     display: flex;
     gap: 1rem;
@@ -176,6 +333,8 @@
     gap: 0.75rem;
     padding: 0.5rem;
 }
+
+// Groupe quantité + unité
 .quantity-unit-group {
     display: flex;
     gap: 0.25rem;
@@ -186,40 +345,26 @@
     }
 }
 
-.meal-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.6rem;
-    background: rgba(0,0,0,0.03);
-    border-radius: 0.5rem;
-
-    &__photo {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
+/* ============================================================
+   RESPONSIVE – MOBILE
+   ============================================================ */
+@media (max-width: 600px) {
+    .nutrition-page__header-actions {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    &__placeholder {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,0.05);
-        border-radius: 50%;
-        font-size: 1.2rem;
+    .nutrition-page__plan-action {
+        flex: 0 0 auto;
+        width: auto; // le bouton garde sa taille naturelle
     }
 
-    &__name {
-        flex: 1;
-        font-weight: 500;
+    .nutrition-page__search {
+        width: 100%; // la recherche occupe toute la largeur
+        flex: 1 1 auto;
     }
 
-    &__portion,
-    &__bread-units {
-        font-size: 0.85rem;
-        opacity: 0.8;
+    .nutrition-page__filter-wrapper {
+        align-self: flex-start;
     }
 }
