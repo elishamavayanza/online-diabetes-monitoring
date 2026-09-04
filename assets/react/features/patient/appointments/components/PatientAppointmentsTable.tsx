@@ -12,6 +12,8 @@ const statusVariant: Record<string, 'success' | 'warning' | 'error' | 'primary'>
     'En attente': 'warning',
     'Terminé': 'primary',
     'Annulé': 'error',
+    'Absent': 'error',
+    'Report demandé': 'warning',   // ✅ ajout
 };
 
 export function PatientAppointmentsTable({ appointments }: PatientAppointmentsTableProps) {

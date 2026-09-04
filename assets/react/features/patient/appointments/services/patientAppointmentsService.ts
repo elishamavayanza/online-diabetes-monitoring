@@ -59,6 +59,7 @@ export async function fetchPatientAppointments(): Promise<PatientAppointment[]> 
             professionnel: professionalMap.get(appt.professionalId ?? '') ?? 'Professionnel',
             motif: appt.reason ?? 'Consultation',
             statut: statusMapping[appt.status] ?? 'En attente',
+            scheduledAt: appt.scheduledAt, //  ISO string
         };
     });
 }
