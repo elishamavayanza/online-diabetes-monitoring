@@ -29,3 +29,15 @@ export function getCurrentUserIdFromToken(): string | null {
     }
     return null;
 }
+
+// authUtils.ts
+export function getCurrentUserOrganizationId(): string | null {
+    const token = tokenStorage.getAccessToken();
+    if (!token) return null;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.organizationId || (payload.organizations?.[0]?.organization_id) || null;
+    } catch {
+        return null;
+    }
+}

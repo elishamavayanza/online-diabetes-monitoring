@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// hooks/usePatientAppointments.ts
+import { useCallback, useEffect, useState } from 'react';
 import { fetchPatientAppointments } from '../services/patientAppointmentsService';
 import { PatientAppointment } from '../types';
 
@@ -7,19 +8,22 @@ export function usePatientAppointments() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await fetchPatientAppointments();
-                setAppointments(data);
-            } catch (err) {
-                setError('Impossible de charger les rendez-vous.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        load();
+    const load = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const data = await fetchPatientAppointments();
+            setAppointments(data);
+        } catch (err) {
+            setError('Impossible de charger les rendez-vous.');
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
-    return { appointments, isLoading, error };
+    useEffect(() => {
+        load();
+    }, [load]);
+
+    return { appointments, isLoading, error, reload: load };
 }

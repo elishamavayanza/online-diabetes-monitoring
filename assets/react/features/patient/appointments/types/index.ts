@@ -1,4 +1,5 @@
-export type AppointmentStatus = 'Confirmé' | 'En attente' | 'Terminé' | 'Annulé';
+// types.ts
+export type AppointmentStatus = 'Confirmé' | 'En attente' | 'Terminé' | 'Annulé' | 'Absent';
 
 export interface PatientAppointment {
     id: string;
@@ -7,4 +8,9 @@ export interface PatientAppointment {
     professionnel: string;
     motif: string;
     statut: AppointmentStatus;
+}
+
+export interface ProfessionalOption {
+    id: string;
+    fullName: string;
 }

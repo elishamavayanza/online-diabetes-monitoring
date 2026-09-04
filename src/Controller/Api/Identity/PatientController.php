@@ -219,4 +219,34 @@ class PatientController extends AbstractController
         return $this->json($feedback, $status);
     }
 
+    #[Route('/{id}/team', name: 'api_patients_get_team', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Récupérer l’équipe de soins du patient',
+        description: 'Permet de récupérer la liste des professionnels de santé assignés à ce patient.'
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'ID du patient',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Équipe de soins récupérée avec succès'
+    )]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Permission insuffisante')]
+    #[OA\Response(response: 404, description: 'Patient introuvable')]
+    public function getPatientTeam(int $id): JsonResponse
+    {
+        $feedback = $this->patientService->getPatientTeam($id);
+
+        $status = $feedback->hasErrors()
+            ? Response::HTTP_BAD_REQUEST
+            : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
 }

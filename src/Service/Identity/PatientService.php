@@ -301,4 +301,65 @@ class PatientService
             return $feedback->setErrorFlushDescription('Erreur lors de la mise à jour du profil patient : ' . $e->getMessage())->autoInitFlush();
         }
     }
+
+    /**
+     * Récupère les professionnels assignés à l'équipe de soins d'un patient.
+     */
+    public function getPatientTeam(string $userId): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $currentUser = $this->securityService->getCurrentUser();
+
+            $user = $this->repository->find($userId);
+            if (!$user instanceof Patient) {
+                return $feedback
+                    ->setErrorFlushDescription('Profil patient introuvable.')
+                    ->autoInitFlush();
+            }
+
+            // Vérification des accès (le patient lui-même ou un professionnel autorisé)
+            $this->securityService->checkPatientAccess($user, SecurityAction::VIEW_PATIENT);
+
+            // Récupérer les affectations de l'équipe de soins pour ce patient
+            $assignments = $this->careTeamAssignmentRepository->findBy(['patient' => $user]);
+            $professionals = [];
+
+            foreach ($assignments as $assignment) {
+                if ($assignment->isActive() && $assignment->getProfessional()) {
+                    $professional = $assignment->getProfessional();
+                    if (!in_array($professional, $professionals, true)) {
+                        $professionals[] = $professional;
+                    }
+                }
+            }
+
+            // Vous pouvez mapper vers un DTO de réponse professionnel si disponible,
+            // ou retourner les données directement selon vos besoins.
+            $data = array_map(function ($professional) {
+                return [
+                    'id' => $professional->getId(),
+                    'fullName' => $professional->getFullName(),
+                    'email' => $professional->getEmail(),
+                    'phone' => $professional->getPhone(),
+                    // Ajoutez d'autres champs utiles si nécessaire
+                ];
+            }, $professionals);
+
+            return $feedback
+                ->setData($data)
+                ->setFlushDescription('Équipe de soins récupérée avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback
+                ->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
+                ->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback
+                ->setErrorFlushDescription('Erreur lors de la récupération de l’équipe : ' . $e->getMessage())
+                ->autoInitFlush();
+        }
+    }
 }
