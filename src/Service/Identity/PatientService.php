@@ -319,10 +319,8 @@ class PatientService
                     ->autoInitFlush();
             }
 
-            // Vérification des accès (le patient lui-même ou un professionnel autorisé)
             $this->securityService->checkPatientAccess($user, SecurityAction::VIEW_PATIENT);
 
-            // Récupérer les affectations de l'équipe de soins pour ce patient
             $assignments = $this->careTeamAssignmentRepository->findBy(['patient' => $user]);
             $professionals = [];
 
@@ -335,15 +333,20 @@ class PatientService
                 }
             }
 
-            // Vous pouvez mapper vers un DTO de réponse professionnel si disponible,
-            // ou retourner les données directement selon vos besoins.
             $data = array_map(function ($professional) {
+                // Récupération du rôle ou de la spécialité du professionnel
+                // Adaptez la méthode selon votre entité (ex: getRoles(), getSpeciality(), getProfession(), etc.)
+
                 return [
                     'id' => $professional->getId(),
                     'fullName' => $professional->getFullName(),
                     'email' => $professional->getEmail(),
                     'phone' => $professional->getPhone(),
-                    // Ajoutez d'autres champs utiles si nécessaire
+                    // Exemple 1 : Si vous stockez les rôles Symfony dans un tableau
+                    'roles' => method_exists($professional, 'getRoles') ? $professional->getRoles() : [],
+
+                    // Exemple 2 : Si votre entité possède une propriété/méthode dédiée au métier (ex: getSpeciality ou getRole)
+                    // 'role' => method_exists($professional, 'getSpeciality') ? $professional->getSpeciality() : 'Professionnel de santé'
                 ];
             }, $professionals);
 
