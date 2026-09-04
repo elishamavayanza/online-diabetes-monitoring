@@ -245,7 +245,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Rendez-vous",
             items: [
                 { id: "my-appointments", label: "Mes rendez-vous", icon: <AppointmentsIcon />, route: "/patient/appointments", permission: "APPOINTMENT_VIEW" },
-                { id: "book-appointment", label: "Prendre rendez-vous", icon: <BookAppointmentIcon />, route: "/patient/book", permission: "APPOINTMENT_CREATE" },
+                // { id: "book-appointment", label: "Prendre rendez-vous", icon: <BookAppointmentIcon />, route: "/patient/book", permission: "APPOINTMENT_CREATE" },
             ],
         },
         {

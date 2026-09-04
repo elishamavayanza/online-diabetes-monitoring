@@ -228,7 +228,7 @@ export default function AppRoutes() {
                     <Route path="treatments" element={<TreatmentsPage />} />
                     <Route path="doses" element={<DosesPage />} />
                     <Route path="appointments" element={<PatientAppointmentsPage />} />
-                    <Route path="book" element={<BookingPage />} />
+                    {/*<Route path="book" element={<BookingPage />} />*/}
                     <Route path="messages" element={<PatientMessagesPage />} />
                     <Route path="notifications" element={<PatientNotificationsPage />} />
                     <Route path="team" element={<TeamPage />} />
