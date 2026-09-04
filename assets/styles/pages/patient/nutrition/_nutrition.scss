@@ -1,0 +1,60 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+.nutrition-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+
+        h1 { font-size: 1.8rem; margin: 0; color: var(--color-primary); }
+        p { margin: 0; opacity: 0.8; }
+    }
+
+    &__meals {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+}
+
+.meal-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+
+        h3 { margin: 0; flex: 1; }
+    }
+
+    &__desc {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+
+    &__items {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+.meal-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(0,0,0,0.03);
+    border-radius: 0.5rem;
+}

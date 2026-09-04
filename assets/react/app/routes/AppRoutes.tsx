@@ -60,6 +60,7 @@ import {ClinicianPatientRecordInitPage} from "@/react/features/clinician/patient
 import {
     ClinicianPatientRecordClosedPage
 } from "@/react/features/clinician/patients/pages/ClinicianPatientRecordClosedPage";
+import {NutritionPage} from "@/react/features/patient/nutrition/pages/NutritionPage";
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -231,6 +232,7 @@ export default function AppRoutes() {
                     <Route path="messages" element={<PatientMessagesPage />} />
                     <Route path="notifications" element={<PatientNotificationsPage />} />
                     <Route path="team" element={<TeamPage />} />
+                    <Route path="nutrition" element={<NutritionPage />} />
                 </Route>
 
                 <Route

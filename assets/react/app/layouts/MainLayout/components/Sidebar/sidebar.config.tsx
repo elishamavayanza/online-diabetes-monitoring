@@ -226,6 +226,13 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             ],
         },
         {
+            id: "nutrition-patient",
+            label: "Nutrition",
+            items: [
+                { id: "my-nutrition", label: "Ma nutrition", icon: <FoodIcon />, route: "/patient/nutrition", permission: "NUTRITION_VIEW" },
+            ],
+        },
+        {
             id: "treatment",
             label: "Traitement",
             items: [
