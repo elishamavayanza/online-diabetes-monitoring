@@ -143,6 +143,36 @@ class NotificationService
         return $feedback;
     }
 
+    /**
+     * Marque une notification spécifique comme lue
+     */
+    public function markAsRead(string $id): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $notification = $this->repository->find($id);
+            if (!$notification) {
+                return $feedback->setErrorFlushDescription("Notification introuvable.")->autoInitFlush();
+            }
+
+            $notification->setIsRead(true);
+            $this->entityManager->flush();
+
+            // refresh inutile, mais peut être conservé
+            // $this->entityManager->refresh($notification);
+
+            $feedback->setData($this->mapper->mapEntityToResponse($notification))
+                ->setFlushDescription("Notification marquée comme lue avec succès.")
+                ->autoInitFlush();
+
+        } catch (\Exception $e) {
+            $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush();
+        }
+
+        return $feedback;
+    }
+
     public function update(string $id, NotificationRequestDTO $dto): Feedback
     {
         $feedback = new Feedback();

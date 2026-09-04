@@ -30,7 +30,9 @@ export function NotificationsTable({ notifications }: NotificationsTableProps) {
             key: 'estLue',
             title: 'État',
             render: (row: PatientNotification) => (
-                <Badge variant={row.estLue ? 'success' : 'warning'}>{row.estLue ? 'Lue' : 'Non lue'}</Badge>
+                <Badge variant={row.estLue ? 'success' : 'warning'}>
+                    {row.estLue ? 'Lue' : 'Non lue'}
+                </Badge>
             ),
         },
         { key: 'date', title: 'Date' },

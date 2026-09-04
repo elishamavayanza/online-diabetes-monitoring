@@ -1,3 +1,4 @@
+// pages/PatientNotificationsPage.tsx
 import { usePatientNotifications } from '../hooks/usePatientNotifications';
 import { NotificationsTable } from '../components/NotificationsTable';
 import { Spinner } from '@/react/components/UI/Spinner';
@@ -7,7 +8,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/patient/notifications/_notifications.scss';
 
 export function PatientNotificationsPage() {
-    const { notifications, filter, setFilter, isLoading, error } = usePatientNotifications();
+    const { notifications, filter, setFilter, markAsRead, isLoading, error } = usePatientNotifications();
     const { pushAction } = useActionHistory();
 
     const tabs = [
@@ -18,7 +19,6 @@ export function PatientNotificationsPage() {
     const handleFilterChange = (newFilter: string) => {
         const previousFilter = filter;
         setFilter(newFilter as typeof filter);
-        // Action inverse : restaurer l'ancien filtre
         pushAction(() => setFilter(previousFilter));
     };
 
@@ -36,7 +36,7 @@ export function PatientNotificationsPage() {
                 defaultActiveTabId={filter}
                 onChange={handleFilterChange}
             />
-            <NotificationsTable notifications={notifications} />
+            <NotificationsTable notifications={notifications} onMarkAsRead={markAsRead} />
         </div>
     );
 }

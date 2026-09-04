@@ -141,6 +141,32 @@ class NotificationController extends AbstractController
         return $this->json($feedback, $status);
     }
 
+    #[Route('/{id}/read', name: 'api_notifications_mark_read', methods: ['PATCH'])]
+    #[OA\Patch(
+        description: "Marque une notification comme lue.",
+        summary: "Marquer comme lue"
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Notification marquée comme lue',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'status', type: 'integer', example: 200),
+                new OA\Property(property: 'error', type: 'boolean', example: false),
+                new OA\Property(property: 'message', type: 'string', example: 'Notification marquée comme lue avec succès.'),
+                new OA\Property(property: 'data', ref: new Model(type: NotificationResponseDTO::class))
+            ]
+        )
+    )]
+    #[OA\Response(response: 404, description: 'Notification introuvable')]
+    public function markAsRead(string $id): JsonResponse
+    {
+        $feedback = $this->service->markAsRead($id);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
     #[Route('/{id}', name: 'api_notifications_delete', methods: ['DELETE'])]
     #[OA\Delete(
         description: 'Supprime une notification par son identifiant.',

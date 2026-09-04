@@ -20,7 +20,7 @@ interface MessageDetailResponse {
     sentAt: string;
     isMine: boolean;
     senderId: string;
-    authorName?: string;   // ✅ renvoyé par le backend
+    authorName?: string;
     attachments: MessageAttachment[];
 }
 

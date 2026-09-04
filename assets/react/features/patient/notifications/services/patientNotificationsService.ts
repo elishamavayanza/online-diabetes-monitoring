@@ -1,16 +1,62 @@
+// services/patientNotificationsService.ts
+import apiClient from '@/services/api/client';
+import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback';
 import { PatientNotification, PatientNotificationFilter } from '../types';
 
-export async function fetchPatientNotifications(filter: PatientNotificationFilter): Promise<PatientNotification[]> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+// Mapping des types backend vers les types frontend
+const mapBackendType = (backendType: string): PatientNotification['type'] => {
+    switch (backendType) {
+        case 'MEDICATION_REMINDER':
+            return 'MEDICATION_REMINDER';
+        case 'APPOINTMENT':
+            return 'APPOINTMENT';
+        case 'NEW_MESSAGE':
+            return 'NEW_MESSAGE';
+        case 'PRESCRIPTION_UPDATED':
+            return 'PRESCRIPTION_UPDATED';
+        case 'MEASUREMENT_REMINDER':
+            return 'MEASUREMENT_REMINDER';
+        default:
+            // Si le type n'est pas reconnu, on le met dans NEW_MESSAGE ou on le laisse ?
+            // On peut aussi retourner 'NEW_MESSAGE' par défaut.
+            return 'NEW_MESSAGE';
+    }
+};
 
-    const all: PatientNotification[] = [
-        { id: '1', titre: 'Prise de médicament', message: 'Insuline à 18:00.', type: 'MEDICATION_REMINDER', estLue: false, date: '2026-08-25 09:00' },
-        { id: '2', titre: 'Rendez-vous', message: 'Consultation demain à 10:00.', type: 'APPOINTMENT', estLue: false, date: '2026-08-25 08:00' },
-        { id: '3', titre: 'Nouveau message', message: 'Dr. Dupont vous a écrit.', type: 'NEW_MESSAGE', estLue: false, date: '2026-08-24 17:00' },
-        { id: '4', titre: 'Prescription mise à jour', message: 'Votre traitement a été modifié.', type: 'PRESCRIPTION_UPDATED', estLue: true, date: '2026-08-23 14:00' },
-        { id: '5', titre: 'Rappel de mesure', message: 'Pensez à mesurer votre glycémie.', type: 'MEASUREMENT_REMINDER', estLue: false, date: '2026-08-25 07:30' },
-    ];
+// Formater la date si nécessaire (le backend renvoie probablement un ISO string)
+const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 19).replace('T', ' '); // format 'YYYY-MM-DD HH:mm'
+};
 
-    if (filter === 'Non lues') return all.filter(n => !n.estLue);
-    return all;
+export async function fetchPatientNotifications(
+    filter: PatientNotificationFilter
+): Promise<PatientNotification[]> {
+    // Appel à l'API pour récupérer les notifications de l'utilisateur connecté
+    const response = await apiClient.get<ApiFeedback<any[]>>('/notifications/me');
+    const notifications = unwrapApiData(response.data, 'Erreur lors du chargement des notifications.');
+
+    // Mapping des données backend vers le type PatientNotification
+    const mapped = notifications.map((n: any) => ({
+        id: n.id,
+        titre: n.title || n.titre || '',
+        message: n.content || n.message || '',
+        type: mapBackendType(n.type),
+        estLue: n.isRead ?? n.estLue ?? false, // selon le champ backend
+        date: formatDate(n.createdAt || n.date || new Date().toISOString()),
+    }));
+
+    // Filtre côté client
+    if (filter === 'Non lues') {
+        return mapped.filter((n) => !n.estLue);
+    }
+    return mapped;
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<void> {
+    // Utiliser le nouvel endpoint dédié PATCH /notifications/{id}/read
+    const response = await apiClient.patch<ApiFeedback<null>>(
+        `/notifications/${notificationId}/read`
+    );
+    unwrapApiData(response.data, 'Erreur lors du marquage de la notification.');
 }
