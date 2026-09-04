@@ -1,33 +1,39 @@
+// NutritionPage.tsx
 import { useState, useEffect } from 'react';
+import { Tabs } from '@/react/components/Navigation/Tabs';
 import { useNutrition } from '../hooks/useNutrition';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
-import { Button } from '@/react/components/UI/Button';
-import { Card } from '@/react/components/UI/Card';
-import { Badge } from '@/react/components/UI/Badge';
 import { fetchFoods } from '../services/nutritionService';
-import { FoodOption, PatientMeal, MealType } from '../types';
+import { FoodOption, PatientMeal } from '../types';
 import '@/styles/pages/patient/nutrition/_nutrition.scss';
-import {MealItemFormModal} from "@/react/features/patient/nutrition/componenets/MealItemFormModal";
-import {MealFormModal} from "@/react/features/patient/nutrition/componenets/MealFormModal";
-
-// Types pour les données des formulaires
-interface MealFormData {
-    name: string;
-    description?: string;
-    mealType: MealType;
-}
-
-interface MealItemFormData {
-    foodId: string;
-    portionGrams: string;
-    breadUnits?: string;
-}
-
+import {FoodsTab} from "@/react/features/patient/nutrition/componenets/FoodsTab";
+import {PlanTab} from "@/react/features/patient/nutrition/componenets/PlanTab";
+import {PlanCreationModal} from "@/react/features/patient/nutrition/componenets/Forms/PlanCreationModal";
+import {MealFormModal} from "@/react/features/patient/nutrition/componenets/Forms/MealFormModal";
+import {MealItemFormModal} from "@/react/features/patient/nutrition/componenets/Forms/MealItemFormModal";
 export function NutritionPage() {
-    const { meals, mealItems, isLoading, error, addMeal, removeMeal, addItem, removeItem } = useNutrition();
+    const {
+        meals,
+        mealItems,
+        selectedFoods,
+        setSelectedFoods,
+        selectedDate,
+        setSelectedDate,
+        markedDates,
+        isLoading,
+        error,
+        addMeal,
+        removeMeal,
+        addItem,
+        removeItem,
+        createPlan,
+    } = useNutrition();
+
+    const [activeTab, setActiveTab] = useState<'foods' | 'plan'>('foods');
     const [isMealModalOpen, setIsMealModalOpen] = useState(false);
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+    const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
     const [foods, setFoods] = useState<FoodOption[]>([]);
     const [selectedMeal, setSelectedMeal] = useState<PatientMeal | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,71 +50,82 @@ export function NutritionPage() {
         loadFoods();
     }, []);
 
-    // ✅ Typage du paramètre data
-    const handleAddMeal = async (data: MealFormData) => {
+    // Type aligné avec PlanCreationModal
+    const handleCreatePlan = async (data: {
+        name: string;
+        description?: string;
+        mealType: string;
+        items: { foodId: string; portionGrams: number; breadUnits?: number }[];
+    }) => {
         setIsSubmitting(true);
-        await addMeal(data);
+        await createPlan(data);
         setIsSubmitting(false);
-        setIsMealModalOpen(false);
+        setIsPlanModalOpen(false);
     };
 
-    // ✅ Typage du paramètre data
-    const handleAddItem = async (data: MealItemFormData) => {
-        if (!selectedMeal) return;
-        setIsSubmitting(true);
-        await addItem({ ...data, mealId: selectedMeal.id });
-        setIsSubmitting(false);
-        setIsItemModalOpen(false);
-        setSelectedMeal(null);
+    const handleAddItem = (meal: PatientMeal) => {
+        setSelectedMeal(meal);
+        setIsItemModalOpen(true);
     };
 
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
 
+    const tabs = [
+        { id: 'foods', label: 'Aliments' },
+        { id: 'plan', label: 'Mon plan' },
+    ];
+
     return (
         <div className="nutrition-page">
             <div className="nutrition-page__header">
                 <h1>Ma nutrition</h1>
-                <p>Suivi de vos repas</p>
-                <Button variant="primary" onClick={() => setIsMealModalOpen(true)}>+ Nouveau repas</Button>
+                <Tabs
+                    tabs={tabs}
+                    defaultActiveTabId={activeTab}
+                    onChange={(id) => setActiveTab(id as 'foods' | 'plan')}
+                />
             </div>
 
-            {meals.length === 0 ? (
-                <Card><p>Aucun repas enregistré.</p></Card>
+            {activeTab === 'foods' ? (
+                <FoodsTab
+                    foods={foods}
+                    selectedFoods={selectedFoods}
+                    setSelectedFoods={setSelectedFoods}
+                    onCreatePlan={() => setIsPlanModalOpen(true)}
+                />
             ) : (
-                <div className="nutrition-page__meals">
-                    {meals.map((meal) => (
-                        <Card key={meal.id} className="meal-card">
-                            <div className="meal-card__header">
-                                <h3>{meal.name}</h3>
-                                <Badge variant="info">{meal.mealType}</Badge>
-                                <Button variant="danger" size="small" onClick={() => removeMeal(meal.id)}>Supprimer</Button>
-                            </div>
-                            {meal.description && <p className="meal-card__desc">{meal.description}</p>}
-                            <div className="meal-card__items">
-                                {mealItems[meal.id]?.length ? (
-                                    mealItems[meal.id].map((item) => (
-                                        <div key={item.id} className="meal-item">
-                                            <span>{item.foodName || 'Aliment'}</span>
-                                            <span>{item.portionGrams} g</span>
-                                            {item.breadUnits && <span>{item.breadUnits} UP</span>}
-                                            <Button variant="secondary" size="small" onClick={() => removeItem(item.id)}>Retirer</Button>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p>Aucun aliment dans ce repas.</p>
-                                )}
-                            </div>
-                            <Button variant="secondary" size="small" onClick={() => { setSelectedMeal(meal); setIsItemModalOpen(true); }}>+ Aliment</Button>
-                        </Card>
-                    ))}
-                </div>
+                <PlanTab
+                    meals={meals}
+                    mealItems={mealItems}
+                    foods={foods}
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                    markedDates={markedDates}
+                    onRemoveMeal={removeMeal}
+                    onRemoveItem={removeItem}
+                    onAddItem={handleAddItem}
+                />
             )}
+
+            {/* Modales */}
+            <PlanCreationModal
+                isOpen={isPlanModalOpen}
+                onClose={() => setIsPlanModalOpen(false)}
+                selectedFoods={selectedFoods}
+                onSubmit={handleCreatePlan}
+                isSubmitting={isSubmitting}
+            />
 
             <MealFormModal
                 isOpen={isMealModalOpen}
                 onClose={() => setIsMealModalOpen(false)}
-                onSuccess={handleAddMeal}
+                onSuccess={async (data) => {
+                    setIsSubmitting(true);
+                    await addMeal(data);
+                    setIsSubmitting(false);
+                    setIsMealModalOpen(false);
+                }}
                 isSubmitting={isSubmitting}
             />
 
@@ -117,7 +134,14 @@ export function NutritionPage() {
                 onClose={() => setIsItemModalOpen(false)}
                 foods={foods}
                 mealId={selectedMeal?.id || ''}
-                onSuccess={handleAddItem}
+                onSuccess={async (data) => {
+                    if (!selectedMeal) return;
+                    setIsSubmitting(true);
+                    await addItem({ ...data, mealId: selectedMeal.id });
+                    setIsSubmitting(false);
+                    setIsItemModalOpen(false);
+                    setSelectedMeal(null);
+                }}
                 isSubmitting={isSubmitting}
             />
         </div>

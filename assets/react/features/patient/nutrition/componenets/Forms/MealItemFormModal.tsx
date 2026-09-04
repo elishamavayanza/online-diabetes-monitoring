@@ -4,7 +4,7 @@ import { Button } from '@/react/components/UI/Button';
 import { FormField } from '@/react/components/Forms/FormField';
 import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
-import { FoodOption } from '../types';
+import { FoodOption } from '../../types';
 
 interface MealItemFormModalProps {
     isOpen: boolean;

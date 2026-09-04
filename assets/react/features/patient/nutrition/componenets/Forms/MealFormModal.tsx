@@ -5,7 +5,7 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
 import { Textarea } from '@/react/components/Forms/Textarea';
-import { MealType } from '../types';
+import { MealType } from '../../types';
 
 interface MealFormModalProps {
     isOpen: boolean;

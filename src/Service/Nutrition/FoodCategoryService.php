@@ -27,9 +27,11 @@ class FoodCategoryService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkProfessionalAccess(
-                SecurityAction::MANAGE_FOOD_CATEGORY
-            );
+            // Remplacer checkProfessionalAccess par une vérification plus large ou autoriser les patients
+            $currentUser = $this->securityService->getCurrentUser();
+            if (!$this->securityService->hasAnyRole(['ROLE_CLINICIAN', 'ROLE_NUTRITIONIST', 'ROLE_ADMIN', 'ROLE_ROOT', 'ROLE_PATIENT'])) {
+                throw new AccessDeniedException("Accès non autorisé.");
+            }
 
             $categories = $this->repository->findAll();
             $data = array_map(fn(FoodCategory $category) => $this->mapper->mapEntityToResponse($category), $categories);
@@ -54,9 +56,10 @@ class FoodCategoryService
         $feedback = new Feedback();
 
         try {
-            $this->securityService->checkProfessionalAccess(
-                SecurityAction::MANAGE_FOOD_CATEGORY
-            );
+            $currentUser = $this->securityService->getCurrentUser();
+            if (!$this->securityService->hasAnyRole(['ROLE_CLINICIAN', 'ROLE_NUTRITIONIST', 'ROLE_ADMIN', 'ROLE_ROOT', 'ROLE_PATIENT'])) {
+                throw new AccessDeniedException("Accès non autorisé.");
+            }
 
             $category = $this->repository->find($id);
 

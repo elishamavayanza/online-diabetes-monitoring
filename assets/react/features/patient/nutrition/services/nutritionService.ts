@@ -2,7 +2,7 @@
 import apiClient from '@/services/api/client';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
-import { PatientMeal, PatientMealItem, NutritionData, FoodOption } from '../types';
+import {PatientMeal, PatientMealItem, NutritionData, FoodOption, MealPlan} from '../types';
 
 // Récupère tous les repas et leurs éléments pour le patient connecté
 export async function fetchNutrition(): Promise<NutritionData> {
@@ -30,8 +30,14 @@ export async function fetchNutrition(): Promise<NutritionData> {
 export async function fetchFoods(): Promise<FoodOption[]> {
     const response = await apiClient.get<ApiFeedback<any[]>>('/foods');
     const foods = unwrapApiData(response.data, 'Erreur lors du chargement des aliments.');
-    return foods.map((f) => ({ id: String(f.id), name: f.name }));
+    return foods.map((f) => ({
+        id: String(f.id),
+        name: f.name,
+        photoUrl: f.photoUrl ?? '', // ✅ si le backend renvoie ce champ
+        category: f.category ?? '',
+    }));
 }
+
 
 // Crée un nouveau repas
 export async function createMeal(data: {
@@ -66,3 +72,16 @@ export async function deleteMealItem(id: string): Promise<void> {
     const response = await apiClient.delete<ApiFeedback<unknown>>(`/meal-items/${id}`);
     unwrapApiData(response.data, "Erreur lors de la suppression de l'élément.");
 }
+
+export async function createMealPlan(mealIds: string[]): Promise<MealPlan> {
+    const patientId = getCurrentUserIdFromToken();
+    if (!patientId) throw new Error('Utilisateur non identifié.');
+
+    // Simulation d'appel API – remplacez l'URL par votre endpoint réel
+    const response = await apiClient.post<ApiFeedback<MealPlan>>('/meal-plans', {
+        patientId: Number(patientId),
+        mealIds,
+    });
+    return unwrapApiData(response.data, 'Erreur lors de la création du plan.');
+}
+
