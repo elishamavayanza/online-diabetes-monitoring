@@ -100,3 +100,11 @@ export async function createAppointmentRequest(data: {
     });
     unwrapApiData(response.data, "Erreur lors de la création de la demande de rendez-vous.");
 }
+
+export async function cancelAppointment(appointmentId: string, reason: string): Promise<void> {
+    const response = await apiClient.patch<ApiFeedback<unknown>>(
+        `/appointments/${appointmentId}/cancel`,
+        { reason }
+    );
+    unwrapApiData(response.data, "Erreur lors de l'annulation du rendez-vous.");
+}

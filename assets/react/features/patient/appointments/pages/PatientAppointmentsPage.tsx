@@ -7,7 +7,11 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { RequestAppointmentModal } from '../components/RequestAppointmentModal';
+import { CancelAppointmentModal } from '../components/CancelAppointmentModal';
+import { cancelAppointment } from '../services/patientAppointmentsService';
+import { PatientAppointment } from '../types';
 import '@/styles/pages/patient/appointments/_appointments.scss';
+
 
 const HistoryIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -19,8 +23,10 @@ const HistoryIcon = () => (
 export function PatientAppointmentsPage() {
     const { appointments, isLoading, error, reload } = usePatientAppointments();
     const [viewMode, setViewMode] = useState<'upcoming' | 'history'>('upcoming');
-    const [appointmentTab, setAppointmentTab] = useState<'today' | 'pending' | 'confirmed'>('today');
+    const [appointmentTab, setAppointmentTab] = useState<'today' | 'pending' | 'confirmed' | 'upcoming'>('today');
     const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    const [cancelTarget, setCancelTarget] = useState<PatientAppointment | null>(null);
+    const [isCancelling, setIsCancelling] = useState(false);
     const { pushAction } = useActionHistory();
 
     const today = new Date();
@@ -32,24 +38,23 @@ export function PatientAppointmentsPage() {
         const isCancelled = appt.statut === 'Annulé';
 
         if (viewMode === 'history') {
-            // Historique = passés ou annulés
             return isPast || isCancelled;
         }
 
-        // Vue "Mes rendez-vous" : uniquement non passés et non annulés
         if (isPast || isCancelled) return false;
 
-        // Si l'onglet actif est "Aujourd'hui"
         if (appointmentTab === 'today') {
             return appointmentDate.toDateString() === todayStr;
         }
-
-        // Sinon selon le statut
         if (appointmentTab === 'pending') {
             return appt.statut === 'En attente' || appt.statut === 'Report demandé';
         }
         if (appointmentTab === 'confirmed') {
             return appt.statut === 'Confirmé';
+        }
+        if (appointmentTab === 'upcoming') {
+            // Confirmés et date strictement future (pas aujourd'hui)
+            return appt.statut === 'Confirmé' && appointmentDate > today;
         }
         return true;
     });
@@ -60,8 +65,19 @@ export function PatientAppointmentsPage() {
         pushAction(() => setViewMode(previousMode));
     };
 
-    const handleRequestAppointment = () => {
-        setIsRequestModalOpen(true);
+    const handleCancelClick = (appointment: PatientAppointment) => {
+        setCancelTarget(appointment);
+    };
+
+    const handleCancelConfirm = async (appointmentId: string, reason: string) => {
+        setIsCancelling(true);
+        try {
+            await cancelAppointment(appointmentId, reason);
+            setCancelTarget(null);
+            reload();
+        } finally {
+            setIsCancelling(false);
+        }
     };
 
     if (isLoading) return <Spinner />;
@@ -71,7 +87,11 @@ export function PatientAppointmentsPage() {
         { id: 'today', label: "Aujourd'hui" },
         { id: 'pending', label: 'En attente' },
         { id: 'confirmed', label: 'Confirmés' },
+        { id: 'upcoming', label: 'À venir' },
     ];
+
+    // Passer onCancel seulement pour l'onglet "À venir"
+    const showCancelButton = viewMode === 'upcoming' && appointmentTab === 'upcoming';
 
     return (
         <div className="patient-appointments-page">
@@ -82,7 +102,7 @@ export function PatientAppointmentsPage() {
                     <Tabs
                         tabs={tabs}
                         defaultActiveTabId={appointmentTab}
-                        onChange={(id) => setAppointmentTab(id as 'today' | 'pending' | 'confirmed')}
+                        onChange={(id) => setAppointmentTab(id as typeof appointmentTab)}
                     />
                 )}
 
@@ -95,7 +115,7 @@ export function PatientAppointmentsPage() {
                 <div className="patient-appointments-page__actions-row">
                     <Button
                         variant="primary"
-                        onClick={handleRequestAppointment}
+                        onClick={() => setIsRequestModalOpen(true)}
                         className="patient-appointments-page__request-btn"
                     >
                         Demander un rendez-vous
@@ -111,7 +131,10 @@ export function PatientAppointmentsPage() {
                 </div>
             </div>
 
-            <PatientAppointmentsTable appointments={filteredAppointments} />
+            <PatientAppointmentsTable
+                appointments={filteredAppointments}
+                onCancel={showCancelButton ? handleCancelClick : undefined}
+            />
 
             <RequestAppointmentModal
                 isOpen={isRequestModalOpen}
@@ -120,6 +143,14 @@ export function PatientAppointmentsPage() {
                     setIsRequestModalOpen(false);
                     reload();
                 }}
+            />
+
+            <CancelAppointmentModal
+                isOpen={!!cancelTarget}
+                onClose={() => setCancelTarget(null)}
+                appointment={cancelTarget}
+                onConfirm={handleCancelConfirm}
+                isSubmitting={isCancelling}
             />
         </div>
     );

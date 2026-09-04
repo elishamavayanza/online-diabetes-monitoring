@@ -1,10 +1,12 @@
 import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
+import { Button } from '@/react/components/UI/Button';
 import { PatientAppointment } from '../types';
 
 interface PatientAppointmentsTableProps {
     appointments: PatientAppointment[];
+    onCancel?: (appointment: PatientAppointment) => void;
 }
 
 const statusVariant: Record<string, 'success' | 'warning' | 'error' | 'primary'> = {
@@ -13,11 +15,16 @@ const statusVariant: Record<string, 'success' | 'warning' | 'error' | 'primary'>
     'Terminé': 'primary',
     'Annulé': 'error',
     'Absent': 'error',
-    'Report demandé': 'warning',   // ✅ ajout
+    'Report demandé': 'warning',
 };
 
-export function PatientAppointmentsTable({ appointments }: PatientAppointmentsTableProps) {
-    const columns = [
+export function PatientAppointmentsTable({ appointments, onCancel }: PatientAppointmentsTableProps) {
+    // Colonnes de base
+    const baseColumns: Array<{
+        key: string;
+        title: string;
+        render?: (row: PatientAppointment) => React.ReactElement;
+    }> = [
         { key: 'date', title: 'Date' },
         { key: 'heure', title: 'Heure' },
         { key: 'professionnel', title: 'Professionnel' },
@@ -31,9 +38,29 @@ export function PatientAppointmentsTable({ appointments }: PatientAppointmentsTa
         },
     ];
 
+    // Ajouter colonne actions si onCancel est fourni
+    if (onCancel) {
+        baseColumns.push({
+            key: 'actions',
+            title: 'Actions',
+            render: (row: PatientAppointment) =>
+                row.statut === 'Confirmé' ? (
+                    <Button
+                        variant="danger"
+                        size="small"
+                        onClick={() => onCancel(row)}
+                    >
+                        Annuler
+                    </Button>
+                ) : (
+                    <></>
+                ),
+        });
+    }
+
     return (
         <Card className="patient-appointments-card">
-            <DataTable columns={columns} data={appointments} />
+            <DataTable columns={baseColumns} data={appointments} />
         </Card>
     );
 }
