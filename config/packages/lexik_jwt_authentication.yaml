@@ -3,6 +3,5 @@ lexik_jwt_authentication:
     public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
     pass_phrase: '%env(JWT_PASSPHRASE)%'
     user_id_claim: email
-    # Une session de travail peut durer toute une journée. Sans refresh-token
-    # configuré, la durée par défaut (1 h) déconnectait un utilisateur actif.
-    token_ttl: 28800
+    # Le client renouvelle ce token silencieusement grâce au refresh token.
+    token_ttl: 3600

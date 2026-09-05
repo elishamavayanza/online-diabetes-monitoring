@@ -14,7 +14,8 @@ export interface PatientAppointment {
     professionnel: string;
     motif: string;
     statut: AppointmentStatus;
-    scheduledAt: string;   // ✅ date ISO pour les comparaisons
+    notes?: string;
+    scheduledAt: string;   //  date ISO pour les comparaisons
 }
 
 export interface ProfessionalOption {

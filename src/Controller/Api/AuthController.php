@@ -101,9 +101,12 @@ class AuthController extends AbstractController
 
         // 4. Génération du token JWT
         $token = $jwtManager->create($user);
+        $refreshToken = $this->issueRefreshToken($user);
+        $entityManager->flush();
 
         return new JsonResponse([
             'token' => $token,
+            'refresh_token' => $refreshToken,
             'fullName' => $user->getFullName(),
             'roles' => $user->getRoles(),
         ]);
@@ -290,14 +293,37 @@ class AuthController extends AbstractController
     )]
     public function refreshToken(Request $request, EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager): JsonResponse
     {
-        // Note: Si vous utilisez gesdinet/jwt-refresh-token-bundle, ce routeur est géré automatiquement.
-        // Sinon, vous pouvez valider votre refresh token stocké en base de données et en générer un nouveau.
-
         $data = json_decode($request->getContent(), true);
         $refreshTokenString = $data['refresh_token'] ?? '';
+        if (!is_string($refreshTokenString) || $refreshTokenString === '') {
+            return new JsonResponse(['message' => 'Refresh token manquant.'], Response::HTTP_UNAUTHORIZED);
+        }
 
-        // Logique de validation de votre Refresh Token en base...
+        /** @var User|null $user */
+        $user = $entityManager->getRepository(User::class)->findOneBy([
+            'refreshTokenHash' => hash('sha256', $refreshTokenString),
+        ]);
 
-        return new JsonResponse(['message' => 'Endpoint de rafraîchissement prêt à être configuré avec votre stratégie de stockage de refresh token.']);
+        if ($user === null || $user->getRefreshTokenExpiresAt() === null || $user->getRefreshTokenExpiresAt() <= new \DateTimeImmutable()) {
+            return new JsonResponse(['message' => 'Session expirée.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Rotation : le refresh token présenté ne peut plus être réutilisé.
+        $newRefreshToken = $this->issueRefreshToken($user);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'token' => $jwtManager->create($user),
+            'refresh_token' => $newRefreshToken,
+        ]);
+    }
+
+    private function issueRefreshToken(User $user): string
+    {
+        $token = bin2hex(random_bytes(48));
+        $user->setRefreshTokenHash(hash('sha256', $token));
+        $user->setRefreshTokenExpiresAt(new \DateTimeImmutable('+14 days'));
+
+        return $token;
     }
 }

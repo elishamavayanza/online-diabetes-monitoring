@@ -31,6 +31,8 @@ export interface RequestConfig {
     skipCsrf?: boolean;
     /** Désactive le rafraîchissement automatique du token */
     skipTokenRefresh?: boolean;
+    /** Empêche une boucle après une nouvelle tentative suivant un 401. */
+    hasRetriedAfterRefresh?: boolean;
 }
 
 // ─────────────────────────────────────────

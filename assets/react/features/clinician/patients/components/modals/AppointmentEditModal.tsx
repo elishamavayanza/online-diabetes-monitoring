@@ -4,9 +4,11 @@ import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
 import { FormField } from '@/react/components/Forms/FormField';
 import { Spinner } from '@/react/components/UI/Spinner';
-import {useAppointmentEditForm} from "@/react/features/clinician/patients/hooks/appointment/useAppointmentEditForm";
-import {PatientDossierData} from "@/react/features/clinician/patients/types";
+import { Checkbox } from '@/react/components/Forms/Checkbox';
+import { useAppointmentEditForm } from "@/react/features/clinician/patients/hooks/appointment/useAppointmentEditForm";
+import { PatientDossierData } from "@/react/features/clinician/patients/types";
 import { PatientAppointment } from '@/react/features/clinician/patients/types';
+import { APPOINTMENT_MOTIFS } from '../../constants/appointmentMotifs';
 
 interface AppointmentEditModalProps {
     isOpen: boolean;
@@ -31,7 +33,7 @@ export function AppointmentEditModal({
                                          appointment,
                                          onSuccess,
                                      }: AppointmentEditModalProps) {
-    const { form, isLoading, handleChange, handleSubmit } = useAppointmentEditForm({
+    const { form, isLoading, handleChange, toggleMotif, handleSubmit } = useAppointmentEditForm({
         data,
         appointment,
         onSuccess,
@@ -84,6 +86,18 @@ export function AppointmentEditModal({
                             onChange={handleChange}
                             placeholder="Consultation, suivi..."
                         />
+                    </FormField>
+                    <FormField label="Motifs courants">
+                        <div className="motifs-checkboxes">
+                            {APPOINTMENT_MOTIFS.map((motif) => (
+                                <Checkbox
+                                    key={motif}
+                                    label={motif}
+                                    checked={form.selectedMotifs.includes(motif)}
+                                    onChange={() => toggleMotif(motif)}
+                                />
+                            ))}
+                        </div>
                     </FormField>
                     <FormField label="Notes" htmlFor="notes">
                         <Input id="notes" name="notes" value={form.notes} onChange={handleChange} />

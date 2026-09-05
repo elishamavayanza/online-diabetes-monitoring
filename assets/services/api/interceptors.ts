@@ -59,14 +59,48 @@ import { getCsrfHeaders, requiresCsrf } from '../security/csrf';
 import { tokenStorage } from '../storage/storage.service';
 import { isTokenExpired } from '../security/security.utils';
 
+let refreshInFlight: Promise<string | null> | null = null;
+
+export async function refreshAccessToken(): Promise<string | null> {
+    if (refreshInFlight) return refreshInFlight;
+
+    const refreshToken = tokenStorage.getRefreshToken();
+    if (!refreshToken) return null;
+
+    refreshInFlight = fetch('/api/token/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+        credentials: 'same-origin',
+    })
+        .then(async (response) => {
+            if (!response.ok) return null;
+            const data = await response.json() as { token?: string; refresh_token?: string };
+            if (!data.token || !data.refresh_token) return null;
+            tokenStorage.setAccessToken(data.token);
+            tokenStorage.setRefreshToken(data.refresh_token);
+            return data.token;
+        })
+        .catch(() => null)
+        .finally(() => {
+            refreshInFlight = null;
+        });
+
+    return refreshInFlight;
+}
+
 /**
  * Intercepteur : injecte le token JWT dans l'en-tête Authorization.
  */
 export const jwtInterceptor: RequestInterceptor = {
-    onFulfilled: (config: RequestConfig): RequestConfig => {
+    onFulfilled: async (config: RequestConfig): Promise<RequestConfig> => {
         if (config.skipTokenRefresh) return config;
 
-        const token = tokenStorage.getAccessToken();
+        let token = tokenStorage.getAccessToken();
+        // Rafraîchir une minute avant expiration évite toute interruption de travail.
+        if (token && isTokenExpired(token, 60)) {
+            token = await refreshAccessToken();
+        }
         if (token) {
             return {
                 ...config,

@@ -6,6 +6,7 @@ import { decodeJwtPayload, isTokenExpired } from '@/services/security/security.u
 import { UserRole } from '@/react/app/layouts/MainLayout/components/Sidebar/sidebar.config';
 import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 import { fetchUserProfile } from '@/react/features/profile/services/profileService';
+import { refreshAccessToken } from '@/services/api/interceptors';
 
 interface AuthContextValue {
     user: AuthUser | null;
@@ -28,7 +29,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let isMounted = true;
 
         const restoreSession = async () => {
-            const token = tokenStorage.getAccessToken();
+            let token = tokenStorage.getAccessToken();
+            if (token && isTokenExpired(token)) {
+                token = await refreshAccessToken();
+            }
             if (token && !isTokenExpired(token)) {
                 const payload = decodeJwtPayload(token);
                 if (payload) {

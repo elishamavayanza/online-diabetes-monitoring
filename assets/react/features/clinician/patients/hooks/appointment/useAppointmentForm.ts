@@ -1,9 +1,9 @@
-// useAppointmentForm.ts
 import { useEffect, useState, useCallback } from 'react';
 import { createAppointment } from '../../services/dossierActionsService';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 import { PatientDossierData } from '../../types';
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { APPOINTMENT_MOTIFS } from '../../constants/appointmentMotifs';
 
 interface UseAppointmentFormProps {
     data: PatientDossierData;
@@ -19,6 +19,7 @@ export interface AppointmentFormState {
     status: string;
     reason: string;
     notes: string;
+    selectedMotifs: string[];
 }
 
 export function useAppointmentForm({
@@ -36,6 +37,7 @@ export function useAppointmentForm({
         status: 'SCHEDULED',
         reason: defaultReason,
         notes: '',
+        selectedMotifs: [],
     });
 
     // Initialisation à l'ouverture
@@ -46,6 +48,7 @@ export function useAppointmentForm({
             status: defaultReason ? 'CONFIRMED' : 'SCHEDULED',
             reason: defaultReason,
             notes: '',
+            selectedMotifs: extractMotifsFromReason(defaultReason),
         });
     }, [defaultDate, defaultReason]);
 
@@ -56,6 +59,18 @@ export function useAppointmentForm({
         },
         []
     );
+
+    const toggleMotif = useCallback((motif: string) => {
+        setForm((prev) => {
+            const isSelected = prev.selectedMotifs.includes(motif);
+            return {
+                ...prev,
+                selectedMotifs: isSelected
+                    ? prev.selectedMotifs.filter((m) => m !== motif)
+                    : [...prev.selectedMotifs, motif],
+            };
+        });
+    }, []);
 
     const handleSubmit = useCallback(
         async (e: React.FormEvent) => {
@@ -71,6 +86,10 @@ export function useAppointmentForm({
                 return;
             }
 
+            // Combiner motif texte et motifs cochés
+            const motifs = form.selectedMotifs.join(', ');
+            const finalReason = [form.reason.trim(), motifs].filter(Boolean).join(' - ');
+
             setIsLoading(true);
             try {
                 await createAppointment({
@@ -80,7 +99,7 @@ export function useAppointmentForm({
                     scheduledAt: new Date(form.scheduledAt).toISOString(),
                     durationMinutes: Number(form.durationMinutes),
                     status: form.status,
-                    reason: form.reason || undefined,
+                    reason: finalReason || undefined,
                     notes: form.notes || undefined,
                 });
                 showToast({
@@ -105,14 +124,21 @@ export function useAppointmentForm({
         form,
         isLoading,
         handleChange,
+        toggleMotif,
         handleSubmit,
     };
 }
 
-// Fonction utilitaire (exportée si besoin ailleurs)
+// Fonction utilitaire
 export function toDatetimeLocalValue(date?: Date | null): string {
     if (!date) return '';
     const d = new Date(date);
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Extrait les motifs connus d'une raison existante
+function extractMotifsFromReason(reason: string): string[] {
+    if (!reason) return [];
+    return APPOINTMENT_MOTIFS.filter((motif) => reason.includes(motif));
 }

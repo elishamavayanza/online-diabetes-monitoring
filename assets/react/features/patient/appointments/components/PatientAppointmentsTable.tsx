@@ -19,7 +19,6 @@ const statusVariant: Record<string, 'success' | 'warning' | 'error' | 'primary'>
 };
 
 export function PatientAppointmentsTable({ appointments, onCancel }: PatientAppointmentsTableProps) {
-    // Colonnes de base
     const baseColumns: Array<{
         key: string;
         title: string;
@@ -29,6 +28,14 @@ export function PatientAppointmentsTable({ appointments, onCancel }: PatientAppo
         { key: 'heure', title: 'Heure' },
         { key: 'professionnel', title: 'Professionnel' },
         { key: 'motif', title: 'Motif' },
+        // Nouvelle colonne Notes
+        {
+            key: 'notes',
+            title: 'Notes',
+            render: (row: PatientAppointment) => (
+                <span>{row.notes || '—'}</span>
+            ),
+        },
         {
             key: 'statut',
             title: 'Statut',

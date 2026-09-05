@@ -77,6 +77,13 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     protected ?DateTimeImmutable $resetTokenExpiresAt = null;
 
+    /** Hash du refresh token courant, jamais le token brut. */
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    protected ?string $refreshTokenHash = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    protected ?DateTimeImmutable $refreshTokenExpiresAt = null;
+
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     protected int $loginAttempts = 0;
 
@@ -273,6 +280,12 @@ abstract class User extends Person implements UserInterface, PasswordAuthenticat
 
     public function getResetTokenExpiresAt(): ?DateTimeImmutable { return $this->resetTokenExpiresAt; }
     public function setResetTokenExpiresAt(?DateTimeImmutable $expiresAt): static { $this->resetTokenExpiresAt = $expiresAt; return $this; }
+
+    public function getRefreshTokenHash(): ?string { return $this->refreshTokenHash; }
+    public function setRefreshTokenHash(?string $refreshTokenHash): static { $this->refreshTokenHash = $refreshTokenHash; return $this; }
+
+    public function getRefreshTokenExpiresAt(): ?DateTimeImmutable { return $this->refreshTokenExpiresAt; }
+    public function setRefreshTokenExpiresAt(?DateTimeImmutable $expiresAt): static { $this->refreshTokenExpiresAt = $expiresAt; return $this; }
 
     public function getLoginAttempts(): int { return $this->loginAttempts; }
     public function setLoginAttempts(int $attempts): static { $this->loginAttempts = $attempts; return $this; }

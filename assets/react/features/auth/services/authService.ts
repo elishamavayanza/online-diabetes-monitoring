@@ -28,6 +28,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
         permissions?: string[];
         id?: string;
         photoUrl?: string; // au cas où le backend renverrait aussi l'URL
+        refresh_token?: string;
     }>('/login_check', {
         username: payload.emailOrUsername,   // le backend attend "username"
         password: payload.password,
@@ -35,6 +36,9 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 
     const { token } = response.data;
     tokenStorage.setAccessToken(token);
+    if (response.data.refresh_token) {
+        tokenStorage.setRefreshToken(response.data.refresh_token);
+    }
 
     // Décode le token JWT pour récupérer les claims personnalisés
     const decoded = decodeJwtPayload(token);

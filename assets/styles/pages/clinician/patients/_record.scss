@@ -486,6 +486,12 @@
         line-height: 1.45;
     }
 }
+.motifs-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
 
 /* Responsive : une colonne sur mobile */
 @media (max-width: 600px) {

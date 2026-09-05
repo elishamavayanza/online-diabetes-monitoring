@@ -4,8 +4,10 @@ import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
 import { FormField } from '@/react/components/Forms/FormField';
 import { Spinner } from '@/react/components/UI/Spinner';
+import { Checkbox } from '@/react/components/Forms/Checkbox';
 import { PatientDossierData } from '../../types';
-import {useAppointmentForm} from "@/react/features/clinician/patients/hooks/appointment/useAppointmentForm";
+import { useAppointmentForm } from "@/react/features/clinician/patients/hooks/appointment/useAppointmentForm";
+import { APPOINTMENT_MOTIFS } from '../../constants/appointmentMotifs';
 
 interface AppointmentFormModalProps {
     isOpen: boolean;
@@ -30,7 +32,7 @@ export function AppointmentFormModal({
                                          defaultReason = '',
                                          onSuccess,
                                      }: AppointmentFormModalProps) {
-    const { form, isLoading, handleChange, handleSubmit } = useAppointmentForm({
+    const { form, isLoading, handleChange, toggleMotif, handleSubmit } = useAppointmentForm({
         data,
         defaultDate,
         defaultReason,
@@ -84,6 +86,18 @@ export function AppointmentFormModal({
                             onChange={handleChange}
                             placeholder="Consultation, suivi..."
                         />
+                    </FormField>
+                    <FormField label="Motifs courants">
+                        <div className="motifs-checkboxes">
+                            {APPOINTMENT_MOTIFS.map((motif) => (
+                                <Checkbox
+                                    key={motif}
+                                    label={motif}
+                                    checked={form.selectedMotifs.includes(motif)}
+                                    onChange={() => toggleMotif(motif)}
+                                />
+                            ))}
+                        </div>
                     </FormField>
                     <FormField label="Notes" htmlFor="notes">
                         <Input id="notes" name="notes" value={form.notes} onChange={handleChange} />

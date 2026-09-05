@@ -17,6 +17,7 @@ import {
     loggingRequestInterceptor,
     loggingResponseInterceptor,
     authErrorInterceptor,
+    refreshAccessToken,
 } from './interceptors';
 import { isJsonContentType } from '../security/security.utils';
 
@@ -213,7 +214,24 @@ class HttpClient {
         const finalConfig = await this.interceptors.request.run(config);
 
         // Exécution
-        let response = await this.executeRequest<T>(finalConfig);
+        let response: ApiResponse<T>;
+        try {
+            response = await this.executeRequest<T>(finalConfig);
+        } catch (error) {
+            const apiError = error as ApiError;
+            if (apiError.isUnauthorized && !finalConfig.skipTokenRefresh && !finalConfig.hasRetriedAfterRefresh) {
+                const newToken = await refreshAccessToken();
+                if (newToken) {
+                    return this.request<T>({ ...finalConfig, hasRetriedAfterRefresh: true });
+                }
+            }
+
+            // Le refresh token est invalide/expiré : là seulement la session se termine.
+            if (apiError.isUnauthorized) {
+                authErrorInterceptor.onRejected?.(error);
+            }
+            throw error;
+        }
 
         // Pipeline réponse (cast nécessaire pour le type générique)
         response = (await this.interceptors.response.run(response as ApiResponse)) as ApiResponse<T>;
