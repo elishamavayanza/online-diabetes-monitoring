@@ -4,6 +4,8 @@ namespace App\Service\Medical;
 
 use App\DTO\Feedback;
 use App\DTO\Request\Medical\MedicalRecordRequestDTO;
+use App\Entity\Healthcare\CareTeamRole;
+use App\Entity\Medical\MedicalRecordStatus;
 use App\Mapper\Medical\MedicalRecordMapper;
 use App\Repository\Healthcare\HealthcareOrganizationRepository;
 use App\Repository\Identity\PatientRepository;
@@ -119,6 +121,24 @@ class MedicalRecordService
             }
 
             $this->securityService->checkOrganizationAccess($organization, SecurityAction::UPDATE);
+
+            // Conversion du statut entrant pour pouvoir le comparer facilement
+            $incomingStatus = is_string($dto->status)
+                ? MedicalRecordStatus::tryFrom($dto->status)
+                : $dto->status;
+
+            // Détection si on essaie de fermer le dossier (Statut CLOSED ou présence de closedAt)
+            $isClosingRecord = ($incomingStatus === MedicalRecordStatus::CLOSED || $dto->closedAt !== null);
+
+            // Si le dossier était ouvert (ou différent de fermé) et qu'on demande sa fermeture
+            if ($isClosingRecord) {
+                // Correction ici : ajout du $ devant organization
+                $hasPrimaryRole = $this->securityService->hasCareTeamRole($patient, $organization, CareTeamRole::PRIMARY_CLINICIAN);
+
+                if (!$hasPrimaryRole) {
+                    throw new AccessDeniedException("Seul le clinicien principal (PRIMARY_CLINICIAN) est autorisé à fermer ce dossier médical.");
+                }
+            }
 
             $this->mapper->mapRequestToEntity($dto, $patient, $organization, $record);
             $this->entityManager->flush();

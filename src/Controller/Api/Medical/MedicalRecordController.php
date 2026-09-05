@@ -98,7 +98,7 @@ class MedicalRecordController extends AbstractController
 
     #[Route('/{id}', name: 'api_medical_records_update', methods: ['PUT', 'PATCH'])]
     #[OA\Put(
-        description: 'Met à jour les informations d’un dossier médical existant.',
+        description: 'Met à jour les informations d’un dossier médical existant (la fermeture du dossier requiert le rôle PRIMARY_CLINICIAN).',
         summary: 'Mettre à jour un dossier médical'
     )]
     #[OA\RequestBody(
@@ -121,8 +121,9 @@ class MedicalRecordController extends AbstractController
         )
     )]
     #[OA\Response(response: 400, description: 'Données de la requête invalides')]
-    #[OA\Response(response: 404, description: 'Dossier médical introuvable')]
     #[OA\Response(response: 401, description: 'Non authentifié')]
+    #[OA\Response(response: 403, description: 'Accès refusé : Seul le clinicien principal (PRIMARY_CLINICIAN) peut fermer ce dossier')]
+    #[OA\Response(response: 404, description: 'Dossier médical introuvable')]
     public function update(string $id, #[MapRequestPayload] MedicalRecordRequestDTO $dto): JsonResponse
     {
         $feedback = $this->service->update($id, $dto);

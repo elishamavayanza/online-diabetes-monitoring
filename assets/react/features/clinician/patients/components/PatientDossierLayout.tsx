@@ -33,6 +33,10 @@ import { EmergencyContactFormModal } from '@/react/features/clinician/patients/c
 import { PrescriptionItemFormModal } from './modals/prescription/PrescriptionItemFormModal';
 import { PrescriptionVersionFormModal } from './modals/prescription/PrescriptionVersionFormModal';
 import { FollowUpReportModal } from './FollowUpReportModal';
+import { CloseMedicalRecordModal } from './modals/CloseMedicalRecordModal';
+import apiClient from '@/services/api/client';
+import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
+import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 import {
     DossierTabId,
     MeasurementPeriod,
@@ -78,11 +82,17 @@ interface PatientDossierLayoutProps {
     basePath?: string;
 }
 
+interface CareTeamMember {
+    id: string | number;
+    roles?: string[];
+    careTeamRole?: 'PRIMARY_CLINICIAN' | 'SPECIALIST' | 'NUTRITIONIST';
+}
+
 export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' }: PatientDossierLayoutProps) {
     const navigate = useNavigate();
     const { pushAction } = useActionHistory();
     const { data, isLoading, error, reload } = usePatientDossier(patientId);
-    const { isSaving, close, reopen } = useMedicalRecord(patientId);
+    const { isSaving, reopen } = useMedicalRecord(patientId);
 
     const [activeTab, setActiveTab] = useState<DossierTabId>('overview');
     const [period, setPeriod] = useState<MeasurementPeriod>('30d');
@@ -106,6 +116,44 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
     const [prescriptionVersionModalOpen, setPrescriptionVersionModalOpen] = useState(false);
     const [selectedPrescription, setSelectedPrescription] = useState<PatientPrescription | null>(null);
     const [followUpReportModalOpen, setFollowUpReportModalOpen] = useState(false);
+    const [closeModalOpen, setCloseModalOpen] = useState(false);
+    const [canClose, setCanClose] = useState(false);
+
+    // Vérification du rôle de l'utilisateur dans l'équipe du patient
+    useEffect(() => {
+        let cancelled = false;
+        const checkRole = async () => {
+            try {
+                const currentUserId = getCurrentUserIdFromToken();
+                if (!currentUserId) {
+                    setCanClose(false);
+                    return;
+                }
+
+                const response = await apiClient.get<ApiFeedback<CareTeamMember[]>>(`/patients/${patientId}/team`);
+                const team = unwrapApiData(response.data, 'Erreur lors du chargement de l\'équipe.');
+                const currentMember = team.find((member) => String(member.id) === currentUserId);
+
+                if (!cancelled) {
+                    setCanClose(
+                        currentMember?.careTeamRole === 'PRIMARY_CLINICIAN' ||
+                        (Array.isArray(currentMember?.roles) && currentMember.roles.includes('ROLE_CLINICIAN'))
+                    );
+                }
+            } catch (error) {
+                console.error('Erreur vérification rôle:', error);
+                if (!cancelled) setCanClose(false);
+            }
+        };
+
+        if (patientId) {
+            checkRole();
+        }
+
+        return () => {
+            cancelled = true;
+        };
+    }, [patientId]);
 
     const handleTabChange = (tabId: string) => {
         const previous = activeTab;
@@ -128,13 +176,6 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
         const previous = selectedDate;
         setSelectedDate(date);
         pushAction(() => setSelectedDate(previous));
-    };
-
-    const handleClose = async () => {
-        const success = await close();
-        if (success) {
-            navigate(`${basePath}/patients/${patientId}/record/closed`);
-        }
     };
 
     const handleReopen = async () => {
@@ -280,9 +321,11 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
                                 {isSaving ? 'Réouverture...' : 'Rouvrir le dossier'}
                             </Button>
                         ) : (
-                            <Button variant="danger" onClick={handleClose} disabled={isSaving}>
-                                {isSaving ? 'Fermeture...' : 'Fermer le dossier'}
-                            </Button>
+                            canClose && (
+                                <Button variant="danger" onClick={() => setCloseModalOpen(true)}>
+                                    Fermer le dossier
+                                </Button>
+                            )
                         )}
                     </div>
                 </div>
@@ -328,6 +371,18 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
                     </RightSidebar>
                 </div>
             </div>
+
+            {/* Modal de fermeture, conditionné par canClose et existence du dossier */}
+            <CloseMedicalRecordModal
+                isOpen={closeModalOpen && !!data.record && canClose}
+                onClose={() => setCloseModalOpen(false)}
+                medicalRecordId={data.record?.id ?? ''}
+                onSuccess={() => {
+                    setCloseModalOpen(false);
+                    reload();
+                    navigate(`${basePath}/patients/${patientId}/record/closed`);
+                }}
+            />
 
             <MeasurementFormModal
                 isOpen={measurementModalOpen}

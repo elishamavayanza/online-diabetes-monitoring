@@ -31,6 +31,9 @@ class MedicalRecordResponseDTO
         #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de fermeture')]
         public readonly ?\DateTimeImmutable $closedAt,
 
+        #[OA\Property(type: 'string', nullable: true, example: null, description: 'Motif de fermeture')]
+        public readonly ?string $closureReason,
+
         #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T09:00:00Z', description: 'Date de création')]
         public readonly \DateTimeImmutable $createdAt,
 
@@ -47,6 +50,7 @@ class MedicalRecordResponseDTO
             status: $record->getStatus()?->value ?? '',
             openedAt: $record->getOpenedAt(),
             closedAt: $record->getClosedAt(),
+            closureReason: $record->getClosureReason(),
             createdAt: $record->getCreatedAt(),
             updatedAt: $record->getUpdatedAt()
         );

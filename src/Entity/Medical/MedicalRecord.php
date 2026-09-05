@@ -48,6 +48,12 @@ class MedicalRecord extends BaseEntity
     private ?DateTimeImmutable $closedAt = null;
 
     /**
+     * @var string|null Le motif de fermeture du dossier médical.
+     */
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $closureReason = null;
+
+    /**
      * Récupère le patient associé au dossier.
      */
     public function getPatient(): ?Patient
@@ -129,6 +135,23 @@ class MedicalRecord extends BaseEntity
     public function setClosedAt(?DateTimeImmutable $closedAt): static
     {
         $this->closedAt = $closedAt;
+        return $this;
+    }
+
+    /**
+     * Récupère le motif de fermeture.
+     */
+    public function getClosureReason(): ?string
+    {
+        return $this->closureReason;
+    }
+
+    /**
+     * Définit le motif de fermeture.
+     */
+    public function setClosureReason(?string $closureReason): static
+    {
+        $this->closureReason = $closureReason;
         return $this;
     }
 }

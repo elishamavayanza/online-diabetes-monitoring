@@ -405,3 +405,27 @@ export async function getOrCreatePatientConversation(
     const created = unwrapApiData(createResponse.data, 'Erreur lors de la création de la conversation.');
     return created.id;
 }
+
+export async function closeMedicalRecord(
+    medicalRecordId: string,
+    closureReason: string
+): Promise<void> {
+    // Récupérer le dossier complet avant de le mettre à jour
+    const recordResponse = await apiClient.get<ApiFeedback<any>>(`/medical-records/${medicalRecordId}`);
+    const record = unwrapApiData(recordResponse.data, 'Erreur lors de la récupération du dossier.');
+
+    const payload = {
+        patientId: record.patientId,
+        organizationId: record.organizationId,
+        status: 'CLOSED',
+        openedAt: record.openedAt,
+        closedAt: new Date().toISOString(),
+        closureReason,
+    };
+
+    const response = await apiClient.put<ApiFeedback<null>>(
+        `/medical-records/${medicalRecordId}`,
+        payload
+    );
+    unwrapApiData(response.data, 'Erreur lors de la fermeture du dossier.');
+}

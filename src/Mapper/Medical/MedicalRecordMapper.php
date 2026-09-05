@@ -29,6 +29,9 @@ class MedicalRecordMapper
         $record->setOpenedAt($dto->openedAt);
         $record->setClosedAt($dto->closedAt);
 
+        // Mappage du motif de fermeture
+        $record->setClosureReason($dto->closureReason);
+
         return $record;
     }
 

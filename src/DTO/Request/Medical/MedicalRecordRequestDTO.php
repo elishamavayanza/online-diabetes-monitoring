@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     title: 'MedicalRecordRequestDTO',
-    description: 'Structure de requête pour la création d’un dossier médical'
+    description: 'Structure de requête pour la création ou la mise à jour d’un dossier médical'
 )]
 class MedicalRecordRequestDTO
 {
@@ -29,6 +29,9 @@ class MedicalRecordRequestDTO
         public readonly \DateTimeImmutable $openedAt,
 
         #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de fermeture')]
-        public readonly ?\DateTimeImmutable $closedAt
+        public readonly ?\DateTimeImmutable $closedAt = null,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'Patient transféré vers un autre service', description: 'Motif de fermeture du dossier')]
+        public readonly ?string $closureReason = null
     ) {}
 }
