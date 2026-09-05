@@ -3,9 +3,10 @@ import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
-import {formatDisplayDateTime, getAppointmentStatusBadgeVariant, isInPeriod} from '../../utils/dossierUtils';
-import {AppointmentEditModal} from "@/react/features/clinician/patients/components/modals/AppointmentEditModal";
+import { formatDisplayDateTime, getAppointmentStatusBadgeVariant, isInPeriod } from '../../utils/dossierUtils';
+import { AppointmentEditModal } from "@/react/features/clinician/patients/components/modals/AppointmentEditModal";
 import { PatientAppointment } from '../../types';
+import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 
 export function AppointmentsTab() {
     const { data, period, selectedDate, isReadOnly, openAppointmentModal, reload } =
@@ -13,8 +14,14 @@ export function AppointmentsTab() {
 
     const [editingAppointment, setEditingAppointment] = useState<PatientAppointment | null>(null);
 
+    const currentProfessionalId = getCurrentUserIdFromToken();
+
     const appointments = data.appointments
-        .filter((appt) => isInPeriod(appt.scheduledAt, period, selectedDate))
+        .filter(
+            (appt) =>
+                isInPeriod(appt.scheduledAt, period, selectedDate) &&
+                appt.professionalId === currentProfessionalId
+        )
         .sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
 
     return (
