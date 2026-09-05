@@ -35,7 +35,7 @@ export function ProfessionalDetailsDrawer({
                     <Avatar
                         src={professional.avatarUrl}
                         name={professional.nom}
-                        size="large"
+                        size="xlarge"
                         shape="circle"
                     />
                     <h2>{professional.nom}</h2>

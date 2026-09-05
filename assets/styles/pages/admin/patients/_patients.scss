@@ -158,6 +158,11 @@
             opacity: 0.8;
             text-align: center;
         }
+        .avatar {   // ou la classe exacte générée par le composant Avatar
+            width: 100px;
+            height: 100px;
+            font-size: 2rem; // pour l'initiale si pas d'image
+        }
     }
 
     &__body {

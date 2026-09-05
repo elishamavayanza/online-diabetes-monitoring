@@ -10,12 +10,7 @@ interface ApiFeedback<T> {
 
 // Mapper une réponse API vers l'objet Professional du front
 function mapApiToProfessional(apiData: any): Professional {
-    const fullName =
-        apiData.fullName ??
-        apiData.name ??
-        (apiData.firstName && apiData.lastName
-            ? `${apiData.firstName} ${apiData.lastName}`
-            : '');
+    const fullName = apiData.fullName ?? apiData.name ?? (apiData.firstName && apiData.lastName ? `${apiData.firstName} ${apiData.lastName}` : '');
 
     let type: Professional['type'] = 'Clinician';
     if (apiData.professionalType === 'NUTRITIONIST' || apiData.type === 'NUTRITIONIST') {
@@ -26,17 +21,12 @@ function mapApiToProfessional(apiData: any): Professional {
 
     const statut = apiData.active === false ? 'Inactive' : 'Active';
 
-    const etablissement =
-        apiData.establishment?.name ??
-        apiData.organization?.name ??
-        apiData.facility?.name ??
-        'Non assigné';
+    const etablissement = apiData.establishment?.name ?? apiData.organization?.name ?? apiData.facility?.name ?? 'Non assigné';
 
-    const departement =
-        apiData.department?.name ??
-        apiData.service?.name ??
-        apiData.specialty ??
-        '';
+    const departement = apiData.department?.name ?? apiData.service?.name ?? apiData.specialty ?? '';
+
+    //  Récupération de l'avatar avec gestion des URLs relatives
+    const avatarUrl = buildAbsoluteUrl(apiData.avatarUrl ?? apiData.photoUrl ?? apiData.avatar);
 
     return {
         id: String(apiData.id ?? ''),
@@ -46,7 +36,16 @@ function mapApiToProfessional(apiData: any): Professional {
         etablissement,
         departement,
         statut,
+        avatarUrl, //  ajout
     };
+}
+
+// Fonction utilitaire pour rendre l'URL absolue
+function buildAbsoluteUrl(url?: string): string | undefined {
+    if (!url) return undefined;
+    if (url.startsWith('http')) return url;
+    const baseUrl = (import.meta as any).env.VITE_API_BASE_URL || '';
+    return `${baseUrl}${url}`;
 }
 
 // Mapper une réponse API vers ProfessionalFormValues (pour le formulaire d'édition)

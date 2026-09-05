@@ -35,7 +35,7 @@ export function PatientDetailsDrawer({
                     <Avatar
                         src={patient.avatarUrl}
                         name={patient.nom}
-                        size="large"
+                        size="xlarge"
                         shape="circle"
                     />
                     <h2>{patient.nom}</h2>
