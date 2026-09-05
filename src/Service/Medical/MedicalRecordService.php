@@ -110,17 +110,14 @@ class MedicalRecordService
                 return $feedback->setErrorFlushDescription('Dossier médical introuvable.')->autoInitFlush();
             }
 
-            $patient = $this->patientRepository->find($dto->patientId);
-            if (!$patient) {
-                return $feedback->setErrorFlushDescription('Patient introuvable.')->autoInitFlush();
+            // L'identité du dossier ne doit pas pouvoir être changée via le payload.
+            $patient = $record->getPatient();
+            $organization = $record->getOrganization();
+            if ($patient === null || $organization === null
+                || (string) $patient->getId() !== (string) $dto->patientId
+                || (string) $organization->getId() !== (string) $dto->organizationId) {
+                return $feedback->setErrorFlushDescription('Le patient ou l’organisation ne correspond pas au dossier médical.')->autoInitFlush();
             }
-
-            $organization = $this->organizationRepository->find($dto->organizationId);
-            if (!$organization) {
-                return $feedback->setErrorFlushDescription('Organisation introuvable.')->autoInitFlush();
-            }
-
-            $this->securityService->checkOrganizationAccess($organization, SecurityAction::UPDATE);
 
             // Conversion du statut entrant pour pouvoir le comparer facilement
             $incomingStatus = is_string($dto->status)
@@ -130,13 +127,23 @@ class MedicalRecordService
             // Détection si on essaie de fermer le dossier (Statut CLOSED ou présence de closedAt)
             $isClosingRecord = ($incomingStatus === MedicalRecordStatus::CLOSED || $dto->closedAt !== null);
 
-            // Si le dossier était ouvert (ou différent de fermé) et qu'on demande sa fermeture
+            // UPDATE est une permission générique non accordée aux cliniciens.
+            // La fermeture possède sa propre permission métier.
+            $this->securityService->checkOrganizationAccess(
+                $organization,
+                $isClosingRecord ? SecurityAction::CLOSE_MEDICAL_RECORD : SecurityAction::VIEW_MEDICAL_RECORD
+            );
+
+            // Si on demande la fermeture du dossier
             if ($isClosingRecord) {
-                // Correction ici : ajout du $ devant organization
+                // 1. Vérifier si l'utilisateur possède l'action globale de fermeture (Clinicien ou Nutritionniste)
+                $this->securityService->checkPatientAccess($patient, SecurityAction::CLOSE_MEDICAL_RECORD);
+
+                // 2. Vérification spécifique : soit il a le rôle PRIMARY_CLINICIAN, soit c'est un nutritionniste autorisé
                 $hasPrimaryRole = $this->securityService->hasCareTeamRole($patient, $organization, CareTeamRole::PRIMARY_CLINICIAN);
 
-                if (!$hasPrimaryRole) {
-                    throw new AccessDeniedException("Seul le clinicien principal (PRIMARY_CLINICIAN) est autorisé à fermer ce dossier médical.");
+                if (!$hasPrimaryRole && !$this->securityService->isNutritionist()) {
+                    throw new AccessDeniedException("Seul le clinicien principal ou le nutritionniste autorisé peut fermer ce dossier médical.");
                 }
             }
 

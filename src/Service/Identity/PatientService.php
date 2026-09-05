@@ -327,13 +327,18 @@ class PatientService
             foreach ($assignments as $assignment) {
                 if ($assignment->isActive() && $assignment->getProfessional()) {
                     $professional = $assignment->getProfessional();
-                    if (!in_array($professional, $professionals, true)) {
-                        $professionals[] = $professional;
+                    $professionalId = (string) $professional->getId();
+                    if (!isset($professionals[$professionalId])) {
+                        $professionals[$professionalId] = [
+                            'professional' => $professional,
+                            'careTeamRole' => $assignment->getRole()?->value,
+                        ];
                     }
                 }
             }
 
-            $data = array_map(function ($professional) {
+            $data = array_values(array_map(function (array $member) {
+                $professional = $member['professional'];
                 // Récupération du rôle ou de la spécialité du professionnel
                 // Adaptez la méthode selon votre entité (ex: getRoles(), getSpeciality(), getProfession(), etc.)
 
@@ -342,13 +347,14 @@ class PatientService
                     'fullName' => $professional->getFullName(),
                     'email' => $professional->getEmail(),
                     'phone' => $professional->getPhone(),
+                    'careTeamRole' => $member['careTeamRole'],
                     // Exemple 1 : Si vous stockez les rôles Symfony dans un tableau
                     'roles' => method_exists($professional, 'getRoles') ? $professional->getRoles() : [],
 
                     // Exemple 2 : Si votre entité possède une propriété/méthode dédiée au métier (ex: getSpeciality ou getRole)
                     // 'role' => method_exists($professional, 'getSpeciality') ? $professional->getSpeciality() : 'Professionnel de santé'
                 ];
-            }, $professionals);
+            }, $professionals));
 
             return $feedback
                 ->setData($data)

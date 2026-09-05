@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\Healthcare\CareTeamRole;
 use App\Entity\Identity\User;
 use App\Entity\Healthcare\HealthcareOrganization;
 use App\Entity\Identity\Patient;
@@ -119,4 +120,10 @@ interface SecurityServiceInterface
         Patient $patient,
         SecurityAction $action
     ): void;
+
+    public function hasCareTeamRole(
+        Patient $patient,
+        HealthcareOrganization $organization,
+        CareTeamRole $role
+    ): bool;
 }

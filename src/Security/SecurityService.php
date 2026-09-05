@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\Healthcare\CareTeamRole;
 use App\Entity\Healthcare\HealthcareOrganization;
 use App\Entity\Identity\Patient;
 use App\Entity\Identity\User;
@@ -565,6 +566,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_NUTRITION,
             SecurityAction::VIEW_MEDICAL_RECORD,
             SecurityAction::CREATE_MEDICAL_RECORD,
+            SecurityAction::CLOSE_MEDICAL_RECORD,
             SecurityAction::VIEW_MEDICAL_NOTES,
             SecurityAction::EDIT_MEDICAL_NOTE,
             SecurityAction::DELETE_MEDICAL_NOTE,
@@ -650,6 +652,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_NUTRITION,
             SecurityAction::VIEW_MEDICAL_RECORD,
             SecurityAction::CREATE_MEDICAL_RECORD,
+            SecurityAction::CLOSE_MEDICAL_RECORD,
             SecurityAction::VIEW_MEDICAL_NOTES,
             SecurityAction::EDIT_MEDICAL_NOTE,
             SecurityAction::DELETE_MEDICAL_NOTE,
@@ -854,5 +857,31 @@ final class SecurityService implements SecurityServiceInterface
         }
 
         return null;
+    }
+
+    public function hasCareTeamRole(
+        Patient $patient,
+        HealthcareOrganization $organization,
+        CareTeamRole $role
+    ): bool {
+        $user = $this->getCurrentUser();
+        // HealthcareProfessional hérite directement de User : il n'existe pas
+        // de relation Doctrine nommée « user » à rechercher.
+        if (!$user instanceof \App\Entity\Identity\HealthcareProfessional) {
+            return false;
+        }
+
+        $professional = $user;
+
+        // Vérifiez l'existence d'une affectation active avec ce rôle
+        $assignment = $this->careTeamAssignmentRepository->findOneBy([
+            'patient' => $patient,
+            'organization' => $organization,
+            'professional' => $professional,
+            'role' => $role,
+            'active' => true
+        ]);
+
+        return $assignment !== null;
     }
 }

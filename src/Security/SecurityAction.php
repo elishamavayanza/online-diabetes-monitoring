@@ -39,6 +39,8 @@ enum SecurityAction: string
     case DELETE_MEDICAL_NOTE = 'delete_medical_note';
     case CREATE_DIAGNOSIS = 'create_diagnosis';
     case UPDATE_DIAGNOSIS = 'update_diagnosis';
+
+    case CLOSE_MEDICAL_RECORD = 'close_medical_record';
     case CREATE_MEDICAL_NOTE = 'create_medical_note';
 
     // Mesures
