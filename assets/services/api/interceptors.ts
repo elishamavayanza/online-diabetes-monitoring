@@ -67,7 +67,7 @@ export const jwtInterceptor: RequestInterceptor = {
         if (config.skipTokenRefresh) return config;
 
         const token = tokenStorage.getAccessToken();
-        if (token && !isTokenExpired(token)) {
+        if (token) {
             return {
                 ...config,
                 headers: {

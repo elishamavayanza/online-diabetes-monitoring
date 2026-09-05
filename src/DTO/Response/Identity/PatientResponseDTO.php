@@ -97,7 +97,7 @@ class PatientResponseDTO
             email: $patient->getEmail(),
             phone: $patient->getPhone(),
             fullName: $patient->getFullName(),
-            avatarUrl: $patient->getAvatarUrl(),
+            avatarUrl: AvatarUrl::toPublicUrl($patient->getAvatarUrl()),
             gender: $patient->getGender(),
             locale: $patient->getLocale() ?? 'fr',
             status: $patient->getStatus(),

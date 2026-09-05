@@ -222,7 +222,7 @@ DESC,
     #[Route(
         '/{id}',
         name: 'api_professionals_update',
-        methods: ['PUT', 'PATCH']
+        methods: ['POST', 'PUT', 'PATCH']
     )]
     #[OA\Put(
         summary: 'Modifier un professionnel'

@@ -123,7 +123,7 @@ class PatientController extends AbstractController
     #[Route(
         '/{id}/profile',
         name: 'api_patients_update_profile',
-        methods: ['PUT', 'PATCH']
+        methods: ['POST', 'PUT', 'PATCH']
     )]
     #[OA\Put(
         description: 'Complète ou met à jour le profil métier d’un patient existant (PUT).',

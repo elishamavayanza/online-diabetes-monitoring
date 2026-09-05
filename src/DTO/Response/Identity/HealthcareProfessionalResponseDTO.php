@@ -98,7 +98,7 @@ class HealthcareProfessionalResponseDTO
             email: $professional->getEmail(),
             phone: $professional->getPhone(),
             fullName: $professional->getFullName(),
-            avatarUrl: $professional->getAvatarUrl(),
+            avatarUrl: AvatarUrl::toPublicUrl($professional->getAvatarUrl()),
             gender: $professional->getGender(),
             locale: $professional->getLocale() ?? 'fr',
             status: $professional->getStatus(),

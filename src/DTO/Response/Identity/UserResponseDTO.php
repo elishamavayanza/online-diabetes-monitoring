@@ -74,7 +74,7 @@ class UserResponseDTO
             email: $user->getEmail(),
             phone: $user->getPhone(),
             fullName: $user->getFullName(),
-            avatarUrl: $user->getAvatarUrl(),
+            avatarUrl: AvatarUrl::toPublicUrl($user->getAvatarUrl()),
             gender: $user->getGender()?->value,
             locale: $user->getLocale(),
             status: $user->getStatus()?->value ?? '',

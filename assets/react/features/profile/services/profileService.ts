@@ -94,7 +94,8 @@ export async function updateUserProfile(
 
     if (roles.includes('ROLE_PATIENT')) {
         const formData = buildFormData(payload, avatarFile);
-        const response = await apiClient.put<ApiFeedback<any>>(
+        // Même règle pour le patient : POST multipart garantit la réception du fichier par PHP.
+        const response = await apiClient.post<ApiFeedback<any>>(
             `/patients/${userId}/profile`,
             formData,
             { headers: { 'Content-Type': undefined } as any }
@@ -102,7 +103,9 @@ export async function updateUserProfile(
         return mapPatientToProfile(response.data.data, userId, decoded);
     } else if (roles.includes('ROLE_CLINICIAN') || roles.includes('ROLE_NUTRITIONIST')) {
         const formData = buildFormData(payload, avatarFile);
-        const response = await apiClient.put<ApiFeedback<any>>(
+        // PHP ne remplit pas fiablement $_FILES pour une requête PUT multipart.
+        // L'API accepte POST pour cette mise à jour afin de recevoir avatarFile.
+        const response = await apiClient.post<ApiFeedback<any>>(
             `/professionals/${userId}`,
             formData,
             { headers: { 'Content-Type': undefined } as any }
@@ -140,7 +143,11 @@ function buildFormData(payload: ProfileUpdatePayload, avatarFile?: File | null):
     const formData = new FormData();
     formData.append('fullName', payload.name);
     if (payload.phone) formData.append('phone', payload.phone);
-    if (payload.avatarUrl) formData.append('avatarUrl', payload.avatarUrl);
+    // avatarUrl est un aperçu (souvent data:image/...) dans le formulaire.
+    // Il ne doit jamais remplacer l'avatar enregistré quand un fichier est fourni.
+    if (!avatarFile && payload.avatarUrl && !/^(data:|blob:)/i.test(payload.avatarUrl)) {
+        formData.append('avatarUrl', payload.avatarUrl);
+    }
     if (avatarFile) {
         formData.append('avatarFile', avatarFile);
     }

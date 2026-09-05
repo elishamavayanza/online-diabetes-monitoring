@@ -32,6 +32,15 @@ export function ProfileForm({ profile, onSave, isSaving }: ProfileFormProps) {
     const handleFileSelected = (files: File[]) => {
         if (files.length > 0) {
             const file = files[0];
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                showToast({ type: 'error', message: 'Choisissez une image JPEG, PNG ou WebP.' });
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                showToast({ type: 'error', message: 'La photo de profil ne doit pas dépasser 2 Mo.' });
+                return;
+            }
             setAvatarFile(file);
             const reader = new FileReader();
             reader.onload = (e) => setAvatarPreview(e.target?.result as string);

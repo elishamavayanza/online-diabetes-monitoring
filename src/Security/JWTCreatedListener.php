@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Entity\Identity\User;
+use App\DTO\Response\Identity\AvatarUrl;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
 
 class JWTCreatedListener
@@ -35,7 +36,9 @@ class JWTCreatedListener
         $payload['fullName'] = $user->getFullName();
         $payload['email'] = $user->getEmail();
 
-        $payload['photoUrl'] = $user->getAvatarUrl() ?? $user->getPhotoUrl() ?? null;
+        // Les avatars sont stockés comme noms de fichiers : le client doit
+        // recevoir leur chemin public, y compris dans le JWT restauré au boot.
+        $payload['photoUrl'] = AvatarUrl::toPublicUrl($user->getAvatarUrl());
 
         // Organisations actives
         $payload['organizations'] = $this->getActiveOrganizations($user);

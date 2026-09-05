@@ -3,9 +3,10 @@ import { fetchUserProfile, updateUserProfile } from '../services/profileService'
 import { UserProfileData, ProfileUpdatePayload } from '../types';
 import { useAuth } from '@/react/app/providers/AuthProvider';
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 
 export function useProfile() {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const { showToast } = useToast();
     const [profile, setProfile] = useState<UserProfileData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +37,10 @@ export function useProfile() {
         try {
             const updated = await updateUserProfile(payload, avatarFile, user?.id); // passe l'ID
             setProfile(updated);
+            updateUser({
+                name: updated.name || user?.name || 'Utilisateur',
+                photoUrl: resolveAvatarUrl(updated.avatarUrl),
+            });
             showToast({ type: 'success', message: 'Profil mis à jour avec succès.' });
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Erreur lors de la sauvegarde.';

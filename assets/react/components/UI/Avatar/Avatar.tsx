@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAvatar, UseAvatarProps } from '../../../hook-components/UI/Avatar';
+import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 
 export interface AvatarProps extends UseAvatarProps {
     src?: string;
@@ -11,6 +12,7 @@ export interface AvatarProps extends UseAvatarProps {
 
 export function Avatar({ src, alt, name, icon, status, size, shape, className }: AvatarProps) {
     const { classes } = useAvatar({ size, shape, className });
+    const imageSrc = resolveAvatarUrl(src);
 
     const getInitials = (fullName: string) => {
         return fullName
@@ -23,8 +25,8 @@ export function Avatar({ src, alt, name, icon, status, size, shape, className }:
 
     return (
         <div className={classes}>
-            {src ? (
-                <img src={src} alt={alt || name} className="avatar__image" />
+            {imageSrc ? (
+                <img src={imageSrc} alt={alt || name} className="avatar__image" />
             ) : icon ? (
                 <span className="avatar__icon">{icon}</span>
             ) : name ? (

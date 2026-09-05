@@ -4,6 +4,7 @@ import { tokenStorage } from '@/services/storage/storage.service';
 import { decodeJwtPayload } from '@/services/security/security.utils';
 import { AuthResponse, LoginPayload } from '../types/auth.types';
 import { UserRole } from '@/react/app/layouts/MainLayout/components/Sidebar/sidebar.config';
+import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 
 /**
  * Mappe les rôles Symfony (ROLE_*) vers les rôles applicatifs.
@@ -41,19 +42,13 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
         throw new Error('Token JWT invalide');
     }
 
-    const baseUrl = (import.meta as unknown as { env: { VITE_API_BASE_URL?: string } }).env.VITE_API_BASE_URL || '';
-
     const user = {
         id: decoded.sub ?? 'unknown',
         name: decoded.fullName ?? payload.emailOrUsername,
         email: decoded.email ?? payload.emailOrUsername,
         permissions: decoded.permissions ?? [],
         role: (decoded.role as UserRole) ?? mapSymfonyRoleToUserRole(decoded.roles ?? []),
-        photoUrl: decoded.photoUrl
-            ? decoded.photoUrl.startsWith('http')
-                ? decoded.photoUrl
-                : `${baseUrl}${decoded.photoUrl}` // préfixe si URL relative
-            : undefined,
+        photoUrl: resolveAvatarUrl(decoded.photoUrl ?? decoded.avatarUrl),
     };
 
     return {
