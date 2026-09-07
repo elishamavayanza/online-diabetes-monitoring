@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use App\Service\Identity\PatientService;
 
 #[Route('/api/professionals')]
 #[OA\Tag(
@@ -25,6 +26,7 @@ class HealthcareProfessionalController extends AbstractController
 {
     public function __construct(
         private readonly HealthcareProfessionalService $professionalService,
+        private readonly PatientService $patientService,
         private readonly SerializerInterface $serializer
     ) {
     }
@@ -300,6 +302,32 @@ DESC,
 
         return $this->json($feedback, $status);
     }
+
+    #[Route('/{id}/patients', name: 'api_professionals_patients', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère les patients assignés à ce professionnel de santé.',
+        summary: 'Lister les patients d’un professionnel'
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'ID du professionnel',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer')
+    )]
+    #[OA\Response(response: 200, description: 'Liste des patients récupérée avec succès')]
+    #[OA\Response(response: 404, description: 'Professionnel introuvable')]
+    #[OA\Response(response: 401, description: 'Non authentifié')]
+    public function getPatients(int $id): JsonResponse
+    {
+        // On délègue la logique métier au service des patients
+        $feedback = $this->patientService->getAssignedPatientsForProfessional((string) $id);
+
+        $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
 
     #[Route(
         '/{id}',

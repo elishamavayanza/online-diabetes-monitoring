@@ -245,6 +245,44 @@ class CareTeamAssignmentService
 
         return $assignment;
     }
+    /**
+     * Met à jour uniquement le statut actif d'une affectation (PATCH).
+     */
+    public function patchActiveStatus(string $organizationId, string $assignmentId, bool $isActive): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $organization = $this->findAndAuthorizeOrganization($organizationId);
+            $assignment = $this->findAssignment($assignmentId, $organization);
+
+            // Si on active l'affectation, on vérifie qu'il n'y a pas déjà un doublon actif
+            if ($isActive && $this->assignmentRepository->hasActiveAssignment(
+                    $assignment->getPatient(),
+                    $assignment->getProfessional(),
+                    $organization,
+                    $assignment->getRole(),
+                    $assignment->getId()
+                )) {
+                return $this->failure($feedback, 'Cette affectation active existe déjà.', 409);
+            }
+
+            $assignment->setActive($isActive);
+            $this->entityManager->flush();
+
+            return $feedback
+                ->setData($this->mapper->mapEntityToResponse($assignment))
+                ->setFlushDescription('Statut de l’affectation mis à jour avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $exception) {
+            return $this->failure($feedback, 'Accès refusé : ' . $exception->getMessage(), 403);
+        } catch (\DomainException $exception) {
+            return $this->failure($feedback, $exception->getMessage(), 404);
+        } catch (\Throwable $exception) {
+            return $this->failure($feedback, 'Erreur lors de la mise à jour de l’affectation.', 500);
+        }
+    }
 
     private function failure(Feedback $feedback, string $message, int $status): Feedback
     {

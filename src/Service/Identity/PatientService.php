@@ -371,4 +371,45 @@ class PatientService
                 ->autoInitFlush();
         }
     }
+
+    /**
+     * Récupère les patients assignés à un professionnel spécifique par son ID.
+     */
+    public function getAssignedPatientsForProfessional(string $professionalId): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $professional = $this->professionalRepository->find($professionalId);
+
+            if (!$professional) {
+                return $feedback->setErrorFlushDescription("Professionnel introuvable.")->autoInitFlush()->setStatus(404);
+            }
+
+            $assignments = $this->careTeamAssignmentRepository->findByProfessional($professional);
+            $patients = [];
+
+            foreach ($assignments as $assignment) {
+                if ($assignment->isActive() && $assignment->getPatient()) {
+                    $patient = $assignment->getPatient();
+                    if (!in_array($patient, $patients, true)) {
+                        $patients[] = $patient;
+                    }
+                }
+            }
+
+            $responseDTOs = array_map(
+                fn (Patient $patient) => PatientResponseDTO::fromEntity($patient),
+                $patients
+            );
+
+            return $feedback
+                ->setData(array_values($responseDTOs))
+                ->setFlushDescription("Patients du professionnel récupérés avec succès.")
+                ->autoInitFlush();
+
+        } catch (\Throwable $e) {
+            return $feedback->setErrorFlushDescription("Erreur : " . $e->getMessage())->autoInitFlush()->setStatus(500);
+        }
+    }
 }

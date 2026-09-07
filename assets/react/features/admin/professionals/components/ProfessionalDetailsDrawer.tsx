@@ -3,7 +3,11 @@ import { Drawer } from '@/react/components/UI/Drawer';
 import { Avatar } from '@/react/components/UI/Avatar';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
+import { Switch } from '@/react/components/Forms/Switch'; // adaptez le chemin si nécessaire
+import { Spinner } from '@/react/components/UI/Spinner';
+import { Alert } from '@/react/components/UI/Alert';
 import { Professional } from '../types/types';
+import { useAttachedPatients } from '../hooks/useAttachedPatients';
 
 interface ProfessionalDetailsDrawerProps {
     professional: Professional | null;
@@ -20,6 +24,11 @@ export function ProfessionalDetailsDrawer({
                                               onModify,
                                               onAttachPatient,
                                           }: ProfessionalDetailsDrawerProps) {
+    // Hook pour patients attachés, actif seulement si professional est défini
+    const { patients, isLoading, error, toggleActive } = useAttachedPatients(
+        professional?.id ?? ''
+    );
+
     if (!professional) return null;
 
     return (
@@ -53,6 +62,30 @@ export function ProfessionalDetailsDrawer({
                             {professional.statut}
                         </Badge>
                     </p>
+                </div>
+
+                {/* Section patients attachés */}
+                <div className="professional-details__patients">
+                    <h3>Patients attachés</h3>
+                    {isLoading ? (
+                        <Spinner />
+                    ) : error ? (
+                        <Alert variant="error">{error}</Alert>
+                    ) : patients.length === 0 ? (
+                        <p>Aucun patient attaché.</p>
+                    ) : (
+                        <ul className="attached-patients-list">
+                            {patients.map((patient) => (
+                                <li key={patient.assignmentId} className="attached-patient-item">
+                                    <span>{patient.nom}</span>
+                                    <Switch
+                                        checked={patient.active}
+                                        onChange={() => toggleActive(patient.assignmentId, patient.active)}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
 
                 <div className="professional-details__actions">

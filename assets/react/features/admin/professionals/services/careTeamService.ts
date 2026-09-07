@@ -1,6 +1,6 @@
 // services/careTeamService.ts
 import apiClient from "@/services/api/client";
-import { CareTeamAssignmentFormValues } from '../types/types';
+import {AttachedPatient, CareTeamAssignmentFormValues} from '../types/types';
 
 interface ApiFeedback<T> {
     status: number;
@@ -62,5 +62,56 @@ export async function fetchPatientsForAssignment(): Promise<{ id: string; nom: s
     } catch (error) {
         console.error("Erreur fetchPatientsForAssignment:", error);
         throw error;
+    }
+}
+
+/**
+ * Récupère la liste des patients attachés à un professionnel.
+ * Adaptez l'URL selon votre backend (ex: /care-team-assignments?professionalId=...)
+ */
+// services/careTeamService.ts
+
+export async function fetchAttachedPatients(
+    professionalId: string,
+    organizationId: string
+): Promise<any[]> {
+    try {
+        const response = await apiClient.get<ApiFeedback<any[]>>(
+            `/healthcare-organizations/${organizationId}/care-team-assignments`
+        );
+        const assignments = response.data.data ?? [];
+
+        // Filtrer pour ce professionnel
+        return assignments.filter((a: any) => String(a.professionalId) === professionalId);
+    } catch (error) {
+        console.error("Erreur fetchAttachedPatients:", error);
+        throw error;
+    }
+}
+
+/**
+ * Met à jour le statut actif/inactif d'une assignation patient-professionnel.
+ */
+export async function updateCareTeamAssignmentStatus(
+    organizationId: string,
+    assignmentId: string,
+    active: boolean
+): Promise<void> {
+    try {
+        const response = await apiClient.patch<ApiFeedback<unknown>>(
+            `/healthcare-organizations/${organizationId}/care-team-assignments/${assignmentId}`,
+            { active }
+        );
+        if (response.data.error) {
+            const errors = (response.data as any).errors;
+            const errorMessage = errors
+                ? Object.values(errors).flat().join(', ')
+                : response.data.message || "Erreur lors de la mise à jour du statut.";
+            throw new Error(errorMessage);
+        }
+    } catch (error) {
+        console.error("Erreur updateCareTeamAssignmentStatus:", error);
+        if (error instanceof Error) throw error;
+        throw new Error("Erreur inconnue lors de la mise à jour.");
     }
 }

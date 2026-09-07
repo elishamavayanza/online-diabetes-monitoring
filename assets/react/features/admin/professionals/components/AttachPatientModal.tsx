@@ -72,8 +72,8 @@ export function AttachPatientModal({ isOpen, onClose, professionalId, onSuccess 
                         <FormField label="Date de fin">
                             <Input
                                 type="date"
-                                value={form.endDate}
-                                onChange={(e) => updateField('endDate', e.target.value)}
+                                value={form.endDate ?? ''}
+                                onChange={(e) => updateField('endDate', e.target.value || null)}
                             />
                         </FormField>
 

@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 #[Route(
     '/api/healthcare-organizations/{organizationId}/care-team-assignments',
@@ -77,6 +78,37 @@ class CareTeamAssignmentController extends AbstractController
         #[MapRequestPayload] CareTeamAssignmentRequestDTO $dto
     ): JsonResponse {
         $feedback = $this->service->update($organizationId, $assignmentId, $dto);
+
+        return $this->json($feedback, $feedback->getStatus());
+    }
+
+    #[Route('/{assignmentId}', name: 'api_care_team_assignments_patch_status', requirements: ['assignmentId' => '\\d+'], methods: ['PATCH'])]
+    #[OA\Patch(summary: 'Modifier partiellement le statut actif d’une affectation')]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'active', type: 'boolean', example: true)
+            ]
+        )
+    )]
+    public function patchStatus(
+        string $organizationId,
+        string $assignmentId,
+        Request $request
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        $isActive = $data['active'] ?? null;
+
+        if (!is_bool($isActive)) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Le champ "active" de type booléen est requis.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $feedback = $this->service->patchActiveStatus($organizationId, $assignmentId, $isActive);
 
         return $this->json($feedback, $feedback->getStatus());
     }

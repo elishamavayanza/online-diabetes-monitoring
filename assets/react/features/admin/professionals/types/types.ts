@@ -46,3 +46,10 @@ export interface CareTeamAssignmentFormValues {
     endDate: string | null;  // format 'YYYY-MM-DD' ou null si indéfinie
     active: boolean;
 }
+
+export interface AttachedPatient {
+    assignmentId: string; // ID de l'assignation (pour mise à jour)
+    patientId: string;
+    nom: string;
+    active: boolean;
+}
