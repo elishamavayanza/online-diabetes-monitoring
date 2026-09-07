@@ -3,6 +3,7 @@
 namespace App\DTO\Response\Healthcare;
 
 use App\Entity\Healthcare\ExternalFollowInvitation;
+use App\DTO\Response\Identity\AvatarUrl;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -21,6 +22,9 @@ class ExternalFollowInvitationResponseDTO
 
         #[OA\Property(type: 'string', example: 'Marie KALALA', description: 'Nom du patient')]
         public readonly string $patientName,
+
+        #[OA\Property(type: 'string', nullable: true, example: '/uploads/files/avatars/abc.jpg', description: 'Photo de profil du patient')]
+        public readonly ?string $patientPhotoUrl,
 
         #[OA\Property(type: 'string', format: 'email', example: 'dr.dupont@centre2.com', description: 'Email du professionnel invité')]
         public readonly string $email,
@@ -68,6 +72,7 @@ class ExternalFollowInvitationResponseDTO
             id: (string) $invitation->getId(),
             patientId: (string) $invitation->getPatient()?->getId(),
             patientName: $invitation->getPatient()?->getFullName() ?? '',
+            patientPhotoUrl: AvatarUrl::toPublicUrl($invitation->getPatient()?->getAvatarUrl()),
             email: (string) $invitation->getEmail(),
             professionalId: (string) $invitation->getProfessional()?->getId(),
             professionalName: $invitation->getProfessional()?->getFullName() ?? '',

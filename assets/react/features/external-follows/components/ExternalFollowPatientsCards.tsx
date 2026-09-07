@@ -1,0 +1,114 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import '@/styles/pages/admin/external-follows/_external-follows.scss';
+import { Card } from '@/react/components/UI/Card';
+import { Badge } from '@/react/components/UI/Badge';
+import { Button } from '@/react/components/UI/Button';
+import { Avatar } from '@/react/components/UI/Avatar';
+import { Spinner } from '@/react/components/UI/Spinner';
+import { Alert } from '@/react/components/UI/Alert';
+import { useMyExternalFollows } from '../hooks/useMyExternalFollows';
+import { ExternalFollowInvitation, EXTERNAL_FOLLOW_STATUS_LABELS } from '../types/types';
+
+interface ExternalFollowPatientsCardsProps {
+    rolePrefix: 'clinician' | 'nutritionist';
+    search?: string;
+    showEmptyState?: boolean;
+}
+
+function formatDate(value: string | null): string {
+    if (!value) return '—';
+    return new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function ExternalFollowCard({ follow, rolePrefix }: { follow: ExternalFollowInvitation; rolePrefix: ExternalFollowPatientsCardsProps['rolePrefix'] }) {
+    const hasAccess = follow.status === 'ACCEPTED' || follow.status === 'PENDING';
+
+    return (
+        <Card className="clinician-patient-card external-follow-patient-card" interactive={hasAccess}>
+            <div className="clinician-patient-card__photo">
+                <Avatar
+                    src={follow.patientPhotoUrl ?? ''}
+                    name={follow.patientName}
+                    size="xlarge"
+                    shape="circle"
+                />
+            </div>
+
+            <div className="clinician-patient-card__info">
+                <h3 className="clinician-patient-card__name">{follow.patientName}</h3>
+                <p className="clinician-patient-card__detail">
+                    <span className="clinician-patient-card__label">Organisation :</span>{' '}
+                    {follow.organizationName}
+                </p>
+                <p className="clinician-patient-card__detail">
+                    <span className="clinician-patient-card__label">Accès jusqu'au :</span>{' '}
+                    {formatDate(follow.endDate)}
+                </p>
+            </div>
+
+            <div className="clinician-patient-card__status">
+                <Badge variant={follow.status === 'ACCEPTED' ? 'success' : 'warning'}>
+                    {EXTERNAL_FOLLOW_STATUS_LABELS[follow.status] ?? follow.status}
+                </Badge>
+            </div>
+
+            {hasAccess && (
+                <div className="clinician-patient-card__action">
+                    <Link to={`/${rolePrefix}/patients/${follow.patientId}/record`}>
+                        <Button variant="primary" size="small">Voir le dossier</Button>
+                    </Link>
+                </div>
+            )}
+        </Card>
+    );
+}
+
+export function ExternalFollowPatientsCards({ rolePrefix, search = '', showEmptyState = true }: ExternalFollowPatientsCardsProps) {
+    const { follows, isLoading, error } = useMyExternalFollows();
+
+    const filtered = search.trim()
+        ? follows.filter((follow) => follow.patientName.toLowerCase().includes(search.trim().toLowerCase()))
+        : follows;
+
+    if (isLoading) {
+        return (
+            <div className="external-follow-patients__empty">
+                <Spinner size="medium" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="external-follow-patients__empty">
+                <Alert variant="error">{error}</Alert>
+            </div>
+        );
+    }
+
+    if (filtered.length === 0) {
+        if (!showEmptyState) return null;
+        return (
+            <div className="external-follow-patients__empty">
+                <p>Aucun patient suivi en externe pour le moment.</p>
+                <p className="external-follow-patients__empty-hint">
+                    Lorsqu'une organisation vous invitera à suivre un de ses patients, il apparaîtra ici.
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="external-follow-patients">
+            <p className="external-follow-patients__count">
+                {filtered.length} patient{filtered.length > 1 ? 's' : ''} suivi{filtered.length > 1 ? 's' : ''} depuis une autre organisation
+            </p>
+            <div className="clinician-patients-cards">
+                {filtered.map((follow) => (
+                    <ExternalFollowCard key={follow.id} follow={follow} rolePrefix={rolePrefix} />
+                ))}
+            </div>
+        </div>
+    );
+}

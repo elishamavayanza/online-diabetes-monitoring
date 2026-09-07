@@ -7,6 +7,7 @@ use App\DTO\Request\Identity\PatientRequestDTO;
 use App\DTO\Response\Identity\PatientResponseDTO;
 use App\Entity\Identity\Address;
 use App\Entity\Identity\Patient;
+use App\Entity\Healthcare\CareTeamRole;
 use App\Repository\Appointment\AppointmentRepository;
 use App\Repository\Healthcare\CareTeamAssignmentRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
@@ -121,6 +122,12 @@ class PatientService
             $patients = [];
 
             foreach ($assignments as $assignment) {
+                // On exclut les suivis externes (EXTERNAL_FOLLOWER) : ils relèvent
+                // de l'onglet « Suivis externes » et non des patients de l'organisation.
+                if ($assignment->getRole() === CareTeamRole::EXTERNAL_FOLLOWER) {
+                    continue;
+                }
+
                 // On vérifie que l'affectation est bien active et que le patient n'est pas déjà dans la liste
                 if ($assignment->isActive() && $assignment->getPatient()) {
                     $patient = $assignment->getPatient();

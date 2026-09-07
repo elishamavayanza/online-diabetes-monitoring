@@ -4,6 +4,7 @@ export interface ExternalFollowInvitation {
     id: string;
     patientId: string;
     patientName: string;
+    patientPhotoUrl?: string | null;
     email: string;
     professionalId: string;
     professionalName: string;

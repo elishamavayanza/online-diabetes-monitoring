@@ -149,7 +149,6 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Patients",
             items: [
                 { id: "my-patients", label: "Mes patients", icon: <PatientsIcon />, route: "/clinician/my-patients", permission: "PATIENT_VIEW" },
-                { id: "external-follows-clinician", label: "Mes suivis externes", icon: <TeamIcon />, route: "/clinician/external-follows", permission: "PATIENT_VIEW" },
             ],
         },
         {
@@ -183,7 +182,6 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Patients",
             items: [
                 { id: "nutritionist-my-patients", label: "Mes patients", icon: <PatientsIcon />, route: "/nutritionist/my-patients", permission: "PATIENT_VIEW" },
-                { id: "external-follows-nutritionist", label: "Mes suivis externes", icon: <TeamIcon />, route: "/nutritionist/external-follows", permission: "PATIENT_VIEW" },
             ],
         },
         {

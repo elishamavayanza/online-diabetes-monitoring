@@ -289,6 +289,52 @@
    Clinician / Nutritionist – Mes suivis externes
    ============================================================ */
 
+.external-follow-patients {
+    &__count {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin: 0 0 1rem;
+    }
+
+    &__empty {
+        padding: 3rem;
+        text-align: center;
+        color: var(--text-secondary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    &__empty-hint {
+        font-size: 0.85rem;
+        color: var(--text-tertiary, #9ca3af);
+        max-width: 380px;
+    }
+}
+
+.external-follow-patient-card {
+    &__photo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__initials {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--color-primary-light, #dbeafe);
+        color: var(--color-primary, #3f51b5);
+        font-weight: 700;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-transform: uppercase;
+    }
+}
+
 .my-external-follows-page {
     display: flex;
     flex-direction: column;
