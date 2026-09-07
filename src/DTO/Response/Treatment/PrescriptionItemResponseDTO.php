@@ -25,6 +25,15 @@ class PrescriptionItemResponseDTO
         #[OA\Property(description: 'Nom du médicament', type: 'string', example: 'Paracétamol 500mg', nullable: true)]
         public readonly ?string $medicationName,
 
+        #[OA\Property(description: 'Classe du médicament (INSULIN ou GENERAL)', type: 'string', example: 'GENERAL', nullable: true)]
+        public readonly ?string $medicationCategory,
+
+        #[OA\Property(description: 'Type d’insuline (si classe INSULIN)', type: 'string', example: 'LONG_ACTING', nullable: true)]
+        public readonly ?string $insulinType,
+
+        #[OA\Property(description: 'Concentration de l’insuline (si classe INSULIN)', type: 'string', example: 'U-100', nullable: true)]
+        public readonly ?string $concentration,
+
         #[OA\Property(description: 'Posologie', type: 'string', example: '1 comprimé')]
         public readonly string $dosage,
 
@@ -52,11 +61,17 @@ class PrescriptionItemResponseDTO
 
     public static function fromEntity(PrescriptionItem $item): self
     {
+        $medication = $item->getMedication();
+        $insulin = $medication?->getInsulins()->first();
+
         return new self(
             id: (string) $item->getId(),
             prescriptionId: (string) $item->getPrescription()?->getId(),
-            medicationId: (string) $item->getMedication()?->getId(),
-            medicationName: $item->getMedication()?->getName(),
+            medicationId: $medication ? (string) $medication->getId() : '',
+            medicationName: $medication?->getName(),
+            medicationCategory: $medication?->getCategory()?->value,
+            insulinType: $insulin ? $insulin->getInsulinType()?->value : null,
+            concentration: $insulin ? $insulin->getConcentration() : null,
             dosage: $item->getDosage(),
             quantity: $item->getQuantity(),
             morning: $item->isMorning(),

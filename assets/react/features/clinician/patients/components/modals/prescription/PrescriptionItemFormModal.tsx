@@ -7,7 +7,7 @@ import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { PatientPrescription } from '../../../types';
-import {usePrescriptionItemForm} from "@/react/features/clinician/patients/hooks/prescription/usePrescriptionItemForm";
+import { usePrescriptionItemForm, medicationDosageHint } from "@/react/features/clinician/patients/hooks/prescription/usePrescriptionItemForm";
 
 interface PrescriptionItemFormModalProps {
     isOpen: boolean;
@@ -25,11 +25,14 @@ export function PrescriptionItemFormModal({
     const {
         form,
         medications,
+        selectedMedication,
         isLoading,
         error,
         handleChange,
         handleSubmit,
     } = usePrescriptionItemForm({ isOpen, onClose, prescription, onSuccess });
+
+    const hint = medicationDosageHint(selectedMedication);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Ajouter un médicament">
@@ -46,13 +49,13 @@ export function PrescriptionItemFormModal({
                             placeholder="Sélectionner un médicament"
                         />
                     </FormField>
-                    <FormField label="Posologie" htmlFor="dosage" required>
+                    <FormField label={hint.dosageLabel} htmlFor="dosage" required>
                         <Input
                             id="dosage"
                             name="dosage"
                             value={form.dosage}
                             onChange={handleChange}
-                            placeholder="ex: 1 comprimé"
+                            placeholder={hint.dosagePlaceholder}
                             required
                         />
                     </FormField>
@@ -62,6 +65,7 @@ export function PrescriptionItemFormModal({
                             name="quantity"
                             value={form.quantity}
                             onChange={handleChange}
+                            placeholder={hint.quantityPlaceholder}
                             required
                         />
                     </FormField>

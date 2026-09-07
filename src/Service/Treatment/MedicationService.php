@@ -4,11 +4,16 @@ namespace App\Service\Treatment;
 
 use App\DTO\Feedback;
 use App\DTO\Request\Treatment\MedicationRequestDTO;
+use App\Entity\Treatment\Insulin;
+use App\Entity\Treatment\InsulinType;
+use App\Entity\Treatment\Medication;
+use App\Entity\Treatment\MedicationClass;
 use App\Mapper\Treatment\MedicationMapper;
 use App\Repository\Treatment\MedicationRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class MedicationService
@@ -33,6 +38,78 @@ class MedicationService
         }
 
         $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+    }
+
+    /**
+     * Vérifie que les champs spécifiques à l'insuline sont fournis pour la classe INSULIN.
+     */
+    private function isInsulinRequest(MedicationRequestDTO $dto): bool
+    {
+        return is_string($dto->category)
+            ? $dto->category === MedicationClass::INSULIN->value
+            : $dto->category === MedicationClass::INSULIN;
+    }
+
+    private function validateInsulinFields(MedicationRequestDTO $dto): ?string
+    {
+        if ($this->isInsulinRequest($dto)) {
+            if (!$dto->insulinType || !$dto->concentration) {
+                return 'Un médicament de classe INSULIN doit définir un type et une concentration d\'insuline.';
+            }
+            return null;
+        }
+
+        if (!$dto->form) {
+            return 'Un médicament général doit définir une forme (comprimé ou liquide).';
+        }
+        return null;
+    }
+
+    /**
+     * Synchronise le profil d'insuline associé au médicament selon sa classe.
+     * - Classe INSULIN : crée ou met à jour l'entité Insulin liée.
+     * - Autre classe : retire toute insuline liée.
+     */
+    private function syncInsulin(Medication $medication, MedicationRequestDTO $dto): void
+    {
+        $medication->setCategory(
+            is_string($dto->category)
+                ? MedicationClass::from($dto->category)
+                : $dto->category
+        );
+
+        if (!$this->isInsulinRequest($dto)) {
+            $medication->setForm(null);
+            foreach ($medication->getInsulins() as $existing) {
+                $medication->removeInsulin($existing);
+            }
+            return;
+        }
+
+        $insulin = $medication->getInsulins()->first() ?: null;
+        if (!$insulin) {
+            $insulin = new Insulin();
+            $medication->addInsulin($insulin);
+        }
+
+        if ($dto->insulinType !== null) {
+            $type = is_string($dto->insulinType)
+                ? InsulinType::tryFrom($dto->insulinType)
+                : $dto->insulinType;
+
+            if ($type === null) {
+                throw new InvalidArgumentException(sprintf(
+                    "Le type d'insuline '%s' est invalide.",
+                    $dto->insulinType
+                ));
+            }
+
+            $insulin->setInsulinType($type);
+        }
+
+        if ($dto->concentration !== null) {
+            $insulin->setConcentration($dto->concentration);
+        }
     }
 
     public function all(): Feedback
@@ -92,7 +169,15 @@ class MedicationService
         try {
             $this->checkMedicationAccess();
 
+            $validationError = $this->validateInsulinFields($dto);
+            if ($validationError !== null) {
+                return $feedback
+                    ->setErrorFlushDescription($validationError)
+                    ->autoInitFlush();
+            }
+
             $medication = $this->mapper->mapRequestToEntity($dto);
+            $this->syncInsulin($medication, $dto);
 
             // Pas de setOrganization() puisque le catalogue est global
             $this->entityManager->persist($medication);
@@ -122,7 +207,15 @@ class MedicationService
                 return $feedback->setErrorFlushDescription('Médicament introuvable.')->autoInitFlush();
             }
 
+            $validationError = $this->validateInsulinFields($dto);
+            if ($validationError !== null) {
+                return $feedback
+                    ->setErrorFlushDescription($validationError)
+                    ->autoInitFlush();
+            }
+
             $medication = $this->mapper->mapRequestToEntity($dto, $medication);
+            $this->syncInsulin($medication, $dto);
 
             $this->entityManager->flush();
 

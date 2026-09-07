@@ -21,22 +21,28 @@ class Medication extends BaseEntity
     private ?string $name = null;
 
     /**
-     * @var MedicationCategory|null La catégorie du médicament.
+     * @var MedicationClass|null La classe du médicament (Insuline ou Médicament général).
      */
-    #[ORM\Column(type: 'string', length: 50, enumType: MedicationCategory::class)]
-    private ?MedicationCategory $category = null;
+    #[ORM\Column(type: 'string', length: 50, enumType: MedicationClass::class)]
+    private ?MedicationClass $category = null;
+
+    /**
+     * @var MedicationForm|null La forme galénique du médicament (réservée aux médicaments généraux : Comprimé ou Liquide).
+     */
+    #[ORM\Column(type: 'string', length: 50, enumType: MedicationForm::class, nullable: true)]
+    private ?MedicationForm $form = null;
+
+    /**
+     * @var bool Indique si le médicament est actif dans le référentiel.
+     */
+    #[ORM\Column(type: 'boolean')]
+    private bool $active = true;
 
     /**
      * @var string|null La description détaillée du médicament.
      */
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
-
-    /**
-     * @var int|null Le niveau d'insuline ou la concentration associée (le cas échéant).
-     */
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $insulinLevel = null;
 
     /**
      * @var string|null Le fabricant ou le laboratoire pharmaceutique.
@@ -76,19 +82,53 @@ class Medication extends BaseEntity
     }
 
     /**
-     * Récupère la catégorie du médicament.
+     * Récupère la classe du médicament.
      */
-    public function getCategory(): ?MedicationCategory
+    public function getCategory(): ?MedicationClass
     {
         return $this->category;
     }
 
     /**
-     * Définit la catégorie du médicament.
+     * Définit la classe du médicament.
      */
-    public function setCategory(MedicationCategory $category): static
+    public function setCategory(MedicationClass $category): static
     {
         $this->category = $category;
+        return $this;
+    }
+
+    /**
+     * Récupère la forme galénique du médicament.
+     */
+    public function getForm(): ?MedicationForm
+    {
+        return $this->form;
+    }
+
+    /**
+     * Définit la forme galénique du médicament.
+     */
+    public function setForm(?MedicationForm $form): static
+    {
+        $this->form = $form;
+        return $this;
+    }
+
+    /**
+     * Récupère le statut actif du médicament.
+     */
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    /**
+     * Définit le statut actif du médicament.
+     */
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
         return $this;
     }
 
@@ -106,23 +146,6 @@ class Medication extends BaseEntity
     public function setDescription(?string $description): static
     {
         $this->description = $description;
-        return $this;
-    }
-
-    /**
-     * Récupère le niveau d'insuline.
-     */
-    public function getInsulinLevel(): ?int
-    {
-        return $this->insulinLevel;
-    }
-
-    /**
-     * Définit le niveau d'insuline.
-     */
-    public function setInsulinLevel(?int $insulinLevel): static
-    {
-        $this->insulinLevel = $insulinLevel;
         return $this;
     }
 

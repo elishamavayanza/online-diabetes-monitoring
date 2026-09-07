@@ -3,6 +3,7 @@
 namespace App\DTO\Response\Treatment;
 
 use App\Entity\Treatment\Medication;
+use App\Entity\Treatment\MedicationClass;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -19,17 +20,26 @@ class MedicationResponseDTO
         #[OA\Property(type: 'string', example: 'Paracétamol 500mg', description: 'Nom du médicament')]
         public readonly string $name,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'ANALGESIC', description: 'Catégorie')]
+        #[OA\Property(type: 'string', nullable: true, example: 'INSULIN', description: 'Classe du médicament (INSULIN ou GENERAL)')]
         public readonly ?string $category,
 
-        #[OA\Property(type: 'string', nullable: true, example: 'Antalgique...', description: 'Description')]
-        public readonly ?string $description,
+        #[OA\Property(type: 'string', nullable: true, example: 'TABLET', description: 'Forme galénique (TABLET ou LIQUID, si classe GENERAL)')]
+        public readonly ?string $form,
 
-        #[OA\Property(type: 'integer', nullable: true, example: 0, description: 'Niveau d’insuline')]
-        public readonly ?int $insulinLevel,
+        #[OA\Property(type: 'string', nullable: true, example: 'Antidiabétique...', description: 'Description')]
+        public readonly ?string $description,
 
         #[OA\Property(type: 'string', nullable: true, example: 'PharmaLab', description: 'Fabricant')]
         public readonly ?string $manufacturer,
+
+        #[OA\Property(type: 'boolean', example: true, description: 'Médicament actif dans le référentiel')]
+        public readonly bool $active,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'LONG_ACTING', description: 'Type d’insuline (si classe INSULIN)')]
+        public readonly ?string $insulinType,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'U-100', description: 'Concentration de l’insuline (si classe INSULIN)')]
+        public readonly ?string $concentration,
 
         #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T10:30:00Z', description: 'Date de création')]
         public readonly \DateTimeImmutable $createdAt,
@@ -40,13 +50,18 @@ class MedicationResponseDTO
 
     public static function fromEntity(Medication $medication): self
     {
+        $insulin = $medication->getInsulins()->first();
+
         return new self(
             id: (string) $medication->getId(),
             name: $medication->getName(),
             category: $medication->getCategory()?->value,
+            form: $medication->getCategory() === MedicationClass::GENERAL ? $medication->getForm()?->value : null,
             description: $medication->getDescription(),
-            insulinLevel: $medication->getInsulinLevel(),
             manufacturer: $medication->getManufacturer(),
+            active: $medication->isActive(),
+            insulinType: $insulin ? $insulin->getInsulinType()?->value : null,
+            concentration: $insulin ? $insulin->getConcentration() : null,
             createdAt: $medication->getCreatedAt(),
             updatedAt: $medication->getUpdatedAt()
         );

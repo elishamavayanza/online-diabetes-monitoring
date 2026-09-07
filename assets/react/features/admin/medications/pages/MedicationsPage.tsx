@@ -14,9 +14,11 @@ function toFormValues(med: Medication): MedicationFormValues {
     return {
         name: med.name,
         category: med.category,
+        form: med.category === 'GENERAL' ? med.form ?? 'TABLET' : null,
         description: med.description ?? '',
-        insulinLevel: med.insulinLevel ?? 0,
         manufacturer: med.manufacturer ?? '',
+        insulinType: med.insulinType ?? '',
+        concentration: med.concentration ?? '',
         active: med.active,
     };
 }

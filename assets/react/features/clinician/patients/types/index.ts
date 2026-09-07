@@ -88,6 +88,9 @@ export interface PrescriptionItem {
     prescriptionId: string;
     medicationId: string;
     medicationName?: string;
+    medicationCategory?: string;
+    insulinType?: string | null;
+    concentration?: string | null;
     dosage: string;
     quantity: string;
     morning: boolean;

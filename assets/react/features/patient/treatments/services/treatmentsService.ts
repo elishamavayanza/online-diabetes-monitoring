@@ -31,6 +31,13 @@ interface MedicationResponse {
     name: string;
     category?: string;
     categorie?: string;
+    form?: string;
+}
+
+interface MedicationInfo {
+    name: string;
+    category: TreatmentCategory | null;
+    form?: string | null;
 }
 
 function buildHoraires(morning: boolean, noon: boolean, evening: boolean): string[] {
@@ -48,22 +55,23 @@ function fallbackCategory(name: string, dosage: string): TreatmentCategory {
     return 'AUTRE';
 }
 
-function mapCategory(category?: string): TreatmentCategory | null {
+function mapCategory(category?: string, form?: string | null): TreatmentCategory | null {
     if (!category) return null;
     const normalized = category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (normalized === 'insulin') return 'INSULINE';
+    if (normalized === 'general') return form === 'tablet' ? 'COMPRIMÉ' : 'AUTRE';
     if (normalized === 'tablet') return 'COMPRIMÉ';
     if (normalized === 'other') return 'AUTRE';
     if (normalized === 'comprime' || normalized === 'comprimé') return 'COMPRIMÉ';
     return null;
 }
 
-async function fetchMedicationInfo(medicationId: string): Promise<{ name: string; category: TreatmentCategory | null }> {
+async function fetchMedicationInfo(medicationId: string): Promise<MedicationInfo> {
     try {
         const response = await apiClient.get<ApiFeedback<MedicationResponse>>(`/medications/${medicationId}`);
         const med = unwrapApiData(response.data, 'Erreur médicament');
         const rawCategory = med.categorie ?? med.category;
-        return { name: med.name || 'Médicament', category: mapCategory(rawCategory) };
+        return { name: med.name || 'Médicament', category: mapCategory(rawCategory, med.form), form: med.form };
     } catch {
         return { name: 'Médicament', category: null };
     }

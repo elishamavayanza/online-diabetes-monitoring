@@ -105,7 +105,9 @@ Toutes les entités héritent de `PatientCommonOperation` (patient, issuer, meas
 
 | Table | Entité | Description |
 |---|---|---|
-| `treatment_medications` | `Medication` | `name`, `category` (enum), `description`, `insulinLevel`, `manufacturer`. |
+| `treatment_medications` | `Medication` | `name`, `category` (enum `MedicationClass`), `form` (enum `MedicationForm`, général), `description`, `manufacturer`, `active`. Relations : `insulins` (O2M, CASCADE, orphanRemoval). |
+| `treatment_insulins` | `Insulin` | `insulinType` (enum), `concentration`. Relation : `medication` (M2O, CASCADE). |
+| `treatment_insulin_injections` | `InsulinInjection` | `injectedAt`, `doseUnits`, `injectionSite` (enum), `status` (enum), `notes`. Relations : `patient` (M2O, CASCADE), `prescriptionItem` (M2O, CASCADE), `insulin` (M2O, RESTRICT), `issuer` (M2O, RESTRICT). |
 | `treatment_prescriptions` | `Prescription` | `startDate`, `endDate`, `status` (enum), `notes`, `validatedAt`. Relations : `patient` (M2O), `prescriber` (M2O, RESTRICT), `organization` (M2O, RESTRICT), `validatedBy` (M2O opt.), `items` (O2M), `versions` (O2M). |
 | `treatment_prescription_items` | `PrescriptionItem` | `dosage`, `quantity`, `morning`/`noon`/`evening` (bools), `instructions`. Relations : `prescription` (M2O), `medication` (M2O, RESTRICT), `intakes` (O2M). |
 | `treatment_prescription_versions` | `PrescriptionVersion` | `versionNumber`, `changesSummary`, `data` (json). Relations : `prescription` (M2O), `modifiedBy` (M2O, RESTRICT). |
@@ -115,7 +117,10 @@ Toutes les entités héritent de `PatientCommonOperation` (patient, issuer, meas
 
 | Enum | Valeurs |
 |---|---|
-| `MedicationCategory` | `INSULIN`, `TABLET`, `OTHER` |
+| `MedicationClass` | `INSULIN`, `GENERAL` |
+| `MedicationForm` | `TABLET`, `LIQUID` |
+| `InsulinType` | `RAPID_ACTING`, `SHORT_ACTING`, `INTERMEDIATE_ACTING`, `LONG_ACTING`, `MIXED`, `OTHER` |
+| `InjectionSite` | `ABDOMEN`, `THIGH`, `UPPER_ARM`, `BUTTOCK`, `OTHER` |
 | `PrescriptionStatus` | `DRAFT`, `ACTIVE`, `COMPLETED`, `CANCELLED` |
 | `IntakeStatus` | `TAKEN`, `SKIPPED`, `DELAYED` |
 

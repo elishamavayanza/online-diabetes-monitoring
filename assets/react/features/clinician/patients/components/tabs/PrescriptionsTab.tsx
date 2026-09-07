@@ -173,6 +173,17 @@ export function PrescriptionsTab() {
                                             {items.map((item) => (
                                                 <li key={item.id} className="patient-dossier-tab__prescription-item">
                                                     <div>
+                                                        {item.medicationName && (
+                                                            <>
+                                                                <strong>{item.medicationName}</strong>
+                                                                {item.medicationCategory === 'INSULIN' && (
+                                                                    <Badge variant="info" size="small" pill className="patient-dossier-tab__insulin-badge">
+                                                                        Insuline
+                                                                    </Badge>
+                                                                )}
+                                                                <br />
+                                                            </>
+                                                        )}
                                                         <strong>{item.dosage}</strong> — Qté: {item.quantity}
                                                         <br />
                                                         <small>{formatSchedule(item.morning, item.noon, item.evening)}</small>

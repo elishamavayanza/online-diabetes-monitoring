@@ -5,10 +5,12 @@ import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 
 const initialForm: MedicationFormValues = {
     name: '',
-    category: 'TABLET',
+    category: 'GENERAL',
+    form: 'TABLET',
     description: '',
-    insulinLevel: 0,
     manufacturer: '',
+    insulinType: '',
+    concentration: '',
     active: true,
 };
 
@@ -24,7 +26,15 @@ export function useCreateMedication() {
 
     const submit = async (): Promise<boolean> => {
         if (!form.name.trim() || !form.category.trim()) {
-            showToast({ type: 'error', message: 'Le nom et la catégorie sont obligatoires.' });
+            showToast({ type: 'error', message: 'Le nom et la classe sont obligatoires.' });
+            return false;
+        }
+        if (form.category === 'INSULIN' && (!form.insulinType || !form.concentration)) {
+            showToast({ type: 'error', message: 'Le type et la concentration sont obligatoires pour une insuline.' });
+            return false;
+        }
+        if (form.category === 'GENERAL' && !form.form) {
+            showToast({ type: 'error', message: 'La forme (comprimé ou liquide) est obligatoire pour un médicament général.' });
             return false;
         }
         setIsSubmitting(true);

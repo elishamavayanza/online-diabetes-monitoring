@@ -21,6 +21,58 @@ const INITIAL_FORM = {
     instructions: '',
 };
 
+const INSULIN_TYPE_LABELS: Record<string, string> = {
+    RAPID_ACTING: 'Action rapide',
+    SHORT_ACTING: 'Action courte',
+    INTERMEDIATE_ACTING: 'Action intermédiaire',
+    LONG_ACTING: 'Action longue',
+    MIXED: 'Prémélangée',
+    OTHER: 'Autre',
+};
+
+const FORM_LABELS: Record<string, string> = {
+    TABLET: 'Comprimé',
+    LIQUID: 'Liquide',
+};
+
+export interface MedicationDosageHint {
+    dosageLabel: string;
+    dosagePlaceholder: string;
+    quantityPlaceholder: string;
+}
+
+export function medicationDosageHint(medication: { category?: string; form?: string | null } | null): MedicationDosageHint {
+    if (medication?.category === 'INSULIN') {
+        return {
+            dosageLabel: 'Posologie (unités d’insuline)',
+            dosagePlaceholder: 'ex: 12 unités',
+            quantityPlaceholder: 'ex: 1 stylo',
+        };
+    }
+    if (medication?.category === 'GENERAL' && medication.form === 'LIQUID') {
+        return {
+            dosageLabel: 'Posologie (mL)',
+            dosagePlaceholder: 'ex: 5 mL',
+            quantityPlaceholder: 'ex: 1 flacon',
+        };
+    }
+    return {
+        dosageLabel: 'Posologie',
+        dosagePlaceholder: 'ex: 1 comprimé',
+        quantityPlaceholder: 'ex: 1 boîte',
+    };
+}
+
+function medicationOptionLabel(medication: { name: string; category: string; form?: string | null; insulinType?: string | null; concentration?: string | null }): string {
+    if (medication.category === 'INSULIN') {
+        const type = INSULIN_TYPE_LABELS[medication.insulinType ?? ''] ?? medication.insulinType ?? '';
+        const details = [type, medication.concentration].filter(Boolean).join(' ');
+        return `${medication.name} — Insuline${details ? ` (${details})` : ''}`;
+    }
+    const formLabel = FORM_LABELS[medication.form ?? ''] ?? '';
+    return formLabel ? `${medication.name} — ${formLabel}` : medication.name;
+}
+
 export function useEditPrescriptionItemForm({
                                                 isOpen,
                                                 onClose,
@@ -31,6 +83,7 @@ export function useEditPrescriptionItemForm({
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [medications, setMedications] = useState<{ value: string; label: string }[]>([]);
+    const [medicationInfos, setMedicationInfos] = useState<Record<string, { category: string; form?: string | null }>>({});
     const [form, setForm] = useState(INITIAL_FORM);
 
     useEffect(() => {
@@ -51,9 +104,21 @@ export function useEditPrescriptionItemForm({
     useEffect(() => {
         if (isOpen) {
             fetchMedications()
-                .then((list) => setMedications(list.map((m) => ({ value: m.id, label: m.name }))))
+                .then((list) => {
+                    setMedications(list.map((m) => ({ value: m.id, label: medicationOptionLabel(m) })));
+                    setMedicationInfos(
+                        list.reduce<Record<string, { category: string; form?: string | null }>>(
+                            (acc, m) => {
+                                acc[m.id] = { category: m.category, form: m.form };
+                                return acc;
+                            },
+                            {}
+                        )
+                    );
+                })
                 .catch(() => {
                     setMedications([]);
+                    setMedicationInfos({});
                     showToast({ type: 'error', message: 'Impossible de charger les médicaments.' });
                 });
         }
@@ -103,6 +168,7 @@ export function useEditPrescriptionItemForm({
     return {
         form,
         medications,
+        selectedMedication: form.medicationId ? medicationInfos[form.medicationId] ?? null : null,
         isLoading,
         error,
         handleChange,

@@ -3,7 +3,7 @@
 namespace App\Repository\Treatment;
 
 use App\Entity\Treatment\Medication;
-use App\Entity\Treatment\MedicationCategory;
+use App\Entity\Treatment\MedicationClass;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -20,7 +20,7 @@ class MedicationRepository extends ServiceEntityRepository
     /**
      * @return Medication[]
      */
-    public function findByCategory(MedicationCategory $category): array
+    public function findByCategory(MedicationClass $category): array
     {
         return $this->createQueryBuilder('m')
             ->andWhere('m.category = :category')

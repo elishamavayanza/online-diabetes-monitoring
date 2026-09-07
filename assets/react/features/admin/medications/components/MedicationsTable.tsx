@@ -10,10 +10,22 @@ interface MedicationsTableProps {
     onDelete: (medication: Medication) => void;
 }
 
-// Mapping des catégories backend vers des libellés français
 const CATEGORY_LABELS: Record<string, string> = {
     INSULIN: 'Insuline',
+    GENERAL: 'Général',
+};
+
+const FORM_LABELS: Record<string, string> = {
     TABLET: 'Comprimé',
+    LIQUID: 'Liquide',
+};
+
+const INSULIN_TYPE_LABELS: Record<string, string> = {
+    RAPID_ACTING: 'Action rapide',
+    SHORT_ACTING: 'Action courte',
+    INTERMEDIATE_ACTING: 'Action intermédiaire',
+    LONG_ACTING: 'Action longue',
+    MIXED: 'Prémélangée',
     OTHER: 'Autre',
 };
 
@@ -22,18 +34,36 @@ export function MedicationsTable({ medications, onEdit, onDelete }: MedicationsT
         { key: 'name', title: 'Nom' },
         {
             key: 'category',
-            title: 'Catégorie',
-            render: (row: Medication) => CATEGORY_LABELS[row.category] ?? row.category,
+            title: 'Classe',
+            render: (row: Medication) => (
+                <Badge variant={row.category === 'INSULIN' ? 'info' : 'secondary'}>
+                    {CATEGORY_LABELS[row.category] ?? row.category}
+                </Badge>
+            ),
+        },
+        {
+            key: 'form',
+            title: 'Forme',
+            render: (row: Medication) =>
+                row.category === 'GENERAL' ? (FORM_LABELS[row.form ?? ''] ?? '—') : '—',
+        },
+        {
+            key: 'insulin',
+            title: 'Type / Concentration',
+            render: (row: Medication) =>
+                row.category === 'INSULIN' ? (
+                    <>
+                        {INSULIN_TYPE_LABELS[row.insulinType ?? ''] ?? row.insulinType ?? '—'}
+                        {row.concentration ? ` (${row.concentration})` : ''}
+                    </>
+                ) : (
+                    '—'
+                ),
         },
         {
             key: 'manufacturer',
             title: 'Fabricant',
             render: (row: Medication) => row.manufacturer ?? '—',
-        },
-        {
-            key: 'insulinLevel',
-            title: 'Niveau d’insuline',
-            render: (row: Medication) => row.insulinLevel !== undefined ? row.insulinLevel : '—',
         },
         {
             key: 'active',
