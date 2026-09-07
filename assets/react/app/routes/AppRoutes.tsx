@@ -61,6 +61,7 @@ import {
     ClinicianPatientRecordClosedPage
 } from "@/react/features/clinician/patients/pages/ClinicianPatientRecordClosedPage";
 import {NutritionPage} from "@/react/features/patient/nutrition/pages/NutritionPage";
+import { ProfessionalCreatePage } from '@/react/features/admin/professionals/pages/ProfessionalCreatePage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -168,6 +169,7 @@ export default function AppRoutes() {
                     {/*<Route path="notifications" element={<AdminNotificationsPage />} />*/}
                     {/*<Route path="settings" element={<AdminSettingsPage />} />*/}
                     <Route path="establishments/:type/:id" element={<EstablishmentDetailPage />} />
+                    <Route path="professionals/new" element={<ProfessionalCreatePage />} />
                 </Route>
 
                 <Route

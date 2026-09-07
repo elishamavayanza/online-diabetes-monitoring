@@ -17,30 +17,30 @@ class HealthcareProfessionalCreateRequestDTO
         #[Assert\Email]
         #[Assert\Length(max: 180)]
         #[OA\Property(type: 'string', format: 'email', example: 'dr.jean@diabcare.com', maxLength: 180)]
-        public readonly string $email,
+        public readonly string $email = '',
 
         #[Assert\NotBlank]
         #[Assert\Length(min: 8)]
         #[OA\Property(type: 'string', format: 'password', example: 'SecurePassword123!', minLength: 8)]
-        public readonly string $password,
+        public readonly string $password = '',
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 150)]
         #[OA\Property(type: 'string', example: 'Dr. Jean Mukendi', maxLength: 150)]
-        public readonly string $fullName,
+        public readonly string $fullName = '',
 
         #[Assert\NotBlank]
         #[OA\Property(type: 'string', example: 'MALE', enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'])]
-        public readonly string $gender,
+        public readonly string $gender = '',
 
         #[Assert\Length(max: 10)]
         #[OA\Property(type: 'string', example: 'fr', maxLength: 10)]
-        public readonly string $locale,
+        public readonly string $locale = 'fr',
 
         #[Assert\NotBlank]
         #[Assert\Length(max: 100)]
         #[OA\Property(type: 'string', example: 'ORD-MED-2026-99', maxLength: 100)]
-        public readonly string $licenseNumber,
+        public readonly string $licenseNumber = '',
 
         #[Assert\NotBlank]
         #[OA\Property(
@@ -49,7 +49,7 @@ class HealthcareProfessionalCreateRequestDTO
             example: 'CLINICIAN',
             enum: ['CLINICIAN', 'NUTRITIONIST']
         )]
-        public readonly string $professionalType, // <-- Remis en string pour correspondre au JSON entrant
+        public readonly string $professionalType = '', // <-- Remis en string pour correspondre au JSON entrant
 
         #[Assert\Length(max: 50)]
         #[OA\Property(type: 'string', example: '+243990000000', nullable: true, maxLength: 50)]

@@ -99,18 +99,21 @@ export async function getProfessionalById(id: string): Promise<ProfessionalFormV
 export async function createProfessional(
     payload: ProfessionalFormValues,
     avatarFile?: File | null
-): Promise<void> {
+): Promise<number> {
     const formData = buildFormData(payload, avatarFile);
     console.log('FormData envoyé:', [...formData.entries()]);
 
     try {
-        const response = await apiClient.post<ApiFeedback<unknown>>('/professionals', formData, {
+        const response = await apiClient.post<ApiFeedback<any>>('/professionals', formData, {
             headers: { 'Content-Type': undefined } as any,
         });
         if (response.data.error) {
             console.error('Réponse erreur création professionnel:', response.data);
             throw new Error(response.data.message || 'Erreur lors de la création du professionnel');
         }
+        const id = response.data.data?.id;
+        if (!id) throw new Error('Identifiant du professionnel introuvable dans la réponse.');
+        return Number(id);
     } catch (error) {
         console.error('Exception createProfessional:', error);
         if (error instanceof Error) throw error;

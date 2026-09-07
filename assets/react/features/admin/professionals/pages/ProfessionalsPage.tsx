@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useProfessionals } from '../hooks/useProfessionals';
 import { ProfessionalsTable } from '../components/ProfessionalsTable';
 import { ProfessionalFormModal } from '../components/ProfessionalFormModal';
@@ -55,6 +56,7 @@ export function ProfessionalsPage() {
     const [attachProfessionalId, setAttachProfessionalId] = useState<string | null>(null);
 
     const { pushAction } = useActionHistory();
+    const navigate = useNavigate();
 
     const openAddModal = () => {
         setIsAddModalOpen(true);
@@ -116,7 +118,7 @@ export function ProfessionalsPage() {
                         onSearch={(value: string) => setSearch(value)}
                     />
                 </div>
-                <Button variant="primary" onClick={openAddModal}>
+                <Button variant="primary" onClick={() => navigate('/admin/professionals/new')}>
                     + Ajouter un professionnel
                 </Button>
             </div>

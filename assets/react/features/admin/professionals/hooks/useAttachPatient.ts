@@ -17,7 +17,7 @@ const initialForm: CareTeamAssignmentFormValues = {
     professionalId: 0,
     role: 'PRIMARY_CLINICIAN',
     startDate: formatDateToApi(new Date()),
-    endDate: '',
+    endDate: null,
     active: true,
 };
 

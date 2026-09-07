@@ -43,6 +43,6 @@ export interface CareTeamAssignmentFormValues {
     professionalId: number;  //  entier
     role: CareTeamRole;
     startDate: string;       // format 'YYYY-MM-DD'
-    endDate: string;         // format 'YYYY-MM-DD'
+    endDate: string | null;  // format 'YYYY-MM-DD' ou null si indéfinie
     active: boolean;
 }

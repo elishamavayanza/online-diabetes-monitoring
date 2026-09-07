@@ -43,22 +43,22 @@ export function useCreateProfessional() {
         if (file) setAvatarFile(file);
     };
 
-    const submit = async (): Promise<boolean> => {
-        if (!form.fullName.trim() || !form.email.trim() || !form.password.trim()) {
-            showToast({ type: 'error', message: 'Veuillez remplir tous les champs obligatoires.' });
-            return false;
+    const submit = async (): Promise<number | null> => {
+        if (!form.fullName.trim() || !form.email.trim() || !form.password.trim() || !form.licenseNumber.trim()) {
+            showToast({ type: 'error', message: 'Veuillez remplir tous les champs obligatoires, y compris le numéro de licence.' });
+            return null;
         }
         setIsSubmitting(true);
         setError(null);
         try {
-            await createProfessional(form, avatarFile);
+            const professionalId = await createProfessional(form, avatarFile);
             showToast({ type: 'success', message: 'Professionnel créé avec succès.' });
-            return true;
+            return professionalId;
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Erreur lors de la création.';
             setError(message);
             showToast({ type: 'error', message });
-            return false;
+            return null;
         } finally {
             setIsSubmitting(false);
         }
