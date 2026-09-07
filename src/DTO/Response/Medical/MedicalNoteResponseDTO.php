@@ -22,6 +22,9 @@ class MedicalNoteResponseDTO
         #[OA\Property(type: 'string', format: 'uuid', example: '7b224119-12f4-4b53-9912-1f83c2748a12', description: 'ID de l’auteur')]
         public readonly string $authorId,
 
+        #[OA\Property(type: 'string', nullable: true, example: 'Dr. Dupont', description: 'Nom de l\'auteur')]
+        public readonly ?string $authorName,
+
         #[OA\Property(type: 'string', example: 'Patient stable...', description: 'Contenu')]
         public readonly string $content,
 
@@ -41,6 +44,7 @@ class MedicalNoteResponseDTO
             id: (string) $note->getId(),
             medicalRecordId: (string) $note->getMedicalRecord()?->getId(),
             authorId: (string) $note->getAuthor()?->getId(),
+            authorName: $note->getAuthor()?->getFullName(),
             content: $note->getContent(),
             notedAt: $note->getNotedAt(),
             createdAt: $note->getCreatedAt(),

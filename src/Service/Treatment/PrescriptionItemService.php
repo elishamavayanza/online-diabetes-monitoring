@@ -8,6 +8,7 @@ use App\Mapper\Treatment\PrescriptionItemMapper;
 use App\Repository\Treatment\MedicationRepository;
 use App\Repository\Treatment\PrescriptionItemRepository;
 use App\Repository\Treatment\PrescriptionRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,8 @@ class PrescriptionItemService
         private readonly MedicationRepository $medicationRepository,
         private readonly PrescriptionItemMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {
     }
 
@@ -113,7 +115,8 @@ class PrescriptionItemService
             $item = $this->mapper->mapRequestToEntity(
                 $dto,
                 $prescription,
-                $medication
+                $medication,
+                $this->securityService->getCurrentUser()
             );
 
             $this->entityManager->persist($item);
@@ -153,12 +156,14 @@ class PrescriptionItemService
 
         $this->securityService->checkPatientAccess($item->getPrescription()->getPatient(), SecurityAction::UPDATE_PRESCRIPTION);
 
+        $this->ownershipGuard->assertCreator($item);
+
         $medication = $this->medicationRepository->find($dto->medicationId);
         if (!$medication) {
             return $feedback->setErrorFlushDescription('Médicament introuvable.')->autoInitFlush();
         }
 
-        $this->mapper->mapRequestToEntity($dto, $item->getPrescription(), $medication, $item);
+        $this->mapper->mapRequestToEntity($dto, $item->getPrescription(), $medication, null, $item);
 
         $this->entityManager->flush();
         return $feedback->setFlushDescription('Mis à jour avec succès.')->setData($this->mapper->mapEntityToResponse($item));
@@ -172,6 +177,8 @@ class PrescriptionItemService
         if (!$item) return $feedback->setErrorFlushDescription('Introuvable.')->autoInitFlush();
 
         $this->securityService->checkPatientAccess($item->getPrescription()->getPatient(), SecurityAction::UPDATE_PRESCRIPTION);
+
+        $this->ownershipGuard->assertCreator($item);
 
         $this->entityManager->remove($item);
         $this->entityManager->flush();

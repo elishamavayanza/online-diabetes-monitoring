@@ -16,6 +16,8 @@ import {
 } from '../../types';
 import { useMedicalProfileTab } from "@/react/features/clinician/patients/hooks/useMedicalProfileTab";
 import { useAuth } from '@/react/app/providers/AuthProvider';
+import { RecordAuthor } from '../RecordAuthor';
+import { RecordOwnershipInfo, isRecordCreator } from '../../utils/ownershipUtils';
 
 export function MedicalProfileTab() {
     const {
@@ -41,12 +43,13 @@ export function MedicalProfileTab() {
 
     const renderActions = (
         type: 'allergy' | 'diagnosis' | 'consent' | 'contact',
+        record: RecordOwnershipInfo,
         id: string,
         label: string,
         onEdit: () => void,
         extraActions?: React.ReactNode,
     ) => {
-        if (isReadOnly) return null;
+        if (isReadOnly || !isRecordCreator(record)) return null;
         return (
             <div className="patient-dossier-tab__item-actions">
                 {extraActions}
@@ -86,7 +89,8 @@ export function MedicalProfileTab() {
                                 </div>
                                 {allergy.reaction && <p><strong>Réaction :</strong> {allergy.reaction}</p>}
                                 {allergy.notes && <p><strong>Notes :</strong> {allergy.notes}</p>}
-                                {renderActions('allergy', allergy.id, allergy.name, () => openAllergyModal(allergy))}
+                                <RecordAuthor record={allergy} />
+                                {renderActions('allergy', allergy, allergy.id, allergy.name, () => openAllergyModal(allergy))}
                             </Card>
                         ))}
                     </div>
@@ -115,7 +119,8 @@ export function MedicalProfileTab() {
                                 </div>
                                 {diag.diagnosedAt && <p><strong>Date :</strong> {formatDisplayDate(diag.diagnosedAt)}</p>}
                                 {diag.description && <p><strong>Description :</strong> {diag.description}</p>}
-                                {renderActions('diagnosis', diag.id, diag.conditionName, () => openDiagnosisModal(diag))}
+                                <RecordAuthor record={diag} />
+                                {renderActions('diagnosis', diag, diag.id, diag.conditionName, () => openDiagnosisModal(diag))}
                             </Card>
                         ))}
                     </div>
@@ -175,9 +180,11 @@ export function MedicalProfileTab() {
                                         </button>
                                     </p>
                                 )}
+                                <RecordAuthor record={consent} />
                                 {!isReadOnly && !isClinician && (
                                     renderActions(
                                         'consent',
+                                        consent,
                                         consent.id,
                                         getConsentTypeLabel(consent.consentType),
                                         () => openConsentModal(consent),
@@ -213,8 +220,9 @@ export function MedicalProfileTab() {
                                 <h4>{contact.fullName}</h4>
                                 {contact.relationship && <p><strong>Relation :</strong> {contact.relationship}</p>}
                                 {contact.phone && <p><strong>Téléphone :</strong> {contact.phone}</p>}
+                                <RecordAuthor record={contact} />
                                 {!isReadOnly && !isClinician && ( //  actions masquées pour clinicien
-                                    renderActions('contact', contact.id, contact.fullName, () => openEmergencyContactModal(contact))
+                                    renderActions('contact', contact, contact.id, contact.fullName, () => openEmergencyContactModal(contact))
                                 )}
                             </Card>
                         ))}

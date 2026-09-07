@@ -31,6 +31,9 @@ class PrescriptionVersionResponseDTO
         #[OA\Property(type: 'string', format: 'uuid', example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID de l’auteur')]
         public readonly string $modifiedById,
 
+        #[OA\Property(type: 'string', nullable: true, example: 'Dr. Dupont', description: 'Nom de l\'auteur')]
+        public readonly ?string $modifiedByName,
+
         #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T11:00:00Z', description: 'Date de modification')]
         public readonly \DateTimeImmutable $modifiedAt,
 
@@ -50,6 +53,7 @@ class PrescriptionVersionResponseDTO
             changesSummary: $version->getChangesSummary(),
             data: $version->getData(),
             modifiedById: (string) $version->getModifiedBy()?->getId(),
+            modifiedByName: $version->getModifiedBy()?->getFullName(),
             modifiedAt: $version->getModifiedAt(),
             createdAt: $version->getCreatedAt(),
             updatedAt: $version->getUpdatedAt()

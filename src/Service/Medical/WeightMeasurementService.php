@@ -7,6 +7,7 @@ use App\DTO\Request\Medical\WeightMeasurementRequestDTO;
 use App\Mapper\Medical\WeightMeasurementMapper;
 use App\Repository\Medical\WeightMeasurementRepository;
 use App\Repository\Identity\PatientRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +20,8 @@ class WeightMeasurementService
         private readonly PatientRepository $patientRepository,
         private readonly WeightMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function all(string $patientId): Feedback
@@ -136,6 +138,8 @@ class WeightMeasurementService
                 return $feedback->setErrorFlushDescription("Mesure de poids introuvable.")->autoInitFlush();
             }
 
+            $this->ownershipGuard->assertCreator($measurement);
+
             $measurement = $this->mapper->mapRequestToEntity($dto, $patient, $measurement);
 
             $this->entityManager->flush();
@@ -169,6 +173,8 @@ class WeightMeasurementService
             if (!$measurement) {
                 return $feedback->setErrorFlushDescription("Mesure de poids introuvable.")->autoInitFlush();
             }
+
+            $this->ownershipGuard->assertCreator($measurement);
 
             $this->entityManager->remove($measurement);
             $this->entityManager->flush();

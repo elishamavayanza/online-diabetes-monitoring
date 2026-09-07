@@ -4,6 +4,7 @@ namespace App\Mapper\Treatment;
 
 use App\DTO\Request\Treatment\PrescriptionItemRequestDTO;
 use App\DTO\Response\Treatment\PrescriptionItemResponseDTO;
+use App\Entity\Identity\User;
 use App\Entity\Treatment\PrescriptionItem;
 use App\Entity\Treatment\Prescription;
 use App\Entity\Treatment\Medication;
@@ -14,9 +15,15 @@ class PrescriptionItemMapper
         PrescriptionItemRequestDTO $dto,
         Prescription $prescription,
         Medication $medication,
+        ?User $createdBy = null,
         ?PrescriptionItem $item = null
     ): PrescriptionItem {
+        $isNew = $item === null;
         $item ??= new PrescriptionItem();
+
+        if ($isNew && $createdBy !== null) {
+            $item->setCreatedBy($createdBy);
+        }
 
         $item->setPrescription($prescription);
         $item->setMedication($medication);

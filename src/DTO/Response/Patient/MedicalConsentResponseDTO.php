@@ -38,7 +38,13 @@ class MedicalConsentResponseDTO
         public readonly \DateTimeImmutable $createdAt,
 
         #[OA\Property(description: 'Date de mise à jour', type: 'string', format: 'date-time', example: null, nullable: true)]
-        public readonly ?\DateTimeImmutable $updatedAt
+        public readonly ?\DateTimeImmutable $updatedAt,
+
+        #[OA\Property(description: 'ID de l\'auteur', type: 'string', format: 'uuid', nullable: true, example: '11aa2233-4455-6677-8899-aabbccddeeff')]
+        public readonly ?string $createdById,
+
+        #[OA\Property(description: 'Nom de l\'auteur', type: 'string', nullable: true, example: 'Dr. Dupont')]
+        public readonly ?string $createdByName
     ) {}
 
     public static function fromEntity(MedicalConsent $consent): self
@@ -52,7 +58,9 @@ class MedicalConsentResponseDTO
             revokedAt: $consent->getRevokedAt(),
             documentUrl: $consent->getDocumentUrl(),
             createdAt: $consent->getCreatedAt(),
-            updatedAt: $consent->getUpdatedAt()
+            updatedAt: $consent->getUpdatedAt(),
+            createdById: (string) $consent->getCreatedBy()?->getId(),
+            createdByName: $consent->getCreatedBy()?->getFullName()
         );
     }
 }

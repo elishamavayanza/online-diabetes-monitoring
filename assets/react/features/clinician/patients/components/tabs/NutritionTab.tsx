@@ -4,6 +4,7 @@ import { Badge } from '@/react/components/UI/Badge';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
 import { getMealTypeLabel } from '../../utils/labelUtils';
+import { RecordAuthor } from '../RecordAuthor';
 import { FoodOption } from '@/react/features/patient/nutrition/types';
 import { fetchFoods } from '@/react/features/nutritionist/foods/services/foodsService';
 
@@ -70,6 +71,7 @@ export function NutritionTab() {
                                     <p><strong>Date :</strong> {formatDisplayDateTime(date)}</p>
                                 )}
                                 {meal.description && <p><strong>Description :</strong> {meal.description}</p>}
+                                <RecordAuthor record={meal} />
 
                                 {items.length > 0 && (
                                     <div className="patient-dossier-tab__meal-items">
@@ -93,6 +95,7 @@ export function NutritionTab() {
 
                                                         <span className="meal-item-row__name">
                                                             {food?.name || 'Aliment'}
+                                                            <RecordAuthor record={item} className="meal-item-row__author" />
                                                         </span>
 
                                                         <span className="meal-item-row__portion">

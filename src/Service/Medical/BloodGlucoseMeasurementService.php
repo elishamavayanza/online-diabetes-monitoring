@@ -7,6 +7,7 @@ use App\DTO\Request\Medical\BloodGlucoseMeasurementRequestDTO;
 use App\Mapper\Medical\BloodGlucoseMeasurementMapper;
 use App\Repository\Medical\BloodGlucoseMeasurementRepository;
 use App\Repository\Identity\PatientRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +20,8 @@ class BloodGlucoseMeasurementService
         private readonly PatientRepository $patientRepository,
         private readonly BloodGlucoseMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function index(string $patientId): Feedback
@@ -127,6 +129,8 @@ class BloodGlucoseMeasurementService
                 return $feedback->setErrorFlushDescription("Mesure de glycémie introuvable.")->autoInitFlush();
             }
 
+            $this->ownershipGuard->assertCreator($measurement);
+
             $this->mapper->mapRequestToEntity($dto, $patient, $measurement);
 
             $this->entityManager->flush();
@@ -160,6 +164,8 @@ class BloodGlucoseMeasurementService
             if (!$measurement) {
                 return $feedback->setErrorFlushDescription("Mesure de glycémie introuvable.")->autoInitFlush();
             }
+
+            $this->ownershipGuard->assertCreator($measurement);
 
             $this->entityManager->remove($measurement);
             $this->entityManager->flush();

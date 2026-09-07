@@ -35,7 +35,13 @@ class MealResponseDTO
         public readonly ?\DateTimeImmutable $createdAt,
 
         #[OA\Property(description: 'Date de mise à jour', type: 'string', format: 'date-time', example: null, nullable: true)]
-        public readonly ?\DateTimeImmutable $updatedAt
+        public readonly ?\DateTimeImmutable $updatedAt,
+
+        #[OA\Property(description: 'ID de l\'auteur', type: 'string', format: 'uuid', nullable: true, example: '11aa2233-4455-6677-8899-aabbccddeeff')]
+        public readonly ?string $createdById,
+
+        #[OA\Property(description: 'Nom de l\'auteur', type: 'string', nullable: true, example: 'Dr. Dupont')]
+        public readonly ?string $createdByName
     ) {}
 
     public static function fromEntity(Meal $meal): self
@@ -48,7 +54,9 @@ class MealResponseDTO
             measuredAt: method_exists($meal, 'getMeasuredAt') ? $meal->getMeasuredAt() : null,
             patientId: $meal->getPatient()?->getId(),
             createdAt: method_exists($meal, 'getCreatedAt') ? $meal->getCreatedAt() : null,
-            updatedAt: method_exists($meal, 'getUpdatedAt') ? $meal->getUpdatedAt() : null
+            updatedAt: method_exists($meal, 'getUpdatedAt') ? $meal->getUpdatedAt() : null,
+            createdById: (string) $meal->getIssuer()?->getId(),
+            createdByName: $meal->getIssuer()?->getFullName()
         );
     }
 }

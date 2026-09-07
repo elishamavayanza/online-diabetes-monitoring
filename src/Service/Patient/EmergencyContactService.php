@@ -7,6 +7,7 @@ use App\DTO\Request\Patient\EmergencyContactRequestDTO;
 use App\Mapper\Patient\EmergencyContactMapper;
 use App\Repository\Identity\PatientRepository;
 use App\Repository\Patient\EmergencyContactRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +20,8 @@ class EmergencyContactService
         private readonly PatientRepository $patientRepository,
         private readonly EmergencyContactMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function create(EmergencyContactRequestDTO $dto): Feedback
@@ -34,7 +36,7 @@ class EmergencyContactService
 
             $this->securityService->checkPatientAccess($patient, SecurityAction::CREATE_EMERGENCY_CONTACT);
 
-            $contact = $this->mapper->mapRequestToEntity($dto, $patient);
+            $contact = $this->mapper->mapRequestToEntity($dto, $patient, $this->securityService->getCurrentUser());
 
             $this->entityManager->persist($contact);
             $this->entityManager->flush();
@@ -93,6 +95,8 @@ class EmergencyContactService
             $patient = $contact->getPatient();
             $this->securityService->checkPatientAccess($patient, SecurityAction::DELETE_EMERGENCY_CONTACT);
 
+            $this->ownershipGuard->assertCreator($contact);
+
             $this->entityManager->remove($contact);
             $this->entityManager->flush();
 
@@ -121,8 +125,10 @@ class EmergencyContactService
             $patient = $contact->getPatient();
             $this->securityService->checkPatientAccess($patient, SecurityAction::UPDATE_EMERGENCY_CONTACT);
 
+            $this->ownershipGuard->assertCreator($contact);
+
             // Mise à jour de l'entité via le mapper
-            $this->mapper->mapRequestToEntity($dto, $patient, $contact);
+            $this->mapper->mapRequestToEntity($dto, $patient, null, $contact);
 
             $this->entityManager->flush();
 

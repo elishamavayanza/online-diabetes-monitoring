@@ -7,6 +7,7 @@ use App\DTO\Request\Medical\HbA1cMeasurementRequestDTO;
 use App\Mapper\Medical\HbA1cMeasurementMapper;
 use App\Repository\Medical\HbA1cMeasurementRepository;
 use App\Repository\Identity\PatientRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +20,8 @@ class HbA1cMeasurementService
         private readonly PatientRepository $patientRepository,
         private readonly HbA1cMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function create(string $patientId, HbA1cMeasurementRequestDTO $dto): Feedback
@@ -130,6 +132,8 @@ class HbA1cMeasurementService
                 return $feedback->setErrorFlushDescription("Mesure d’HbA1c introuvable pour ce patient.")->autoInitFlush();
             }
 
+            $this->ownershipGuard->assertCreator($measurement);
+
             $updatedMeasurement = $this->mapper->mapRequestToEntity($dto, $patient, $measurement);
             $this->entityManager->flush();
 
@@ -162,6 +166,8 @@ class HbA1cMeasurementService
             if (!$measurement) {
                 return $feedback->setErrorFlushDescription("Mesure d’HbA1c introuvable pour ce patient.")->autoInitFlush();
             }
+
+            $this->ownershipGuard->assertCreator($measurement);
 
             $this->entityManager->remove($measurement);
             $this->entityManager->flush();

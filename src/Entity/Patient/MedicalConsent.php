@@ -4,6 +4,7 @@ namespace App\Entity\Patient;
 
 use App\Entity\Common\BaseEntity;
 use App\Entity\Identity\Patient;
+use App\Entity\Identity\User;
 use App\Entity\Healthcare\HealthcareOrganization;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -51,6 +52,13 @@ class MedicalConsent extends BaseEntity
      */
     #[ORM\Column(type: 'string', length: 500, nullable: true)]
     private ?string $documentUrl = null;
+
+    /**
+     * @var User|null L'utilisateur qui a créé ce consentement.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
 
     /**
      * Récupère le patient associé.
@@ -151,6 +159,17 @@ class MedicalConsent extends BaseEntity
     public function setDocumentUrl(?string $documentUrl): static
     {
         $this->documentUrl = $documentUrl;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 }

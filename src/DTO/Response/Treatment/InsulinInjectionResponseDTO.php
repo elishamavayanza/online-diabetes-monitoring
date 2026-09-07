@@ -40,6 +40,9 @@ class InsulinInjectionResponseDTO
         #[OA\Property(description: 'ID de l’émetteur', type: 'string', format: 'uuid', example: '00000000-0000-0000-0000-000000000000', nullable: true)]
         public readonly ?string $issuerId,
 
+        #[OA\Property(description: 'Nom de l\'auteur', type: 'string', nullable: true, example: 'Dr. Dupont')]
+        public readonly ?string $issuerName,
+
         #[OA\Property(description: 'Notes complémentaires', type: 'string', example: 'Injection effectuée après le repas.', nullable: true)]
         public readonly ?string $notes,
 
@@ -62,6 +65,7 @@ class InsulinInjectionResponseDTO
             injectionSite: $injection->getInjectionSite()?->value,
             status: $injection->getStatus()?->value,
             issuerId: $injection->getIssuer()?->getId(),
+            issuerName: $injection->getIssuer()?->getFullName(),
             notes: $injection->getNotes(),
             createdAt: $injection->getCreatedAt(),
             updatedAt: $injection->getUpdatedAt()

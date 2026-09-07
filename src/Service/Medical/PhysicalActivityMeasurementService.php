@@ -7,6 +7,7 @@ use App\DTO\Request\Medical\PhysicalActivityMeasurementRequestDTO;
 use App\Mapper\Medical\PhysicalActivityMeasurementMapper;
 use App\Repository\Medical\PhysicalActivityMeasurementRepository;
 use App\Repository\Identity\PatientRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +20,8 @@ class PhysicalActivityMeasurementService
         private readonly PatientRepository $patientRepository,
         private readonly PhysicalActivityMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function getByPatient(string $patientId): Feedback
@@ -132,6 +134,8 @@ class PhysicalActivityMeasurementService
                 return $feedback->setErrorFlushDescription("Mesure d'activité physique introuvable pour ce patient.")->autoInitFlush();
             }
 
+            $this->ownershipGuard->assertCreator($measurement);
+
             $this->mapper->mapRequestToEntity($dto, $patient, $measurement);
             $this->entityManager->flush();
 
@@ -164,6 +168,8 @@ class PhysicalActivityMeasurementService
             if (!$measurement || $measurement->getPatient()->getId() !== $patient->getId()) {
                 return $feedback->setErrorFlushDescription("Mesure d'activité physique introuvable pour ce patient.")->autoInitFlush();
             }
+
+            $this->ownershipGuard->assertCreator($measurement);
 
             $this->entityManager->remove($measurement);
             $this->entityManager->flush();

@@ -8,6 +8,7 @@ use App\Mapper\Medical\MedicalNoteMapper;
 use App\Repository\Identity\UserRepository;
 use App\Repository\Medical\MedicalNoteRepository;
 use App\Repository\Medical\MedicalRecordRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,8 @@ class MedicalNoteService
         private readonly UserRepository $userRepository,
         private readonly MedicalNoteMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {
     }
 
@@ -173,6 +175,8 @@ class MedicalNoteService
                 return $feedback->setErrorFlushDescription('Auteur introuvable.')->autoInitFlush();
             }
 
+            $this->ownershipGuard->assertCreator($note);
+
             $this->mapper->mapRequestToEntity($dto, $medicalRecord, $patient, $author, $note);
             $this->entityManager->flush();
 
@@ -203,6 +207,8 @@ class MedicalNoteService
             if ($patient) {
                 $this->securityService->checkPatientAccessAndOrganization($patient, SecurityAction::DELETE_MEDICAL_NOTE);
             }
+
+            $this->ownershipGuard->assertCreator($note);
 
             $this->entityManager->remove($note);
             $this->entityManager->flush();

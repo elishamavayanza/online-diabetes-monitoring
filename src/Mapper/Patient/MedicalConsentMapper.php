@@ -6,6 +6,7 @@ use App\DTO\Request\Patient\MedicalConsentRequestDTO;
 use App\DTO\Response\Patient\MedicalConsentResponseDTO;
 use App\Entity\Healthcare\HealthcareOrganization;
 use App\Entity\Identity\Patient;
+use App\Entity\Identity\User;
 use App\Entity\Patient\MedicalConsent;
 use App\Entity\Patient\ConsentType;
 
@@ -15,9 +16,15 @@ class MedicalConsentMapper
         MedicalConsentRequestDTO $dto,
         Patient $patient,
         ?HealthcareOrganization $organization = null,
+        ?User $createdBy = null,
         ?MedicalConsent $consent = null
     ): MedicalConsent {
+        $isNew = $consent === null;
         $consent ??= new MedicalConsent();
+
+        if ($isNew && $createdBy !== null) {
+            $consent->setCreatedBy($createdBy);
+        }
 
         $consent->setPatient($patient);
         $consent->setOrganization($organization);

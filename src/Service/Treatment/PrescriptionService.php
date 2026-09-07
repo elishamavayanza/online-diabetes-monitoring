@@ -12,6 +12,7 @@ use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Repository\Identity\PatientRepository;
 use App\Repository\Identity\UserRepository;
 use App\Repository\Treatment\PrescriptionRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,7 +28,8 @@ class PrescriptionService
         private readonly UserRepository $userRepository,
         private readonly PrescriptionMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {
     }
     public function getById(string|int $id): Feedback
@@ -195,6 +197,8 @@ class PrescriptionService
             $this->securityService->checkOrganizationAccess($organization, SecurityAction::UPDATE_PRESCRIPTION);
             $this->securityService->checkPatientAccess($patient, SecurityAction::UPDATE_PRESCRIPTION);
 
+            $this->ownershipGuard->assertCreator($prescription);
+
             // Mise à jour de l'entité existante via le mapper
             $this->mapper->mapRequestToEntity(
                 $dto,
@@ -327,6 +331,8 @@ class PrescriptionService
                 $prescription->getOrganization(),
                 SecurityAction::CANCEL_PRESCRIPTION
             );
+
+            $this->ownershipGuard->assertCreator($prescription);
 
             $this->entityManager->remove($prescription);
             $this->entityManager->flush();

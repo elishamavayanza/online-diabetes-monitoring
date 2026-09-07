@@ -3,6 +3,7 @@ import { Card } from '@/react/components/UI/Card';
 import { Button } from '@/react/components/UI/Button';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
+import { isRecordCreator } from '../../utils/ownershipUtils';
 import { PatientMedicalNote } from '../../types';
 import {MedicalNoteEditModal} from "@/react/features/clinician/patients/components/modals/MedicalNoteEditModal";
 
@@ -41,7 +42,7 @@ export function NotesTab() {
                             </p>
                             <p>{note.content}</p>
 
-                            {!isReadOnly && (
+                            {!isReadOnly && isRecordCreator(note) && (
                                 <div className="patient-dossier-tab__item-actions">
                                     <Button
                                         variant="secondary"

@@ -50,6 +50,8 @@ export interface PatientAllergy {
     severity?: string;
     reaction?: string;
     notes?: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PatientDiagnosis {
@@ -58,6 +60,8 @@ export interface PatientDiagnosis {
     description?: string;
     diagnosedAt?: string;
     status?: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PatientEmergencyContact {
@@ -65,6 +69,8 @@ export interface PatientEmergencyContact {
     fullName: string;
     relationship?: string;
     phone?: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PatientMedicalNote {
@@ -72,6 +78,7 @@ export interface PatientMedicalNote {
     content: string;
     createdAt: string;
     notedAt?: string;
+    authorId?: string;
     authorName?: string;
 }
 
@@ -81,6 +88,8 @@ export interface PatientPrescription {
     startDate?: string;
     endDate?: string;
     notes?: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PrescriptionItem {
@@ -97,6 +106,9 @@ export interface PrescriptionItem {
     noon: boolean;
     evening: boolean;
     instructions?: string;
+    createdAt?: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PrescriptionVersion {
@@ -107,6 +119,7 @@ export interface PrescriptionVersion {
     data: Record<string, unknown>;
     modifiedById: string;
     modifiedAt: string;
+    modifiedByName?: string;
 }
 
 export interface PatientMedicalConsent {
@@ -117,6 +130,8 @@ export interface PatientMedicalConsent {
     grantedAt: string;
     revokedAt?: string;
     documentUrl?: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PatientAppointment {
@@ -127,6 +142,7 @@ export interface PatientAppointment {
     durationMinutes?: number;
     notes?: string;
     professionalId?: string;
+    professionalName?: string;
 }
 
 export interface BloodGlucoseMeasurement {
@@ -135,6 +151,8 @@ export interface BloodGlucoseMeasurement {
     unit?: string;
     context?: string;
     createdAt: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface BloodPressureMeasurement {
@@ -143,12 +161,16 @@ export interface BloodPressureMeasurement {
     diastolic: number;
     pulse?: number;
     createdAt: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface HbA1cMeasurement {
     id: string;
     valuePercent: number;
     createdAt: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface WeightMeasurement {
@@ -156,6 +178,8 @@ export interface WeightMeasurement {
     valueKg: number;
     bmi?: number;
     createdAt: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PhysicalActivityMeasurement {
@@ -163,6 +187,8 @@ export interface PhysicalActivityMeasurement {
     durationMinutes: number;
     activityType?: string;
     createdAt: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export type InsulinType =
@@ -197,6 +223,7 @@ export interface InsulinInjection {
     injectionSite?: InsulinInjectionSite;
     status?: InjectionStatus;
     issuerId?: string;
+    issuerName?: string;
     notes?: string;
     createdAt: string;
     updatedAt?: string;
@@ -207,6 +234,8 @@ export interface LaboratoryResult {
     testName: string;
     labName?: string;
     createdAt: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PatientMeal {
@@ -216,6 +245,8 @@ export interface PatientMeal {
     mealType?: string;
     measuredAt?: string;
     createdAt?: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PatientMealItem {
@@ -225,6 +256,8 @@ export interface PatientMealItem {
     portionGrams: string;
     breadUnits?: string;
     createdAt: string;
+    createdById?: string;
+    createdByName?: string;
 }
 
 export interface PatientDossierData {

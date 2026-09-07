@@ -13,6 +13,7 @@ use App\Repository\Identity\PatientRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Repository\Healthcare\HealthcareOrganizationRepository;
 use App\Repository\Healthcare\HealthcareFacilityRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,7 +29,8 @@ class AppointmentService
         private readonly HealthcareFacilityRepository $facilityRepository,
         private readonly AppointmentMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function getPatientAppointments(Patient $patient): Feedback
@@ -158,6 +160,8 @@ class AppointmentService
 
             $this->securityService->checkOrganizationAccess($organization, SecurityAction::UPDATE_APPOINTMENT);
 
+            $this->ownershipGuard->assertCreator($appointment);
+
             $patient = $this->patientRepository->find($dto->patientId);
             $professional = $this->professionalRepository->find($dto->professionalId);
 
@@ -277,6 +281,8 @@ class AppointmentService
             }
 
             $this->securityService->checkOrganizationAccess($appointment->getOrganization(), SecurityAction::DELETE_APPOINTMENT);
+
+            $this->ownershipGuard->assertCreator($appointment);
 
             // Suppression réelle (hard delete) puisque l'entité n'a pas de champ deletedAt
             $this->entityManager->remove($appointment);

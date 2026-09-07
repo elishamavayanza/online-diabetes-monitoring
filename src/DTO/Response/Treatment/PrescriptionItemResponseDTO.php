@@ -56,7 +56,13 @@ class PrescriptionItemResponseDTO
         public readonly \DateTimeImmutable $createdAt,
 
         #[OA\Property(description: 'Date de mise à jour', type: 'string', format: 'date-time', example: null, nullable: true)]
-        public readonly ?\DateTimeImmutable $updatedAt
+        public readonly ?\DateTimeImmutable $updatedAt,
+
+        #[OA\Property(description: 'ID de l\'auteur', type: 'string', format: 'uuid', nullable: true, example: '11aa2233-4455-6677-8899-aabbccddeeff')]
+        public readonly ?string $createdById,
+
+        #[OA\Property(description: 'Nom de l\'auteur', type: 'string', nullable: true, example: 'Dr. Dupont')]
+        public readonly ?string $createdByName
     ) {}
 
     public static function fromEntity(PrescriptionItem $item): self
@@ -79,7 +85,9 @@ class PrescriptionItemResponseDTO
             evening: $item->isEvening(),
             instructions: $item->getInstructions(),
             createdAt: $item->getCreatedAt(),
-            updatedAt: $item->getUpdatedAt()
+            updatedAt: $item->getUpdatedAt(),
+            createdById: (string) $item->getCreatedBy()?->getId(),
+            createdByName: $item->getCreatedBy()?->getFullName()
         );
     }
 }

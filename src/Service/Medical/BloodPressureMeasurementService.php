@@ -7,6 +7,7 @@ use App\DTO\Request\Medical\BloodPressureMeasurementRequestDTO;
 use App\Mapper\Medical\BloodPressureMeasurementMapper;
 use App\Repository\Medical\BloodPressureMeasurementRepository;
 use App\Repository\Identity\PatientRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +20,8 @@ class BloodPressureMeasurementService
         private readonly PatientRepository $patientRepository,
         private readonly BloodPressureMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function index(string $patientId): Feedback
@@ -127,6 +129,8 @@ class BloodPressureMeasurementService
                 return $feedback->setErrorFlushDescription("Mesure de pression artérielle introuvable.")->autoInitFlush();
             }
 
+            $this->ownershipGuard->assertCreator($measurement);
+
             $this->mapper->mapRequestToEntity($dto, $patient, $measurement);
 
             $this->entityManager->flush();
@@ -160,6 +164,8 @@ class BloodPressureMeasurementService
             if (!$measurement) {
                 return $feedback->setErrorFlushDescription("Mesure de pression artérielle introuvable.")->autoInitFlush();
             }
+
+            $this->ownershipGuard->assertCreator($measurement);
 
             $this->entityManager->remove($measurement);
             $this->entityManager->flush();

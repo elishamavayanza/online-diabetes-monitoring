@@ -4,6 +4,7 @@ import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDateTime, getAppointmentStatusBadgeVariant, isInPeriod } from '../../utils/dossierUtils';
+import { isRecordCreator } from '../../utils/ownershipUtils';
 import { AppointmentEditModal } from "@/react/features/clinician/patients/components/modals/AppointmentEditModal";
 import { PatientAppointment } from '../../types';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
@@ -60,7 +61,7 @@ export function AppointmentsTab() {
                                 </p>
                             )}
 
-                            {!isReadOnly && (
+                            {!isReadOnly && isRecordCreator(appt) && (
                                 <div className="patient-dossier-tab__item-actions">
                                     <Button
                                         variant="secondary"

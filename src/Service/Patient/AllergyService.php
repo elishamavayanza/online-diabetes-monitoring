@@ -8,6 +8,7 @@ use App\Entity\Patient\Allergy;
 use App\Mapper\Patient\AllergyMapper;
 use App\Repository\Identity\PatientRepository;
 use App\Repository\Patient\AllergyRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +21,8 @@ class AllergyService
         private readonly PatientRepository $patientRepository,
         private readonly AllergyMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function create(AllergyRequestDTO $dto): Feedback
@@ -35,7 +37,7 @@ class AllergyService
 
             $this->securityService->checkPatientAccess($patient, SecurityAction::CREATE_ALLERGY);
 
-            $allergy = $this->mapper->mapRequestToEntity($dto, $patient);
+            $allergy = $this->mapper->mapRequestToEntity($dto, $patient, $this->securityService->getCurrentUser());
 
             $this->entityManager->persist($allergy);
             $this->entityManager->flush();
@@ -120,7 +122,9 @@ class AllergyService
             $patient = $allergy->getPatient();
             $this->securityService->checkPatientAccess($patient, SecurityAction::UPDATE_ALLERGY);
 
-            $this->mapper->mapRequestToEntity($dto, $patient, $allergy);
+            $this->ownershipGuard->assertCreator($allergy);
+
+            $this->mapper->mapRequestToEntity($dto, $patient, null, $allergy);
 
             $this->entityManager->flush();
 
@@ -149,6 +153,8 @@ class AllergyService
 
             $patient = $allergy->getPatient();
             $this->securityService->checkPatientAccess($patient, SecurityAction::DELETE_ALLERGY);
+
+            $this->ownershipGuard->assertCreator($allergy);
 
             $this->entityManager->remove($allergy);
             $this->entityManager->flush();

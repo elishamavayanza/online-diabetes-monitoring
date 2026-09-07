@@ -5,14 +5,20 @@ namespace App\Mapper\Patient;
 use App\DTO\Request\Patient\AllergyRequestDTO;
 use App\DTO\Response\Patient\AllergyResponseDTO;
 use App\Entity\Identity\Patient;
+use App\Entity\Identity\User;
 use App\Entity\Patient\Allergy;
 use App\Entity\Patient\AllergySeverity; // Assurez-vous d'importer la bonne enum
 
 class AllergyMapper
 {
-    public function mapRequestToEntity(AllergyRequestDTO $dto, Patient $patient, ?Allergy $allergy = null): Allergy
+    public function mapRequestToEntity(AllergyRequestDTO $dto, Patient $patient, ?User $createdBy = null, ?Allergy $allergy = null): Allergy
     {
+        $isNew = $allergy === null;
         $allergy ??= new Allergy();
+
+        if ($isNew && $createdBy !== null) {
+            $allergy->setCreatedBy($createdBy);
+        }
 
         $allergy->setPatient($patient);
         $allergy->setName($dto->name);

@@ -128,6 +128,21 @@
         margin-bottom: 0.5rem;
     }
 
+    .record-author {
+        display: block;
+        font-size: 0.8rem;
+        font-style: italic;
+        opacity: 0.65;
+        margin: 0.25rem 0;
+    }
+
+    .meal-item-row__author {
+        display: block;
+        font-size: 0.75rem;
+        font-style: italic;
+        opacity: 0.65;
+    }
+
     &__actions {
         margin-top: 1rem;
     }

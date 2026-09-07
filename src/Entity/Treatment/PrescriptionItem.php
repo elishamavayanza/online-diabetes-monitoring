@@ -3,6 +3,7 @@
 namespace App\Entity\Treatment;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Identity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -75,6 +76,13 @@ class PrescriptionItem extends BaseEntity
      */
     #[ORM\OneToMany(mappedBy: 'prescriptionItem', targetEntity: InsulinInjection::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $injections;
+
+    /**
+     * @var User|null L'utilisateur qui a créé cet élément de prescription.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
 
     /**
      * Constructeur pour initialiser les collections des prises et des injections.
@@ -288,6 +296,17 @@ class PrescriptionItem extends BaseEntity
                 $injection->setPrescriptionItem(null);
             }
         }
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Entity\Nutrition;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Identity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -37,6 +38,13 @@ class MealItem extends BaseEntity
      */
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     private ?string $breadUnits = null;
+
+    /**
+     * @var User|null L'utilisateur qui a créé cet élément de repas.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
 
     /**
      * Récupère le repas associé.
@@ -103,6 +111,17 @@ class MealItem extends BaseEntity
     public function setBreadUnits(?string $breadUnits): static
     {
         $this->breadUnits = $breadUnits;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 }

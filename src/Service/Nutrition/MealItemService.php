@@ -9,6 +9,7 @@ use App\Repository\Identity\PatientRepository;
 use App\Repository\Nutrition\MealItemRepository;
 use App\Repository\Nutrition\MealRepository;
 use App\Repository\Nutrition\FoodRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,7 +24,8 @@ class MealItemService
         private readonly PatientRepository $patientRepository,
         private readonly MealItemMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function get(int $id): Feedback
@@ -106,7 +108,7 @@ class MealItemService
                 return $feedback->setErrorFlushDescription("Aliment introuvable.")->autoInitFlush();
             }
 
-            $mealItem = $this->mapper->mapRequestToEntity($dto, $meal, $food);
+            $mealItem = $this->mapper->mapRequestToEntity($dto, $meal, $food, $this->securityService->getCurrentUser());
 
             $this->entityManager->persist($mealItem);
             $this->entityManager->flush();
@@ -136,6 +138,8 @@ class MealItemService
 
             $this->securityService->checkPatientAccess($mealItem->getMeal()->getPatient(), SecurityAction::MANAGE_MEAL);
 
+            $this->ownershipGuard->assertCreator($mealItem);
+
             $meal = $this->mealRepository->find($dto->mealId);
             if (!$meal) {
                 return $feedback->setErrorFlushDescription("Repas introuvable.")->autoInitFlush();
@@ -147,7 +151,7 @@ class MealItemService
             }
 
             // Utilisation du mapper avec l'entité existante pour la mise à jour
-            $mealItem = $this->mapper->mapRequestToEntity($dto, $meal, $food, $mealItem);
+            $mealItem = $this->mapper->mapRequestToEntity($dto, $meal, $food, null, $mealItem);
 
             $this->entityManager->flush();
 
@@ -175,6 +179,8 @@ class MealItemService
             }
 
             $this->securityService->checkPatientAccess($mealItem->getMeal()->getPatient(), SecurityAction::MANAGE_MEAL);
+
+            $this->ownershipGuard->assertCreator($mealItem);
 
             $this->entityManager->remove($mealItem);
             $this->entityManager->flush();

@@ -9,6 +9,7 @@ use App\Entity\Nutrition\Meal;
 use App\Mapper\Nutrition\MealMapper;
 use App\Repository\Identity\PatientRepository;
 use App\Repository\Nutrition\MealRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,8 @@ class MealService
         private readonly MealMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly PatientRepository $patientRepository
+        private readonly PatientRepository $patientRepository,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function create(MealRequestDTO $dto): Feedback
@@ -119,6 +121,8 @@ class MealService
 
             $this->securityService->checkPatientAccess($meal->getPatient(), SecurityAction::MANAGE_MEAL);
 
+            $this->ownershipGuard->assertCreator($meal);
+
             $meal = $this->mapper->mapRequestToEntity($dto, $meal);
 
             $this->entityManager->flush();
@@ -145,6 +149,8 @@ class MealService
             }
 
             $this->securityService->checkPatientAccess($meal->getPatient(), SecurityAction::MANAGE_MEAL);
+
+            $this->ownershipGuard->assertCreator($meal);
 
             $this->entityManager->remove($meal);
             $this->entityManager->flush();

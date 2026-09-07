@@ -71,6 +71,7 @@ export function ConsultationsTab() {
                             <Card key={note.id}>
                                 <p className="patient-dossier-tab__note-meta">
                                     {formatDisplayDateTime(note.notedAt ?? note.createdAt)}
+                                    {note.authorName && ` — ${note.authorName}`}
                                 </p>
                                 <p>{note.content}</p>
                             </Card>

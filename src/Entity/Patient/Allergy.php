@@ -4,6 +4,7 @@ namespace App\Entity\Patient;
 
 use App\Entity\Common\BaseEntity;
 use App\Entity\Identity\Patient;
+use App\Entity\Identity\User;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -49,6 +50,13 @@ class Allergy extends BaseEntity
      */
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $diagnosedAt = null;
+
+    /**
+     * @var User|null L'utilisateur qui a créé cette allergie.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $createdBy = null;
 
     /**
      * Récupère le patient associé.
@@ -149,6 +157,17 @@ class Allergy extends BaseEntity
     public function setDiagnosedAt(\DateTimeImmutable $diagnosedAt): static
     {
         $this->diagnosedAt = $diagnosedAt;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 }

@@ -13,6 +13,8 @@ import {
     deletePrescriptionItem,
 } from '../../services/dossierActionsService';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
+import { isRecordCreator } from '../../utils/ownershipUtils';
+import { RecordAuthor } from '../RecordAuthor';
 import {updatePrescription} from "@/react/features/clinician/patients/services/medicalRecordService";
 import {PrescriptionEditModal} from "@/react/features/clinician/patients/components/modals/prescription/PrescriptionEditModal";
 import {
@@ -137,8 +139,9 @@ export function PrescriptionsTab() {
                                 {rx.startDate && <p><strong>Début :</strong> {formatDisplayDate(rx.startDate)}</p>}
                                 {rx.endDate && <p><strong>Fin :</strong> {formatDisplayDate(rx.endDate)}</p>}
                                 {rx.notes && <p><strong>Notes :</strong> {rx.notes}</p>}
+                                <RecordAuthor record={rx} />
 
-                                {!isReadOnly && (
+                                {!isReadOnly && isRecordCreator(rx) && (
                                     <div className="patient-dossier-tab__item-actions">
                                         {rx.status === 'DRAFT' && (
                                             <Button
@@ -188,8 +191,9 @@ export function PrescriptionsTab() {
                                                         <br />
                                                         <small>{formatSchedule(item.morning, item.noon, item.evening)}</small>
                                                         {item.instructions && <p><em>{item.instructions}</em></p>}
+                                                        <RecordAuthor record={item} />
                                                     </div>
-                                                    {!isReadOnly && (
+                                                    {!isReadOnly && isRecordCreator(item) && (
                                                         <div className="patient-dossier-tab__item-actions">
                                                             <Button variant="secondary" size="small" onClick={() => handleEditItem(item)}>
                                                                 Modifier
@@ -217,6 +221,7 @@ export function PrescriptionsTab() {
                                                     <strong>v{version.versionNumber}</strong>
                                                     {' — '}
                                                     {formatDisplayDateTime(version.modifiedAt)}
+                                                    <RecordAuthor record={version} label="Modifié par" />
                                                     {version.changesSummary && (
                                                         <p><em>{version.changesSummary}</em></p>
                                                     )}

@@ -9,6 +9,7 @@ use App\Repository\Medical\DiagnosisRepository;
 use App\Repository\Medical\MedicalRecordRepository;
 use App\Repository\Identity\PatientRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,7 +24,8 @@ class DiagnosisService
         private readonly MedicalRecordRepository $medicalRecordRepository,
         private readonly DiagnosisMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {
     }
 
@@ -199,6 +201,8 @@ class DiagnosisService
                 SecurityAction::UPDATE_DIAGNOSIS
             );
 
+            $this->ownershipGuard->assertCreator($diagnosis);
+
             $medicalRecord = $dto->medicalRecordId
                 ? $this->medicalRecordRepository->find($dto->medicalRecordId)
                 : null;
@@ -249,6 +253,8 @@ class DiagnosisService
                 $diagnosis->getPatient(),
                 SecurityAction::UPDATE_DIAGNOSIS
             );
+
+            $this->ownershipGuard->assertCreator($diagnosis);
 
             $this->entityManager->remove($diagnosis);
             $this->entityManager->flush();

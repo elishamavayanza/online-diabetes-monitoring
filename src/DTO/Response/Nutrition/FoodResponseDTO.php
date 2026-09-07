@@ -43,6 +43,9 @@ class FoodResponseDTO
         #[OA\Property(type: 'string', format: 'uuid', nullable: true, example: '44aa5566-7788-9900-aabb-ccddeeff1122', description: 'ID du créateur')]
         public readonly ?string $createdById,
 
+        #[OA\Property(type: 'string', nullable: true, example: 'Dr. Dupont', description: 'Nom de l\'auteur')]
+        public readonly ?string $createdByName,
+
         #[OA\Property(type: 'string', format: 'date-time', example: '2026-08-10T11:30:00Z', description: 'Date de création')]
         public readonly \DateTimeImmutable $createdAt,
 
@@ -63,6 +66,7 @@ class FoodResponseDTO
             proteinPer100g: $food->getProteinPer100g(),
             fatPer100g: $food->getFatPer100g(),
             createdById: $food->getCreatedBy()?->getId() ? (string) $food->getCreatedBy()->getId() : null,
+            createdByName: $food->getCreatedBy()?->getFullName(),
             createdAt: $food->getCreatedAt(),
             updatedAt: $food->getUpdatedAt()
         );

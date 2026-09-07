@@ -8,6 +8,7 @@ use App\Mapper\Patient\MedicalConsentMapper;
 use App\Repository\Identity\PatientRepository;
 use App\Repository\Healthcare\HealthcareOrganizationRepository;
 use App\Repository\Patient\MedicalConsentRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use App\Service\File\FileUploaderService;
@@ -24,7 +25,8 @@ class MedicalConsentService
         private readonly MedicalConsentMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly FileUploaderService $fileUploaderService
+        private readonly FileUploaderService $fileUploaderService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function getByPatient(string $patientId): Feedback
@@ -75,7 +77,7 @@ class MedicalConsentService
 
             $this->securityService->checkPatientAccess($patient, SecurityAction::CREATE_MEDICAL_CONSENT);
 
-            $consent = $this->mapper->mapRequestToEntity($dto, $patient, $organization);
+            $consent = $this->mapper->mapRequestToEntity($dto, $patient, $organization, $this->securityService->getCurrentUser());
 
             // Gestion de l'upload du fichier si présent
             if ($dto->documentFile) {
@@ -112,6 +114,8 @@ class MedicalConsentService
             $patient = $consent->getPatient();
             $this->securityService->checkPatientAccess($patient, SecurityAction::REVOKE_MEDICAL_CONSENT);
 
+            $this->ownershipGuard->assertCreator($consent);
+
             $organization = null;
             if ($dto->organizationId) {
                 $organization = $this->organizationRepository->find($dto->organizationId);
@@ -130,7 +134,7 @@ class MedicalConsentService
                 $consent->setDocumentUrl($fileName);
             }
 
-            $this->mapper->mapRequestToEntity($dto, $patient, $organization, $consent);
+            $this->mapper->mapRequestToEntity($dto, $patient, $organization, null, $consent);
             $this->entityManager->flush();
 
             $feedback->setData($this->mapper->mapEntityToResponse($consent))
@@ -158,6 +162,8 @@ class MedicalConsentService
 
             $patient = $consent->getPatient();
             $this->securityService->checkPatientAccess($patient, SecurityAction::REVOKE_MEDICAL_CONSENT);
+
+            $this->ownershipGuard->assertCreator($consent);
 
             // Supprimer le fichier physique associé s'il existe
             if ($consent->getDocumentUrl()) {

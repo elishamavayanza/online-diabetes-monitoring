@@ -60,6 +60,9 @@ export function MeasurementsTab() {
         let items: { id: string; label: string }[] = [];
         let candlestickData: CandlestickDataPoint[] | null = null;
 
+        const byAuthor = (m: { createdByName?: string }) =>
+            m.createdByName ? ` — Créé par ${m.createdByName}` : '';
+
         switch (selectedType) {
             case 'bloodGlucose': {
                 const filtered = measurements.bloodGlucose.filter((m) => isInPeriod(m.createdAt, period, selectedDate));
@@ -67,7 +70,7 @@ export function MeasurementsTab() {
                 series = buildTrendSeries('Glycémie', filtered.map((m) => ({ createdAt: m.createdAt, value: m.value })), period, selectedDate, measurements.bloodGlucose[0]?.unit ?? 'mg/dL');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
-                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.value} ${m.unit ?? 'mg/dL'}${m.context ? ` (${m.context})` : ''}`,
+                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.value} ${m.unit ?? 'mg/dL'}${m.context ? ` (${m.context})` : ''}${byAuthor(m)}`,
                 }));
                 break;
             }
@@ -77,7 +80,7 @@ export function MeasurementsTab() {
                 series = buildTrendSeries('Systolique', filtered.map((m) => ({ createdAt: m.createdAt, value: m.systolic })), period, selectedDate, 'mmHg');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
-                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.systolic}/${m.diastolic} mmHg${m.pulse != null ? `, pouls ${m.pulse}` : ''}`,
+                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.systolic}/${m.diastolic} mmHg${m.pulse != null ? `, pouls ${m.pulse}` : ''}${byAuthor(m)}`,
                 }));
                 break;
             }
@@ -87,7 +90,7 @@ export function MeasurementsTab() {
                 series = buildTrendSeries('HbA1c', filtered.map((m) => ({ createdAt: m.createdAt, value: m.valuePercent })), period, selectedDate, '%');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
-                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.valuePercent}%`,
+                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.valuePercent}%${byAuthor(m)}`,
                 }));
                 break;
             }
@@ -97,7 +100,7 @@ export function MeasurementsTab() {
                 series = buildTrendSeries('Poids', filtered.map((m) => ({ createdAt: m.createdAt, value: m.valueKg })), period, selectedDate, 'kg');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
-                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.valueKg} kg${m.bmi != null ? ` (IMC ${m.bmi})` : ''}`,
+                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.valueKg} kg${m.bmi != null ? ` (IMC ${m.bmi})` : ''}${byAuthor(m)}`,
                 }));
                 break;
             }
@@ -107,7 +110,7 @@ export function MeasurementsTab() {
                 series = buildTrendSeries('Activité', filtered.map((m) => ({ createdAt: m.createdAt, value: m.durationMinutes })), period, selectedDate, 'min');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
-                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.activityType ?? 'Activité'} (${m.durationMinutes} min)`,
+                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.activityType ?? 'Activité'} (${m.durationMinutes} min)${byAuthor(m)}`,
                 }));
                 break;
             }
@@ -115,7 +118,7 @@ export function MeasurementsTab() {
                 series = { label: 'Laboratoire', unit: '', points: [] };
                 items = measurements.laboratoryResults.filter((m) => isInPeriod(m.createdAt, period, selectedDate)).map((m) => ({
                     id: m.id,
-                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.testName}${m.labName ? ` (${m.labName})` : ''}`,
+                    label: `${formatDisplayDateTime(m.createdAt)} — ${m.testName}${m.labName ? ` (${m.labName})` : ''}${byAuthor(m)}`,
                 }));
                 break;
             }
@@ -125,7 +128,7 @@ export function MeasurementsTab() {
                     .filter((m) => isInPeriod(m.injectedAt ?? m.createdAt, period, selectedDate))
                     .map((m) => ({
                         id: m.id,
-                        label: `${formatDisplayDateTime(m.injectedAt ?? m.createdAt)} — ${m.doseUnits} u${m.injectionSite ? ` (${m.injectionSite})` : ''}${m.status ? ` — ${m.status}` : ''}${m.notes ? ` — ${m.notes}` : ''}`,
+                        label: `${formatDisplayDateTime(m.injectedAt ?? m.createdAt)} — ${m.doseUnits} u${m.injectionSite ? ` (${m.injectionSite})` : ''}${m.status ? ` — ${m.status}` : ''}${m.notes ? ` — ${m.notes}` : ''}${m.issuerName ? ` — Créé par ${m.issuerName}` : ''}`,
                     }));
                 break;
             }

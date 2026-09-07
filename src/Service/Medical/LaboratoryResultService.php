@@ -7,6 +7,7 @@ use App\DTO\Request\Medical\LaboratoryResultRequestDTO;
 use App\Mapper\Medical\LaboratoryResultMapper;
 use App\Repository\Medical\LaboratoryResultRepository;
 use App\Repository\Identity\PatientRepository;
+use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use App\Service\File\FileUploaderService;
@@ -21,7 +22,8 @@ class LaboratoryResultService
         private readonly LaboratoryResultMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly FileUploaderService $fileUploaderService
+        private readonly FileUploaderService $fileUploaderService,
+        private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
     public function create(string $patientId, LaboratoryResultRequestDTO $dto): Feedback
@@ -108,6 +110,8 @@ class LaboratoryResultService
                 return $feedback->setErrorFlushDescription("Résultat de laboratoire introuvable pour ce patient.")->autoInitFlush();
             }
 
+            $this->ownershipGuard->assertCreator($result);
+
             $this->mapper->mapRequestToEntity($dto, $patient, $result);
 
             // Gestion de la mise à jour du fichier physique si un nouveau fichier est fourni
@@ -151,6 +155,8 @@ class LaboratoryResultService
             if (!$result || $result->getPatient()->getId() !== $patient->getId()) {
                 return $feedback->setErrorFlushDescription("Résultat de laboratoire introuvable pour ce patient.")->autoInitFlush();
             }
+
+            $this->ownershipGuard->assertCreator($result);
 
             // Suppression du fichier physique du serveur avant de supprimer l'entité
             if ($result->getFileUrl()) {

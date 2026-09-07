@@ -29,7 +29,13 @@ class LaboratoryResultResponseDTO
         public readonly \DateTimeImmutable $createdAt,
 
         #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de mise à jour')]
-        public readonly ?\DateTimeImmutable $updatedAt
+        public readonly ?\DateTimeImmutable $updatedAt,
+
+        #[OA\Property(type: 'string', format: 'uuid', nullable: true, example: '11aa2233-4455-6677-8899-aabbccddeeff', description: 'ID de l\'auteur')]
+        public readonly ?string $createdById,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'Dr. Dupont', description: 'Nom de l\'auteur')]
+        public readonly ?string $createdByName
     ) {}
 
     public static function fromEntity(LaboratoryResult $result): self
@@ -40,7 +46,9 @@ class LaboratoryResultResponseDTO
             fileUrl: $result->getFileUrl(),
             labName: $result->getLabName(),
             createdAt: $result->getCreatedAt(),
-            updatedAt: $result->getUpdatedAt()
+            updatedAt: $result->getUpdatedAt(),
+            createdById: (string) $result->getIssuer()?->getId(),
+            createdByName: $result->getIssuer()?->getFullName()
         );
     }
 }
