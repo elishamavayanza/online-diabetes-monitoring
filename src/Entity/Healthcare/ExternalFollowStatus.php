@@ -20,6 +20,9 @@ enum ExternalFollowStatus: string
     /** L'administrateur a coupé l'accès avant son terme. */
     case REVOKED = 'REVOKED';
 
+    /** Le professionnel externe a fermé lui-même son suivi (motif fourni). */
+    case CLOSED_BY_PROFESSIONAL = 'CLOSED_BY_PROFESSIONAL';
+
     /** Le délai de l'invitation est atteint. */
     case EXPIRED = 'EXPIRED';
 

@@ -99,6 +99,14 @@ export function ExternalFollowsTable({
                                     </td>
                                     <td>
                                         <StatusBadge status={inv.status} />
+                                        {inv.status === 'CLOSED_BY_PROFESSIONAL' && inv.closureReason && (
+                                            <span
+                                                className="external-follows-table__closure-reason"
+                                                title={inv.closureReason}
+                                            >
+                                                Motif : {inv.closureReason}
+                                            </span>
+                                        )}
                                     </td>
                                     <td>{formatDate(inv.startDate)}</td>
                                     <td>{formatDate(inv.endDate)}</td>

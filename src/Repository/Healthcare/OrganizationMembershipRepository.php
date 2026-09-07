@@ -35,6 +35,35 @@ class OrganizationMembershipRepository extends ServiceEntityRepository
     }
 
   /**
+     * Retourne les utilisateurs ROLE_ADMIN membres actifs d'une organisation.
+     * Utilisé pour notifier les administrateurs de l'organisation d'origine.
+     *
+     * @return \App\Entity\Identity\User[]
+     */
+    public function findActiveAdminsByOrganization(HealthcareOrganization $organization): array
+    {
+        $memberships = $this->createQueryBuilder('om')
+            ->select('om', 'u')
+            ->join('om.user', 'u')
+            ->andWhere('om.organization = :organization')
+            ->andWhere('om.status = :status')
+            ->andWhere('om.deletedAt IS NULL')
+            ->andWhere('u INSTANCE OF ' . \App\Entity\Identity\HealthcareProfessional::class)
+            ->setParameter('organization', $organization)
+            ->setParameter('status', MembershipStatus::ACTIVE)
+            ->getQuery()
+            ->getResult();
+
+        return array_values(array_filter(
+            array_map(
+                static fn (OrganizationMembership $membership) => $membership->getUser(),
+                $memberships
+            ),
+            static fn (\App\Entity\Identity\User $user) => in_array('ROLE_ADMIN', $user->getRoles(), true)
+        ));
+    }
+
+  /**
    * @return int[]
    */
   public function findPatientIdsByOrganization(HealthcareOrganization $organization): array

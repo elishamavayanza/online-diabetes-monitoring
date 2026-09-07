@@ -15,6 +15,7 @@ enum SecurityAction: string
     case MANAGE_FACILITY = 'manage_facility';
     case MANAGE_DEPARTMENT = 'manage_department';
     case MANAGE_EXTERNAL_FOLLOW = 'manage_external_follow';
+    case CLOSE_EXTERNAL_FOLLOW = 'close_external_follow';
 
     // Utilisateurs
     case MANAGE_USERS = 'manage_users';

@@ -3,6 +3,7 @@
 namespace App\Service\Healthcare;
 
 use App\DTO\Feedback;
+use App\DTO\Request\Healthcare\ExternalFollowCloseRequestDTO;
 use App\DTO\Request\Healthcare\ExternalFollowInvitationRequestDTO;
 use App\DTO\Request\Healthcare\ExternalFollowRenewRequestDTO;
 use App\DTO\Response\Healthcare\ExternalFollowInvitationResponseDTO;
@@ -18,6 +19,7 @@ use App\Entity\Identity\Patient;
 use App\Repository\Healthcare\CareTeamAssignmentRepository;
 use App\Repository\Healthcare\ExternalFollowInvitationRepository;
 use App\Repository\Healthcare\HealthcareOrganizationRepository;
+use App\Repository\Healthcare\OrganizationMembershipRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Repository\Identity\PatientRepository;
 use App\Security\SecurityAction;
@@ -36,7 +38,9 @@ class ExternalFollowService
         private readonly PatientRepository $patientRepository,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly ExternalFollowMailer $mailer
+        private readonly ExternalFollowMailer $mailer,
+        private readonly OrganizationMembershipRepository $membershipRepository,
+        private readonly ExternalFollowAuditService $auditService
     ) {}
 
     /**
@@ -415,8 +419,107 @@ class ExternalFollowService
     }
 
     /**
-     * Journal des actions des professionnels externes (audit dans le dossier).
+     * Le professionnel externe ferme lui-même le suivi d'un patient (pour lui,
+     * pas pour l'organisation). Le motif est notifié aux administrateurs de
+     * l'organisation d'origine du patient.
      */
+    public function closeMyFollow(string $invitationId, ExternalFollowCloseRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $user = $this->securityService->getCurrentUser();
+            if (!$user instanceof HealthcareProfessional) {
+                throw new AccessDeniedException('Cette action est réservée aux professionnels de santé.');
+            }
+
+            $invitation = $this->invitationRepository->findOneBy([
+                'id' => $invitationId,
+                'professional' => $user,
+            ]);
+
+            if (!$invitation || $invitation->isDeleted()) {
+                throw new \DomainException('Suivi introuvable.');
+            }
+
+            if ($invitation->getStatus() === ExternalFollowStatus::CLOSED_BY_PROFESSIONAL) {
+                throw new \InvalidArgumentException('Vous avez déjà fermé ce suivi.');
+            }
+            if ($invitation->getStatus() === ExternalFollowStatus::REVOKED) {
+                throw new \InvalidArgumentException('Ce suivi a déjà été coupé par l’organisation émettrice.');
+            }
+            if ($invitation->getStatus() === ExternalFollowStatus::DECLINED) {
+                throw new \InvalidArgumentException('Cette invitation a été refusée.');
+            }
+            if ($invitation->getStatus() === ExternalFollowStatus::PENDING) {
+                throw new \InvalidArgumentException(
+                    'Ce suivi n’est pas encore actif : il doit être accepté avant de pouvoir être fermé.'
+                );
+            }
+            if ($invitation->getStatus() === ExternalFollowStatus::EXPIRED) {
+                throw new \InvalidArgumentException('Ce suivi a expiré.');
+            }
+
+            $invitation->setStatus(ExternalFollowStatus::CLOSED_BY_PROFESSIONAL);
+            $invitation->setClosureReason($dto->reason);
+            $invitation->setClosedByProfessionalAt(new \DateTimeImmutable());
+
+            $assignment = $invitation->getAssignment();
+            if ($assignment !== null) {
+                $assignment->setActive(false);
+                $assignment->setEndDate(new \DateTimeImmutable('today'));
+            }
+
+            $this->entityManager->flush();
+
+            // Journaliser la fermeture dans le dossier.
+            try {
+                $this->auditService->record(
+                    $invitation->getPatient(),
+                    $user,
+                    $invitation,
+                    SecurityAction::CLOSE_EXTERNAL_FOLLOW,
+                    $dto->reason
+                );
+            } catch (\Throwable) {
+                // L'enregistrement du journal ne bloque pas la fermeture.
+            }
+
+            // Notifier les administrateurs de l'organisation d'origine du patient.
+            $admins = $this->membershipRepository->findActiveAdminsByOrganization($invitation->getOrganization());
+            $adminEmails = array_values(array_filter(
+                array_map(
+                    static fn ($admin) => $admin->getEmail(),
+                    $admins
+                )
+            ));
+
+            if ($adminEmails === [] && $invitation->getInvitedBy()?->getEmail()) {
+                $adminEmails = [$invitation->getInvitedBy()->getEmail()];
+            }
+
+            if ($adminEmails !== []) {
+                try {
+                    $this->mailer->sendSelfClosed($invitation, $adminEmails);
+                } catch (\Throwable) {
+                    // L'absence d'envoi ne bloque pas la fermeture.
+                }
+            }
+
+            return $feedback
+                ->setData(ExternalFollowInvitationResponseDTO::fromEntity($invitation))
+                ->setFlushDescription('Suivi fermé avec succès. L’organisation d’origine en a été notifiée.')
+                ->autoInitFlush();
+        } catch (AccessDeniedException $exception) {
+            return $this->failure($feedback, 'Accès refusé : ' . $exception->getMessage(), 403);
+        } catch (\DomainException $exception) {
+            return $this->failure($feedback, $exception->getMessage(), 404);
+        } catch (\InvalidArgumentException $exception) {
+            return $this->failure($feedback, $exception->getMessage(), 422);
+        } catch (\Throwable $exception) {
+            throw $exception;
+        }
+    }
     public function logs(string $organizationId, ?string $invitationId = null): Feedback
     {
         $feedback = new Feedback();

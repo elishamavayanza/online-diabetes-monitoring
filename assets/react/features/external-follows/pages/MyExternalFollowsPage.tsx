@@ -9,6 +9,7 @@ import { Badge } from '@/react/components/UI/Badge';
 import type { BadgeVariant } from '@/react/hook-components/UI/Badge';
 import { ExternalFollowInvitation, EXTERNAL_FOLLOW_STATUS_LABELS } from '../types/types';
 import { fetchMyExternalFollows } from '../services/externalFollowsService';
+import { CloseFollowModal } from '../components/CloseFollowModal';
 
 function formatDate(value: string | null): string {
     if (!value) return '—';
@@ -21,6 +22,7 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
     EXPIRED: 'default',
     REVOKED: 'error',
     DECLINED: 'default',
+    CLOSED_BY_PROFESSIONAL: 'info',
 };
 
 export function MyExternalFollowsPage() {
@@ -28,6 +30,7 @@ export function MyExternalFollowsPage() {
     const [follows, setFollows] = useState<ExternalFollowInvitation[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedToClose, setSelectedToClose] = useState<ExternalFollowInvitation | null>(null);
 
     const refetch = useCallback(async () => {
         setIsLoading(true);
@@ -92,14 +95,30 @@ export function MyExternalFollowsPage() {
                                 {EXTERNAL_FOLLOW_STATUS_LABELS[follow.status] ?? follow.status}
                             </Badge>
                             {(follow.status === 'ACCEPTED' || follow.status === 'PENDING') && (
-                                <Link to={`/${rolePrefix}/patients/${follow.patientId}/record`}>
-                                    <Button variant="outline" size="small">Voir le dossier</Button>
-                                </Link>
+                                <>
+                                    <Link to={`/${rolePrefix}/patients/${follow.patientId}/record`}>
+                                        <Button variant="outline" size="small">Voir le dossier</Button>
+                                    </Link>
+                                    {follow.status === 'ACCEPTED' && (
+                                        <Button variant="danger" size="small" onClick={() => setSelectedToClose(follow)}>
+                                            Fermer mon suivi
+                                        </Button>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>
                 ))}
             </div>
+
+            {selectedToClose && (
+                <CloseFollowModal
+                    isOpen
+                    follow={selectedToClose}
+                    onClose={() => setSelectedToClose(null)}
+                    onSuccess={refetch}
+                />
+            )}
         </div>
     );
 }

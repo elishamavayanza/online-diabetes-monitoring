@@ -118,3 +118,15 @@ export async function fetchMyExternalFollows(): Promise<ExternalFollowInvitation
     if (response.data.error) throw new Error(response.data.message || 'Erreur lors de la récupération de vos suivis');
     return response.data.data ?? [];
 }
+
+export async function closeMyExternalFollow(
+    invitationId: string,
+    reason: string
+): Promise<ExternalFollowInvitation> {
+    const response = await apiClient.post<ApiFeedback<ExternalFollowInvitation>>(
+        `/external-follows/my/${invitationId}/close`,
+        { reason }
+    );
+    if (response.data.error) throw new Error(response.data.message || 'Erreur lors de la fermeture du suivi');
+    return response.data.data;
+}

@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fermeture du suivi externe{% endblock %}
+
+{% block body %}
+    {% apply inline_css(source('@styles/email.css')) %}
+        <div class="email-wrapper">
+            <div class="email-content">
+                <div class="email-header">
+                    <img src="{{ logo_cid }}" alt="OnlineDIAB" class="logo">
+                </div>
+                <div class="email-body">
+                    <h2>Fermeture du suivi externe</h2>
+                    <p>Bonjour,</p>
+                    <p>
+                        Le professionnel <strong>{{ invitation.professional.fullName }}</strong>
+                        (
+                        <em>{{ invitation.email }}</em>
+                        ) a décidé de mettre fin à son suivi du patient
+                        <strong>{{ invitation.patient.fullName }}</strong>.
+                    </p>
+                    <p>Son accès au dossier a été révoqué : il ne pourra plus consulter ni modifier ce dossier.</p>
+                    <div class="note">
+                        <h3>Motif de la fermeture</h3>
+                        <p>"{{ invitation.closureReason }}"</p>
+                    </div>
+                </div>
+                <div class="email-footer">
+                    <p>&copy; {{ "now"|date("Y") }} OnlineDIAB. Tous droits réservés.</p>
+                    <p><a href="https://www.onlinediab.com">www.onlinediab.com</a></p>
+                </div>
+            </div>
+        </div>
+    {% endapply %}
+{% endblock %}

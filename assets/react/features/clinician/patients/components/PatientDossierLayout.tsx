@@ -85,7 +85,7 @@ interface PatientDossierLayoutProps {
 interface CareTeamMember {
     id: string | number;
     roles?: string[];
-    careTeamRole?: 'PRIMARY_CLINICIAN' | 'SPECIALIST' | 'NUTRITIONIST';
+    careTeamRole?: 'PRIMARY_CLINICIAN' | 'SPECIALIST' | 'NUTRITIONIST' | 'EXTERNAL_FOLLOWER';
 }
 
 export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' }: PatientDossierLayoutProps) {
@@ -137,7 +137,11 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
                 if (!cancelled) {
                     setCanClose(
                         currentMember?.careTeamRole === 'PRIMARY_CLINICIAN' ||
-                        (Array.isArray(currentMember?.roles) && currentMember.roles.includes('ROLE_CLINICIAN'))
+                        (
+                            currentMember?.careTeamRole !== 'EXTERNAL_FOLLOWER' &&
+                            Array.isArray(currentMember?.roles) &&
+                            currentMember.roles.includes('ROLE_CLINICIAN')
+                        )
                     );
                 }
             } catch (error) {

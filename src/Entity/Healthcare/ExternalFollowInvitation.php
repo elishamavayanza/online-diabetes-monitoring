@@ -41,7 +41,7 @@ class ExternalFollowInvitation extends BaseEntity
     #[ORM\Column(type: 'string', length: 64, unique: true)]
     private ?string $token = null;
 
-    #[ORM\Column(type: 'string', length: 20, enumType: ExternalFollowStatus::class)]
+    #[ORM\Column(type: 'string', length: 45, enumType: ExternalFollowStatus::class)]
     private ?ExternalFollowStatus $status = null;
 
     #[ORM\Column(type: 'date_immutable')]
@@ -65,6 +65,12 @@ class ExternalFollowInvitation extends BaseEntity
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $revokedAt = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $closureReason = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $closedByProfessionalAt = null;
 
     public function getPatient(): ?Patient
     {
@@ -217,6 +223,28 @@ class ExternalFollowInvitation extends BaseEntity
     public function setRevokedAt(?\DateTimeImmutable $revokedAt): static
     {
         $this->revokedAt = $revokedAt;
+        return $this;
+    }
+
+    public function getClosureReason(): ?string
+    {
+        return $this->closureReason;
+    }
+
+    public function setClosureReason(?string $closureReason): static
+    {
+        $this->closureReason = $closureReason;
+        return $this;
+    }
+
+    public function getClosedByProfessionalAt(): ?\DateTimeImmutable
+    {
+        return $this->closedByProfessionalAt;
+    }
+
+    public function setClosedByProfessionalAt(?\DateTimeImmutable $closedByProfessionalAt): static
+    {
+        $this->closedByProfessionalAt = $closedByProfessionalAt;
         return $this;
     }
 

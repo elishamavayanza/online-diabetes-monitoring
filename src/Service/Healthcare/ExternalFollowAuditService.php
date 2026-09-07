@@ -102,6 +102,7 @@ class ExternalFollowAuditService
     private function labelFor(SecurityAction $action): string
     {
         $labels = [
+            SecurityAction::CLOSE_EXTERNAL_FOLLOW->value => 'Fermeture du suivi externe par le professionnel',
             SecurityAction::CREATE_MEDICAL_NOTE->value => 'Ajout d\'une note médicale',
             SecurityAction::EDIT_MEDICAL_NOTE->value => 'Modification d\'une note médicale',
             SecurityAction::DELETE_MEDICAL_NOTE->value => 'Suppression d\'une note médicale',

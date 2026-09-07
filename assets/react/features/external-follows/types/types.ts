@@ -1,4 +1,4 @@
-export type ExternalFollowStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'REVOKED' | 'EXPIRED';
+export type ExternalFollowStatus = 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'REVOKED' | 'CLOSED_BY_PROFESSIONAL' | 'EXPIRED';
 
 export interface ExternalFollowInvitation {
     id: string;
@@ -18,6 +18,8 @@ export interface ExternalFollowInvitation {
     createdAt: string;
     acceptedAt: string | null;
     revokedAt: string | null;
+    closureReason: string | null;
+    closedByProfessionalAt: string | null;
 }
 
 export interface ExternalFollowLogEntry {
@@ -48,5 +50,10 @@ export const EXTERNAL_FOLLOW_STATUS_LABELS: Record<ExternalFollowStatus, string>
     ACCEPTED: 'Acceptée',
     DECLINED: 'Refusée',
     REVOKED: 'Coupée',
+    CLOSED_BY_PROFESSIONAL: 'Fermée par le professionnel',
     EXPIRED: 'Expirée',
 };
+
+export interface CloseExternalFollowPayload {
+    reason: string;
+}

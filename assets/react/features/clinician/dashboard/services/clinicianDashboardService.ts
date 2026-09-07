@@ -11,13 +11,15 @@ interface ApiFeedback<T> {
 
 export async function fetchClinicianDashboardData(): Promise<ClinicianDashboardData> {
     try {
-        const [patientsRes, appointmentsRes] = await Promise.all([
+        const [patientsRes, appointmentsRes, externalFollowsRes] = await Promise.all([
             apiClient.get<ApiFeedback<any[]>>('/patients/assigned'),
             apiClient.get<ApiFeedback<any[]>>('/appointments/mine'),
+            apiClient.get<ApiFeedback<any[]>>('/external-follows/my'),
         ]);
 
         const patients = patientsRes.data.data ?? [];
         const appointments = appointmentsRes.data.data ?? [];
+        const externalFollows = externalFollowsRes.data.data ?? [];
 
         console.log('Patients bruts:', JSON.stringify(patients, null, 2));
         console.log('Rendez-vous bruts:', JSON.stringify(appointments, null, 2));
@@ -54,6 +56,10 @@ export async function fetchClinicianDashboardData(): Promise<ClinicianDashboardD
             { id: 'appointments-upcoming', label: 'Rendez-vous à venir', value: upcomingAppointments.length },
             { id: 'follow-up-needed', label: 'Patients nécessitant un suivi', value: 0 },
         ];
+
+        if (externalFollows.length > 0) {
+            stats.push({ id: 'external-follows', label: 'Suivis externes', value: externalFollows.length });
+        }
 
         console.log('Stats construites:', stats);
         console.log('Patients length:', patients.length);

@@ -72,6 +72,30 @@ class ExternalFollowMailer
         );
     }
 
+    /**
+     * Notifie les administrateurs de l'organisation d'origine que le
+     * professionnel externe a fermé lui-même son suivi (motif inclus).
+     *
+     * @param list<string> $adminEmails
+     */
+    public function sendSelfClosed(ExternalFollowInvitation $invitation, array $adminEmails): void
+    {
+        foreach (array_values($adminEmails) as $adminEmail) {
+            try {
+                $this->send(
+                    'emails/external_follow_self_closed.html.twig',
+                    'Un professionnel a fermé son suivi externe — OnlineDIAB',
+                    $adminEmail,
+                    [
+                        'invitation' => $invitation,
+                    ]
+                );
+            } catch (\Throwable) {
+                // L'échec d'un destinataire ne bloque pas les autres.
+            }
+        }
+    }
+
     private function buildAcceptUrl(ExternalFollowInvitation $invitation): string
     {
         $request = $this->requestStack->getCurrentRequest();

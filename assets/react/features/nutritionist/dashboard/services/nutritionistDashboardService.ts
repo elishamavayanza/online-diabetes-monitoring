@@ -10,13 +10,15 @@ interface ApiFeedback<T> {
 }
 
 export async function fetchNutritionistDashboardData(): Promise<NutritionistDashboardData> {
-    const [patientsRes, appointmentsRes] = await Promise.all([
+    const [patientsRes, appointmentsRes, externalFollowsRes] = await Promise.all([
         apiClient.get<ApiFeedback<any[]>>('/patients/assigned'),
         apiClient.get<ApiFeedback<any[]>>('/appointments/mine'),
+        apiClient.get<ApiFeedback<any[]>>('/external-follows/my'),
     ]);
 
     const patients = patientsRes.data.data ?? [];
     const appointments = appointmentsRes.data.data ?? [];
+    const externalFollows = externalFollowsRes.data.data ?? [];
     const patientMap = new Map(patients.map((p: any) => [String(p.id), p.fullName]));
 
     const now = new Date();
@@ -44,6 +46,10 @@ export async function fetchNutritionistDashboardData(): Promise<NutritionistDash
         { id: 'appointments-upcoming', label: 'Rendez-vous à venir', value: upcomingAppointments.length },
         { id: 'follow-up-needed', label: 'Patients nécessitant un suivi', value: 0 },
     ];
+
+    if (externalFollows.length > 0) {
+        stats.push({ id: 'external-follows', label: 'Suivis externes', value: externalFollows.length });
+    }
 
     const recentActivities = appointments.slice(0, 5).map((appt: any) => ({
         id: String(appt.id ?? ''),

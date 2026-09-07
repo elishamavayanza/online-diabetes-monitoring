@@ -8,6 +8,7 @@ import { Avatar } from '@/react/components/UI/Avatar';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { useMyExternalFollows } from '../hooks/useMyExternalFollows';
+import { CloseFollowModal } from './CloseFollowModal';
 import { ExternalFollowInvitation, EXTERNAL_FOLLOW_STATUS_LABELS } from '../types/types';
 
 interface ExternalFollowPatientsCardsProps {
@@ -21,7 +22,11 @@ function formatDate(value: string | null): string {
     return new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-function ExternalFollowCard({ follow, rolePrefix }: { follow: ExternalFollowInvitation; rolePrefix: ExternalFollowPatientsCardsProps['rolePrefix'] }) {
+function ExternalFollowCard({ follow, rolePrefix, onCloseClick }: {
+    follow: ExternalFollowInvitation;
+    rolePrefix: ExternalFollowPatientsCardsProps['rolePrefix'];
+    onCloseClick: (follow: ExternalFollowInvitation) => void;
+}) {
     const hasAccess = follow.status === 'ACCEPTED' || follow.status === 'PENDING';
 
     return (
@@ -58,6 +63,11 @@ function ExternalFollowCard({ follow, rolePrefix }: { follow: ExternalFollowInvi
                     <Link to={`/${rolePrefix}/patients/${follow.patientId}/record`}>
                         <Button variant="primary" size="small">Voir le dossier</Button>
                     </Link>
+                    {follow.status === 'ACCEPTED' && (
+                        <Button variant="danger" size="small" onClick={() => onCloseClick(follow)}>
+                            Fermer mon suivi
+                        </Button>
+                    )}
                 </div>
             )}
         </Card>
@@ -65,7 +75,8 @@ function ExternalFollowCard({ follow, rolePrefix }: { follow: ExternalFollowInvi
 }
 
 export function ExternalFollowPatientsCards({ rolePrefix, search = '', showEmptyState = true }: ExternalFollowPatientsCardsProps) {
-    const { follows, isLoading, error } = useMyExternalFollows();
+    const { follows, isLoading, error, refetch } = useMyExternalFollows();
+    const [selectedToClose, setSelectedToClose] = React.useState<ExternalFollowInvitation | null>(null);
 
     const filtered = search.trim()
         ? follows.filter((follow) => follow.patientName.toLowerCase().includes(search.trim().toLowerCase()))
@@ -106,9 +117,18 @@ export function ExternalFollowPatientsCards({ rolePrefix, search = '', showEmpty
             </p>
             <div className="clinician-patients-cards">
                 {filtered.map((follow) => (
-                    <ExternalFollowCard key={follow.id} follow={follow} rolePrefix={rolePrefix} />
+                    <ExternalFollowCard key={follow.id} follow={follow} rolePrefix={rolePrefix} onCloseClick={setSelectedToClose} />
                 ))}
             </div>
+
+            {selectedToClose && (
+                <CloseFollowModal
+                    isOpen
+                    follow={selectedToClose}
+                    onClose={() => setSelectedToClose(null)}
+                    onSuccess={refetch}
+                />
+            )}
         </div>
     );
 }

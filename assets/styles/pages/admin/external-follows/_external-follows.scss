@@ -110,6 +110,18 @@
         font-style: italic;
     }
 
+    &__closure-reason {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 0.3rem;
+        font-style: italic;
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     &__empty {
         padding: 3rem;
         text-align: center;

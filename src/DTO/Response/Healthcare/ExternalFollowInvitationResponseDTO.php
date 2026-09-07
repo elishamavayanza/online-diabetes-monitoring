@@ -41,7 +41,7 @@ class ExternalFollowInvitationResponseDTO
         #[OA\Property(type: 'string', example: 'Centre DiabCare Kinshasa', description: 'Nom de l’organisation émettrice')]
         public readonly string $organizationName,
 
-        #[OA\Property(type: 'string', enum: ['PENDING', 'ACCEPTED', 'DECLINED', 'REVOKED', 'EXPIRED'], example: 'PENDING', description: 'Statut de l’invitation')]
+        #[OA\Property(type: 'string', enum: ['PENDING', 'ACCEPTED', 'DECLINED', 'REVOKED', 'CLOSED_BY_PROFESSIONAL', 'EXPIRED'], example: 'PENDING', description: 'Statut de l’invitation')]
         public readonly string $status,
 
         #[OA\Property(type: 'string', format: 'date', example: '2026-09-07', description: 'Début du délai d’accès')]
@@ -63,7 +63,13 @@ class ExternalFollowInvitationResponseDTO
         public readonly ?\DateTimeImmutable $acceptedAt,
 
         #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de coupure de l’accès')]
-        public readonly ?\DateTimeImmutable $revokedAt
+        public readonly ?\DateTimeImmutable $revokedAt,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'Le patient est pris en charge localement.', description: 'Motif de fermeture du suivi par le professionnel')]
+        public readonly ?string $closureReason,
+
+        #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de fermeture du suivi par le professionnel')]
+        public readonly ?\DateTimeImmutable $closedByProfessionalAt
     ) {}
 
     public static function fromEntity(ExternalFollowInvitation $invitation): self
@@ -85,7 +91,9 @@ class ExternalFollowInvitationResponseDTO
             invitedByName: $invitation->getInvitedBy()?->getFullName() ?? '',
             createdAt: $invitation->getCreatedAt(),
             acceptedAt: $invitation->getAcceptedAt(),
-            revokedAt: $invitation->getRevokedAt()
+            revokedAt: $invitation->getRevokedAt(),
+            closureReason: $invitation->getClosureReason(),
+            closedByProfessionalAt: $invitation->getClosedByProfessionalAt()
         );
     }
 }

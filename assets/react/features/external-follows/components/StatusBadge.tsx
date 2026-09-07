@@ -8,6 +8,7 @@ const STATUS_VARIANT: Record<ExternalFollowStatus, BadgeVariant> = {
     ACCEPTED: 'success',
     DECLINED: 'default',
     REVOKED: 'error',
+    CLOSED_BY_PROFESSIONAL: 'info',
     EXPIRED: 'default',
 };
 
