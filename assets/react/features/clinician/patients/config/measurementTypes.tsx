@@ -7,6 +7,7 @@ import {
     WeightIcon,
     PhysicalActivityIcon,
     LaboratoryIcon,
+    InsulinInjectionIcon,
 } from './measurementIcons';
 import { MeasurementTypeId } from '../types';
 
@@ -25,6 +26,7 @@ export const MEASUREMENT_TYPES: MeasurementTypeConfig[] = [
     { id: 'weight', label: 'Poids', description: 'Poids corporel et IMC', unit: 'kg', icon: <WeightIcon /> },
     { id: 'physicalActivity', label: 'Activité physique', description: 'Durée et type d\'activité', unit: 'min', icon: <PhysicalActivityIcon /> },
     { id: 'laboratory', label: 'Laboratoire', description: 'Résultats d\'analyses', unit: '', icon: <LaboratoryIcon /> },
+    { id: 'insulinInjection', label: 'Injection d\'insuline', description: 'Injections réalisées', unit: 'u', icon: <InsulinInjectionIcon /> },
 ];
 
 export function getMeasurementType(id: MeasurementTypeId): MeasurementTypeConfig {

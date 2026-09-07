@@ -537,6 +537,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::DELETE_APPOINTMENT_REMINDER,
 
             SecurityAction::VIEW_NUTRITION,
+            SecurityAction::VIEW_INSULIN_INJECTION,
 
             SecurityAction::SEND_MESSAGE,
             SecurityAction::READ_MESSAGE,
@@ -586,6 +587,9 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::RECORD_ACTIVITY,
 
             SecurityAction::VIEW_MEASUREMENTS,
+            SecurityAction::RECORD_INSULIN_INJECTION,
+            SecurityAction::VIEW_INSULIN_INJECTION,
+            SecurityAction::DELETE_INSULIN_INJECTION,
 
             SecurityAction::VIEW_LABORATORY_RESULT,
             SecurityAction::UPLOAD_LABORATORY_RESULT,
@@ -672,6 +676,9 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::RECORD_ACTIVITY,
 
             SecurityAction::VIEW_MEASUREMENTS,
+            SecurityAction::RECORD_INSULIN_INJECTION,
+            SecurityAction::VIEW_INSULIN_INJECTION,
+            SecurityAction::DELETE_INSULIN_INJECTION,
 
             SecurityAction::VIEW_LABORATORY_RESULT,
             SecurityAction::UPLOAD_LABORATORY_RESULT,
@@ -749,6 +756,9 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::RECORD_ACTIVITY,
 
             SecurityAction::RECORD_MEDICATION_INTAKE,
+
+            SecurityAction::RECORD_INSULIN_INJECTION,
+            SecurityAction::VIEW_INSULIN_INJECTION,
 
             SecurityAction::VIEW_MEASUREMENTS,
 

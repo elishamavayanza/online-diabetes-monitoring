@@ -47,6 +47,30 @@ interface PhysicalActivityResponse {
     createdAt?: string;
 }
 
+interface InsulinInjectionResponse {
+    id: string;
+    injectedAt?: string;
+    createdAt?: string;
+    doseUnits: string | number;
+    injectionSite?: string;
+    status?: string;
+    notes?: string;
+}
+
+const INJECTION_STATUS_LABELS: Record<string, string> = {
+    TAKEN: 'Réalisée',
+    SKIPPED: 'Sautée',
+    DELAYED: 'En retard',
+};
+
+const INJECTION_SITE_LABELS: Record<string, string> = {
+    ABDOMEN: 'Abdomen',
+    THIGH: 'Cuisse',
+    UPPER_ARM: 'Haut du bras',
+    BUTTOCK: 'Fesse',
+    OTHER: 'Autre',
+};
+
 function formatDate(dateStr?: string): string {
     if (!dateStr) return new Date().toLocaleDateString('fr-FR');
     return new Date(dateStr).toLocaleDateString('fr-FR');
@@ -127,6 +151,26 @@ export async function fetchMeasurements(type: MeasurementType): Promise<Measurem
                 value: `${m.durationMinutes} min`,
                 note: m.activityType ?? '',
             }));
+        }
+
+        case 'Injection': {
+            const response = await apiClient.get<ApiFeedback<InsulinInjectionResponse[]>>(
+                `/insulin-injections/patient/${patientId}`
+            );
+            const injections = unwrapApiData(response.data, 'Erreur lors du chargement des injections.');
+            return injections.map((m) => {
+                const parts = [
+                    m.status ? (INJECTION_STATUS_LABELS[m.status] ?? m.status) : '',
+                    m.injectionSite ? (INJECTION_SITE_LABELS[m.injectionSite] ?? m.injectionSite) : '',
+                ].filter(Boolean);
+                const note = m.notes ? [...parts, m.notes].join(' · ') : parts.join(' · ');
+                return {
+                    id: m.id,
+                    date: m.injectedAt ?? m.createdAt ?? '',
+                    value: `${Number(m.doseUnits)} u`,
+                    note,
+                };
+            });
         }
 
         default:

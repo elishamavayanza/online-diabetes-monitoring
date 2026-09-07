@@ -40,7 +40,11 @@ export function useMeasurementForm({
         } else if (initialType) {
             setType(initialType);
             setStep('form');
-            setForm({ measuredAt: getCurrentDateTimeLocal() });
+            setForm(
+                initialType === 'insulinInjection'
+                    ? { injectedAt: getCurrentDateTimeLocal() }
+                    : { measuredAt: getCurrentDateTimeLocal() },
+            );
         }
     }, [isOpen, initialType]);
 
@@ -51,7 +55,11 @@ export function useMeasurementForm({
     const handleSelectType = (selected: MeasurementTypeId) => {
         setType(selected);
         setStep('form');
-        setForm({ measuredAt: getCurrentDateTimeLocal() });
+        setForm(
+            selected === 'insulinInjection'
+                ? { injectedAt: getCurrentDateTimeLocal() }
+                : { measuredAt: getCurrentDateTimeLocal() },
+        );
     };
 
     const handleSubmit = async (e: React.FormEvent, labFile?: File | null) => {
@@ -83,13 +91,30 @@ export function useMeasurementForm({
             if (type === 'bloodGlucose' && !form.unit) {
                 payload.unit = 'MG_DL';
             }
+            if (type === 'insulinInjection') {
+                payload = {
+                    ...form,
+                    doseUnits: form.doseUnits ?? '',
+                    injectionSite: form.injectionSite ?? 'ABDOMEN',
+                    status: form.status ?? 'TAKEN',
+                };
+            }
             // Convertir measuredAt en ISO si présent (pour les autres types)
             if (payload.measuredAt) {
                 payload.measuredAt = new Date(payload.measuredAt as string).toISOString();
             }
+            // Convertir injectedAt en ISO pour les injections d'insuline
+            if (payload.injectedAt) {
+                payload.injectedAt = new Date(payload.injectedAt as string).toISOString();
+            }
 
             await createMeasurement(patientId, type, payload);
-            showToast({ type: 'success', message: 'Mesure enregistrée avec succès.' });
+            showToast({
+                type: 'success',
+                message: type === 'insulinInjection'
+                    ? 'Injection d\'insuline enregistrée avec succès.'
+                    : 'Mesure enregistrée avec succès.',
+            });
             onSuccess();
             onClose();
         } catch (err) {

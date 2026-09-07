@@ -54,6 +54,8 @@ nelmio_api_doc:
             - { alias: MedicalConsentResponseDTO, type: App\DTO\Response\Patient\MedicalConsentResponseDTO }
             - { alias: MedicationIntakeResponseDTO, type: App\DTO\Response\Treatment\MedicationIntakeResponseDTO }
             - { alias: MedicationResponseDTO, type: App\DTO\Response\Treatment\MedicationResponseDTO }
+            - { alias: InsulinResponseDTO, type: App\DTO\Response\Treatment\InsulinResponseDTO }
+            - { alias: InsulinInjectionResponseDTO, type: App\DTO\Response\Treatment\InsulinInjectionResponseDTO }
             - { alias: PrescriptionItemResponseDTO, type: App\DTO\Response\Treatment\PrescriptionItemResponseDTO }
             - { alias: PrescriptionResponseDTO, type: App\DTO\Response\Treatment\PrescriptionResponseDTO }
             - { alias: PrescriptionVersionResponseDTO, type: App\DTO\Response\Treatment\PrescriptionVersionResponseDTO }

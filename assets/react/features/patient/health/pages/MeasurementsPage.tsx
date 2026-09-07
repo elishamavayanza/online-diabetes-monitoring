@@ -21,6 +21,7 @@ import {
     Hba1cIcon,
     WeightIcon,
     PhysicalActivityIcon,
+    InsulinInjectionIcon,
 } from '@/react/features/clinician/patients/config/measurementIcons';
 import '@/styles/pages/patient/health/_measurements.scss';
 
@@ -30,6 +31,7 @@ const TYPE_TO_ID: Record<MeasurementType, MeasurementTypeId> = {
     'Poids': 'weight',
     'HbA1c': 'hba1c',
     'Activité': 'physicalActivity',
+    'Injection': 'insulinInjection',
 };
 
 const MEASUREMENT_TYPES: {
@@ -73,6 +75,13 @@ const MEASUREMENT_TYPES: {
         description: 'Durée d’activité physique',
         unit: 'min',
         icon: <PhysicalActivityIcon />,
+    },
+    {
+        id: 'Injection',
+        label: 'Injection',
+        description: 'Injections d’insuline',
+        unit: 'u',
+        icon: <InsulinInjectionIcon />,
     },
 ];
 

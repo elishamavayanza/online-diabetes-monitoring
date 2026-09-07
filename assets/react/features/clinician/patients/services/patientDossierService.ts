@@ -4,6 +4,7 @@ import {
     BloodGlucoseMeasurement,
     BloodPressureMeasurement,
     HbA1cMeasurement,
+    InsulinInjection,
     LaboratoryResult,
     PatientAllergy,
     PatientAppointment,
@@ -67,6 +68,7 @@ export async function fetchPatientDossier(patientId: string): Promise<PatientDos
         weight,
         physicalActivity,
         laboratoryResults,
+        insulinInjections,
         notes,
         meals,
         mealItems,
@@ -83,6 +85,7 @@ export async function fetchPatientDossier(patientId: string): Promise<PatientDos
         fetchList<WeightMeasurement>(`/patients/${patientId}/weight-measurements`),
         fetchList<PhysicalActivityMeasurement>(`/patients/${patientId}/physical-activity-measurements`),
         fetchList<LaboratoryResult>(`/patients/${patientId}/laboratory-results`),
+        fetchList<InsulinInjection>(`/insulin-injections/patient/${patientId}`),
         record
             ? fetchList<PatientMedicalNote>(`/medical-notes/record/${record.id}`)
             : Promise.resolve([]),
@@ -124,6 +127,7 @@ export async function fetchPatientDossier(patientId: string): Promise<PatientDos
             weight,
             physicalActivity,
             laboratoryResults,
+            insulinInjections,
         },
     };
 }

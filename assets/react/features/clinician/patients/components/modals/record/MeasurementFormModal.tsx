@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Button } from '@/react/components/UI/Button';
 import { Input } from '@/react/components/Forms/Input';
@@ -7,10 +7,14 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { FileUpload } from '@/react/components/Forms/FileUpload';
-import { MeasurementTypeId } from '../../../types';
+import { Insulin, MeasurementTypeId, PrescriptionItem } from '../../../types';
 import { MEASUREMENT_TYPES } from '../../../config/measurementTypes';
 import { PHYSICAL_ACTIVITY_OPTIONS } from '../../../config/physicalActivities';
 import { useMeasurementForm } from '@/react/features/clinician/patients/hooks/useMeasurementForm';
+import {
+    fetchInsulins,
+    fetchPatientPrescriptionItems,
+} from '@/react/features/clinician/patients/services/insulinInjectionService';
 
 interface MeasurementFormModalProps {
     isOpen: boolean;
@@ -33,6 +37,27 @@ const GLUCOSE_UNIT_OPTIONS = [
     { value: 'MMOL_L', label: 'mmol/L' },
 ];
 
+const INJECTION_SITE_OPTIONS = [
+    { value: 'ABDOMEN', label: 'Abdomen' },
+    { value: 'THIGH', label: 'Cuisse' },
+    { value: 'UPPER_ARM', label: 'Haut du bras' },
+    { value: 'BUTTOCK', label: 'Fesse' },
+    { value: 'OTHER', label: 'Autre' },
+];
+
+const INJECTION_STATUS_OPTIONS = [
+    { value: 'TAKEN', label: 'Réalisée' },
+    { value: 'SKIPPED', label: 'Sautée' },
+    { value: 'DELAYED', label: 'En retard' },
+];
+
+interface InsulinOptionsState {
+    insulins: Insulin[];
+    prescriptionItems: PrescriptionItem[];
+    loading: boolean;
+    error: string | null;
+}
+
 export function MeasurementFormModal({
                                          isOpen,
                                          onClose,
@@ -54,6 +79,58 @@ export function MeasurementFormModal({
 
     const typeLabel = type ? MEASUREMENT_TYPES.find((t) => t.id === type)?.label : '';
     const [labFile, setLabFile] = useState<File | null>(null);
+    const [insulinOptions, setInsulinOptions] = useState<InsulinOptionsState>({
+        insulins: [],
+        prescriptionItems: [],
+        loading: false,
+        error: null,
+    });
+
+    useEffect(() => {
+        if (!isOpen || type !== 'insulinInjection') return;
+
+        let cancelled = false;
+        setInsulinOptions((prev) => ({ ...prev, loading: true, error: null }));
+
+        Promise.all([fetchInsulins(), fetchPatientPrescriptionItems(patientId)])
+            .then(([insulins, prescriptionItems]) => {
+                if (cancelled) return;
+                setInsulinOptions({ insulins, prescriptionItems, loading: false, error: null });
+            })
+            .catch((err) => {
+                if (cancelled) return;
+                const message = err instanceof Error ? err.message : 'Erreur lors du chargement des insulines.';
+                setInsulinOptions((prev) => ({ ...prev, loading: false, error: message }));
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [isOpen, type, patientId]);
+
+    // Présélectionne automatiquement le premier élément prescrit compatible avec une insuline,
+    // puis l'insuline correspondante.
+    useEffect(() => {
+        if (type !== 'insulinInjection' || insulinOptions.loading) return;
+
+        const { insulins, prescriptionItems } = insulinOptions;
+        const injectableItems = prescriptionItems.filter((item) =>
+            insulins.some((ins) => ins.medicationId === item.medicationId),
+        );
+        if (injectableItems.length === 0) return;
+
+        let itemId = form.prescriptionItemId ?? '';
+        if (!injectableItems.some((item) => item.id === itemId)) {
+            itemId = injectableItems[0].id;
+            handleChange({ target: { name: 'prescriptionItemId', value: itemId } } as React.ChangeEvent<HTMLSelectElement>);
+        }
+
+        const selectedItem = injectableItems.find((item) => item.id === itemId);
+        const matchedInsulins = insulins.filter((ins) => ins.medicationId === selectedItem?.medicationId);
+        if (matchedInsulins.length > 0 && !matchedInsulins.some((ins) => ins.id === form.insulinId)) {
+            handleChange({ target: { name: 'insulinId', value: matchedInsulins[0].id } } as React.ChangeEvent<HTMLSelectElement>);
+        }
+    }, [type, insulinOptions, form.prescriptionItemId, form.insulinId, handleChange]);
 
     const renderDateTimeField = () => (
         <FormField label="Date et heure" htmlFor="measuredAt" required>
@@ -166,6 +243,115 @@ export function MeasurementFormModal({
                                 }}
                                 label="Cliquez ou déposez le fichier ici"
                                 hint="PDF, Word ou image (max 10 Mo)"
+                            />
+                        </FormField>
+                    </>
+                );
+            }
+            case 'insulinInjection': {
+                const { insulins, prescriptionItems, loading, error } = insulinOptions;
+                const injectableItems = prescriptionItems.filter((item) =>
+                    insulins.some((ins) => ins.medicationId === item.medicationId),
+                );
+                const selectedItem = injectableItems.find((item) => item.id === form.prescriptionItemId);
+                const matchedInsulins = insulins.filter((ins) => ins.medicationId === selectedItem?.medicationId);
+
+                if (loading) {
+                    return (
+                        <div className="injection-options-loading">
+                            <Spinner size="small" />
+                            Chargement des insulines et prescriptions…
+                        </div>
+                    );
+                }
+                if (error) {
+                    return <Alert variant="error">{error}</Alert>;
+                }
+                if (injectableItems.length === 0) {
+                    return (
+                        <p>
+                            Aucun médicament insulinique prescrit trouvé. Ajoutez d'abord une prescription
+                            d'insuline avant d'enregistrer une injection.
+                        </p>
+                    );
+                }
+
+                return (
+                    <>
+                        <FormField label="Date et heure" htmlFor="injectedAt" required>
+                            <Input
+                                id="injectedAt"
+                                name="injectedAt"
+                                type="datetime-local"
+                                value={form.injectedAt ?? ''}
+                                onChange={handleChange}
+                                required
+                            />
+                        </FormField>
+                        <FormField label="Médicament prescrit" htmlFor="prescriptionItemId" required>
+                            <Select
+                                id="prescriptionItemId"
+                                name="prescriptionItemId"
+                                value={form.prescriptionItemId ?? ''}
+                                onChange={handleChange}
+                                options={injectableItems.map((item) => ({
+                                    value: item.id,
+                                    label: `${item.medicationName ?? 'Insuline'}${item.dosage ? ` — ${item.dosage}` : ''}`,
+                                }))}
+                                required
+                            />
+                        </FormField>
+                        <FormField label="Insuline" htmlFor="insulinId" required>
+                            <Select
+                                id="insulinId"
+                                name="insulinId"
+                                value={form.insulinId ?? matchedInsulins[0]?.id ?? ''}
+                                onChange={handleChange}
+                                options={matchedInsulins.map((ins) => ({
+                                    value: ins.id,
+                                    label: `${ins.medicationName ?? ins.id} — ${ins.insulinType}${ins.concentration ? ` (${ins.concentration})` : ''}`,
+                                }))}
+                                required
+                            />
+                        </FormField>
+                        <FormField label="Dose (unités)" htmlFor="doseUnits" required>
+                            <Input
+                                id="doseUnits"
+                                name="doseUnits"
+                                type="number"
+                                step="0.5"
+                                min="0.5"
+                                value={form.doseUnits ?? ''}
+                                onChange={handleChange}
+                                placeholder="Ex : 12"
+                                required
+                            />
+                        </FormField>
+                        <FormField label="Site d'injection" htmlFor="injectionSite" required>
+                            <Select
+                                id="injectionSite"
+                                name="injectionSite"
+                                value={form.injectionSite ?? 'ABDOMEN'}
+                                onChange={handleChange}
+                                options={INJECTION_SITE_OPTIONS}
+                            />
+                        </FormField>
+                        <FormField label="Statut" htmlFor="status" required>
+                            <Select
+                                id="status"
+                                name="status"
+                                value={form.status ?? 'TAKEN'}
+                                onChange={handleChange}
+                                options={INJECTION_STATUS_OPTIONS}
+                            />
+                        </FormField>
+                        <FormField label="Notes" htmlFor="notes">
+                            <Input
+                                id="notes"
+                                name="notes"
+                                value={form.notes ?? ''}
+                                onChange={handleChange}
+                                placeholder="Observations éventuelles"
                             />
                         </FormField>
                     </>

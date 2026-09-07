@@ -29,6 +29,7 @@ function countForType(
         weight: measurements.weight,
         physicalActivity: measurements.physicalActivity,
         laboratory: measurements.laboratoryResults,
+        insulinInjection: measurements.insulinInjections,
     };
     return lists[type].filter((m) => isInPeriod(m.createdAt, period, selectedDate)).length;
 }
@@ -118,6 +119,16 @@ export function MeasurementsTab() {
                 }));
                 break;
             }
+            case 'insulinInjection': {
+                series = { label: 'Injection d\'insuline', unit: 'u', points: [] };
+                items = measurements.insulinInjections
+                    .filter((m) => isInPeriod(m.injectedAt ?? m.createdAt, period, selectedDate))
+                    .map((m) => ({
+                        id: m.id,
+                        label: `${formatDisplayDateTime(m.injectedAt ?? m.createdAt)} — ${m.doseUnits} u${m.injectionSite ? ` (${m.injectionSite})` : ''}${m.status ? ` — ${m.status}` : ''}${m.notes ? ` — ${m.notes}` : ''}`,
+                    }));
+                break;
+            }
             default:
                 break;
         }
@@ -136,13 +147,13 @@ export function MeasurementsTab() {
                 </div>
 
                 {/*  Graphique en chandeliers si données disponibles, sinon fallback TrendChart */}
-                {selectedType !== 'laboratory' && candlestickData && candlestickData.length > 0 ? (
+                {selectedType !== 'laboratory' && selectedType !== 'insulinInjection' && candlestickData && candlestickData.length > 0 ? (
                     <CandlestickChart
                         data={candlestickData}
                         formatDate={(d) => String(d)}
                         formatPrice={(p) => `${p} ${config.unit}`}
                     />
-                ) : selectedType !== 'laboratory' ? (
+                ) : selectedType !== 'laboratory' && selectedType !== 'insulinInjection' ? (
                     <TrendChart series={series!} />
                 ) : null}
 

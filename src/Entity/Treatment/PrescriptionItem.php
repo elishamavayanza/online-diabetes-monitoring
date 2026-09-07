@@ -71,11 +71,18 @@ class PrescriptionItem extends BaseEntity
     private Collection $intakes;
 
     /**
-     * Constructeur pour initialiser la collection des prises.
+     * @var Collection<int, InsulinInjection> La collection des injections d'insuline associées.
+     */
+    #[ORM\OneToMany(mappedBy: 'prescriptionItem', targetEntity: InsulinInjection::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $injections;
+
+    /**
+     * Constructeur pour initialiser les collections des prises et des injections.
      */
     public function __construct()
     {
         $this->intakes = new ArrayCollection();
+        $this->injections = new ArrayCollection();
     }
 
     /**
@@ -244,6 +251,41 @@ class PrescriptionItem extends BaseEntity
         if ($this->intakes->removeElement($intake)) {
             if ($intake->getPrescriptionItem() === $this) {
                 $intake->setPrescriptionItem(null);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Récupère la collection des injections d'insuline.
+     *
+     * @return Collection<int, InsulinInjection>
+     */
+    public function getInjections(): Collection
+    {
+        return $this->injections;
+    }
+
+    /**
+     * Ajoute une injection à l'élément de prescription.
+     */
+    public function addInjection(InsulinInjection $injection): static
+    {
+        if (!$this->injections->contains($injection)) {
+            $this->injections->add($injection);
+            $injection->setPrescriptionItem($this);
+        }
+        return $this;
+    }
+
+    /**
+     * Retire une injection de l'élément de prescription.
+     */
+    public function removeInjection(InsulinInjection $injection): static
+    {
+        if ($this->injections->removeElement($injection)) {
+            if ($injection->getPrescriptionItem() === $this) {
+                $injection->setPrescriptionItem(null);
             }
         }
         return $this;

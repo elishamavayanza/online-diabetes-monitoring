@@ -3,6 +3,8 @@
 namespace App\Entity\Treatment;
 
 use App\Entity\Common\BaseEntity;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -41,6 +43,20 @@ class Medication extends BaseEntity
      */
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $manufacturer = null;
+
+    /**
+     * @var Collection<int, Insulin> La collection des informations d'insuline associées à ce médicament.
+     */
+    #[ORM\OneToMany(mappedBy: 'medication', targetEntity: Insulin::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $insulins;
+
+    /**
+     * Constructeur pour initialiser la collection des insulines.
+     */
+    public function __construct()
+    {
+        $this->insulins = new ArrayCollection();
+    }
 
     /**
      * Récupère le nom du médicament.
@@ -124,6 +140,41 @@ class Medication extends BaseEntity
     public function setManufacturer(?string $manufacturer): static
     {
         $this->manufacturer = $manufacturer;
+        return $this;
+    }
+
+    /**
+     * Récupère la collection des insulines associées.
+     *
+     * @return Collection<int, Insulin>
+     */
+    public function getInsulins(): Collection
+    {
+        return $this->insulins;
+    }
+
+    /**
+     * Ajoute une insuline au médicament.
+     */
+    public function addInsulin(Insulin $insulin): static
+    {
+        if (!$this->insulins->contains($insulin)) {
+            $this->insulins->add($insulin);
+            $insulin->setMedication($this);
+        }
+        return $this;
+    }
+
+    /**
+     * Retire une insuline du médicament.
+     */
+    public function removeInsulin(Insulin $insulin): static
+    {
+        if ($this->insulins->removeElement($insulin)) {
+            if ($insulin->getMedication() === $this) {
+                $insulin->setMedication(null);
+            }
+        }
         return $this;
     }
 }

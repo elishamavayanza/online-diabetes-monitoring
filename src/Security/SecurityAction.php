@@ -64,6 +64,9 @@ enum SecurityAction: string
     case RECORD_MEDICATION_INTAKE = 'record_medication_intake';
     case DELETE_MEDICATION_INTAKE = 'delete_medication_intake';
     case MANAGE_MEDICATION = 'manage_medication';
+    case RECORD_INSULIN_INJECTION = 'record_insulin_injection';
+    case VIEW_INSULIN_INJECTION = 'view_insulin_injection';
+    case DELETE_INSULIN_INJECTION = 'delete_insulin_injection';
 
     // Nutrition
     case MANAGE_FOOD = 'manage_food';

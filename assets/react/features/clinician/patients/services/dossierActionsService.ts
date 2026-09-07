@@ -1,6 +1,7 @@
 import apiClient from '@/services/api/client';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { MeasurementTypeId } from '../types';
+import { createInsulinInjection, InsulinInjectionPayload } from './insulinInjectionService';
 import { tokenStorage } from '@/services/storage/storage.service';
 
 export async function createBloodGlucose(patientId: string, data: {
@@ -91,6 +92,8 @@ export async function createMeasurement(
             return createPhysicalActivity(patientId, payload as { activityType: string; durationMinutes: number });
         case 'laboratory':
             return createLaboratoryResult(patientId, payload as { testName: string; labName?: string });
+        case 'insulinInjection':
+            return createInsulinInjection(payload as unknown as InsulinInjectionPayload);
         default:
             throw new Error('Type de mesure inconnu.');
     }

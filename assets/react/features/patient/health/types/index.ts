@@ -1,4 +1,4 @@
-export type MeasurementType = 'Glycémie' | 'Tension' | 'Poids' | 'HbA1c' | 'Activité';
+export type MeasurementType = 'Glycémie' | 'Tension' | 'Poids' | 'HbA1c' | 'Activité' | 'Injection';
 
 export interface MeasurementRecord {
     id: string;

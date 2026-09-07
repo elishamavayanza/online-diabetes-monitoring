@@ -87,6 +87,7 @@ export interface PrescriptionItem {
     id: string;
     prescriptionId: string;
     medicationId: string;
+    medicationName?: string;
     dosage: string;
     quantity: string;
     morning: boolean;
@@ -161,6 +162,43 @@ export interface PhysicalActivityMeasurement {
     createdAt: string;
 }
 
+export type InsulinType =
+    | 'RAPID_ACTING'
+    | 'SHORT_ACTING'
+    | 'INTERMEDIATE_ACTING'
+    | 'LONG_ACTING'
+    | 'MIXED'
+    | 'OTHER';
+
+export type InsulinInjectionSite = 'ABDOMEN' | 'THIGH' | 'UPPER_ARM' | 'BUTTOCK' | 'OTHER';
+
+export type InjectionStatus = 'TAKEN' | 'SKIPPED' | 'DELAYED';
+
+export interface Insulin {
+    id: string;
+    medicationId: string;
+    medicationName?: string;
+    insulinType: InsulinType;
+    concentration?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface InsulinInjection {
+    id: string;
+    patientId?: string;
+    prescriptionItemId: string;
+    insulinId: string;
+    injectedAt: string;
+    doseUnits: string;
+    injectionSite?: InsulinInjectionSite;
+    status?: InjectionStatus;
+    issuerId?: string;
+    notes?: string;
+    createdAt: string;
+    updatedAt?: string;
+}
+
 export interface LaboratoryResult {
     id: string;
     testName: string;
@@ -207,6 +245,7 @@ export interface PatientDossierData {
         weight: WeightMeasurement[];
         physicalActivity: PhysicalActivityMeasurement[];
         laboratoryResults: LaboratoryResult[];
+        insulinInjections: InsulinInjection[];
     };
 }
 
@@ -239,7 +278,8 @@ export type MeasurementTypeId =
     | 'hba1c'
     | 'weight'
     | 'physicalActivity'
-    | 'laboratory';
+    | 'laboratory'
+    | 'insulinInjection';
 
 export interface PrescriptionPayload {
     patientId: string;
