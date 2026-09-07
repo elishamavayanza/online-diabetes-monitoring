@@ -54,7 +54,13 @@ export function useLoginForm() {
         try {
             await login(values);
             console.log('Connexion réussie');
-            navigate('/app');
+            const pendingInvite = sessionStorage.getItem('pendingInviteToken');
+            if (pendingInvite) {
+                sessionStorage.removeItem('pendingInviteToken');
+                navigate(`/invite/${pendingInvite}`, { replace: true });
+            } else {
+                navigate('/app');
+            }
         } catch (error: any) {
             setSubmitError(error.message || 'Une erreur est survenue.');
         } finally {

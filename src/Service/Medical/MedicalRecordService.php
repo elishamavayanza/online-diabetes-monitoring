@@ -64,7 +64,13 @@ class MedicalRecordService
                 return $feedback->setErrorFlushDescription('Dossier médical introuvable.')->autoInitFlush();
             }
 
-            $this->securityService->checkOrganizationAccess($record->getOrganization(), SecurityAction::VIEW_MEDICAL_RECORD);
+            // Couvre aussi le professionnel externe invité (EXTERNAL_FOLLOWER).
+            $patient = $record->getPatient();
+            if ($patient !== null) {
+                $this->securityService->checkPatientAccessAndOrganization($patient, SecurityAction::VIEW_MEDICAL_RECORD);
+            } else {
+                $this->securityService->checkOrganizationAccess($record->getOrganization(), SecurityAction::VIEW_MEDICAL_RECORD);
+            }
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($record))
@@ -81,7 +87,8 @@ class MedicalRecordService
                 return $feedback->setErrorFlushDescription('Patient introuvable.')->autoInitFlush();
             }
 
-            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_MEDICAL_RECORD);
+            // Couvre aussi le professionnel externe invité (EXTERNAL_FOLLOWER).
+            $this->securityService->checkPatientAccessAndOrganization($patient, SecurityAction::VIEW_MEDICAL_RECORD);
 
             $record = $this->repository->findOpenRecordForPatient($patient)
                 ?? $this->repository->findLatestRecordForPatient($patient);
@@ -92,8 +99,6 @@ class MedicalRecordService
                     ->setFlushDescription('Aucun dossier médical trouvé pour ce patient.')
                     ->autoInitFlush();
             }
-
-            $this->securityService->checkOrganizationAccess($record->getOrganization(), SecurityAction::VIEW_MEDICAL_RECORD);
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($record))

@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès prolongé{% endblock %}
+
+{% block body %}
+    {% apply inline_css(source('@styles/email.css')) %}
+        <div class="email-wrapper">
+            <div class="email-content">
+                <div class="email-header">
+                    <img src="{{ logo_cid }}" alt="OnlineDIAB" class="logo">
+                </div>
+                <div class="email-body">
+                    <h2>Votre accès a été prolongé</h2>
+                    <p>Bonjour,</p>
+                    <p>
+                        Votre suivi du patient <strong>{{ invitation.patient.fullName }}</strong> a été prolongé.
+                        Votre accès court désormais jusqu'au
+                        <strong>{{ invitation.endDate|date('d/m/Y') }}</strong>.
+                    </p>
+                    <div class="btn-container">
+                        <a href="{{ acceptUrl }}" class="btn-reset" target="_blank">
+                            Ouvrir le dossier du patient
+                        </a>
+                    </div>
+                </div>
+                <div class="email-footer">
+                    <p>&copy; {{ "now"|date("Y") }} OnlineDIAB. Tous droits réservés.</p>
+                    <p><a href="https://www.onlinediab.com">www.onlinediab.com</a></p>
+                </div>
+            </div>
+        </div>
+    {% endapply %}
+{% endblock %}

@@ -4,9 +4,11 @@ namespace App\Security;
 
 use App\Entity\Healthcare\CareTeamRole;
 use App\Entity\Healthcare\HealthcareOrganization;
+use App\Entity\Identity\HealthcareProfessional;
 use App\Entity\Identity\Patient;
 use App\Entity\Identity\User;
 use App\Repository\Healthcare\CareTeamAssignmentRepository;
+use App\Service\Healthcare\ExternalFollowAuditService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -15,6 +17,7 @@ final class SecurityService implements SecurityServiceInterface
     public function __construct(
         private readonly Security $security,
         private readonly CareTeamAssignmentRepository $careTeamAssignmentRepository,
+        private readonly ExternalFollowAuditService $externalFollowAuditService,
     ) {
     }
 
@@ -274,6 +277,21 @@ final class SecurityService implements SecurityServiceInterface
         $user = $this->getCurrentUser();
 
         /*
+         * PROFESSIONNEL EXTERNE INVITÉ
+         *
+         * Un professionnel d'une autre organisation invité à suivre
+         * ce patient (EXTERNAL_FOLLOWER) accède au dossier sous
+         * une permission restreinte et ses actions sont journalisées.
+         */
+        if (($user instanceof HealthcareProfessional) && $this->isExternalFollowerForPatient($patient)) {
+            $this->checkExternalFollowerAction($action);
+
+            $this->recordExternalFollowAction($patient, $user, $action);
+
+            return;
+        }
+
+        /*
          * PATIENT
          *
          * Un patient ne peut accéder qu'à ses propres données.
@@ -471,6 +489,20 @@ final class SecurityService implements SecurityServiceInterface
         Patient $patient,
         SecurityAction $action
     ): void {
+        $user = $this->getCurrentUser();
+
+        /*
+         * Un professionnel externe invité accède au dossier du patient
+         * grâce à son affectation, sans appartenir à l'organisation du patient.
+         */
+        if (($user instanceof HealthcareProfessional) && $this->isExternalFollowerForPatient($patient)) {
+            $this->checkExternalFollowerAction($action);
+
+            $this->recordExternalFollowAction($patient, $user, $action);
+
+            return;
+        }
+
         $organization = $this->getPatientOrganization($patient);
 
         if ($organization === null) {
@@ -508,6 +540,7 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::MANAGE_ORGANIZATION,
             SecurityAction::MANAGE_FACILITY,
             SecurityAction::MANAGE_DEPARTMENT,
+            SecurityAction::MANAGE_EXTERNAL_FOLLOW,
             SecurityAction::VIEW_MEDICATION,
 
             SecurityAction::MANAGE_USERS,
@@ -738,6 +771,94 @@ final class SecurityService implements SecurityServiceInterface
     | PATIENT RULES
     |--------------------------------------------------------------------------
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXTERNAL FOLLOWER RULES
+    |--------------------------------------------------------------------------
+    |
+    | Un professionnel d'une autre organisation invité à suivre un patient
+    | dispose d'un « suivi enrichi » : lecture du dossier, ajout de notes,
+    | de mesures et d'allergies. Il ne peut en revanche JAMAIS fermer le
+    | dossier du patient, ni gérer le référentiel de médicaments.
+    |
+    */
+
+    private function checkExternalFollowerAction(
+        SecurityAction $action
+    ): void {
+        $allowed = [
+            SecurityAction::VIEW,
+            SecurityAction::VIEW_PATIENT,
+            SecurityAction::VIEW_MEDICAL_RECORD,
+            SecurityAction::VIEW_MEDICAL_NOTES,
+            SecurityAction::CREATE_MEDICAL_NOTE,
+            SecurityAction::EDIT_MEDICAL_NOTE,
+            SecurityAction::CREATE_DIAGNOSIS,
+            SecurityAction::UPDATE_DIAGNOSIS,
+            SecurityAction::RECORD_GLUCOSE,
+            SecurityAction::RECORD_BLOOD_PRESSURE,
+            SecurityAction::RECORD_HBA1C,
+            SecurityAction::RECORD_WEIGHT,
+            SecurityAction::RECORD_ACTIVITY,
+            SecurityAction::VIEW_MEASUREMENTS,
+            SecurityAction::VIEW_INSULIN_INJECTION,
+            SecurityAction::VIEW_LABORATORY_RESULT,
+            SecurityAction::VIEW_PRESCRIPTION,
+            SecurityAction::VIEW_NUTRITION,
+            SecurityAction::VIEW_ALLERGY,
+            SecurityAction::CREATE_ALLERGY,
+            SecurityAction::UPDATE_ALLERGY,
+            SecurityAction::DELETE_ALLERGY,
+            SecurityAction::VIEW_EMERGENCY_CONTACT,
+            SecurityAction::VIEW_MEDICAL_CONSENT,
+            SecurityAction::VIEW_MEDICATION,
+        ];
+
+        $this->denyIfNotAllowed(
+            $action,
+            $allowed,
+            'Professionnel externe invité'
+        );
+    }
+
+    public function isExternalFollowerForPatient(
+        Patient $patient
+    ): bool {
+        $user = $this->getCurrentUser();
+
+        if (!$user instanceof HealthcareProfessional) {
+            return false;
+        }
+
+        return $this->careTeamAssignmentRepository->isExternalFollowerActiveForPatient(
+            $user->getId(),
+            $patient,
+            new \DateTimeImmutable('today')
+        );
+    }
+
+    private function recordExternalFollowAction(
+        Patient $patient,
+        HealthcareProfessional $professional,
+        SecurityAction $action
+    ): void {
+        $invitation = $this->externalFollowAuditService->findActiveInvitation(
+            $patient,
+            $professional
+        );
+
+        if ($invitation === null) {
+            return;
+        }
+
+        $this->externalFollowAuditService->record(
+            $patient,
+            $professional,
+            $invitation,
+            $action
+        );
+    }
 
     private function checkPatientAction(
         SecurityAction $action

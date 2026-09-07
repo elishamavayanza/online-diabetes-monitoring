@@ -43,16 +43,16 @@ class CareTeamAssignment extends BaseEntity
     private ?CareTeamRole $role = null;
 
     /**
-     * @var \DateTimeInterface|null La date de début de l'affectation.
+     * @var \DateTimeImmutable|null La date de début de l'affectation.
      */
-    #[ORM\Column(type: 'date')]
-    private ?\DateTimeInterface $startDate = null;
+    #[ORM\Column(type: 'date_immutable')]
+    private ?\DateTimeImmutable $startDate = null;
 
     /**
-     * @var \DateTimeInterface|null La date de fin de l'affectation (null si toujours en cours).
+     * @var \DateTimeImmutable|null La date de fin de l'affectation (null si toujours en cours).
      */
-    #[ORM\Column(type: 'date', nullable: true)]
-    private ?\DateTimeInterface $endDate = null;
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    private ?\DateTimeImmutable $endDate = null;
 
     /**
      * @var bool Indique si l'affectation est active ou non.

@@ -58,3 +58,14 @@ php bin/console doctrine:migrations:list      # liste les migrations et leur ét
 php bin/console doctrine:migrations:diff      # génère une migration à partir des entités
 php bin/console doctrine:migrations:execute <version> --up   # exécute une migration précise
 ```
+
+## 5. `Version20260907122555.php` — Suivi externe inter-organisations
+
+Crée les tables du suivi externe :
+
+- `external_follow_invitations` : invitation d'un professionnel d'une autre organisation à suivre un patient pour un délai défini (`token` unique, `status` enum `ExternalFollowStatus`, `startDate`, `endDate`, `message`, `assignment_id` O2O vers `healthcare_care_team_assignments`).
+- `external_follow_logs` : journal d'audit des actions des professionnels externes dans le dossier patient (`action`, `actionLabel`, `detail`, `invitation_id`).
+
+Relations FK : `patient`, `organization`, `professional` (CASCADE), `invited_by` (SET NULL), `assignment`/`invitation` (SET NULL).
+
+Mise à niveau du rôle d'équipe de soins : `CareTeamRole::EXTERNAL_FOLLOWER` (VARCHAR, aucune migration SQL requise).

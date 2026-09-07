@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Invitation à suivre un patient{% endblock %}
+
+{% block body %}
+    {% apply inline_css(source('@styles/email.css')) %}
+        <div class="email-wrapper">
+            <div class="email-content">
+                <div class="email-header">
+                    <img src="{{ logo_cid }}" alt="OnlineDIAB" class="logo">
+                </div>
+                <div class="email-body">
+                    <h2>Vous avez été invité à suivre un patient</h2>
+                    <p>Bonjour,</p>
+                    <p>
+                        <strong>{{ invitation.invitedBy.fullName }}</strong> de l'organisation
+                        <strong>{{ invitation.organization.name }}</strong> vous invite à suivre le patient
+                        <strong>{{ invitation.patient.fullName }}</strong> pour une durée allant jusqu'au
+                        <strong>{{ invitation.endDate|date('d/m/Y') }}</strong>.
+                    </p>
+
+                    {% if invitation.message is not empty %}
+                        <div class="note">
+                            <p><strong>Message&nbsp;:</strong> {{ invitation.message }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="btn-container">
+                        <a href="{{ acceptUrl }}" class="btn-reset" target="_blank">
+                            Répondre à l'invitation
+                        </a>
+                    </div>
+
+                    <p>
+                        En acceptant, vous pourrez consulter le dossier du patient et y enregistrer des
+                        notes, des mesures et des allergies pendant la durée définie.
+                    </p>
+                    <p>
+                        Le dossier du patient ne peut pas être fermé par un professionnel externe.
+                    </p>
+                </div>
+                <div class="email-footer">
+                    <p>&copy; {{ "now"|date("Y") }} OnlineDIAB. Tous droits réservés.</p>
+                    <p><a href="https://www.onlinediab.com">www.onlinediab.com</a></p>
+                </div>
+            </div>
+        </div>
+    {% endapply %}
+{% endblock %}

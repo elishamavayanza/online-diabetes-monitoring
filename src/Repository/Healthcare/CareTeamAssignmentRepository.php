@@ -111,4 +111,30 @@ class CareTeamAssignmentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult() > 0;
     }
+
+    /**
+     * Indique si le professionnel dispose d'une affectation EXTERNAL_FOLLOWER
+     * active et non échue pour ce patient.
+     */
+    public function isExternalFollowerActiveForPatient(
+        string $userId,
+        Patient $patient,
+        \DateTimeInterface $today
+    ): bool {
+        return (int) $this->createQueryBuilder('assignment')
+            ->select('COUNT(assignment.id)')
+            ->andWhere('assignment.patient = :patient')
+            ->andWhere('IDENTITY(assignment.professional) = :userId')
+            ->andWhere('assignment.role = :role')
+            ->andWhere('assignment.active = :active')
+            ->andWhere('assignment.deletedAt IS NULL')
+            ->andWhere('(assignment.endDate IS NULL OR assignment.endDate >= :today)')
+            ->setParameter('patient', $patient)
+            ->setParameter('userId', $userId)
+            ->setParameter('role', CareTeamRole::EXTERNAL_FOLLOWER)
+            ->setParameter('active', true)
+            ->setParameter('today', $today)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+    }
 }

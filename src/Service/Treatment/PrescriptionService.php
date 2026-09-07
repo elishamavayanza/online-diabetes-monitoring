@@ -43,8 +43,14 @@ class PrescriptionService
                     ->autoInitFlush();
             }
 
-            // Vérification optionnelle des accès si nécessaire
-             $this->securityService->checkOrganizationAccess($prescription->getOrganization(), SecurityAction::VIEW_PRESCRIPTION);
+            // Vérification optionnelle des accès si nécessaire.
+            // Couvre aussi le professionnel externe invité (EXTERNAL_FOLLOWER).
+            $patient = $prescription->getPatient();
+            if ($patient !== null) {
+                $this->securityService->checkPatientAccessAndOrganization($patient, SecurityAction::VIEW_PRESCRIPTION);
+            } else {
+                $this->securityService->checkOrganizationAccess($prescription->getOrganization(), SecurityAction::VIEW_PRESCRIPTION);
+            }
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($prescription))

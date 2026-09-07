@@ -47,6 +47,8 @@ Ce document décrit le modèle de données défini par les entités Doctrine (`s
 | `healthcare_departments` | `Department` | `name`, `specialty`. Relation : `facility` (M2O). |
 | `healthcare_organization_memberships` | `OrganizationMembership` | Adhésion user ↔ org : `startDate`, `endDate`, `status` (enum). Relations : `user` (M2O), `organization` (M2O), `facility` (M2O opt.), `department` (M2O opt.). |
 | `healthcare_care_team_assignments` | `CareTeamAssignment` | Affectation d'un professionnel auprès d'un patient : `role` (enum), `startDate`, `endDate`, `active`. Relations : `patient`, `professional`, `organization` (M2O). |
+| `external_follow_invitations` | `ExternalFollowInvitation` | Invitation d'un professionnel d'une autre organisation à suivre un patient pour un délai défini : `email`, `token` (unique), `status` (enum), `startDate`, `endDate`, `message`, `acceptedAt`, `declinedAt`, `revokedAt`. Relations : `patient` (M2O), `organization` (M2O), `invitedBy` (M2O User), `professional` (M2O), `assignment` (O2O `CareTeamAssignment`). |
+| `external_follow_logs` | `ExternalFollowLog` | Journal des actions d'un professionnel externe sur le dossier d'un patient : `action` (SecurityAction), `actionLabel`, `detail`. Relations : `patient`, `professional`, `organization` (M2O), `invitation` (M2O opt.). |
 
 ### Enums Healthcare
 
@@ -54,7 +56,8 @@ Ce document décrit le modèle de données défini par les entités Doctrine (`s
 |---|---|
 | `OrganizationType` | `HOSPITAL`, `CLINIC`, `NETWORK` |
 | `MembershipStatus` | `ACTIVE`, `SUSPENDED`, `ENDED` |
-| `CareTeamRole` | `PRIMARY_CLINICIAN`, `SPECIALIST`, `NUTRITIONIST` |
+| `CareTeamRole` | `PRIMARY_CLINICIAN`, `SPECIALIST`, `NUTRITIONIST`, `EXTERNAL_FOLLOWER` |
+| `ExternalFollowStatus` | `PENDING`, `ACCEPTED`, `DECLINED`, `REVOKED`, `EXPIRED` |
 
 ---
 

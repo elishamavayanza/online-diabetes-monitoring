@@ -62,6 +62,9 @@ import {
 } from "@/react/features/clinician/patients/pages/ClinicianPatientRecordClosedPage";
 import {NutritionPage} from "@/react/features/patient/nutrition/pages/NutritionPage";
 import { ProfessionalCreatePage } from '@/react/features/admin/professionals/pages/ProfessionalCreatePage';
+import { AdminExternalFollowsPage } from '@/react/features/external-follows/pages/AdminExternalFollowsPage';
+import { MyExternalFollowsPage } from '@/react/features/external-follows/pages/MyExternalFollowsPage';
+import { AcceptInvitationPage } from '@/react/features/external-follows/pages/AcceptInvitationPage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();
@@ -105,6 +108,8 @@ export default function AppRoutes() {
                 <Route path="/" element={<HomePage />} />
 
                 <Route path="/verify/report" element={<ReportVerificationPage />} />
+
+                <Route path="/invite/:token" element={<AcceptInvitationPage />} />
 
                 <Route
                     path="/login"
@@ -163,6 +168,7 @@ export default function AppRoutes() {
                     {/*<Route path="members" element={<MembersPage />} />*/}
                     <Route path="patients" element={<PatientsPage />} />
                     <Route path="medications" element={<MedicationsPage />} />
+                    <Route path="external-follows" element={<AdminExternalFollowsPage />} />
                     <Route path="reports" element={<OrganizationReportPage />} />
                     {/*<Route path="appointments" element={<AppointmentsPage />} />*/}
                     {/*<Route path="activity" element={<ActivityPage />} />*/}
@@ -187,6 +193,7 @@ export default function AppRoutes() {
                     <Route path="appointments" element={<AppointmentPage />} />
                     <Route path="messages" element={<MessagesPage />} />
                     <Route path="notifications" element={<ClinicianNotificationsPage />} />
+                    <Route path="external-follows" element={<MyExternalFollowsPage />} />
                     <Route path="patients/:patientId/record" element={<ClinicianPatientRecordPage />} />
                     <Route path="patients/:patientId/record/init" element={<ClinicianPatientRecordInitPage />} />
                     <Route path="patients/:patientId/record/closed" element={<ClinicianPatientRecordClosedPage />} />
@@ -210,6 +217,7 @@ export default function AppRoutes() {
                     <Route path="appointments" element={<AppointmentsPages />} />
                     <Route path="messages" element={<MessagesPages />} />
                     <Route path="notifications" element={<NotificationPages />} />
+                    <Route path="external-follows" element={<MyExternalFollowsPage />} />
                     <Route path="patients/:patientId/record" element={<NutritionistPatientRecordPage />} />
                     <Route path="patients/:patientId/record/init" element={<NutritionistPatientRecordInitPage />} />
                     <Route path="patients/:patientId/record/closed" element={<NutritionistPatientRecordClosedPage />} />

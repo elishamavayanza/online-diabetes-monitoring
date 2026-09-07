@@ -1,0 +1,362 @@
+@use '../../../baseVariables/variables' as *;
+@use '../../../baseVariables/mixins' as *;
+
+/* ============================================================
+   Admin – Suivi externe (invitations hors organisation)
+   ============================================================ */
+
+.admin-external-follows-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin: 0;
+        }
+    }
+
+    &__subtitle {
+        color: var(--text-secondary);
+        margin: 0.25rem 0 0;
+        font-size: 0.9rem;
+    }
+
+    &__header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-shrink: 0;
+    }
+}
+
+/* ============================================================
+   Table
+   ============================================================ */
+
+.external-follows-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--color-bg-card, #fff);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+
+    th,
+    td {
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--color-border, #e5e7eb);
+        font-size: 0.9rem;
+    }
+
+    th {
+        background: var(--color-bg-light, #f9fafb);
+        color: var(--text-secondary);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    td {
+        color: var(--text-primary);
+        vertical-align: middle;
+    }
+
+    tbody tr:hover {
+        background: var(--color-bg-hover, #f3f4f6);
+    }
+
+    &__wrapper {
+        overflow-x: auto;
+    }
+
+    &__email {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-tertiary, #9ca3af);
+        margin-top: 0.1rem;
+    }
+
+    &__actions-col {
+        text-align: right !important;
+        white-space: nowrap;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    &__revoke {
+        color: var(--color-error, #dc2626) !important;
+        &:hover {
+            background: var(--color-error-light, #fee2e2);
+        }
+    }
+
+    &__expired-note {
+        font-size: 0.8rem;
+        color: var(--text-tertiary, #9ca3af);
+        font-style: italic;
+    }
+
+    &__empty {
+        padding: 3rem;
+        text-align: center;
+        color: var(--text-secondary);
+    }
+
+    &__empty-hint {
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-tertiary, #9ca3af);
+    }
+}
+
+/* ============================================================
+   Form modal styles
+   ============================================================ */
+
+.external-follow-form {
+    &__intro {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.5;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+}
+
+/* ============================================================
+   Logs modal
+   ============================================================ */
+
+.external-follow-logs {
+    &__intro {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+        line-height: 1.5;
+    }
+
+    &__empty {
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    &__list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__item {
+        padding: 0.75rem 1rem;
+        background: var(--color-bg-light, #f9fafb);
+        border-radius: 6px;
+        border-left: 3px solid var(--color-primary, #3b82f6);
+    }
+
+    &__item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    &__action {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    &__date {
+        font-size: 0.8rem;
+        color: var(--text-tertiary, #9ca3af);
+    }
+
+    &__detail {
+        margin-top: 0.35rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        white-space: pre-wrap;
+    }
+}
+
+/* ============================================================
+   Public – page d'acceptation d'invitation
+   ============================================================ */
+
+.invite-public-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background: var(--color-bg-page, #f3f4f6);
+    text-align: center;
+
+    &__card {
+        background: var(--color-bg-card, #fff);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        max-width: 520px;
+        width: 100%;
+        padding: 2.5rem 2rem;
+        text-align: left;
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--color-primary);
+            margin: 0 0 1rem;
+            text-align: center;
+        }
+    }
+
+    &__intro {
+        color: var(--text-primary);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+
+    &__message {
+        background: var(--color-bg-light, #f9fafb);
+        padding: 0.75rem 1rem;
+        border-left: 3px solid var(--color-primary, #3b82f6);
+        border-radius: 4px;
+        font-style: italic;
+        color: var(--text-secondary);
+        margin-bottom: 1.25rem;
+        line-height: 1.5;
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    &--final {
+        background: var(--color-bg-card, #fff);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        max-width: 420px;
+        padding: 2.5rem 2rem;
+
+        h1 {
+            font-size: 1.5rem;
+            color: var(--color-success, #16a34a);
+            margin: 0 0 0.75rem;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+    }
+
+    &__cta {
+        margin-top: 1.5rem;
+    }
+}
+
+/* ============================================================
+   Clinician / Nutritionist – Mes suivis externes
+   ============================================================ */
+
+.my-external-follows-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    &--empty {
+        h1 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin: 0;
+        }
+        p {
+            color: var(--text-secondary);
+        }
+    }
+
+    &__header {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin: 0;
+        }
+    }
+
+    &__count {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: var(--color-bg-card, #fff);
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+        flex-wrap: wrap;
+    }
+
+    &__item-info {
+        h3 {
+            margin: 0 0 0.25rem;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+        p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    }
+
+    &__item-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+}

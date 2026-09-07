@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Invitation acceptée{% endblock %}
+
+{% block body %}
+    {% apply inline_css(source('@styles/email.css')) %}
+        <div class="email-wrapper">
+            <div class="email-content">
+                <div class="email-header">
+                    <img src="{{ logo_cid }}" alt="OnlineDIAB" class="logo">
+                </div>
+                <div class="email-body">
+                    <h2>Votre suivi commence</h2>
+                    <p>Bonjour,</p>
+                    <p>
+                        Vous suivez désormais le patient
+                        <strong>{{ invitation.patient.fullName }}</strong> de l'organisation
+                        <strong>{{ invitation.organization.name }}</strong> jusqu'au
+                        <strong>{{ invitation.endDate|date('d/m/Y') }}</strong>.
+                    </p>
+                    <p>
+                        Le patient apparaît dans votre liste «&nbsp;Mes patients&nbsp;». Vous pouvez y
+                        consulter son dossier et y enregistrer des notes, des mesures et des allergies.
+                    </p>
+                    <div class="note">
+                        <p>
+                            Rappel&nbsp;: un professionnel externe ne peut pas fermer le dossier du patient.
+                            Chacune de vos actions y est enregistrée.
+                        </p>
+                    </div>
+                </div>
+                <div class="email-footer">
+                    <p>&copy; {{ "now"|date("Y") }} OnlineDIAB. Tous droits réservés.</p>
+                    <p><a href="https://www.onlinediab.com">www.onlinediab.com</a></p>
+                </div>
+            </div>
+        </div>
+    {% endapply %}
+{% endblock %}

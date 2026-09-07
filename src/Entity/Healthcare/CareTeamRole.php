@@ -15,4 +15,7 @@ enum CareTeamRole: string
 
     /** Nutritionniste ou diététicien participant au suivi diététique. */
     case NUTRITIONIST = 'NUTRITIONIST';
+
+    /** Professionnel d'une autre organisation invité à suivre le patient sur une durée définie. */
+    case EXTERNAL_FOLLOWER = 'EXTERNAL_FOLLOWER';
 }
