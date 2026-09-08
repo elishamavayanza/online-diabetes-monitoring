@@ -160,4 +160,20 @@ $theme-colors: map.get($palettes, $active-theme);
     --color-primary-hover: #{color.adjust(map.get($theme-colors, primary), $lightness: -5%)};
     --color-secondary-hover: #{color.adjust(map.get($theme-colors, secondary), $lightness: -5%)};
     --color-error-hover: #{color.adjust(map.get($theme-colors, error), $lightness: -5%)};
+
+    // Composantes RGB (pour rgba(var(--color-primary-rgb), …))
+    --color-primary-rgb: #{color.channel(map.get($theme-colors, primary), "red", $space: rgb)}, #{color.channel(map.get($theme-colors, primary), "green", $space: rgb)}, #{color.channel(map.get($theme-colors, primary), "blue", $space: rgb)};
+    --color-secondary-rgb: #{color.channel(map.get($theme-colors, secondary), "red", $space: rgb)}, #{color.channel(map.get($theme-colors, secondary), "green", $space: rgb)}, #{color.channel(map.get($theme-colors, secondary), "blue", $space: rgb)};
+    --color-error-rgb: #{color.channel(map.get($theme-colors, error), "red", $space: rgb)}, #{color.channel(map.get($theme-colors, error), "green", $space: rgb)}, #{color.channel(map.get($theme-colors, error), "blue", $space: rgb)};
+    --color-success-rgb: #{color.channel(map.get($theme-colors, success), "red", $space: rgb)}, #{color.channel(map.get($theme-colors, success), "green", $space: rgb)}, #{color.channel(map.get($theme-colors, success), "blue", $space: rgb)};
+    --color-warning-rgb: #{color.channel(map.get($theme-colors, warning), "red", $space: rgb)}, #{color.channel(map.get($theme-colors, warning), "green", $space: rgb)}, #{color.channel(map.get($theme-colors, warning), "blue", $space: rgb)};
+    --color-text-rgb: #{color.channel(map.get($theme-colors, text), "red", $space: rgb)}, #{color.channel(map.get($theme-colors, text), "green", $space: rgb)}, #{color.channel(map.get($theme-colors, text), "blue", $space: rgb)};
+
+    // ─── Surfaces "glass" (themeables) ─────────────────────────
+    // Utilisées par les composants avec des fonds semi/pleins en dur.
+    --color-surface-glass: rgba(255, 255, 255, 0.35);        // overlay léger (cards, calendar…)
+    --color-surface-glass-strong: rgba(255, 255, 255, 0.75); // panneaux translucides (drawer, right-sidebar…)
+    --color-surface-glass-solid: rgba(255, 255, 255, 0.95);  // tooltips / popover quasi opaques
+    --color-surface-elevated: #{map.get($theme-colors, surface)}; // cartes sur surface
+    --color-bg-card: #{map.get($theme-colors, surface)};      // alias utilisé par certaines pages
 }

@@ -45,7 +45,7 @@
         radial-gradient(ellipse at 20% 20%, rgba(44, 122, 123, 0.20) 0%, transparent 60%),
         radial-gradient(ellipse at 80% 80%, rgba(118, 184, 184, 0.18) 0%, transparent 60%),
         radial-gradient(ellipse at 60% 40%, rgba(244, 162, 97, 0.12) 0%, transparent 50%),
-        rgba(255, 255, 255, 0.35); //  couche blanche avec opacité réduite (35%)
+        var(--color-surface-glass); //  surface themeable
     color: var(--color-text);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.05); /* ombre plus douce et diffuse */
     border-left: 4px solid var(--color-primary);

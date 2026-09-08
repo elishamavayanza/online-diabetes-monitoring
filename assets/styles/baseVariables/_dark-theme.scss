@@ -1,0 +1,292 @@
+// assets/styles/baseVariables/_dark-theme.scss
+//
+// Thème sombre "moderne" – activé via `data-theme="dark"` sur <html>.
+// Il override les variables CSS définies dans _variables.scss, donc
+// tous les composants qui utilisent var(--color-*) basculent automatiquement.
+// Ce fichier doit être importé APRÈS _variables.scss et la majorité des styles
+// (il est chargé en dernier dans index.scss).
+
+@use 'sass:color';
+
+html[data-theme='dark'] {
+    // ─── Couleurs principales (palette "teal medical" assombrie) ───
+    // ⚠️ --color-primary sert AUSSI de couleur de texte (titres, liens, labels) :
+    //    on utilise donc un teal CLAIR, lisible sur fond sombre,
+    //    et --color-on-primary devient sombre pour les textes sur fond primaire.
+    --color-primary: #4FB3B4;
+    --color-primary-hover: #63C0C1;
+    --color-secondary: #7CC4C5;
+    --color-secondary-hover: #90D0D1;
+    --color-background: #0E1417;
+    --color-surface: #162024;
+    --color-surface-elevated: #1C282D;
+    --color-text: #E4EBEE;
+    --color-accent: #F4A261;
+    --color-success: #48C78E;
+    --color-warning: #F5A623;
+    --color-error: #E8604C;
+    --color-error-hover: #F06B56;
+
+    // Couleurs "on-*" : --color-primary est clair → texte sombre dessus
+    --color-on-primary: #0E1417;
+    --color-on-secondary: #0E1417;
+    --color-on-success: #0E1417;
+    --color-on-warning: #0E1417;
+    --color-on-error: #FFFFFF;
+    --color-on-surface: var(--color-text);
+
+    --color-border: #{color.adjust(#162024, $lightness: 26%)};
+    --color-shadow: rgba(0, 0, 0, 0.45);
+
+    // ─── Surfaces "glass" assombries ───
+    --color-surface-glass: rgba(28, 40, 45, 0.55);
+    --color-surface-glass-strong: rgba(24, 34, 39, 0.86);
+    --color-surface-glass-solid: rgba(28, 40, 45, 0.98);
+    --color-bg-card: var(--color-surface);
+
+    // Composantes RGB (pour rgba(var(--color-*-rgb), …))
+    --color-primary-rgb: 79, 179, 180;
+    --color-secondary-rgb: 124, 196, 197;
+    --color-error-rgb: 232, 96, 76;
+    --color-success-rgb: 72, 199, 142;
+    --color-warning-rgb: 245, 166, 35;
+    --color-text-rgb: 228, 235, 238;
+
+    color-scheme: dark;
+}
+
+/* ─────────────── Fonds de page & poches de couleur ─────────────── */
+html[data-theme='dark'] body {
+    background:
+        radial-gradient(circle at 15% 25%, rgba(31, 110, 111, 0.12) 8%, transparent 9%),
+        radial-gradient(circle at 75% 15%, rgba(31, 110, 111, 0.1) 12%, transparent 13%),
+        radial-gradient(circle at 35% 80%, rgba(31, 110, 111, 0.08) 6%, transparent 7%),
+        radial-gradient(circle at 90% 60%, rgba(244, 162, 97, 0.06) 10%, transparent 11%),
+        radial-gradient(ellipse at 20% 80%, rgba(31, 110, 111, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(31, 110, 111, 0.08) 0%, transparent 60%),
+        linear-gradient(135deg, #0E1417 0%, #131C20 100%);
+    background-size: 250px 250px, 350px 350px, 200px 200px, 280px 280px, auto, auto, auto;
+    background-attachment: fixed;
+}
+
+/* ─────────────── Applications graphiques (contenu layout) ─────────────── */
+html[data-theme='dark'] .main-layout__content,
+html[data-theme='dark'] .main-layout__sidebar-right,
+html[data-theme='dark'] .drawer,
+html[data-theme='dark'] .right-sidebar,
+html[data-theme='dark'] .popover-menu,
+html[data-theme='dark'] .tooltip {
+    background-color: var(--color-surface) !important;
+    background-image: none !important;
+}
+
+/* Les mélanges color-mix avec var(--color-primary) restent cohérents ;
+   on assombrit simplement les zones très blanches des layouts. */
+html[data-theme='dark'] .main-layout__body,
+html[data-theme='dark'] .main-layout__header,
+html[data-theme='dark'] .main-layout__footer {
+    background-color: #0B2527 !important;
+}
+
+/* ─────────────── Sidebar : rester sombre & moderne ─────────────── */
+html[data-theme='dark'] .sidebar {
+    background-color: #122022 !important;
+    color: var(--color-text);
+}
+
+html[data-theme='dark'] .sidebar__header {
+    background-color: #122022 !important;
+    border-bottom-color: var(--color-border);
+    color: var(--color-text);
+}
+
+html[data-theme='dark'] .sidebar__item,
+html[data-theme='dark'] .sidebar__subitem {
+    color: rgba(228, 235, 238, 0.85);
+}
+
+html[data-theme='dark'] .sidebar__item:hover,
+html[data-theme='dark'] .sidebar__subitem:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='dark'] .sidebar__item--active,
+html[data-theme='dark'] .sidebar__subitem--active {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+html[data-theme='dark'] .sidebar__group-label,
+html[data-theme='dark'] .sidebar__arrow,
+html[data-theme='dark'] .sidebar-brand__title,
+html[data-theme='dark'] .sidebar__logo,
+html[data-theme='dark'] .sidebar__collapse {
+    color: rgba(228, 235, 238, 0.9);
+}
+
+html[data-theme='dark'] .sidebar__footer {
+    background-color: #122022 !important;
+    border-top: 1px solid var(--color-border);
+}
+
+html[data-theme='dark'] .sidebar-user-menu {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--color-text);
+}
+
+html[data-theme='dark'] .sidebar-user-menu:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme='dark'] .sidebar .theme-toggle,
+html[data-theme='dark'] .theme-toggle {
+    color: var(--color-text);
+}
+
+/* ─────────────── Éléments de formulaire & texte ─────────────── */
+html[data-theme='dark'] input,
+html[data-theme='dark'] textarea,
+html[data-theme='dark'] select,
+html[data-theme='dark'] .search-input,
+html[data-theme='dark'] .datepicker-input {
+    background-color: #1A262B !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text) !important;
+}
+
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder {
+    color: rgba(228, 235, 238, 0.5);
+}
+
+html[data-theme='dark'] .table,
+html[data-theme='dark'] .datatable {
+    --color-surface-transparent: transparent;
+    background-color: transparent !important;
+    color: var(--color-text);
+}
+
+html[data-theme='dark'] .modal__content,
+html[data-theme='dark'] .drawer__body,
+html[data-theme='dark'] .drawer__header,
+html[data-theme='dark'] .drawer__footer,
+html[data-theme='dark'] .right-sidebar__content,
+html[data-theme='dark'] .right-sidebar__title,
+html[data-theme='dark'] .right-sidebar__header,
+html[data-theme='dark'] .right-sidebar__footer,
+html[data-theme='dark'] .popover-menu,
+html[data-theme='dark'] .tooltip {
+    color: var(--color-text);
+}
+
+/* ─────────────── Zébrures, survols & toutes les couches rgba(0,0,0,…) ───────────────
+   Sur fond sombre, les noirs en alpha deviennent invisibles → on les bascule
+   en blanc alpha, sans changer le design en mode clair. */
+html[data-theme='dark'] .skeleton {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='dark'] .table--striped tbody tr:nth-child(even) td,
+html[data-theme='dark'] .tree-table--striped tbody tr:nth-child(even) td,
+html[data-theme='dark'] .datatable tbody tr:nth-child(even) td {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+html[data-theme='dark'] .table thead th,
+html[data-theme='dark'] .datatable thead th,
+html[data-theme='dark'] .tree-table thead th,
+html[data-theme='dark'] .tree-table__th--sortable {
+    background-color: rgba(255, 255, 255, 0.045);
+}
+
+html[data-theme='dark'] .toast__close:hover,
+html[data-theme='dark'] .btn--ghost:hover,
+html[data-theme='dark'] .icon-button:hover,
+html[data-theme='dark'] .input-field:focus,
+html[data-theme='dark'] .textarea-field:focus,
+html[data-theme='dark'] .password-field:focus,
+html[data-theme='dark'] .tree__node:hover,
+html[data-theme='dark'] .main-layout__right-content li:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .time-picker--disabled,
+html[data-theme='dark'] .datepicker-field--disabled {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme='dark'] .separator {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme='dark'] .progress-track,
+html[data-theme='dark'] .progress {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ─────────────── Pages : connexion / mot de passe oublié ───────────────
+   Les boutons primaires de ces pages utilisent un dégradé teal en dur ;
+   en sombre, on repasse le texte en clair (fond toujours sombre). */
+html[data-theme='dark'] .login-page .btn--primary,
+html[data-theme='dark'] .forgot-password-page .btn--primary {
+    color: #fff;
+}
+
+html[data-theme='dark'] .login-form__options-row .checkbox-field__label {
+    color: rgba(228, 235, 238, 0.6);
+}
+
+/* ─────────────── Pages : messages ─────────────── */
+html[data-theme='dark'] .conversation-item:hover,
+html[data-theme='dark'] .message-thread__messages-scroll:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme='dark'] .message-date-separator span {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ─────────────── Pages : divers (survols & fonds alpha) ─────────────── */
+html[data-theme='dark'] .switch-field__track {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+html[data-theme='dark'] .switch-field__thumb {
+    background-color: #E4EBEE;
+}
+
+/* Icônes de cartes stats / placeholders dont le fond noir-alpha disparaît */
+html[data-theme='dark'] .measurement-type-card__icon,
+html[data-theme='dark'] .meal-item__placeholder,
+html[data-theme='dark'] .image-editor__canvas-container {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+html[data-theme='dark'] .meal-item {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* ─────────────── Récupération des textes en couleur de base ───────────────
+   Beaucoup de blocs héritent du noir navigateur ; on force la bonne couleur
+   partout où un conteneur "thème" existe. */
+html[data-theme='dark'] .main-layout__page-content,
+html[data-theme='dark'] .main-layout__content,
+html[data-theme='dark'] #root,
+html[data-theme='dark'] .modal,
+html[data-theme='dark'] .modal__body,
+html[data-theme='dark'] .drawer,
+html[data-theme='dark'] .right-sidebar,
+html[data-theme='dark'] .card,
+html[data-theme='dark'] .datatable__wrapper,
+html[data-theme='dark'] .tree-table__wrapper {
+    color: var(--color-text);
+}
+
+/* Footer / header / navbar "colored" : le fond primaire devient clair en sombre,
+   les textes blancs en dur doivent repasser en sombre pour rester lisibles. */
+html[data-theme='dark'] .footer--colored .footer__section-title,
+html[data-theme='dark'] .footer--colored .footer__link,
+html[data-theme='dark'] .navbar--colored .navbar__link,
+html[data-theme='dark'] .header--colored .header__nav-link {
+    color: var(--color-on-primary);
+}

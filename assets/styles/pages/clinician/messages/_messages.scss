@@ -281,7 +281,7 @@
             radial-gradient(circle at 90% 60%, rgba(244, 162, 97, 0.08) 10%, transparent 11%),
             radial-gradient(ellipse at 20% 80%, rgba(44, 122, 123, 0.06) 0%, transparent 60%),
             radial-gradient(ellipse at 80% 20%, rgba(118, 184, 184, 0.08) 0%, transparent 60%),
-            linear-gradient(135deg, #E9EEF3 0%, #F5F8FA 100%);
+            linear-gradient(135deg, var(--color-surface) 0%, rgba(255, 255, 255, 0.1) 100%);
         background-size: 250px 250px, 350px 350px, 200px 200px, 280px 280px, auto, auto, auto;
         background-attachment: scroll;
         scrollbar-width: thin;
@@ -404,7 +404,8 @@
         border-bottom-right-radius: 0.25rem;
 
         .message-bubble__time {
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--color-on-primary);
+            opacity: 0.8;
         }
     }
 
@@ -445,7 +446,7 @@
     &__status-icon {
         font-size: 0.7rem;
         font-weight: bold;
-        color: rgba(255, 255, 255, 0.9);
+        color: var(--color-on-primary);
         letter-spacing: -2px;
         display: flex;
         align-items: center;
@@ -912,7 +913,7 @@
     height: 17px;
     border-radius: 50%;
     background: var(--color-primary);
-    color: white;
+    color: var(--color-on-primary);
     display: flex;
     align-items: center;
     justify-content: center;

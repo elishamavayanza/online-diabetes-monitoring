@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}OnlineDIAB{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo.png') }}">
+    {# Applique le thème (clair/sombre) AVANT le rendu pour éviter le flash #}
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('diabcare-theme');
+                if (t !== 'light' && t !== 'dark') {
+                    t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', t);
+            } catch (e) { /* silencieux */ }
+        })();
+    </script>
     {# On charge le CSS via <link> pour les homepage web #}
     {% block stylesheets %}
         <link rel="stylesheet" href="{{ asset('build/app.css') }}">

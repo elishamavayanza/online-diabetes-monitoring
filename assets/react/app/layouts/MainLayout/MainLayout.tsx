@@ -9,6 +9,7 @@ import { Header } from '@/react/components/Navigation/Header';
 import logo from '@/images/logo_with.png';
 import { Avatar } from "@/react/components/UI/Avatar";
 import { PopoverMenu } from "@/react/components/UI/PopoverMenu";
+import { ThemeToggle } from "@/react/components/UI/ThemeToggle";
 import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
 import { useIsMobile } from '@/react/hooks/useIsMobile';
 import { useIsPortrait } from '@/react/hooks/useIsPortrait';
@@ -206,46 +207,49 @@ export function MainLayout({
                                     </div>
                                 }
                                 footer={
-                                    <PopoverMenu
-                                        placement="top"
-                                        items={[
-                                            {
-                                                id: 'profile',
-                                                label: 'Mon profil',
-                                                icon: <ProfileIcon />,
-                                                onClick: handleProfileClick,
-                                            },
-                                            {
-                                                id: 'separator',
-                                                label: '',
-                                                separator: true,
-                                            },
-                                            {
-                                                id: 'logout',
-                                                label: 'Déconnexion',
-                                                icon: <LogoutIcon />,
-                                                danger: true,
-                                                onClick: () => {
-                                                    logout();
+                                    <div className="sidebar__footer-actions">
+                                        <PopoverMenu
+                                            placement="top"
+                                            items={[
+                                                {
+                                                    id: 'profile',
+                                                    label: 'Mon profil',
+                                                    icon: <ProfileIcon />,
+                                                    onClick: handleProfileClick,
                                                 },
-                                            },
-                                        ]}
-                                        trigger={
-                                            <div className="sidebar-user-menu">
-                                                <Avatar
-                                                    src={user.photoUrl || undefined}
-                                                    name={user.name}
-                                                    size="medium"
-                                                    shape="circle"
-                                                    status="online"
-                                                />
-                                                <div className="sidebar-user-menu__info">
-                                                    <span className="sidebar-user-menu__name">{user.name}</span>
-                                                    <span className="sidebar-user-menu__role">{user.role || 'Utilisateur'}</span>
+                                                {
+                                                    id: 'separator',
+                                                    label: '',
+                                                    separator: true,
+                                                },
+                                                {
+                                                    id: 'logout',
+                                                    label: 'Déconnexion',
+                                                    icon: <LogoutIcon />,
+                                                    danger: true,
+                                                    onClick: () => {
+                                                        logout();
+                                                    },
+                                                },
+                                            ]}
+                                            trigger={
+                                                <div className="sidebar-user-menu">
+                                                    <Avatar
+                                                        src={user.photoUrl || undefined}
+                                                        name={user.name}
+                                                        size="medium"
+                                                        shape="circle"
+                                                        status="online"
+                                                    />
+                                                    <div className="sidebar-user-menu__info">
+                                                        <span className="sidebar-user-menu__name">{user.name}</span>
+                                                        <span className="sidebar-user-menu__role">{user.role || 'Utilisateur'}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        }
-                                    />
+                                            }
+                                        />
+                                        <ThemeToggle />
+                                    </div>
                                 }
                             />
                         )}

@@ -1,0 +1,91 @@
+/* ============================================================
+   Bouton bascule de thème clair/sombre – ThemeToggle
+   ============================================================ */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--color-on-primary);
+    transition: background-color 0.2s, transform 0.2s, color 0.2s;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    &:active {
+        transform: scale(0.94);
+    }
+
+    &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+
+    svg {
+        flex-shrink: 0;
+        display: block;
+    }
+
+    &__label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* Variante compacte (icône seule) */
+    &--compact {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+    }
+}
+
+/* Zone d'action dans le footer du sidebar (sous le menu utilisateur) */
+.sidebar__footer-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+
+    .theme-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* En mode replié : icône seule centrée */
+.sidebar--collapsed {
+    .sidebar__footer-actions {
+        justify-content: center;
+    }
+
+    .theme-toggle__label {
+        display: none;
+    }
+
+    .theme-toggle {
+        width: 100%;
+        max-width: 44px;
+        height: 40px;
+        padding: 0;
+    }
+}
+
+/* Respect du thème sombre (fond du bouton semi-transparent) */
+html[data-theme='dark'] .theme-toggle {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.18);
+    }
+}

@@ -108,7 +108,7 @@
 .badge--affectation {
     &-active {
         background-color: var(--color-success);
-        color: white;
+        color: var(--color-on-success);
     }
     &-pending {
         background-color: var(--color-warning);

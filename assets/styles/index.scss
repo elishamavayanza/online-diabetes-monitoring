@@ -57,6 +57,7 @@
 @use 'components/UI/collapsible' as *;
 @use 'components/UI/popover-menu' as *;
 @use 'components/UI/_imageEditor' as *;
+@use 'components/UI/theme-toggle' as *;
 @use './layouts/layouts' as *;
 @use '../react/app/layouts/MainLayout/MainLayout' as *;
 
@@ -115,6 +116,7 @@
 // 1b. Responsive global (DERNIER pour dominer la cascade)
 // ──────────────────────────────────────────
 @use './baseVariables/responsive' as *;
+@use './baseVariables/dark-theme' as *;
 
 // ──────────────────────────────────────────
 // 2. Global base styles
@@ -125,6 +127,8 @@ body {
     padding: 0;
     min-height: 100vh;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--color-text);
+    background-color: var(--color-background);
     background:
         radial-gradient(circle at 15% 25%, rgba(118, 184, 184, 0.15) 8%, transparent 9%),
         radial-gradient(circle at 75% 15%, rgba(44, 122, 123, 0.1) 12%, transparent 13%),

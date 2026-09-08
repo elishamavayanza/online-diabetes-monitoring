@@ -10,7 +10,7 @@
         radial-gradient(ellipse at 20% 20%, rgba(44, 122, 123, 0.20) 0%, transparent 60%),
         radial-gradient(ellipse at 80% 80%, rgba(118, 184, 184, 0.18) 0%, transparent 60%),
         radial-gradient(ellipse at 60% 40%, rgba(244, 162, 97, 0.12) 0%, transparent 50%),
-        rgba(255, 255, 255, 0.35); //  couche blanche avec opacité réduite (35%)
+        var(--color-surface-glass); //  surface themeable (claire par défaut, sombre en mode dark)
 
     border-radius: 0.75rem;
     box-shadow: 0 2px 8px var(--color-shadow);
@@ -34,7 +34,7 @@
             radial-gradient(ellipse at 20% 20%, rgba(44, 122, 123, 0.25) 0%, transparent 60%),
             radial-gradient(ellipse at 80% 80%, rgba(118, 184, 184, 0.22) 0%, transparent 60%),
             radial-gradient(ellipse at 60% 40%, rgba(244, 162, 97, 0.15) 0%, transparent 50%),
-            rgba(255, 255, 255, 0.45); //  légèrement plus opaque pour rester lisible
+            var(--color-surface-glass-strong);
     }
 
     &--filled {
@@ -42,7 +42,7 @@
             radial-gradient(ellipse at 20% 20%, rgba(44, 122, 123, 0.20) 0%, transparent 60%),
             radial-gradient(ellipse at 80% 80%, rgba(118, 184, 184, 0.18) 0%, transparent 60%),
             radial-gradient(ellipse at 60% 40%, rgba(244, 162, 97, 0.12) 0%, transparent 50%),
-            rgba(233, 238, 243, 0.35); // fond teinté avec opacité
+            var(--color-surface-glass);
         border: none;
         box-shadow: none;
     }
