@@ -1,7 +1,6 @@
 import { TrendSeries } from '@/react/features/admin/reports/types';
 import { CalendarMarkedDate } from '@/react/hook-components/Calendars/Calendar';
 import { DossierTabId, MeasurementPeriod, PatientDossierData } from '../types';
-import { CandlestickDataPoint } from '@/react/hook-components/Data/CandlestickChart/useCandlestickChart';
 import {BadgeVariant} from "@/react/hook-components/UI/Badge"; // ✅ import
 
 export function toDateKey(date: Date): string {
@@ -153,39 +152,6 @@ export function collectMarkedDatesForTab(
     }));
 }
 
-// ✅ Nouvelle fonction pour transformer les mesures en chandeliers
-export function buildCandlestickData(items: { createdAt: string; value: number }[]): CandlestickDataPoint[] {
-    if (items.length === 0) return [];
-
-    // Trier par date croissante
-    const sorted = [...items].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-
-    // Regrouper par jour (YYYY-MM-DD)
-    const grouped = new Map<string, { createdAt: string; value: number }[]>();
-
-    sorted.forEach((item) => {
-        const day = item.createdAt.slice(0, 10);
-        if (!grouped.has(day)) {
-            grouped.set(day, []);
-        }
-        grouped.get(day)!.push(item);
-    });
-
-    const result: CandlestickDataPoint[] = [];
-
-    grouped.forEach((dayItems, day) => {
-        const values = dayItems.map((d) => d.value);
-        result.push({
-            date: day,
-            open: values[0],
-            high: Math.max(...values),
-            low: Math.min(...values),
-            close: values[values.length - 1],
-        });
-    });
-
-    return result;
-}
 export function getAppointmentStatusBadgeVariant(status: string): BadgeVariant {
     switch (status) {
         case 'COMPLETED':

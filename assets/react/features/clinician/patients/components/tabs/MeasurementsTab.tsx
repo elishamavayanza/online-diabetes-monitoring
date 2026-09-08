@@ -1,19 +1,17 @@
 import { useState } from 'react';
 import { Card } from '@/react/components/UI/Card';
 import { Button } from '@/react/components/UI/Button';
-import { TrendChart } from '@/react/features/admin/reports/components/TrendChart';
+import { LineChart } from '@/react/components/Data/LineChart/LineChart';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { MEASUREMENT_TYPES } from '../../config/measurementTypes';
 import { MeasurementTypeId } from '../../types';
 import {
     buildTrendSeries,
-    buildCandlestickData,
     formatDisplayDateTime,
     isInPeriod,
 } from '../../utils/dossierUtils';
-import type { CandlestickDataPoint } from '@/react/hook-components/Data/CandlestickChart/useCandlestickChart';
-import {CandlestickChart} from "@/react/components/Data/CandlestickChart/CandlestickChart";
+import type { TrendSeries } from '@/react/features/admin/reports/types';
 
 function countForType(
     data: ReturnType<typeof usePatientDossierContext>['data'],
@@ -56,9 +54,8 @@ export function MeasurementsTab() {
         if (!selectedType) return null;
         const config = MEASUREMENT_TYPES.find((t) => t.id === selectedType)!;
 
-        let series;
+        let series: TrendSeries | null = null;
         let items: { id: string; label: string }[] = [];
-        let candlestickData: CandlestickDataPoint[] | null = null;
 
         const byAuthor = (m: { createdByName?: string }) =>
             m.createdByName ? ` — Créé par ${m.createdByName}` : '';
@@ -66,7 +63,6 @@ export function MeasurementsTab() {
         switch (selectedType) {
             case 'bloodGlucose': {
                 const filtered = measurements.bloodGlucose.filter((m) => isInPeriod(m.createdAt, period, selectedDate));
-                candlestickData = buildCandlestickData(filtered.map((m) => ({ createdAt: m.createdAt, value: m.value })));
                 series = buildTrendSeries('Glycémie', filtered.map((m) => ({ createdAt: m.createdAt, value: m.value })), period, selectedDate, measurements.bloodGlucose[0]?.unit ?? 'mg/dL');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
@@ -76,7 +72,6 @@ export function MeasurementsTab() {
             }
             case 'bloodPressure': {
                 const filtered = measurements.bloodPressure.filter((m) => isInPeriod(m.createdAt, period, selectedDate));
-                candlestickData = buildCandlestickData(filtered.map((m) => ({ createdAt: m.createdAt, value: m.systolic })));
                 series = buildTrendSeries('Systolique', filtered.map((m) => ({ createdAt: m.createdAt, value: m.systolic })), period, selectedDate, 'mmHg');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
@@ -86,7 +81,6 @@ export function MeasurementsTab() {
             }
             case 'hba1c': {
                 const filtered = measurements.hba1c.filter((m) => isInPeriod(m.createdAt, period, selectedDate));
-                candlestickData = buildCandlestickData(filtered.map((m) => ({ createdAt: m.createdAt, value: m.valuePercent })));
                 series = buildTrendSeries('HbA1c', filtered.map((m) => ({ createdAt: m.createdAt, value: m.valuePercent })), period, selectedDate, '%');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
@@ -96,7 +90,6 @@ export function MeasurementsTab() {
             }
             case 'weight': {
                 const filtered = measurements.weight.filter((m) => isInPeriod(m.createdAt, period, selectedDate));
-                candlestickData = buildCandlestickData(filtered.map((m) => ({ createdAt: m.createdAt, value: m.valueKg })));
                 series = buildTrendSeries('Poids', filtered.map((m) => ({ createdAt: m.createdAt, value: m.valueKg })), period, selectedDate, 'kg');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
@@ -106,7 +99,6 @@ export function MeasurementsTab() {
             }
             case 'physicalActivity': {
                 const filtered = measurements.physicalActivity.filter((m) => isInPeriod(m.createdAt, period, selectedDate));
-                candlestickData = buildCandlestickData(filtered.map((m) => ({ createdAt: m.createdAt, value: m.durationMinutes })));
                 series = buildTrendSeries('Activité', filtered.map((m) => ({ createdAt: m.createdAt, value: m.durationMinutes })), period, selectedDate, 'min');
                 items = filtered.slice(-15).reverse().map((m) => ({
                     id: m.id,
@@ -149,15 +141,13 @@ export function MeasurementsTab() {
                     )}
                 </div>
 
-                {/*  Graphique en chandeliers si données disponibles, sinon fallback TrendChart */}
-                {selectedType !== 'laboratory' && selectedType !== 'insulinInjection' && candlestickData && candlestickData.length > 0 ? (
-                    <CandlestickChart
-                        data={candlestickData}
+                {/* Line chart moderne si données disponibles */}
+                {selectedType !== 'laboratory' && selectedType !== 'insulinInjection' && series && series.points.length > 0 ? (
+                    <LineChart
+                        data={series.points}
                         formatDate={(d) => String(d)}
-                        formatPrice={(p) => `${p} ${config.unit}`}
+                        formatValue={(p) => `${p} ${config.unit}`}
                     />
-                ) : selectedType !== 'laboratory' && selectedType !== 'insulinInjection' ? (
-                    <TrendChart series={series!} />
                 ) : null}
 
                 <Card>

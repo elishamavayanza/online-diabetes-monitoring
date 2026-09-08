@@ -1,3 +1,5 @@
+import { LineChart } from '@/react/components/Data/LineChart/LineChart';
+import type { LineChartDataPoint } from '@/react/hook-components/Data/LineChart/useLineChart';
 import { TrendSeries } from '../types';
 
 interface TrendChartProps {
@@ -16,21 +18,10 @@ export function TrendChart({ series }: TrendChartProps) {
         );
     }
 
-    const width = 640;
-    const height = 220;
-    const padding = 28;
-    const values = points.map((p) => p.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
-
-    const coords = points.map((point, index) => {
-        const x = padding + (index / Math.max(points.length - 1, 1)) * (width - padding * 2);
-        const y = height - padding - ((point.value - min) / range) * (height - padding * 2);
-        return { ...point, x, y };
-    });
-
-    const polyline = coords.map((p) => `${p.x},${p.y}`).join(' ');
+    const data: LineChartDataPoint[] = points.map((p) => ({
+        date: p.date,
+        value: p.value,
+    }));
 
     return (
         <div className="trend-chart">
@@ -38,16 +29,12 @@ export function TrendChart({ series }: TrendChartProps) {
                 <h3>{series.label}</h3>
                 {series.unit && <span className="trend-chart__unit">{series.unit}</span>}
             </div>
-            <svg viewBox={`0 0 ${width} ${height}`} className="trend-chart__svg" role="img">
-                <polyline points={polyline} className="trend-chart__line" />
-                {coords.map((point) => (
-                    <circle key={point.date} cx={point.x} cy={point.y} r="4" className="trend-chart__dot" />
-                ))}
-            </svg>
-            <div className="trend-chart__labels">
-                <span>{points[0]?.date}</span>
-                <span>{points[points.length - 1]?.date}</span>
-            </div>
+            <LineChart
+                data={data}
+                height={220}
+                formatDate={(d) => String(d)}
+                formatValue={(p) => `${p}`}
+            />
         </div>
     );
 }

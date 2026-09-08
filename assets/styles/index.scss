@@ -32,6 +32,7 @@
 @use './components/Data/pagination' as *;
 @use './components/Data/datatable' as *;
 @use './components/Data/candlestick-chart' as *;
+@use './components/Data/line-chart' as *;
 @use './components/Data/empty-state' as *;
 @use './components/Navigation/navbar' as *;
 @use './components/Navigation/sidebar' as *;

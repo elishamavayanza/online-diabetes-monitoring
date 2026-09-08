@@ -8,13 +8,13 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import { RightSidebar } from '@/react/components/Navigation/RightSidebar';
 import { Calendar } from '@/react/components/Calendars/Calendar';
 import { MeasurementsTable } from '../components/MeasurementsTable';
-import { CandlestickChart } from '@/react/components/Data/CandlestickChart/CandlestickChart';
+import { LineChart } from '@/react/components/Data/LineChart/LineChart';
 import { Tabs } from '@/react/components/Navigation/Tabs'; // ✅ import du composant Tabs
 import { MeasurementFormModal } from '@/react/features/clinician/patients/components/modals/record/MeasurementFormModal';
 import { MeasurementType } from '../types';
 import { MeasurementTypeId } from '@/react/features/clinician/patients/types';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
-import type { CandlestickDataPoint } from '@/react/hook-components/Data/CandlestickChart/useCandlestickChart';
+import type { LineChartDataPoint } from '@/react/hook-components/Data/LineChart/useLineChart';
 import {
     BloodGlucoseIcon,
     BloodPressureIcon,
@@ -158,16 +158,13 @@ export function MeasurementsPage() {
         : records;
 
     // Préparation des données pour le graphique
-    const chartData: CandlestickDataPoint[] = [];
+    const chartData: LineChartDataPoint[] = [];
     for (const record of filteredRecords) {
         const value = extractNumericValue(record.value);
         if (value !== null) {
             chartData.push({
                 date: new Date(record.date).getTime(),
-                open: value,
-                high: value,
-                low: value,
-                close: value,
+                value,
             });
         }
     }
@@ -220,13 +217,13 @@ export function MeasurementsPage() {
                                 <MeasurementsTable records={filteredRecords} />
                             </>
                         ) : (
-                            <CandlestickChart
+                            <LineChart
                                 data={chartData}
                                 height={300}
                                 formatDate={(timestamp) =>
                                     new Date(Number(timestamp)).toLocaleDateString('fr-FR')
                                 }
-                                formatPrice={(price) => `${price}`}
+                                formatValue={(price) => `${price}`}
                             />
                         )
                     }
