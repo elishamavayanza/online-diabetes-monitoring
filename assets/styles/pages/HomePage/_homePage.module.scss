@@ -167,6 +167,60 @@
     color: var(--color-primary);
 }
 
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    margin-left: auto;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.themeToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background-color: var(--color-surface-glass-solid);
+    color: var(--color-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+        flex-shrink: 0;
+        display: block;
+    }
+
+    &:hover {
+        background-color: var(--color-surface-elevated);
+        border-color: var(--color-primary);
+    }
+
+    &:active {
+        transform: scale(0.94);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
+.themeToggleLabel {
+    line-height: 1;
+}
+
 .ctaButton {
     background: linear-gradient(135deg, var(--color-primary), color.adjust(#2C7A7B, $lightness: -5%));
     color: var(--color-on-primary);

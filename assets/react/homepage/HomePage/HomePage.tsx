@@ -9,10 +9,26 @@ import {
     IconBell,
 } from './icons';
 import {useAuth} from "@/react/app/providers/AuthProvider";
+import { useTheme } from '@/react/hooks/ThemeProvider';
+
+const SunIcon = () => (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+);
+
+const MoonIcon = () => (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+);
 
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
+    const { theme, toggleTheme } = useTheme();
+    const isDark = theme === 'dark';
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -75,25 +91,41 @@ const HomePage: React.FC = () => {
                         <span>OnlineDIAB</span>
                     </a>
 
-                    {/* Navigation desktop (visible sur écrans larges) */}
-                    <nav className={styles.nav}>
-                        <a href="#about">À propos</a>
-                        <a href="#features">Fonctionnalités</a>
-                        <a href="#users">Pour qui ?</a>
-                        <button className={styles.ctaButton} onClick={goToLogin}>Se connecter</button>
-                    </nav>
+                    <div className={styles.headerRight}>
+                        {/* Navigation desktop (visible sur écrans larges) */}
+                        <nav className={styles.nav}>
+                            <a href="#about">À propos</a>
+                            <a href="#features">Fonctionnalités</a>
+                            <a href="#users">Pour qui ?</a>
+                            <button className={styles.ctaButton} onClick={goToLogin}>Se connecter</button>
+                        </nav>
 
-                    {/* Bouton hamburger (visible sur mobile) */}
-                    <button
-                        className={`${styles.menuToggle} ${isMenuOpen ? styles.active : ''}`}
-                        onClick={toggleMenu}
-                        aria-label="Menu"
-                        aria-expanded={isMenuOpen}
-                    >
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
+                        <div className={styles.headerActions}>
+                            {/* Bascule de thème (sombre / clair) */}
+                            <button
+                                type="button"
+                                className={styles.themeToggle}
+                                onClick={toggleTheme}
+                                aria-label={isDark ? 'Activer le thème clair' : 'Activer le thème sombre'}
+                                title={isDark ? 'Thème clair' : 'Thème sombre'}
+                            >
+                                {isDark ? <SunIcon /> : <MoonIcon />}
+                                <span className={styles.themeToggleLabel}>{isDark ? 'Clair' : 'Sombre'}</span>
+                            </button>
+
+                            {/* Bouton hamburger (visible sur mobile) */}
+                            <button
+                                className={`${styles.menuToggle} ${isMenuOpen ? styles.active : ''}`}
+                                onClick={toggleMenu}
+                                aria-label="Menu"
+                                aria-expanded={isMenuOpen}
+                            >
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Menu mobile (affiché uniquement si isMenuOpen est true) */}
