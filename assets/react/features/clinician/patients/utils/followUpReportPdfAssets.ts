@@ -5,6 +5,7 @@ import {
     loadImageAsDataUrl,
 } from '@/react/features/admin/reports/utils/pdfAssets';
 import { PDF_BRAND } from '@/react/features/admin/reports/config/pdfBrand';
+import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 import { PatientFollowUpReport } from '../types/followUpReport';
 
 export interface FollowUpReportPdfAssets {
@@ -57,8 +58,8 @@ function getPatientInitials(fullName: string): string {
 export async function createCircularAvatarDataUrl(
     sourceDataUrl: string,
     sizePx: number,
-): Promise<string> {
-    return new Promise((resolve, reject) => {
+): Promise<string | null> {
+    return new Promise((resolve) => {
         const image = new Image();
         image.crossOrigin = 'anonymous';
         image.onload = () => {
@@ -68,7 +69,7 @@ export async function createCircularAvatarDataUrl(
             const context = canvas.getContext('2d');
 
             if (!context) {
-                reject(new Error('Canvas indisponible pour la photo patient.'));
+                resolve(null);
                 return;
             }
 
@@ -86,7 +87,7 @@ export async function createCircularAvatarDataUrl(
             context.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
             resolve(canvas.toDataURL('image/png'));
         };
-        image.onerror = () => reject(new Error('Impossible de préparer la photo patient.'));
+        image.onerror = () => resolve(null);
         image.src = sourceDataUrl;
     });
 }
@@ -115,28 +116,36 @@ export function createInitialsAvatarDataUrl(fullName: string, sizePx: number): s
     return canvas.toDataURL('image/png');
 }
 
-async function resolvePatientPhotoDataUrl(report: PatientFollowUpReport): Promise<string> {
-    const avatarUrl = report.header.avatarUrl;
+async function resolvePatientPhotoDataUrl(report: PatientFollowUpReport): Promise<string | null> {
+    const avatarUrl = resolveAvatarUrl(report.header.avatarUrl);
 
     if (avatarUrl) {
         try {
             const rawPhoto = await loadImageAsDataUrl(avatarUrl);
-            return createCircularAvatarDataUrl(rawPhoto, 320);
+            const circular = await createCircularAvatarDataUrl(rawPhoto, 320);
+
+            if (circular) {
+                return circular;
+            }
         } catch {
             // Fallback sur les initiales si la photo est inaccessible.
         }
     }
 
-    return createInitialsAvatarDataUrl(report.header.patientFullName, 320);
+    try {
+        return createInitialsAvatarDataUrl(report.header.patientFullName, 320);
+    } catch {
+        return null;
+    }
 }
 
 export async function loadFollowUpReportPdfAssets(report: PatientFollowUpReport): Promise<FollowUpReportPdfAssets> {
     const rawLogo = await loadImageAsDataUrl(logoImage);
-    const [logoDataUrl, patientPhotoDataUrl, qrDataUrl] = await Promise.all([
+    const [logoDataUrl, qrDataUrl] = await Promise.all([
         createSquareLogoDataUrl(rawLogo, 256),
-        resolvePatientPhotoDataUrl(report),
         generateFollowUpReportQrCode(report),
     ]);
+    const patientPhotoDataUrl = await resolvePatientPhotoDataUrl(report);
 
     return {
         logoDataUrl,

@@ -10,6 +10,17 @@ import { ReportSectionId } from '../config/reportSections';
 import { PDF_BRAND, hexToRgb } from '../config/pdfBrand';
 import { loadPdfAssets } from './pdfAssets';
 import { formatChange, formatLabel, formatStatValue } from '../utils/formatters';
+import {
+    ADMIN_GLOSSARY,
+    buildExecutiveSummary,
+    demographicsInsight,
+    healthStatusInsight,
+    lifestyleInsight,
+    medicalActivityInsight,
+    SectionInsight,
+    treatmentInsight,
+} from './organizationReportInsights';
+import { InterpretationLevel } from '@/react/features/clinician/patients/utils/followUpClinicalInterpretation';
 
 const COLORS = {
     primary: hexToRgb(PDF_BRAND.primary),
@@ -21,6 +32,10 @@ const COLORS = {
     border: hexToRgb(PDF_BRAND.border),
     accent: hexToRgb(PDF_BRAND.accent),
     white: [255, 255, 255] as [number, number, number],
+    good: hexToRgb('#2F8F5B'),
+    warning: hexToRgb('#D69E2E'),
+    critical: hexToRgb('#C85246'),
+    info: hexToRgb('#3E6F9E'),
 };
 
 const MARGIN = 16;
@@ -115,8 +130,19 @@ class ReportPdfBuilder {
     async build(sections: ReportSectionId[]): Promise<jsPDF> {
         this.drawCover(sections);
         this.drawSectionPages(sections);
+        this.drawAppendices();
         this.addHeadersAndFootersToAllPages();
         return this.doc;
+    }
+
+    private ensureSpace(requiredHeight: number): void {
+        if (this.y + requiredHeight <= FOOTER_Y - 10) {
+            return;
+        }
+
+        this.doc.addPage();
+        this.drawBrandHeader(22, false);
+        this.y = MARGIN + 22;
     }
 
     private drawBrandHeader(height = 34, largeLogo = false): void {
@@ -237,6 +263,8 @@ class ReportPdfBuilder {
         });
 
         this.y = (this.doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
+
+        this.drawExecutiveSummary();
 
         this.doc.setFont('helvetica', 'bold');
         this.doc.setFontSize(12);
@@ -399,6 +427,8 @@ class ReportPdfBuilder {
 
         this.drawDistributionTable('Répartition par genre', demographics.genderDistribution);
         this.drawDistributionTable('Répartition par tranche d\'âge', demographics.ageGroups);
+
+        this.drawInsightBox(demographicsInsight(this.report));
     }
 
     private drawHealthStatus(): void {
@@ -420,6 +450,10 @@ class ReportPdfBuilder {
         ]);
 
         this.drawDistributionTable('Répartition glycémique', healthStatus.glucoseRanges);
+
+        healthStatusInsight(this.report).forEach((insight) => {
+            this.drawInsightBox(insight);
+        });
     }
 
     private drawMedicalActivity(): void {
@@ -439,6 +473,8 @@ class ReportPdfBuilder {
         ]);
 
         this.drawDistributionTable('Rendez-vous par statut', medicalActivity.appointmentsByStatus);
+
+        this.drawInsightBox(medicalActivityInsight(this.report));
     }
 
     private drawTreatments(): void {
@@ -456,6 +492,8 @@ class ReportPdfBuilder {
         ]);
 
         this.drawDistributionTable('Répartition des prises', treatments.intakesByStatus);
+
+        this.drawInsightBox(treatmentInsight(this.report));
     }
 
     private drawLifestyle(): void {
@@ -473,6 +511,8 @@ class ReportPdfBuilder {
         ]);
 
         this.drawDistributionTable('Repas par type', lifestyle.mealsByType);
+
+        this.drawInsightBox(lifestyleInsight(this.report));
     }
 
     private drawTrends(): void {
@@ -507,6 +547,165 @@ class ReportPdfBuilder {
             });
 
             this.y = (this.doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+        });
+    }
+
+    private levelRgb(level: InterpretationLevel): [number, number, number] {
+        switch (level) {
+            case 'good':
+                return COLORS.good;
+            case 'warning':
+                return COLORS.warning;
+            case 'critical':
+                return COLORS.critical;
+            default:
+                return COLORS.info;
+        }
+    }
+
+    private drawExecutiveSummary(): void {
+        const items = buildExecutiveSummary(this.report);
+        if (!items.length) {
+            return;
+        }
+
+        this.ensureSpace(22);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setFontSize(12);
+        this.doc.setTextColor(...COLORS.primary);
+        this.doc.text('Points clés de la période', MARGIN, this.y);
+        this.y += 5;
+
+        items.forEach((item) => {
+            const lines = this.doc.splitTextToSize(item.text, CONTENT_WIDTH - 14) as string[];
+            this.ensureSpace(lines.length * 4 + 4);
+
+            this.doc.setFillColor(...this.levelRgb(item.level));
+            this.doc.circle(MARGIN + 2, this.y - 1.2, 1.4, 'F');
+
+            this.doc.setFont('helvetica', 'normal');
+            this.doc.setFontSize(9);
+            this.doc.setTextColor(...COLORS.text);
+            lines.forEach((line, index) => {
+                this.doc.text(line, MARGIN + 7, this.y + index * 4);
+            });
+
+            this.y += lines.length * 4 + 3;
+        });
+    }
+
+    private drawInsightBox(insight: SectionInsight | null): void {
+        if (!insight) {
+            return;
+        }
+
+        const color = this.levelRgb(insight.level);
+        const noteLines = this.doc.splitTextToSize(insight.note, CONTENT_WIDTH - 22) as string[];
+        const boxHeight = 12 + noteLines.length * 4;
+
+        this.ensureSpace(boxHeight + 4);
+
+        this.doc.setFillColor(...COLORS.surface);
+        this.doc.roundedRect(MARGIN, this.y, CONTENT_WIDTH, boxHeight, 2, 2, 'F');
+        this.doc.setFillColor(...color);
+        this.doc.roundedRect(MARGIN, this.y, 2.5, boxHeight, 1, 1, 'F');
+
+        const statusWidth = this.doc.getTextWidth(insight.status) + 8;
+        this.doc.setFillColor(...color);
+        this.doc.roundedRect(MARGIN + 6, this.y + 3, statusWidth, 6.5, 3.2, 3.2, 'F');
+        this.doc.setTextColor(...COLORS.white);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setFontSize(7.5);
+        this.doc.text(insight.status, MARGIN + 10, this.y + 7.5);
+
+        this.doc.setTextColor(...COLORS.text);
+        this.doc.setFont('helvetica', 'normal');
+        this.doc.setFontSize(8.5);
+        noteLines.forEach((line, index) => {
+            this.doc.text(line, MARGIN + 9, this.y + 13 + index * 4);
+        });
+
+        this.y += boxHeight + 8;
+    }
+
+    private drawAppendices(): void {
+        this.doc.addPage();
+        this.y = MARGIN + 22;
+        this.drawSectionHeader(
+            'Annexe — Méthodologie & définitions',
+            'Périmètre, sources et références utilisées pour le calcul des indicateurs',
+        );
+
+        const { report } = this;
+        const periodText = 'Ce rapport agrège les données médicales et administratives des patients rattachés à '
+            + `l'organisation sur la période du ${formatFrenchDate(report.period.from)} au ${formatFrenchDate(report.period.to)}. `
+            + `Les évolutions sont calculées par comparaison avec la période précédente (${formatFrenchDate(report.period.previousFrom)} `
+            + `au ${formatFrenchDate(report.period.previousTo)}).`;
+
+        this.doc.setTextColor(...COLORS.text);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setFontSize(10);
+        this.doc.text('Méthodologie', MARGIN, this.y);
+        this.y += 4;
+
+        const periodLines = this.doc.splitTextToSize(periodText, CONTENT_WIDTH) as string[];
+        this.doc.setFont('helvetica', 'normal');
+        this.doc.setFontSize(8.5);
+        this.doc.setTextColor(...COLORS.muted);
+        periodLines.forEach((line) => {
+            this.doc.text(line, MARGIN, this.y);
+            this.y += 4;
+        });
+        this.y += 4;
+
+        const methodPoints = [
+            'Les moyennes sont calculées à partir des mesures non supprimées enregistrées sur la période.',
+            'Les taux d\'observance et de suivi sont rapportés aux flux de prescriptions et aux effectifs de patients actifs.',
+            'Les parts (%) des distributions sont arrondies à l\'unité ; la somme peut ne pas être exactement égale à 100 %.',
+            'Les mesures cliniques sont agrégées en valeurs moyennes ; elles ne décrivent ni profil individuel ni prévalence.',
+        ];
+
+        methodPoints.forEach((point) => {
+            const lines = this.doc.splitTextToSize(point, CONTENT_WIDTH - 6) as string[];
+            this.ensureSpace(lines.length * 4 + 2);
+            this.doc.setFillColor(...COLORS.primary);
+            this.doc.circle(MARGIN + 1.5, this.y - 1.2, 1, 'F');
+            lines.forEach((line, index) => {
+                this.doc.text(line, MARGIN + 5, this.y + index * 4);
+            });
+            this.y += lines.length * 4 + 2;
+        });
+
+        this.y += 4;
+        this.ensureSpace(16);
+        this.doc.setTextColor(...COLORS.text);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setFontSize(10);
+        this.doc.text('Glossaire', MARGIN, this.y);
+        this.y += 4;
+
+        autoTable(this.doc, {
+            startY: this.y,
+            margin: { left: MARGIN, right: MARGIN },
+            head: [['Terme', 'Définition']],
+            body: ADMIN_GLOSSARY.map((entry) => [entry.term, entry.definition]),
+            styles: { fontSize: 8.5, cellPadding: 2.5, lineColor: COLORS.border },
+            headStyles: { fillColor: COLORS.primary, textColor: COLORS.white, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: COLORS.background },
+        });
+        this.y = (this.doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6;
+
+        this.ensureSpace(24);
+        const disclaimer = 'Ce document est établi à partir de données agrégées anonymisées, à usage de pilotage interne. '
+            + 'Il ne constitue ni un avis médical individuel ni un document à visée de publication. '
+            + 'Le QR code figurant sur chaque page permet de vérifier l\'authenticité du rapport.';
+        const disclaimerLines = this.doc.splitTextToSize(disclaimer, CONTENT_WIDTH - QR_SIZE - 4) as string[];
+        this.doc.setFont('helvetica', 'italic');
+        this.doc.setFontSize(8.5);
+        this.doc.setTextColor(...COLORS.muted);
+        disclaimerLines.forEach((line) => {
+            this.doc.text(line, MARGIN, this.y);
+            this.y += 4;
         });
     }
 

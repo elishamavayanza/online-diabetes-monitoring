@@ -3,6 +3,19 @@ import autoTable from 'jspdf-autotable';
 import { PDF_BRAND, hexToRgb } from '@/react/features/admin/reports/config/pdfBrand';
 import { FollowUpReportElementId, PatientFollowUpReport, ReportMeasurementStats, TrendSeries } from '../types/followUpReport';
 import { FollowUpReportPdfAssets, loadFollowUpReportPdfAssets } from './followUpReportPdfAssets';
+import {
+    CLINICAL_TARGETS,
+    ClinicalInterpretation,
+    computeAge,
+    interpretActivity,
+    interpretAdherence,
+    interpretBloodPressure,
+    interpretBmi,
+    interpretGlucose,
+    interpretHbA1c,
+    interpretMeals,
+    levelColor,
+} from './followUpClinicalInterpretation';
 
 const COLORS = {
     primary: hexToRgb(PDF_BRAND.primary),
@@ -14,6 +27,10 @@ const COLORS = {
     border: hexToRgb(PDF_BRAND.border),
     accent: hexToRgb(PDF_BRAND.accent),
     white: [255, 255, 255] as [number, number, number],
+    good: hexToRgb('#2F8F5B'),
+    warning: hexToRgb('#D69E2E'),
+    critical: hexToRgb('#C85246'),
+    info: hexToRgb('#3E6F9E'),
 };
 
 const MARGIN = 16;
@@ -178,6 +195,7 @@ class PatientFollowUpPdfBuilder {
             );
             this.drawElement(element);
         });
+        this.drawSynthesisPage();
         this.addHeadersAndFootersToAllPages();
         return this.doc;
     }
@@ -283,6 +301,7 @@ class PatientFollowUpPdfBuilder {
 
     private drawCover(elements: FollowUpReportElementId[]): void {
         const { header, period } = this.report;
+        const age = computeAge(header.dateOfBirth);
 
         this.drawBrandHeader(44, true);
 
@@ -339,8 +358,10 @@ class PatientFollowUpPdfBuilder {
             },
             body: [
                 ['Référence document', this.assets.reference],
+                ['Identifiant patient', header.patientId],
                 ['Patient', header.patientFullName],
                 ['Date de naissance', header.dateOfBirth ? formatFrenchDate(header.dateOfBirth) : '—'],
+                ['Âge', age !== null ? `${age} ans` : '—'],
                 ['Type de diabète', header.diabetesType ?? '—'],
                 ['Organisation', header.organizationName ?? '—'],
                 ['Sections exportées', String(elements.length)],
@@ -352,6 +373,27 @@ class PatientFollowUpPdfBuilder {
         });
 
         this.y = (this.doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+
+        const overviewRows = this.report.hasData ? this.buildOverviewRows() : [];
+        if (overviewRows.length > 0) {
+            this.doc.setTextColor(...COLORS.text);
+            this.doc.setFont('helvetica', 'bold');
+            this.doc.setFontSize(10);
+            this.doc.text('Aperçu clinique de la période', MARGIN, this.y);
+            this.y += 4;
+
+            autoTable(this.doc, {
+                startY: this.y,
+                margin: getTablePageMargins(),
+                head: [['Indicateur', 'Valeur', 'Statut']],
+                body: overviewRows,
+                styles: { fontSize: 8.5, cellPadding: 2.5, lineColor: COLORS.border, textColor: COLORS.text },
+                headStyles: { fillColor: COLORS.secondary, textColor: COLORS.white, fontStyle: 'bold' },
+                alternateRowStyles: { fillColor: COLORS.background },
+            });
+
+            this.y = (this.doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
+        }
 
         if (!this.report.hasData) {
             this.ensureSpace(18);
@@ -500,6 +542,8 @@ class PatientFollowUpPdfBuilder {
             });
             this.y = (this.doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
         }
+
+        this.drawInterpretationBox(interpretGlucose(section.stats.average));
     }
 
     private drawHbA1c(): void {
@@ -518,6 +562,8 @@ class PatientFollowUpPdfBuilder {
             this.y += 4;
             this.y = drawSimpleTrendChart(this.doc, this.y, section.trend);
         }
+
+        this.drawInterpretationBox(interpretHbA1c(section.stats.average));
     }
 
     private drawBloodPressure(): void {
@@ -539,6 +585,8 @@ class PatientFollowUpPdfBuilder {
             this.y += 4;
             this.y = drawSimpleTrendChart(this.doc, this.y, trend);
         });
+
+        this.drawInterpretationBox(interpretBloodPressure(section.systolic.average, section.diastolic.average));
     }
 
     private drawWeight(): void {
@@ -560,6 +608,8 @@ class PatientFollowUpPdfBuilder {
             this.y += 4;
             this.y = drawSimpleTrendChart(this.doc, this.y, section.weightTrend);
         }
+
+        this.drawInterpretationBox(interpretBmi(section.bmi.average));
     }
 
     private drawTreatment(): void {
@@ -574,6 +624,8 @@ class PatientFollowUpPdfBuilder {
             ['Taux d\'observance', section.adherenceRate !== null ? `${section.adherenceRate} %` : '—'],
             ['Prises enregistrées', String(section.totalIntakes)],
         ]);
+
+        this.drawInterpretationBox(interpretAdherence(section.adherenceRate));
     }
 
     private drawPhysicalActivity(): void {
@@ -596,6 +648,8 @@ class PatientFollowUpPdfBuilder {
             this.y += 4;
             this.y = drawSimpleTrendChart(this.doc, this.y, section.trend);
         }
+
+        this.drawInterpretationBox(interpretActivity(section.totalMinutes, this.report.period.from, this.report.period.to));
     }
 
     private drawNutrition(): void {
@@ -608,6 +662,8 @@ class PatientFollowUpPdfBuilder {
         this.drawKpiTable('Nutrition', [
             ['Repas enregistrés', String(section.totalMeals)],
         ]);
+
+        this.drawInterpretationBox(interpretMeals(section.totalMeals, this.report.period.from, this.report.period.to));
     }
 
     private drawLaboratory(): void {
@@ -646,6 +702,207 @@ class PatientFollowUpPdfBuilder {
             this.y + 10,
         );
         this.y += 22;
+    }
+
+    private buildOverviewRows(): string[][] {
+        const rows: string[][] = [];
+        const { report } = this;
+        const period = report.period;
+
+        const push = (indicateur: string, valeur: string, statut: string | null): void => {
+            rows.push([indicateur, valeur, statut ?? '—']);
+        };
+
+        const glucose = report.glucose;
+        if (glucose && glucose.stats.count > 0) {
+            push('Glycémie moyenne', formatStatValue(glucose.stats), interpretGlucose(glucose.stats.average)?.status ?? null);
+        }
+
+        const hba1c = report.hba1c;
+        if (hba1c && hba1c.stats.count > 0) {
+            push('HbA1c moyenne', formatStatValue(hba1c.stats), interpretHbA1c(hba1c.stats.average)?.status ?? null);
+        }
+
+        const bp = report.bloodPressure;
+        if (bp && bp.systolic.count > 0 && bp.systolic.average !== null && bp.systolic.average !== undefined) {
+            const diastolic = bp.diastolic.average ?? 0;
+            push('Tension artérielle', `${bp.systolic.average}/${diastolic} mmHg`, interpretBloodPressure(bp.systolic.average, bp.diastolic.average)?.status ?? null);
+        }
+
+        const weight = report.weight;
+        if (weight && weight.bmi.count > 0) {
+            push('IMC moyen', formatStatValue(weight.bmi), interpretBmi(weight.bmi.average)?.status ?? null);
+        }
+        if (weight && weight.weight.count > 0) {
+            push('Poids moyen', formatStatValue(weight.weight), null);
+        }
+
+        const treatment = report.treatment;
+        if (treatment && treatment.totalIntakes > 0) {
+            push(
+                'Observance thérapeutique',
+                treatment.adherenceRate !== null ? `${treatment.adherenceRate} %` : '—',
+                interpretAdherence(treatment.adherenceRate)?.status ?? null,
+            );
+        }
+
+        const activity = report.physicalActivity;
+        if (activity && activity.sessions > 0) {
+            push('Activité physique', `${activity.totalMinutes} min`, interpretActivity(activity.totalMinutes, period.from, period.to).status);
+        }
+
+        const nutrition = report.nutrition;
+        if (nutrition && nutrition.totalMeals > 0) {
+            push('Repas enregistrés', String(nutrition.totalMeals), interpretMeals(nutrition.totalMeals, period.from, period.to).status);
+        }
+
+        return rows;
+    }
+
+    private buildRecommendations(): string[] {
+        const recommendations: string[] = [];
+        const { report } = this;
+        const period = report.period;
+
+        const add = (scope: string, interp: ClinicalInterpretation | null): void => {
+            if (interp) {
+                recommendations.push(`${scope} — ${interp.recommendation}`);
+            }
+        };
+
+        add('Glycémie', report.glucose && report.glucose.stats.count > 0 ? interpretGlucose(report.glucose.stats.average) : null);
+        add('HbA1c', report.hba1c && report.hba1c.stats.count > 0 ? interpretHbA1c(report.hba1c.stats.average) : null);
+        add(
+            'Tension artérielle',
+            report.bloodPressure && report.bloodPressure.systolic.count > 0 ? interpretBloodPressure(report.bloodPressure.systolic.average, report.bloodPressure.diastolic.average) : null,
+        );
+        add('IMC', report.weight && report.weight.bmi.count > 0 ? interpretBmi(report.weight.bmi.average) : null);
+        add('Observance', report.treatment && report.treatment.totalIntakes > 0 ? interpretAdherence(report.treatment.adherenceRate) : null);
+        add(
+            'Activité physique',
+            report.physicalActivity && report.physicalActivity.sessions > 0 ? interpretActivity(report.physicalActivity.totalMinutes, period.from, period.to) : null,
+        );
+        add('Nutrition', report.nutrition && report.nutrition.totalMeals > 0 ? interpretMeals(report.nutrition.totalMeals, period.from, period.to) : null);
+
+        return recommendations;
+    }
+
+    private drawInterpretationBox(interp: ClinicalInterpretation | null): void {
+        if (!interp) {
+            return;
+        }
+
+        const color = levelColor(interp.level, COLORS);
+        const noteLines = this.doc.splitTextToSize(interp.note, CONTENT_WIDTH - 22) as string[];
+        const recLines = this.doc.splitTextToSize(interp.recommendation, CONTENT_WIDTH - 22) as string[];
+        const boxHeight = 10 + (noteLines.length + 1 + recLines.length) * NOTICE_LINE_HEIGHT;
+
+        this.ensureSpace(boxHeight + 4);
+
+        this.doc.setFillColor(...COLORS.surface);
+        this.doc.roundedRect(MARGIN, this.y, CONTENT_WIDTH, boxHeight, 2, 2, 'F');
+        this.doc.setFillColor(...color);
+        this.doc.roundedRect(MARGIN, this.y, 2.5, boxHeight, 1, 1, 'F');
+
+        const statusWidth = this.doc.getTextWidth(interp.status) + 8;
+        this.doc.setFillColor(...color);
+        this.doc.roundedRect(MARGIN + 6, this.y + 3, statusWidth, 6.5, 3.2, 3.2, 'F');
+        this.doc.setTextColor(...COLORS.white);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setFontSize(7.5);
+        this.doc.text(interp.status, MARGIN + 10, this.y + 7.5);
+
+        let cursorY = this.y + 13;
+        this.doc.setTextColor(...COLORS.text);
+        this.doc.setFont('helvetica', 'normal');
+        this.doc.setFontSize(8.5);
+        noteLines.forEach((line) => {
+            this.doc.text(line, MARGIN + 9, cursorY);
+            cursorY += NOTICE_LINE_HEIGHT;
+        });
+
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setTextColor(...COLORS.primary);
+        this.doc.text('Recommandation', MARGIN + 9, cursorY);
+        cursorY += NOTICE_LINE_HEIGHT + 0.5;
+
+        this.doc.setFont('helvetica', 'normal');
+        this.doc.setTextColor(...COLORS.text);
+        recLines.forEach((line) => {
+            this.doc.text(line, MARGIN + 9, cursorY);
+            cursorY += NOTICE_LINE_HEIGHT;
+        });
+
+        this.y = cursorY + 4;
+    }
+
+    private drawSynthesisPage(): void {
+        this.doc.addPage();
+        this.y = MARGIN + 22;
+        this.drawSectionHeader(
+            'Synthèse & recommandations',
+            'Vue d\'ensemble des résultats, conduite à tenir et repères cliniques',
+        );
+
+        const rows = this.buildOverviewRows();
+        this.drawKpiTable('Récapitulatif des indicateurs', rows.length > 0 ? rows : [['Aucune donnée disponible sur la période', '—', '—']]);
+
+        const recommendations = this.buildRecommendations();
+        if (recommendations.length > 0) {
+            this.ensureSpace(18);
+            this.doc.setTextColor(...COLORS.text);
+            this.doc.setFont('helvetica', 'bold');
+            this.doc.setFontSize(10);
+            this.doc.text('Recommandations de suivi', MARGIN, this.y);
+            this.y += 5;
+
+            this.doc.setFont('helvetica', 'normal');
+            this.doc.setFontSize(8.5);
+            recommendations.forEach((recommendation) => {
+                const lines = this.doc.splitTextToSize(recommendation, CONTENT_WIDTH - 6) as string[];
+                this.ensureSpace(lines.length * NOTICE_LINE_HEIGHT + 2);
+                lines.forEach((line, index) => {
+                    this.doc.text(index === 0 ? '•' : '', MARGIN + 1, this.y + index * NOTICE_LINE_HEIGHT);
+                    this.doc.text(line, MARGIN + 5, this.y + index * NOTICE_LINE_HEIGHT);
+                });
+                this.y += lines.length * NOTICE_LINE_HEIGHT + 2;
+            });
+        }
+
+        this.ensureSpace(18);
+        this.doc.setTextColor(...COLORS.text);
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setFontSize(10);
+        this.doc.text('Repères cliniques', MARGIN, this.y);
+        this.y += 4;
+
+        autoTable(this.doc, {
+            startY: this.y,
+            margin: getTablePageMargins(),
+            head: [['Indicateur', 'Cible', 'Référentiel']],
+            body: CLINICAL_TARGETS.map((target) => [target.metric, target.target, target.reference]),
+            styles: { fontSize: 8.5, cellPadding: 2.5, lineColor: COLORS.border },
+            headStyles: { fillColor: COLORS.primary, textColor: COLORS.white, fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: COLORS.background },
+        });
+        this.y = (this.doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 6;
+
+        this.drawBoundedParagraph(
+            'Les interprétations présentées reposent sur des référentiels généraux (ADA, OMS). '
+            + 'Elles ne remplacent pas l\'avis du clinicien traitant et doivent être confrontées au contexte clinique individuel.',
+            CONTENT_WIDTH - QR_SIZE - 4,
+        );
+
+        this.ensureSpace(28);
+        this.doc.setDrawColor(...COLORS.border);
+        this.doc.setLineWidth(0.3);
+        this.doc.line(MARGIN, this.y + 8, MARGIN + 60, this.y + 8);
+        this.doc.setFont('helvetica', 'italic');
+        this.doc.setFontSize(8.5);
+        this.doc.setTextColor(...COLORS.muted);
+        this.doc.text(`Clinicien traitant : ${this.report.header.clinicianName ?? '—'}`, MARGIN, this.y + 15);
+        this.doc.text(`Signalé le ${formatFrenchDateTime(this.report.generatedAt)}`, MARGIN, this.y + 20);
+        this.y += 26;
     }
 
     private addHeadersAndFootersToAllPages(): void {
