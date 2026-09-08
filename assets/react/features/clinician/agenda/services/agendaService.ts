@@ -1,29 +1,34 @@
-// agendaService.ts
 import apiClient from '@/services/api/client';
-import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback'; // Ajout de ApiFeedback
-import { AgendaData, AgendaDay, AgendaAppointment } from '../types';
-
-interface BackendAppointment {
-    id: string;
-    scheduledAt: string;
-    durationMinutes?: number;
-    status: string;
-    reason?: string;
-    patient?: {
-        fullName?: string;
-    } | null;
-}
+import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback';
+import {
+    AgendaAppointment,
+    AgendaData,
+    AgendaDay,
+    AgendaRecord,
+    AgendaStat,
+} from '../types';
+import { formatDateToApi } from '@/utils/date.utils';
 
 export async function fetchAgenda(): Promise<AgendaData> {
-    // 1. Récupérer les rendez-vous du professionnel connecté
-    const response = await apiClient.get<ApiFeedback<BackendAppointment[]>>('/appointments/mine');
-    const appointments = unwrapApiData<BackendAppointment[]>(
-        response.data,
+    // Les rendez-vous arrivant sur /appointments/mine ne contiennent que patientId.
+    // On récupère les patients assignés pour afficher leurs vrais noms.
+    const [appointmentsRes, patientsRes] = await Promise.all([
+        apiClient.get<ApiFeedback<any[]>>('/appointments/mine'),
+        apiClient.get<ApiFeedback<any[]>>('/patients/assigned').catch(() => null),
+    ]);
+
+    const appointments = unwrapApiData<any[]>(
+        appointmentsRes.data,
         "Erreur lors du chargement de l'agenda."
     );
+    const patients = patientsRes?.data?.data ?? [];
 
-    // 2. Filtrer éventuellement pour la semaine en cours (optionnel)
+    const patientMap = new Map(patients.map((p: any) => [String(p.id), p.fullName]));
+    const patientName = (patientId: any): string =>
+        patientMap.get(String(patientId)) ?? `Patient #${patientId}`;
+
     const now = new Date();
+
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - now.getDay() + 1); // lundi
     startOfWeek.setHours(0, 0, 0, 0);
@@ -31,19 +36,24 @@ export async function fetchAgenda(): Promise<AgendaData> {
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
 
-    const weekAppointments = appointments.filter((appt) => {
-        const date = new Date(appt.scheduledAt);
-        return date >= startOfWeek && date <= endOfWeek;
-    });
+    const weekAppointments = appointments
+        .filter((appt: any) => {
+            const date = new Date(appt.scheduledAt);
+            return date >= startOfWeek && date <= endOfWeek;
+        })
+        .map((appt: any) => {
+            const date = new Date(appt.scheduledAt);
+            return {
+                dateStr: formatDateToApi(date),
+                appointment: toAgendaAppointment(appt, date, patientName, now),
+            };
+        });
 
-    // 3. Grouper par jour et construire la structure AgendaDay
     const daysMap = new Map<string, AgendaDay>();
-
-    // Initialiser les 7 jours de la semaine
     for (let i = 0; i < 7; i++) {
         const date = new Date(startOfWeek);
         date.setDate(startOfWeek.getDate() + i);
-        const dateStr = date.toISOString().split('T')[0]; // format YYYY-MM-DD
+        const dateStr = formatDateToApi(date);
         const dayLabel = date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
         daysMap.set(dateStr, {
             date: dateStr,
@@ -52,30 +62,66 @@ export async function fetchAgenda(): Promise<AgendaData> {
         });
     }
 
-    // Remplir les rendez-vous
-    weekAppointments.forEach((appt) => {
-        const dateObj = new Date(appt.scheduledAt);
-        const dateStr = dateObj.toISOString().split('T')[0];
-        if (!daysMap.has(dateStr)) return; // sécurité
-
-        const time = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-        const patientName = appt.patient?.fullName ?? 'Patient inconnu';
-        const motif = appt.reason ?? 'Consultation';
-        const type = (appt.reason ?? '').toLowerCase().includes('diabète') ? 'Suivi diabète' : 'Consultation';
-
-        const appointment: AgendaAppointment = {
-            id: appt.id,
-            time,
-            patient: patientName,
-            motif,
-            type: type as AgendaAppointment['type'],
-        };
-
+    weekAppointments.forEach(({ dateStr, appointment }) => {
+        if (!daysMap.has(dateStr)) return;
         daysMap.get(dateStr)?.appointments.push(appointment);
     });
 
-    // 4. Convertir la map en tableau
-    const days = Array.from(daysMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+    daysMap.forEach((day) => {
+        day.appointments.sort((a, b) => a.time.localeCompare(b.time));
+    });
 
-    return { days };
+    const records: AgendaRecord[] = appointments
+        .map((appt: any) => {
+            const date = new Date(appt.scheduledAt);
+            return {
+                id: String(appt.id ?? ''),
+                date: formatDateToApi(date),
+                dateTime: appt.scheduledAt,
+                time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                patient: patientName(appt.patientId),
+                motif: appt.reason ?? 'Consultation',
+                status: appt.status ?? undefined,
+                isPast: date.getTime() < now.getTime(),
+            };
+        })
+        .sort((a, b) => a.dateTime.localeCompare(b.dateTime));
+
+    const todayStr = formatDateToApi(now);
+    const todayAppointments = weekAppointments.filter((appt) => appt.dateStr === todayStr);
+
+    const stats: AgendaStat[] = [
+        { id: 'today', label: "Aujourd'hui", value: todayAppointments.length },
+        { id: 'week', label: 'Cette semaine', value: weekAppointments.length },
+        { id: 'upcoming', label: 'À venir', value: records.filter((r) => !r.isPast).length },
+    ];
+
+    return {
+        days: Array.from(daysMap.values()).sort((a, b) => a.date.localeCompare(b.date)),
+        records,
+        stats,
+    };
+}
+
+function toAgendaAppointment(
+    appt: any,
+    date: Date,
+    patientName: (patientId: any) => string,
+    now: Date
+): AgendaAppointment {
+    const type = (appt.reason ?? '').toLowerCase().includes('diabète')
+        ? ('Suivi diabète' as const)
+        : ('Consultation' as const);
+
+    return {
+        id: String(appt.id ?? ''),
+        time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        patient: patientName(appt.patientId),
+        patientId: String(appt.patientId ?? ''),
+        motif: appt.reason ?? 'Consultation',
+        type,
+        status: appt.status ?? undefined,
+        durationMinutes: appt.durationMinutes,
+        isPast: date.getTime() < now.getTime(),
+    };
 }
