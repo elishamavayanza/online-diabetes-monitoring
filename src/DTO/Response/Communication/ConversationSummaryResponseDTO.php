@@ -25,6 +25,9 @@ class ConversationSummaryResponseDTO
         public readonly ?string $patientName,
 
         #[OA\Property(type: 'string', nullable: true)]
+        public readonly ?string $patientPhotoUrl,
+
+        #[OA\Property(type: 'string', nullable: true)]
         public readonly ?string $lastMessageContent,
 
         #[OA\Property(type: 'string', format: 'date-time', nullable: true)]

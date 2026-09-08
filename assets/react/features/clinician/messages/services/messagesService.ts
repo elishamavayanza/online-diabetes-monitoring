@@ -7,6 +7,7 @@ interface ConversationSummaryResponse {
     id: string;
     subject: string;
     patientName: string | null;
+    patientPhotoUrl: string | null;
     patientId: string;
     lastMessageContent: string | null;
     lastMessageAt: string | null;
@@ -45,6 +46,7 @@ export async function fetchConversations(): Promise<Conversation[]> {
         participant: conversation.patientName ?? conversation.subject,
         participantId: conversation.patientId,
         type: 'Patient' as const,
+        photoUrl: conversation.patientPhotoUrl ?? undefined,
         dernierMessage: conversation.lastMessageContent ?? '',
         dateDernierMessage: conversation.lastMessageAt ?? conversation.createdAt,
         nonLus: conversation.unreadCount,
@@ -54,7 +56,8 @@ export async function fetchConversations(): Promise<Conversation[]> {
 export async function fetchConversationThread(
     id: string,
     participant = 'Conversation',
-    participantId?: string
+    participantId?: string,
+    photoUrl?: string
 ): Promise<ConversationThread> {
     const response = await apiClient.get<ApiFeedback<MessageDetailResponse[]>>(`/conversations/${id}/messages`);
     const messages = unwrapApiData(response.data, 'Erreur lors du chargement de la discussion.');
@@ -63,6 +66,7 @@ export async function fetchConversationThread(
         id,
         participant,
         participantId: participantId ?? '',
+        photoUrl,
         messages: messages.map((message) => ({
             id: message.id,
             contenu: message.content,

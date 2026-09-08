@@ -100,3 +100,25 @@
         }
     }
 }
+
+/* ============================================================
+   MOBILE – PLEINE HAUTEUR (style WhatsApp)
+   ============================================================ */
+@media (max-width: 768px) {
+    .patient-messages-page {
+        height: auto;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .patient-messages-page .message-thread .card__body {
+        flex: 1 1 0;
+        min-height: 0;
+    }
+
+    .patient-messages-page .message-thread-wrapper {
+        height: auto;
+        flex: 1 1 0;
+        min-height: 0;
+    }
+}

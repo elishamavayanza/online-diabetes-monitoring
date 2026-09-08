@@ -30,7 +30,12 @@ export function usePatientMessages() {
                 const data = await fetchConversations();
                 setConversations(data);
                 if (data.length > 0) {
-                    const thread = await fetchConversationThread(data[0].id, data[0].participant);
+                    const thread = await fetchConversationThread(
+                        data[0].id,
+                        data[0].participant,
+                        data[0].participantId,
+                        data[0].photoUrl
+                    );
                     setSelectedConversation(thread);
                 }
             } catch (err) {
@@ -48,7 +53,12 @@ export function usePatientMessages() {
             setSendError(null);
             const conversation = conversations.find((c) => c.id === id);
             const participant = conversation?.participant ?? 'Conversation';
-            const thread = await fetchConversationThread(id, participant);
+            const thread = await fetchConversationThread(
+                id,
+                participant,
+                conversation?.participantId,
+                conversation?.photoUrl
+            );
             setSelectedConversation(thread);
         } catch (err) {
             setSendError('Impossible de charger la conversation.');
@@ -89,7 +99,12 @@ export function usePatientMessages() {
             }
 
             // Recharger le thread pour obtenir les vraies données
-            const updatedThread = await fetchConversationThread(threadId, participant);
+            const updatedThread = await fetchConversationThread(
+                threadId,
+                participant,
+                selectedConversation?.participantId,
+                selectedConversation?.photoUrl
+            );
             setSelectedConversation(updatedThread);
 
             // Actualiser la liste des conversations
@@ -116,7 +131,12 @@ export function usePatientMessages() {
 
         try {
             await deleteMessageFromApi(messageId);
-            const refreshed = await fetchConversationThread(selectedConversation.id, selectedConversation.participant);
+            const refreshed = await fetchConversationThread(
+                selectedConversation.id,
+                selectedConversation.participant,
+                selectedConversation.participantId,
+                selectedConversation.photoUrl
+            );
             setSelectedConversation(refreshed);
             const updatedConversations = await fetchConversations();
             setConversations(updatedConversations);

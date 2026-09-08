@@ -3,6 +3,7 @@ export interface Conversation {
     participant: string;
     type: 'Patient' | 'Professionnel' | 'Membre';
     participantId?: string;
+    photoUrl?: string;
     dernierMessage: string;
     dateDernierMessage: string;
     nonLus: number;
@@ -30,5 +31,6 @@ export interface ConversationThread {
     id: string;
     participant: string;
     participantId: string;
+    photoUrl?: string;
     messages: Message[];
 }

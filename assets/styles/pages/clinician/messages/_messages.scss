@@ -117,6 +117,15 @@
         font-weight: 600;
         font-size: 1.1rem;
         flex-shrink: 0;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
     }
 
     &__body {
@@ -247,6 +256,15 @@
         font-weight: 600;
         font-size: 1rem;
         flex-shrink: 0;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
     }
 
     &__status {
@@ -1032,12 +1050,57 @@
 
 @media (max-width: 768px) {
 
+    /*
+     * CONVERSATION PLEINE HAUTEUR (style WhatsApp)
+     *
+     * Quand le fil de discussion est ouvert (ou la page patient),
+     * on retire les marges/paddings du conteneur pour que la
+     * conversation occupe toute la hauteur de l'écran, et on
+     * masque les boutons flottants du layout (le fil a son propre
+     * bouton retour).
+     */
+    .main-layout__content:has(.messages-page--mobile),
+    .main-layout__content:has(.patient-messages-page) {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .main-layout__content:has(.messages-page--mobile) .main-layout__page-content,
+    .main-layout__content:has(.patient-messages-page) .main-layout__page-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .main-layout__content:has(.message-thread--mobile) .main-layout__page-content,
+    .main-layout__content:has(.patient-messages-page) .main-layout__page-content {
+        padding-top: 0;
+    }
+
+    .main-layout__content:has(.message-thread--mobile) .main-layout__back-button,
+    .main-layout__content:has(.patient-messages-page) .main-layout__back-button {
+        display: none;
+    }
+
+    .main-layout:has(.message-thread--mobile) .main-layout__floating-toggle-left,
+    .main-layout:has(.message-thread--mobile) .main-layout__floating-toggle-right,
+    .main-layout:has(.patient-messages-page) .main-layout__floating-toggle-left,
+    .main-layout:has(.patient-messages-page) .main-layout__floating-toggle-right {
+        display: none;
+    }
+
+    .messages-page--mobile,
+    .patient-messages-page {
+        flex: 1;
+        min-height: 0;
+        height: auto;
+    }
+
     .messages-page--mobile {
         display: flex;
         flex-direction: column;
 
         width: 100%;
-        height: 100%;
         min-height: 0;
 
         margin: 0;
@@ -1050,12 +1113,36 @@
         box-sizing: border-box;
     }
 
+    .messages-page--mobile .conversation-list {
+        height: 100%;
+        max-height: none;
+        flex: 1 1 0;
+        min-height: 0;
+    }
+
+    .messages-page--mobile .conversation-list .card__body {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 0;
+        min-height: 0;
+        padding: 0;
+    }
+
+    .messages-page--mobile .conversation-list .card__body .conversation-list__header {
+        flex-shrink: 0;
+    }
+
+    .messages-page--mobile .conversation-list .conversation-list__items {
+        flex: 1 1 0;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
     .message-thread--mobile {
         display: flex;
         flex-direction: column;
 
         width: 100%;
-        height: 100%;
         min-height: 0;
 
         margin: 0;
@@ -1075,7 +1162,6 @@
         flex-direction: column;
 
         width: 100%;
-        height: 100%;
         min-height: 0;
 
         margin: 0;
@@ -1088,13 +1174,13 @@
 
     /*
      * CONTENEUR PRINCIPAL DE LA DISCUSSION
+     * (le Card insère un .card__body, c'est lui la référence de hauteur)
      */
-    .message-thread--mobile > .message-thread-wrapper {
+    .message-thread--mobile .card__body {
         display: flex;
         flex-direction: column;
 
         width: 100%;
-        height: 100%;
         min-height: 0;
 
         margin: 0;
@@ -1107,6 +1193,26 @@
         box-sizing: border-box;
 
         flex: 1 1 auto;
+    }
+
+    .message-thread--mobile .message-thread-wrapper {
+        display: flex;
+        flex-direction: column;
+
+        width: 100%;
+        min-height: 0;
+
+        margin: 0;
+        padding: 0;
+
+        border-radius: 0;
+
+        overflow: hidden;
+
+        box-sizing: border-box;
+
+        flex: 1 1 0;
+        height: auto;
     }
 
     /*
@@ -1330,7 +1436,6 @@
 
     .messages-page--mobile {
         width: 100%;
-        height: 100%;
         min-height: 0;
 
         margin: 0;
@@ -1339,7 +1444,6 @@
 
     .message-thread--mobile {
         width: 100%;
-        height: 100%;
         min-height: 0;
         max-height: none;
 

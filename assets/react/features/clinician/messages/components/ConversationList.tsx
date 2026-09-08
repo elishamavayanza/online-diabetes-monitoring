@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { SearchInput } from '@/react/components/Forms/SearchInput'; // ✅ adaptez le chemin
+import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 import { Conversation } from '../types';
 
 interface ConversationListProps {
@@ -57,7 +58,15 @@ export function ConversationList({ conversations, selectedId, onSelect }: Conver
                             onClick={() => onSelect(conv.id)}
                         >
                             <div className="conversation-item__avatar">
-                                {conv.participant.charAt(0).toUpperCase()}
+                                {conv.photoUrl ? (
+                                    <img
+                                        src={resolveAvatarUrl(conv.photoUrl)}
+                                        alt={conv.participant}
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    conv.participant.charAt(0).toUpperCase()
+                                )}
                             </div>
                             <div className="conversation-item__body">
                                 <div className="conversation-item__header">

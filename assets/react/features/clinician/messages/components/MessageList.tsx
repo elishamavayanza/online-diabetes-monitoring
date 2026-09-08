@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ConversationThread, Message, MessageAttachment } from '../types';
 import { AttachmentPreview } from './AttachmentPreview';
+import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 import {
     DeleteIcon,
     DoubleCheckIcon,
@@ -54,7 +55,15 @@ export function MessageList({
 
                 <div className="message-thread__participant-info">
                     <div className="message-thread__avatar-placeholder">
-                        {thread.participant.charAt(0).toUpperCase()}
+                        {thread.photoUrl ? (
+                            <img
+                                src={resolveAvatarUrl(thread.photoUrl)}
+                                alt={thread.participant}
+                                loading="lazy"
+                            />
+                        ) : (
+                            thread.participant.charAt(0).toUpperCase()
+                        )}
                     </div>
                     <div>
                         <h3>{thread.participant}</h3>

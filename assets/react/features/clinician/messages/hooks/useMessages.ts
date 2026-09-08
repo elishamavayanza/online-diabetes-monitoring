@@ -42,12 +42,15 @@ export function useMessages(initialConversationId?: string) {
                             ? initialConversationId
                             : data[0].id;
 
-                    const participant =
-                        data.find((c) => c.id === targetId)?.participant;
+                    const targetConversation = data.find((c) => c.id === targetId);
+                    const participant = targetConversation?.participant;
+                    const photoUrl = targetConversation?.photoUrl;
 
                     const thread = await fetchConversationThread(
                         targetId,
-                        participant
+                        participant,
+                        targetConversation?.participantId,
+                        photoUrl
                     );
                     setSelectedConversation(thread);
                 }
@@ -84,9 +87,12 @@ export function useMessages(initialConversationId?: string) {
         participant?: string
     ) => {
         try {
+            const conversation = conversations.find((item) => item.id === conversationId);
             const thread = await fetchConversationThread(
                 conversationId,
-                participant
+                participant ?? conversation?.participant,
+                conversation?.participantId,
+                conversation?.photoUrl
             );
             setSelectedConversation(thread);
             return thread;
@@ -106,7 +112,12 @@ export function useMessages(initialConversationId?: string) {
             const conversation = conversations.find((item) => item.id === id);
             const participant = conversation?.participant ?? 'Conversation';
 
-            const thread = await fetchConversationThread(id, participant);
+            const thread = await fetchConversationThread(
+                id,
+                participant,
+                conversation?.participantId,
+                conversation?.photoUrl
+            );
             setSelectedConversation(thread);
         } catch (err) {
             console.error('Erreur sélection conversation:', err);
@@ -143,7 +154,9 @@ export function useMessages(initialConversationId?: string) {
             // Recharger le thread depuis le serveur
             const refreshedThread = await fetchConversationThread(
                 conversationId,
-                participant
+                participant,
+                currentThread.participantId,
+                currentThread.photoUrl
             );
             setSelectedConversation(refreshedThread);
 
@@ -172,9 +185,12 @@ export function useMessages(initialConversationId?: string) {
 
         if (!texte.trim() && !fichier) return;
 
+        const threadConv =
+            conversations.find((c) => c.id === threadId) ?? null;
+
         const participant =
             selectedConversation?.participant ??
-            conversations.find((c) => c.id === threadId)?.participant ??
+            threadConv?.participant ??
             'Conversation';
 
         const tempId =
@@ -238,7 +254,9 @@ export function useMessages(initialConversationId?: string) {
             // Recharger le thread depuis le serveur pour obtenir les vraies données
             const updatedThread = await fetchConversationThread(
                 threadId,
-                participant
+                participant,
+                selectedConversation?.participantId ?? threadConv?.participantId,
+                selectedConversation?.photoUrl ?? threadConv?.photoUrl
             );
             setSelectedConversation(updatedThread);
 

@@ -6,6 +6,7 @@ use App\DTO\Feedback;
 use App\DTO\Response\Communication\ConversationSummaryResponseDTO;
 use App\DTO\Response\Communication\MessageAttachmentResponseDTO;
 use App\DTO\Response\Communication\MessageDetailResponseDTO;
+use App\DTO\Response\Identity\AvatarUrl;
 use App\Entity\Communication\Conversation;
 use App\Entity\Communication\Message;
 use App\Entity\Healthcare\CareTeamAssignment;
@@ -159,6 +160,7 @@ class ConversationQueryService
             subject: $conversation->getSubject() ?? 'Conversation',
             patientId: (string) $patient?->getId(),
             patientName: $patientName,
+            patientPhotoUrl: AvatarUrl::toPublicUrl($patient?->getAvatarUrl()),
             lastMessageContent: $lastMessage?->getContent(),
             lastMessageAt: $lastMessage?->getSentAt(),
             unreadCount: $this->messageRepository->countUnreadForUser($conversation, $currentUser),
