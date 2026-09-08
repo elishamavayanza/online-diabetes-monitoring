@@ -446,6 +446,11 @@ final class SecurityService implements SecurityServiceInterface
                 $this->checkPatientAction($action);
                 return true;
             }
+
+            if ($this->isExternalFollower()) {
+                $this->checkExternalFollowerAction($action);
+                return true;
+            }
         } catch (AccessDeniedException $e) {
             return false;
         }
@@ -813,6 +818,11 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::VIEW_EMERGENCY_CONTACT,
             SecurityAction::VIEW_MEDICAL_CONSENT,
             SecurityAction::VIEW_MEDICATION,
+
+            SecurityAction::READ_MESSAGE,
+            SecurityAction::SEND_MESSAGE,
+            SecurityAction::CREATE_CONVERSATION,
+            SecurityAction::DOWNLOAD_ATTACHMENT,
         ];
 
         $this->denyIfNotAllowed(
@@ -834,6 +844,25 @@ final class SecurityService implements SecurityServiceInterface
         return $this->careTeamAssignmentRepository->isExternalFollowerActiveForPatient(
             $user->getId(),
             $patient,
+            new \DateTimeImmutable('today')
+        );
+    }
+
+    /**
+     * Indique si l'utilisateur courant est un professionnel externe invité,
+     * c'est-à-dire qu'il dispose d'au moins une affectation EXTERNAL_FOLLOWER
+     * active, indépendamment du patient ciblé.
+     */
+    public function isExternalFollower(): bool
+    {
+        $user = $this->getCurrentUser();
+
+        if (!$user instanceof HealthcareProfessional) {
+            return false;
+        }
+
+        return $this->careTeamAssignmentRepository->hasActiveExternalFollow(
+            $user,
             new \DateTimeImmutable('today')
         );
     }

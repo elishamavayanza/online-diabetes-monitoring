@@ -86,6 +86,8 @@ class ConversationQueryService
                 return $feedback->setErrorFlushDescription('Patient introuvable.')->autoInitFlush();
             }
 
+            $this->securityService->checkPatientAccess($patient, SecurityAction::READ_MESSAGE);
+
             $conversations = $this->conversationRepository->findByPatientUser((string) $patient->getId());
             $summaries = array_map(
                 fn (Conversation $c) => $this->buildSummary($c, $currentUser),
