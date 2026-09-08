@@ -27,7 +27,7 @@ export function MessagesPage() {
         sendError,
     } = useMessages(initialConversationId);
 
-    const { pushAction } = useActionHistory();
+    const { pushAction, undoLastAction } = useActionHistory();
 
     // État local pour la vue mobile
     const [mobileView, setMobileView] = useState<'list' | 'thread'>(
@@ -49,6 +49,13 @@ export function MessagesPage() {
         setMobileView('list');
     };
 
+    const handleExitMessages = () => {
+        const undone = undoLastAction();
+        if (!undone) {
+            window.history.back();
+        }
+    };
+
     if (isLoading) {
         return <Spinner />;
     }
@@ -68,6 +75,7 @@ export function MessagesPage() {
                         conversations={conversations}
                         selectedId={selectedConversation?.id}
                         onSelect={handleSelectConversation}
+                        onBack={handleExitMessages}
                     />
                 ) : (
                     selectedConversation && (

@@ -70,6 +70,25 @@
         }
     }
 
+    &__nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        border-bottom: 1px solid var(--color-border);
+        flex-shrink: 0;
+    }
+
+    &__back-btn {
+        opacity: 1;
+    }
+
+    &__nav-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text);
+    }
+
     &__items {
         list-style: none;
         padding: 0;
@@ -1075,6 +1094,7 @@
     }
 
     .main-layout__content:has(.message-thread--mobile) .main-layout__back-button,
+    .main-layout__content:has(.messages-page--mobile) .main-layout__back-button,
     .main-layout__content:has(.patient-messages-page) .main-layout__back-button {
         display: none;
     }

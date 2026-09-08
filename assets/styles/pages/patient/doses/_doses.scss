@@ -229,9 +229,10 @@
    ============================================================ */
 
 @media (max-width: 600px) {
-    .dose-item .list__content {
+    .dose-item {
         flex-wrap: wrap;
-        justify-content: flex-start;
+        gap: 0.5rem;
+        align-items: flex-start;
     }
 
     .dose-item__actions {
@@ -240,7 +241,18 @@
     }
 
     .dose-item__info {
+        flex-wrap: wrap;
         width: 100%;
         justify-content: flex-start;
+        align-items: baseline;
+    }
+
+    .dose-item__medication {
+        min-width: 0;
+        flex-basis: 100%;
+    }
+
+    .dose-item__time {
+        min-width: 0;
     }
 }

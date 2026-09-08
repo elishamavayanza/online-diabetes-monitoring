@@ -4,11 +4,13 @@ import { Badge } from '@/react/components/UI/Badge';
 import { SearchInput } from '@/react/components/Forms/SearchInput'; // ✅ adaptez le chemin
 import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 import { Conversation } from '../types';
+import { BackIcon } from './MessageIcons';
 
 interface ConversationListProps {
     conversations: Conversation[];
     selectedId?: string;
     onSelect: (id: string) => void;
+    onBack?: () => void;
 }
 
 // Formate la date du dernier message : heure si aujourd'hui, "Hier", sinon date courte
@@ -28,7 +30,7 @@ function formatConversationDate(dateStr: string): string {
     }
 }
 
-export function ConversationList({ conversations, selectedId, onSelect }: ConversationListProps) {
+export function ConversationList({ conversations, selectedId, onSelect, onBack }: ConversationListProps) {
     const [search, setSearch] = useState('');
 
     // Filtrage des conversations selon le terme de recherche
@@ -38,6 +40,20 @@ export function ConversationList({ conversations, selectedId, onSelect }: Conver
 
     return (
         <Card className="conversation-list">
+            {onBack && (
+                <div className="conversation-list__nav">
+                    <button
+                        type="button"
+                        className="icon-button conversation-list__back-btn"
+                        onClick={onBack}
+                        title="Retour"
+                        aria-label="Retour"
+                    >
+                        <BackIcon />
+                    </button>
+                    <span className="conversation-list__nav-title">Conversations</span>
+                </div>
+            )}
             <div className="conversation-list__header">
                 {/* Champ de recherche remplace le titre */}
                 <SearchInput

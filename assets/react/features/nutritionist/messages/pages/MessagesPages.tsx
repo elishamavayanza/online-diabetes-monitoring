@@ -27,7 +27,7 @@ export function MessagesPages() {
         sendError,
     } = useMessages(initialConversationId);
 
-    const { pushAction } = useActionHistory();
+    const { pushAction, undoLastAction } = useActionHistory();
     const [mobileView, setMobileView] = useState<'list' | 'thread'>(
         initialConversationId ? 'thread' : 'list'
     );
@@ -47,6 +47,13 @@ export function MessagesPages() {
         setMobileView('list');
     };
 
+    const handleExitMessages = () => {
+        const undone = undoLastAction();
+        if (!undone) {
+            window.history.back();
+        }
+    };
+
     if (isLoading) {
         return <Spinner />;
     }
@@ -63,6 +70,7 @@ export function MessagesPages() {
                         conversations={conversations}
                         selectedId={selectedConversation?.id}
                         onSelect={handleSelectConversation}
+                        onBack={handleExitMessages}
                     />
                 ) : (
                     selectedConversation && (
