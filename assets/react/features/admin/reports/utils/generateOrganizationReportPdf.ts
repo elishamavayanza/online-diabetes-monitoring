@@ -46,6 +46,8 @@ const FOOTER_Y = 272;
 const QR_SIZE = 18;
 const QR_X = PAGE_WIDTH - MARGIN - QR_SIZE;
 const QR_Y = PAGE_HEIGHT - MARGIN - QR_SIZE;
+const CONTENT_BOTTOM = FOOTER_Y - 4;
+const TABLE_MARGIN = { left: MARGIN, right: MARGIN, bottom: PAGE_HEIGHT - CONTENT_BOTTOM };
 
 interface PdfAssets {
     logoDataUrl: string;
@@ -136,7 +138,7 @@ class ReportPdfBuilder {
     }
 
     private ensureSpace(requiredHeight: number): void {
-        if (this.y + requiredHeight <= FOOTER_Y - 10) {
+        if (this.y + requiredHeight <= CONTENT_BOTTOM) {
             return;
         }
 
@@ -242,7 +244,7 @@ class ReportPdfBuilder {
         this.y += 42;
         autoTable(this.doc, {
             startY: this.y,
-            margin: { left: MARGIN, right: MARGIN },
+            margin: TABLE_MARGIN,
             theme: 'grid',
             styles: {
                 fontSize: 9,
@@ -266,6 +268,7 @@ class ReportPdfBuilder {
 
         this.drawExecutiveSummary();
 
+        this.ensureSpace(14);
         this.doc.setFont('helvetica', 'bold');
         this.doc.setFontSize(12);
         this.doc.setTextColor(...COLORS.primary);
@@ -283,7 +286,7 @@ class ReportPdfBuilder {
 
         autoTable(this.doc, {
             startY: this.y,
-            margin: { left: MARGIN, right: MARGIN },
+            margin: TABLE_MARGIN,
             head: [['Section', 'Description']],
             body: sections.map((id) => {
                 const meta = {
@@ -313,7 +316,11 @@ class ReportPdfBuilder {
         const notice = 'Ce document est généré automatiquement à partir des données agrégées de l\'organisation. '
             + 'Usage administratif interne uniquement. Ne constitue pas un avis médical. '
             + 'Le QR code présent sur chaque page permet de vérifier l\'authenticité du rapport.';
-        this.doc.text(this.doc.splitTextToSize(notice, CONTENT_WIDTH - QR_SIZE - 4), MARGIN, this.y);
+        const noticeLines = this.doc.splitTextToSize(notice, CONTENT_WIDTH - QR_SIZE - 4) as string[];
+        this.ensureSpace(noticeLines.length * 4 + 4);
+        noticeLines.forEach((line, index) => {
+            this.doc.text(line, MARGIN, this.y + index * 4);
+        });
     }
 
     private drawSectionPages(sections: ReportSectionId[]): void {
@@ -365,6 +372,7 @@ class ReportPdfBuilder {
     }
 
     private drawKpiTable(title: string, rows: [string, string, string, string][]): void {
+        this.ensureSpace(8);
         this.doc.setTextColor(...COLORS.text);
         this.doc.setFont('helvetica', 'bold');
         this.doc.setFontSize(10);
@@ -373,7 +381,7 @@ class ReportPdfBuilder {
 
         autoTable(this.doc, {
             startY: this.y,
-            margin: { left: MARGIN, right: MARGIN },
+            margin: TABLE_MARGIN,
             head: [['Indicateur', 'Valeur', 'Période précédente', 'Évolution']],
             body: rows,
             styles: { fontSize: 9, cellPadding: 3, lineColor: COLORS.border, textColor: COLORS.text },
@@ -389,6 +397,7 @@ class ReportPdfBuilder {
     }
 
     private drawDistributionTable(title: string, items: DistributionItem[]): void {
+        this.ensureSpace(8);
         this.doc.setFont('helvetica', 'bold');
         this.doc.setFontSize(10);
         this.doc.setTextColor(...COLORS.text);
@@ -397,7 +406,7 @@ class ReportPdfBuilder {
 
         autoTable(this.doc, {
             startY: this.y,
-            margin: { left: MARGIN, right: MARGIN },
+            margin: TABLE_MARGIN,
             head: [['Catégorie', 'Effectif', 'Part']],
             body: distributionRows(items),
             styles: { fontSize: 9, cellPadding: 3, lineColor: COLORS.border },
@@ -528,6 +537,7 @@ class ReportPdfBuilder {
         ]);
 
         trends.series.forEach((series) => {
+            this.ensureSpace(8);
             this.doc.setFont('helvetica', 'bold');
             this.doc.setFontSize(10);
             this.doc.setTextColor(...COLORS.text);
@@ -536,7 +546,7 @@ class ReportPdfBuilder {
 
             autoTable(this.doc, {
                 startY: this.y,
-                margin: { left: MARGIN, right: MARGIN },
+                margin: TABLE_MARGIN,
                 head: [['Date', 'Valeur']],
                 body: trendRows(series),
                 styles: { fontSize: 9, cellPadding: 3, lineColor: COLORS.border },
@@ -686,7 +696,7 @@ class ReportPdfBuilder {
 
         autoTable(this.doc, {
             startY: this.y,
-            margin: { left: MARGIN, right: MARGIN },
+            margin: TABLE_MARGIN,
             head: [['Terme', 'Définition']],
             body: ADMIN_GLOSSARY.map((entry) => [entry.term, entry.definition]),
             styles: { fontSize: 8.5, cellPadding: 2.5, lineColor: COLORS.border },
