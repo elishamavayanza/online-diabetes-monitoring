@@ -38,6 +38,41 @@
     }
 }
 
+@media (max-width: 768px) {
+    .admin-external-follows-page {
+        gap: 1rem;
+
+        &__header {
+            flex-direction: column;
+            align-items: stretch;
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        &__header-actions {
+            flex-wrap: wrap;
+            width: 100%;
+
+            > .btn {
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+        }
+    }
+
+    .external-follows-table th,
+    .external-follows-table td {
+        padding: 0.55rem 0.6rem;
+        font-size: 0.82rem;
+    }
+
+    .external-follows-table__wrapper {
+        margin: 0 -0.5rem;
+    }
+}
+
 /* ============================================================
    Table
    ============================================================ */

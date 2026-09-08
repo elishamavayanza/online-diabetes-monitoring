@@ -14,6 +14,13 @@ const ExpandIcon = () => (
     </svg>
 );
 
+const CloseIcon = () => (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+);
+
 export interface RightSidebarProps extends UseRightSidebarProps {
     children: React.ReactNode;
     title?: React.ReactNode;
@@ -54,13 +61,15 @@ export function RightSidebar({
 
     // Largeur initiale adaptée
     const initialWidth = isMobile
-        ? 180
+        ? 260
         : size === 'small' ? 200 : size === 'large' ? 340 : 280;
 
     const { classes } = useRightSidebar({ variant, size, collapsible, defaultCollapsed, className });
 
     const [width, setWidth] = useState<number>(initialWidth);
-    const [isFullyCollapsed, setIsFullyCollapsed] = useState(defaultCollapsed);
+    const [isFullyCollapsed, setIsFullyCollapsed] = useState(
+        defaultCollapsed === undefined ? isMobile : defaultCollapsed
+    );
     const asideRef = useRef<HTMLElement>(null);
 
     const isDraggingRef = useRef(false);
@@ -157,10 +166,10 @@ export function RightSidebar({
 
     const sidebarStyle: React.CSSProperties = {
         width: isFullyCollapsed ? `${effectiveCollapsedWidth}px` : `${width}px`,
-        transition: isDraggingRef.current ? 'none' : 'width 0.3s ease',
-        position: 'relative',
-        flexShrink: 0,
-        overflow: 'hidden',
+        transition: isDraggingRef.current
+            ? 'none'
+            : `width 0.3s ease${isMobile ? ', transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)' : ''}`,
+        transform: isMobile && isFullyCollapsed ? 'translateX(105%)' : 'none',
     };
 
     useEffect(() => {
@@ -168,36 +177,74 @@ export function RightSidebar({
     }, [isFullyCollapsed, width, effectiveCollapsedWidth, updateWidthDOM]);
 
     return (
-        <aside
-            ref={asideRef}
-            className={`${classes} ${isFullyCollapsed ? 'right-sidebar--fully-collapsed' : ''}`}
-            style={sidebarStyle}
-        >
-            {isFullyCollapsed ? (
+        <>
+            {/* Backdrop mobile : tap à l'extérieur → ferme le drawer */}
+            {isMobile && !isFullyCollapsed && (
                 <div
-                    className="right-sidebar__collapsed-strip"
-                    onMouseDown={startDragging}
-                    onClick={(e) => {
-                        if (!isDraggingRef.current) handleToggle();
-                    }}
-                    title="Cliquer pour ouvrir ou glisser vers la gauche"
-                >
-                    <span className="right-sidebar__collapsed-text">{title || ''}</span>
-                </div>
-            ) : (
-                <>
-                    <div
-                        className="right-sidebar__resizer"
-                        onMouseDown={startDragging}
-                        title="Glisser pour redimensionner"
-                    />
-
-                    {header && <div className="right-sidebar__header">{header}</div>}
-                    {title && <div className="right-sidebar__title">{title}</div>}
-                    <div className="right-sidebar__content">{children}</div>
-                    {footer && <div className="right-sidebar__footer">{footer}</div>}
-                </>
+                    className="right-sidebar__backdrop"
+                    onClick={handleToggle}
+                    aria-hidden="true"
+                />
             )}
-        </aside>
+
+            {/* Bouton flottant mobile (rond / chip) pour rouvrir le panneau fermé */}
+            {isMobile && isFullyCollapsed && (
+                <button
+                    type="button"
+                    className="right-sidebar__mobile-trigger"
+                    onClick={handleToggle}
+                    aria-label="Ouvrir le panneau"
+                    title="Ouvrir le panneau"
+                >
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                    {title && <span className="right-sidebar__mobile-trigger-label">{title}</span>}
+                </button>
+            )}
+
+            <aside
+                ref={asideRef}
+                className={`${classes} ${isFullyCollapsed ? 'right-sidebar--fully-collapsed' : ''}`}
+                style={sidebarStyle}
+            >
+                {isFullyCollapsed ? (
+                    <div
+                        className="right-sidebar__collapsed-strip"
+                        onMouseDown={startDragging}
+                        onClick={(e) => {
+                            if (!isDraggingRef.current) handleToggle();
+                        }}
+                        title="Cliquer pour ouvrir ou glisser vers la gauche"
+                    >
+                        <span className="right-sidebar__collapsed-text">{title || ''}</span>
+                    </div>
+                ) : (
+                    <>
+                        <div
+                            className="right-sidebar__resizer"
+                            onMouseDown={startDragging}
+                            title="Glisser pour redimensionner"
+                        />
+
+                        {header && <div className="right-sidebar__header">{header}</div>}
+                        {title && <div className="right-sidebar__title">{title}</div>}
+                        {isMobile && (
+                            <button
+                                type="button"
+                                className="right-sidebar__collapse"
+                                onClick={handleToggle}
+                                aria-label="Fermer le panneau"
+                                title="Fermer le panneau"
+                            >
+                                <CloseIcon />
+                            </button>
+                        )}
+                        <div className="right-sidebar__content">{children}</div>
+                        {footer && <div className="right-sidebar__footer">{footer}</div>}
+                    </>
+                )}
+            </aside>
+        </>
     );
 }

@@ -112,6 +112,11 @@
 @use './pages/patient/nutrition/nutrition' as *;
 
 // ──────────────────────────────────────────
+// 1b. Responsive global (DERNIER pour dominer la cascade)
+// ──────────────────────────────────────────
+@use './baseVariables/responsive' as *;
+
+// ──────────────────────────────────────────
 // 2. Global base styles
 // ──────────────────────────────────────────
 html,

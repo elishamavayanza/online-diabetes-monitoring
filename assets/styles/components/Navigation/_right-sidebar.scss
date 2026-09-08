@@ -270,45 +270,137 @@ body.right-sidebar-resizing {
     }
 }
 
-/* Responsive mobile */
+/* Responsive mobile – modern drawer (glisse depuis la droite, backdrop) */
 @media (max-width: 768px) {
     .right-sidebar {
         position: fixed;
         top: 0;
         right: 0;
         height: 100vh;
-        z-index: 1500;
-        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+        height: 100dvh;
+        z-index: 2200;
+        width: min(320px, 92vw) !important;
+        box-shadow: -6px 0 24px rgba(0, 0, 0, 0.18);
+        border-radius: 0;
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+        border-left: 1px solid var(--color-border);
+        will-change: transform;
 
         &--small,
         &--medium,
         &--large {
-            width: 100%;
-            max-width: 300px;   /* sera ajusté par le style inline */
+            width: min(320px, 92vw) !important;
+        }
+
+        &--fully-collapsed,
+        &--collapsed {
+            transform: translateX(105%);
+            pointer-events: none;
         }
 
         &__resizer {
             display: none;
         }
 
+        &__collapsed-strip {
+            display: none;
+        }
+
         &__header,
         &__footer {
-            padding: 0.5rem;
+            padding: 0.5rem 0.75rem;
             font-size: 0.85rem;
         }
 
         &__content {
-            padding: 0.5rem;
+            padding: 0.5rem 0.75rem;
             font-size: 0.85rem;
+            -webkit-overflow-scrolling: touch;
         }
 
         &__title {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            padding: 0.5rem 0.75rem;
         }
 
-        &__collapse svg {
-            width: 16px;
-            height: 16px;
+        &__collapse {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.5rem;
+            margin-top: 0.35rem;
+            border-radius: 0.5rem;
+
+            svg {
+                width: 20px;
+                height: 20px;
+            }
         }
     }
+
+    /* Backdrop assombri légèrement derrière le drawer */
+    .right-sidebar__backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 2100;
+        background-color: rgba(0, 0, 0, 0.35);
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+        animation: right-sidebar-backdrop-in 0.25s ease;
+    }
+
+    /* Chip flottant pour rouvrir le drawer */
+    .right-sidebar__mobile-trigger {
+        position: fixed;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        z-index: 2100;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 0.9rem 0.6rem 0.65rem;
+        border: none;
+        cursor: pointer;
+        border-top-left-radius: 999px;
+        border-bottom-left-radius: 999px;
+        background-color: var(--color-primary);
+        color: var(--color-on-primary);
+        box-shadow: -3px 3px 14px rgba(0, 0, 0, 0.22);
+        max-width: 160px;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+
+        &:hover {
+            background-color: var(--color-primary-hover);
+        }
+
+        &:active {
+            transform: translateY(-50%) scale(0.96);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        svg {
+            flex-shrink: 0;
+        }
+
+        &-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
+@keyframes right-sidebar-backdrop-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }

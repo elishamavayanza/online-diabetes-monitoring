@@ -227,6 +227,27 @@
     }
 }
 
+@media (max-width: 768px) {
+    .patients-page__actions {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .patients-page__actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .attach-people-modal__actions {
+        flex-wrap: wrap;
+
+        > * {
+            flex: 1 1 auto;
+            justify-content: center;
+        }
+    }
+}
+
 .patients-card {
     @include card;
 }

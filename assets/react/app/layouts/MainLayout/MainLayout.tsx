@@ -12,6 +12,7 @@ import { PopoverMenu } from "@/react/components/UI/PopoverMenu";
 import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
 import { useIsMobile } from '@/react/hooks/useIsMobile';
 import { useIsPortrait } from '@/react/hooks/useIsPortrait';
+import { useDeviceType } from '@/react/hooks/useDeviceType';
 import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useActionHistory } from './contexts/ActionHistoryContext';
@@ -72,11 +73,12 @@ export function MainLayout({
     const { user, logout } = useAuth();
     const isMobile = useIsMobile();
     const isPortrait = useIsPortrait();
+    const deviceType = useDeviceType();
     const location = useLocation();
     const navigate = useNavigate();
     const { undoLastAction } = useActionHistory();
 
-    const isCompact = isMobile || isPortrait;
+    const isCompact = isMobile || isPortrait || deviceType === 'tablet';
 
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [rightSidebarOpen, setRightSidebarOpen] = useState(!isCompact);
@@ -273,11 +275,15 @@ export function MainLayout({
                         {showRightSidebar && rightSidebarOpen && (
                             <RightSidebar
                                 collapsible
+                                defaultCollapsed={false}
                                 size="medium"
                                 minWidth={250}
                                 maxWidth={500}
                                 closeThreshold={80}
                                 collapsedWidth={35}
+                                onToggle={(collapsed) => {
+                                    if (isCompact && collapsed) setRightSidebarOpen(false);
+                                }}
                                 {...rightSidebarProps}
                             >
                                 {rightSidebarContent || (

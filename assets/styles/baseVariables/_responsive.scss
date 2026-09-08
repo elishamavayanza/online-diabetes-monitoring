@@ -1,0 +1,262 @@
+// assets/styles/baseVariables/_responsive.scss
+//
+// Couche responsive GLOBALE – modernisation mobile / tablette de toute
+// l'application. Importée en DERNIER dans index.scss afin de surcharger
+// toutes les pages et composants (specificity équivalente → ordre gagne).
+//
+// Breakpoints alignés sur assets/react/services/device.ts
+//   mobile  ≤ 768   (isMobileWidth)
+//   tablet  > 768 … ≤ 992 (isTabletWidth)
+//   desktop > 992
+// Plus : 600, 480, 360 pour les très petits écrans.
+
+/* ============================================================
+   1. Échelle typographique fluide (réduit la taille des textes
+      et toutes les valeurs en rem partout sur mobile)
+   ============================================================ */
+@media (max-width: 992px) {
+    html {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    html {
+        font-size: 14.5px;
+    }
+
+    body {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+@media (max-width: 480px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+/* ============================================================
+   2. Titres et texte génériques – réduction de taille
+      (scope : application `.main-layout`, hors pages publiques)
+   ============================================================ */
+@media (max-width: 768px) {
+    .main-layout h1 {
+        font-size: 1.55rem !important;
+        line-height: 1.25;
+        word-break: break-word;
+    }
+
+    .main-layout h2 {
+        font-size: 1.3rem !important;
+        line-height: 1.3;
+    }
+
+    .main-layout h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .main-layout h4 {
+        font-size: 1rem !important;
+    }
+
+    .main-layout p {
+        hyphens: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-layout h1 { font-size: 1.4rem !important; }
+    .main-layout h2 { font-size: 1.2rem !important; }
+    .main-layout h3 { font-size: 1.05rem !important; }
+    .main-layout h4 { font-size: 0.95rem !important; }
+}
+
+/* ============================================================
+   3. Composants partagés – compactés sur mobile
+   ============================================================ */
+
+/* --- Boutons : espacements réduits, zone tactile 44px maintenue --- */
+@media (max-width: 600px) {
+    .btn--medium,
+    .btn--large {
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    .btn--outline,
+    .btn--ghost {
+        padding: 0.6rem 0.9rem;
+    }
+}
+
+/* --- Cartes : padding réduit --- */
+@media (max-width: 600px) {
+    .card {
+        border-radius: 0.6rem;
+    }
+
+    .card__header,
+    .card__body,
+    .card__footer {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
+
+/* --- Tableaux : typo compacte + défilement latéral natif --- */
+@media (max-width: 768px) {
+    .table th, .table td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .datatable th, .datatable td {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .datatable__wrapper {
+        border-radius: 0.75rem;
+    }
+}
+
+/* --- Badges --- */
+@media (max-width: 600px) {
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.55rem;
+    }
+}
+
+/* --- Onglets : plus compact --- */
+@media (max-width: 600px) {
+    .tabs__tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* --- Pagination --- */
+@media (max-width: 480px) {
+    .pagination {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+}
+
+/* --- Formulaires : champs pleine largeur, étiquette au-dessus --- */
+@media (max-width: 600px) {
+    .form-field {
+        width: 100%;
+    }
+
+    .form-field__label {
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-field__control,
+    .form-field__input,
+    .form-control,
+    .input,
+    .select,
+    .textarea {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px; /* évite le zoom auto iOS sur focus */
+    }
+}
+
+/* --- Modal : feuille (bottom sheet) sur mobile --- */
+@media (max-width: 600px) {
+    .modal__content {
+        max-width: 100%;
+        width: calc(100% - 1rem);
+        margin: auto;
+        max-height: 92vh;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .modal__header,
+    .modal__body,
+    .modal__footer {
+        padding: 0.9rem 1rem;
+    }
+}
+
+/* --- Pagination / table wrapper : toucher fluide --- */
+.table__wrapper,
+.datatable__wrapper {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================
+   4. Grilles génériques “auto-fit minmax” : déjà flexibles,
+      on force 1 colonne sur très petit écran si nécessaire.
+      (Les calendriers jour/semaine et agendas sont exclus :
+      ils utilisent repeat(7,1fr) / repeat(3,1fr) etc.)
+   ============================================================ */
+@media (max-width: 400px) {
+    [class*="grid"]:not([class*="calendar"]):not([class*="agenda"]):not([class*="week"]) {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================================
+   4bis. En-têtes de page et barres d'actions :
+         passage en colonne / wrap dès la tablette
+   ============================================================ */
+@media (max-width: 992px) {
+    [class$="__header"]:not([class*="calendar"]):not([class*="right-sidebar"]):not([class*="main-layout"]),
+    [class$="-page__header"] {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 768px) {
+    [class$="__header"]:not([class*="calendar"]):not([class*="right-sidebar"]):not([class*="main-layout"]),
+    [class$="-page__header"] {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    [class$="__actions"]:not([class*="calendar"]),
+    [class$="__header-actions"]:not([class*="calendar"]),
+    [class$="__toolbar"] {
+        flex-wrap: wrap;
+        align-items: center;
+    }
+}
+
+@media (max-width: 600px) {
+    /* Grilles à 2 colonnes explicites → 1 colonne sur mobile.
+       Calendriers, agendas, semaines et stats restent tels quels. */
+    [class*="grid"]:not([class*="calendar"]):not([class*="agenda"]):not([class*="week"]):not([class*="stat"]):not([class*="cards"]):not([class*="Grid"]):not([class*="Column"]) {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================================
+   5. Sécurité iOS / viewport
+   ============================================================ */
+@media (max-width: 768px) {
+    .main-layout__content,
+    .main-layout__page-content {
+        overscroll-behavior-y: contain;
+    }
+
+    img,
+    svg {
+        max-width: 100%;
+    }
+}
