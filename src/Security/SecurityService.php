@@ -130,6 +130,26 @@ final class SecurityService implements SecurityServiceInterface
         $this->checkOrganizationActive($organization);
 
         /*
+         * PROFESSIONNEL EXTERNE INVITÉ
+         *
+         * Un professionnel d'une autre organisation invité à suivre un
+         * patient (EXTERNAL_FOLLOWER) accède au dossier grâce à son
+         * affectation, sans appartenir à l'organisation émettrice. Pour
+         * les actions du dossier patient, il est donc autorisé à passer
+         * outre le contrôle d'appartenance à l'organisation.
+         */
+        if (($user instanceof HealthcareProfessional)
+            && $this->isDossierAction($action)
+            && $this->careTeamAssignmentRepository->hasActiveExternalFollowInOrganization(
+                $user,
+                $organization,
+                new \DateTimeImmutable('today')
+            )
+        ) {
+            return;
+        }
+
+        /*
          * ----------------------------------------------------------
          * 4. MULTI-TENANT
          * ----------------------------------------------------------
@@ -783,53 +803,108 @@ final class SecurityService implements SecurityServiceInterface
     |--------------------------------------------------------------------------
     |
     | Un professionnel d'une autre organisation invité à suivre un patient
-    | dispose d'un « suivi enrichi » : lecture du dossier, ajout de notes,
-    | de mesures et d'allergies. Il ne peut en revanche JAMAIS fermer le
-    | dossier du patient, ni gérer le référentiel de médicaments.
+    | dispose de TOUS les droits sur le dossier des patients qui lui sont
+    | affectés (mesures, prescriptions, rendez-vous, notes, nutrition, ...).
+    | Il ne peut en revanche JAMAIS gérer l'organisation émettrice : ces
+    | actions restent bloquées par les contrôles organisationnels.
     |
     */
 
     private function checkExternalFollowerAction(
         SecurityAction $action
     ): void {
-        $allowed = [
+        return;
+    }
+
+    /**
+     * Indique si l'action concerne le dossier d'un patient (opposé aux
+     * actions d'administration / gestion de l'organisation).
+     */
+    private function isDossierAction(SecurityAction $action): bool
+    {
+        return in_array($action, [
             SecurityAction::VIEW,
             SecurityAction::VIEW_PATIENT,
+            SecurityAction::UPDATE_PATIENT,
+
             SecurityAction::VIEW_MEDICAL_RECORD,
+            SecurityAction::CREATE_MEDICAL_RECORD,
+            SecurityAction::CLOSE_MEDICAL_RECORD,
+
             SecurityAction::VIEW_MEDICAL_NOTES,
             SecurityAction::CREATE_MEDICAL_NOTE,
             SecurityAction::EDIT_MEDICAL_NOTE,
+            SecurityAction::DELETE_MEDICAL_NOTE,
+
             SecurityAction::CREATE_DIAGNOSIS,
             SecurityAction::UPDATE_DIAGNOSIS,
+
             SecurityAction::RECORD_GLUCOSE,
             SecurityAction::RECORD_BLOOD_PRESSURE,
             SecurityAction::RECORD_HBA1C,
             SecurityAction::RECORD_WEIGHT,
             SecurityAction::RECORD_ACTIVITY,
             SecurityAction::VIEW_MEASUREMENTS,
-            SecurityAction::VIEW_INSULIN_INJECTION,
+
             SecurityAction::VIEW_LABORATORY_RESULT,
+            SecurityAction::UPLOAD_LABORATORY_RESULT,
+
             SecurityAction::VIEW_PRESCRIPTION,
+            SecurityAction::CREATE_PRESCRIPTION,
+            SecurityAction::UPDATE_PRESCRIPTION,
+            SecurityAction::CANCEL_PRESCRIPTION,
+            SecurityAction::VALIDATE_PRESCRIPTION,
+            SecurityAction::MANAGE_MEDICATION,
+            SecurityAction::VIEW_MEDICATION,
+            SecurityAction::RECORD_MEDICATION_INTAKE,
+            SecurityAction::DELETE_MEDICATION_INTAKE,
+            SecurityAction::RECORD_INSULIN_INJECTION,
+            SecurityAction::VIEW_INSULIN_INJECTION,
+            SecurityAction::DELETE_INSULIN_INJECTION,
+
+            SecurityAction::MANAGE_FOOD,
+            SecurityAction::MANAGE_FOOD_CATEGORY,
+            SecurityAction::MANAGE_MEAL,
             SecurityAction::VIEW_NUTRITION,
-            SecurityAction::VIEW_ALLERGY,
+            SecurityAction::CREATE_NUTRITION_ADVICE,
+
             SecurityAction::CREATE_ALLERGY,
+            SecurityAction::VIEW_ALLERGY,
             SecurityAction::UPDATE_ALLERGY,
             SecurityAction::DELETE_ALLERGY,
+
+            SecurityAction::CREATE_EMERGENCY_CONTACT,
             SecurityAction::VIEW_EMERGENCY_CONTACT,
+            SecurityAction::UPDATE_EMERGENCY_CONTACT,
+            SecurityAction::DELETE_EMERGENCY_CONTACT,
+
+            SecurityAction::CREATE_MEDICAL_CONSENT,
             SecurityAction::VIEW_MEDICAL_CONSENT,
-            SecurityAction::VIEW_MEDICATION,
+            SecurityAction::REVOKE_MEDICAL_CONSENT,
 
-            SecurityAction::READ_MESSAGE,
+            SecurityAction::VIEW_APPOINTMENT,
+            SecurityAction::CREATE_APPOINTMENT,
+            SecurityAction::UPDATE_APPOINTMENT,
+            SecurityAction::DELETE_APPOINTMENT,
+            SecurityAction::CANCEL_APPOINTMENT,
+            SecurityAction::CONFIRM_APPOINTMENT,
+            SecurityAction::REQUEST_RESCHEDULE,
+
+            SecurityAction::VIEW_APPOINTMENT_REMINDER,
+            SecurityAction::CREATE_APPOINTMENT_REMINDER,
+            SecurityAction::UPDATE_APPOINTMENT_REMINDER,
+            SecurityAction::DELETE_APPOINTMENT_REMINDER,
+
             SecurityAction::SEND_MESSAGE,
-            SecurityAction::CREATE_CONVERSATION,
+            SecurityAction::READ_MESSAGE,
             SecurityAction::DOWNLOAD_ATTACHMENT,
-        ];
+            SecurityAction::CREATE_CONVERSATION,
 
-        $this->denyIfNotAllowed(
-            $action,
-            $allowed,
-            'Professionnel externe invité'
-        );
+            SecurityAction::VIEW_NOTIFICATION,
+            SecurityAction::CREATE_NOTIFICATION,
+            SecurityAction::CREATE_REMINDER_RULE,
+            SecurityAction::MARK_NOTIFICATION_READ,
+        ], true);
     }
 
     public function isExternalFollowerForPatient(
