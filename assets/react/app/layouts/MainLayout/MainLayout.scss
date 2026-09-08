@@ -315,7 +315,7 @@
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
-    background-color: white;
+    background-color: var(--color-surface-glass-solid);
     border-left: 4px solid var(--color-primary);
 
     &--success { border-left-color: var(--color-success); }

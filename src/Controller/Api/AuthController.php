@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Common\UserStatus;
 use App\Entity\Identity\User;
 use App\Service\Security\PasswordManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -97,6 +98,12 @@ class AuthController extends AbstractController
         $user->setLoginAttempts(0);
         $user->setLockedUntil(null);
         $user->setLastLoginAt(new \DateTimeImmutable());
+
+        // Activation automatique au premier accès (identifiants validés)
+        if ($user->getStatus() === UserStatus::PENDING_ACTIVATION) {
+            $user->setStatus(UserStatus::ACTIVE);
+        }
+
         $entityManager->flush();
 
         // 4. Génération du token JWT
@@ -310,6 +317,12 @@ class AuthController extends AbstractController
 
         // Rotation : le refresh token présenté ne peut plus être réutilisé.
         $newRefreshToken = $this->issueRefreshToken($user);
+
+        // Activation automatique pour les comptes en attente d'activation
+        if ($user->getStatus() === UserStatus::PENDING_ACTIVATION) {
+            $user->setStatus(UserStatus::ACTIVE);
+        }
+
         $entityManager->flush();
 
         return new JsonResponse([
