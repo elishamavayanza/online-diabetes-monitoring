@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useRightSidebar, UseRightSidebarProps } from '../../../hook-components/Navigation/RightSidebar';
-import { useIsMobile } from '@/react/hooks/useIsMobile';   // ← détection mobile
+import { useIsCompact } from '@/react/hooks/useIsCompact';   // ← mobile / tablette / portrait
 
 const CollapseIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -51,16 +51,16 @@ export function RightSidebar({
                                  closeThreshold = 60,
                                  collapsedWidth = 35,
                              }: RightSidebarProps) {
-    const isMobile = useIsMobile();
+    const isCompact = useIsCompact();
 
-    // Ajustements mobiles
-    const effectiveMinWidth = isMobile ? 120 : minWidth;
-    const effectiveMaxWidth = isMobile ? 280 : maxWidth;
-    const effectiveCloseThreshold = isMobile ? 40 : closeThreshold;
-    const effectiveCollapsedWidth = isMobile ? 25 : collapsedWidth;
+    // Ajustements mode compact (mobile / tablette / portrait)
+    const effectiveMinWidth = isCompact ? 120 : minWidth;
+    const effectiveMaxWidth = isCompact ? 280 : maxWidth;
+    const effectiveCloseThreshold = isCompact ? 40 : closeThreshold;
+    const effectiveCollapsedWidth = isCompact ? 25 : collapsedWidth;
 
     // Largeur initiale adaptée
-    const initialWidth = isMobile
+    const initialWidth = isCompact
         ? 260
         : size === 'small' ? 200 : size === 'large' ? 340 : 280;
 
@@ -68,7 +68,7 @@ export function RightSidebar({
 
     const [width, setWidth] = useState<number>(initialWidth);
     const [isFullyCollapsed, setIsFullyCollapsed] = useState(
-        defaultCollapsed === undefined ? isMobile : defaultCollapsed
+        defaultCollapsed === undefined ? isCompact : defaultCollapsed
     );
     const asideRef = useRef<HTMLElement>(null);
 
@@ -168,8 +168,8 @@ export function RightSidebar({
         width: isFullyCollapsed ? `${effectiveCollapsedWidth}px` : `${width}px`,
         transition: isDraggingRef.current
             ? 'none'
-            : `width 0.3s ease${isMobile ? ', transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)' : ''}`,
-        transform: isMobile && isFullyCollapsed ? 'translateX(105%)' : 'none',
+            : `width 0.3s ease${isCompact ? ', transform 0.32s cubic-bezier(0.4, 0, 0.2, 1)' : ''}`,
+        transform: isCompact && isFullyCollapsed ? 'translateX(105%)' : 'none',
     };
 
     useEffect(() => {
@@ -178,8 +178,8 @@ export function RightSidebar({
 
     return (
         <>
-            {/* Backdrop mobile : tap à l'extérieur → ferme le drawer */}
-            {isMobile && !isFullyCollapsed && (
+            {/* Backdrop : tap à l'extérieur → ferme le drawer */}
+            {isCompact && !isFullyCollapsed && (
                 <div
                     className="right-sidebar__backdrop"
                     onClick={handleToggle}
@@ -187,8 +187,8 @@ export function RightSidebar({
                 />
             )}
 
-            {/* Bouton flottant mobile (rond / chip) pour rouvrir le panneau fermé */}
-            {isMobile && isFullyCollapsed && (
+            {/* Bouton flottant (rond / chip) pour rouvrir le panneau fermé */}
+            {isCompact && isFullyCollapsed && (
                 <button
                     type="button"
                     className="right-sidebar__mobile-trigger"
@@ -229,7 +229,7 @@ export function RightSidebar({
 
                         {header && <div className="right-sidebar__header">{header}</div>}
                         {title && <div className="right-sidebar__title">{title}</div>}
-                        {isMobile && (
+                        {isCompact && (
                             <button
                                 type="button"
                                 className="right-sidebar__collapse"

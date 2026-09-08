@@ -270,8 +270,9 @@ body.right-sidebar-resizing {
     }
 }
 
-/* Responsive mobile – modern drawer (glisse depuis la droite, backdrop) */
-@media (max-width: 768px) {
+/* Responsive compact – drawer moderne (mobile, tablette & portrait)
+   glisse depuis la droite avec backdrop */
+@media (max-width: 992px), (orientation: portrait) {
     .right-sidebar {
         position: fixed;
         top: 0;

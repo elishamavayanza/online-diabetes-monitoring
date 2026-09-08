@@ -12,8 +12,7 @@ import { PopoverMenu } from "@/react/components/UI/PopoverMenu";
 import { ThemeToggle } from "@/react/components/UI/ThemeToggle";
 import { LogoutIcon, ProfileIcon } from "@/react/app/layouts/MainLayout/components/Sidebar/sidebar.icons";
 import { useIsMobile } from '@/react/hooks/useIsMobile';
-import { useIsPortrait } from '@/react/hooks/useIsPortrait';
-import { useDeviceType } from '@/react/hooks/useDeviceType';
+import { useIsCompact } from '@/react/hooks/useIsCompact';
 import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useActionHistory } from './contexts/ActionHistoryContext';
@@ -73,13 +72,10 @@ export function MainLayout({
                            }: MainLayoutProps) {
     const { user, logout } = useAuth();
     const isMobile = useIsMobile();
-    const isPortrait = useIsPortrait();
-    const deviceType = useDeviceType();
+    const isCompact = useIsCompact();
     const location = useLocation();
     const navigate = useNavigate();
     const { undoLastAction } = useActionHistory();
-
-    const isCompact = isMobile || isPortrait || deviceType === 'tablet';
 
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [rightSidebarOpen, setRightSidebarOpen] = useState(!isCompact);
