@@ -5,7 +5,9 @@ import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 export interface CreateInvitationFormValues {
     patientId: string;
     email: string;
-    durationDays: number;
+    durationDays: number | null;
+    startDate: string;
+    endDate: string;
     message: string;
 }
 
@@ -19,6 +21,8 @@ export function useCreateExternalFollow(organizationId: string, options?: Option
         patientId: '',
         email: '',
         durationDays: 90,
+        startDate: '',
+        endDate: '',
         message: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,7 +33,7 @@ export function useCreateExternalFollow(organizationId: string, options?: Option
     };
 
     const reset = () => {
-        setForm({ patientId: '', email: '', durationDays: 90, message: '' });
+        setForm({ patientId: '', email: '', durationDays: 90, startDate: '', endDate: '', message: '' });
         setError(null);
     };
 
@@ -46,7 +50,14 @@ export function useCreateExternalFollow(organizationId: string, options?: Option
             showToast({ type: 'error', message: 'L’email saisi n’est pas valide.' });
             return false;
         }
-        if (form.durationDays < 1 || form.durationDays > 730) {
+
+        const hasDateRange = Boolean(form.startDate && form.endDate);
+        if (hasDateRange) {
+            if (form.endDate <= form.startDate) {
+                showToast({ type: 'error', message: 'La date de fin doit être postérieure à la date de début.' });
+                return false;
+            }
+        } else if (form.durationDays === null || form.durationDays < 1 || form.durationDays > 730) {
             showToast({ type: 'error', message: 'La durée doit être comprise entre 1 et 730 jours.' });
             return false;
         }
@@ -57,7 +68,9 @@ export function useCreateExternalFollow(organizationId: string, options?: Option
             await createExternalFollow(organizationId, {
                 patientId: Number(form.patientId),
                 email: form.email.trim(),
-                durationDays: form.durationDays,
+                durationDays: hasDateRange ? null : form.durationDays,
+                startDate: hasDateRange ? form.startDate : null,
+                endDate: hasDateRange ? form.endDate : null,
                 message: form.message.trim() || null,
             });
             showToast({ type: 'success', message: 'Invitation envoyée avec succès.' });

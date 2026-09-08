@@ -5,6 +5,7 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Input } from '@/react/components/Forms/Input';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Select } from '@/react/components/Forms/Select';
+import { DateRangePicker } from '@/react/components/Forms/DateRangePicker/DateRangePicker';
 import { SearchableSelect } from '@/react/components/Forms/SearchableSelect/SearchableSelect';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
@@ -53,6 +54,10 @@ export function CreateInvitationModal({ isOpen, organizationId, onClose, onSucce
         setPresetMode(value);
         if (value !== 'custom') {
             updateField('durationDays', Number(value));
+            updateField('startDate', '');
+            updateField('endDate', '');
+        } else {
+            updateField('durationDays', null);
         }
     };
 
@@ -94,18 +99,20 @@ export function CreateInvitationModal({ isOpen, organizationId, onClose, onSucce
                         <Select
                             value={presetMode}
                             onChange={(e) => handlePresetChange(e.target.value)}
-                            options={[...DURATION_PRESETS, { value: 'custom', label: 'Durée personnalisée...' }]}
+                            options={[...DURATION_PRESETS, { value: 'custom', label: 'Période personnalisée (de / à)...' }]}
                         />
                     </FormField>
                     {presetMode === 'custom' && (
-                        <FormField label="Nombre de jours *">
-                            <Input
-                                type="number"
-                                min={1}
-                                max={730}
-                                value={String(form.durationDays)}
-                                onChange={(e) => updateField('durationDays', Number(e.target.value))}
-                                required
+                        <FormField label="Période d'accès (de / à) *">
+                            <DateRangePicker
+                                labelStart="Date de début"
+                                labelEnd="Date de fin"
+                                startDate={form.startDate}
+                                endDate={form.endDate}
+                                onChange={(range) => {
+                                    updateField('startDate', range.startDate);
+                                    updateField('endDate', range.endDate);
+                                }}
                             />
                         </FormField>
                     )}

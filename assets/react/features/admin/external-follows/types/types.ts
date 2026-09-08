@@ -35,12 +35,16 @@ export interface ExternalFollowLogEntry {
 export interface CreateExternalFollowPayload {
     patientId: number;
     email: string;
-    durationDays: number;
+    durationDays?: number | null;
+    startDate?: string | null;
+    endDate?: string | null;
     message?: string | null;
 }
 
 export interface RenewExternalFollowPayload {
-    durationDays: number;
+    durationDays?: number | null;
+    startDate?: string | null;
+    endDate?: string | null;
 }
 
 export const EXTERNAL_FOLLOW_DURATION_PRESETS = [30, 90, 180, 365] as const;

@@ -21,10 +21,15 @@ class ExternalFollowInvitationRequestDTO
         #[OA\Property(type: 'string', format: 'email', example: 'dr.dupont@centre2.com', description: 'Email du professionnel invité (un compte doit exister)')]
         public readonly string $email,
 
-        #[Assert\NotBlank]
         #[Assert\Range(min: 1, max: 730)]
-        #[OA\Property(type: 'integer', example: 90, description: 'Durée en jours de l’accès (ex. 30, 90, 180, 365)')]
-        public readonly int $durationDays,
+        #[OA\Property(type: 'integer', example: 90, description: 'Durée en jours de l’accès (ex. 30, 90, 180, 365). Ignorée si endDate est fournie.')]
+        public readonly ?int $durationDays = null,
+
+        #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-09-10', description: 'Date de début de la période (utilisée avec endDate pour une durée personnalisée)')]
+        public readonly ?\DateTimeImmutable $startDate = null,
+
+        #[OA\Property(type: 'string', format: 'date', nullable: true, example: '2026-12-10', description: 'Date de fin de la période (utilisée avec startDate pour une durée personnalisée)')]
+        public readonly ?\DateTimeImmutable $endDate = null,
 
         #[OA\Property(type: 'string', nullable: true, example: 'Bonjour, merci de suivre ce patient pendant sa grossesse.', description: 'Message d’accompagnement (optionnel)')]
         public readonly ?string $message = null

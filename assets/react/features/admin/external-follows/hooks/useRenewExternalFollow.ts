@@ -8,12 +8,20 @@ interface Options {
 
 export function useRenewExternalFollow(organizationId: string, options?: Options) {
     const { showToast } = useToast();
-    const [durationDays, setDurationDays] = useState(90);
+    const [durationDays, setDurationDays] = useState<number | null>(90);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const submit = async (invitationId: string): Promise<boolean> => {
-        if (durationDays < 1 || durationDays > 730) {
+        const hasDateRange = Boolean(startDate && endDate);
+        if (hasDateRange) {
+            if (endDate <= startDate) {
+                showToast({ type: 'error', message: 'La date de fin doit être postérieure à la date de début.' });
+                return false;
+            }
+        } else if (durationDays === null || durationDays < 1 || durationDays > 730) {
             showToast({ type: 'error', message: 'La durée doit être comprise entre 1 et 730 jours.' });
             return false;
         }
@@ -21,7 +29,11 @@ export function useRenewExternalFollow(organizationId: string, options?: Options
         setIsSubmitting(true);
         setError(null);
         try {
-            await renewExternalFollow(organizationId, invitationId, { durationDays });
+            await renewExternalFollow(organizationId, invitationId, {
+                durationDays: hasDateRange ? null : durationDays,
+                startDate: hasDateRange ? startDate : null,
+                endDate: hasDateRange ? endDate : null,
+            });
             showToast({ type: 'success', message: 'Délai prolongé avec succès.' });
             options?.onSuccess?.();
             return true;
@@ -35,5 +47,5 @@ export function useRenewExternalFollow(organizationId: string, options?: Options
         }
     };
 
-    return { durationDays, setDurationDays, submit, isSubmitting, error };
+    return { durationDays, setDurationDays, startDate, setStartDate, endDate, setEndDate, submit, isSubmitting, error };
 }

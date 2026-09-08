@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Form } from '@/react/components/Forms/Form';
 import { FormField } from '@/react/components/Forms/FormField';
-import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
+import { DateRangePicker } from '@/react/components/Forms/DateRangePicker/DateRangePicker';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { useRenewExternalFollow } from '../hooks/useRenewExternalFollow';
@@ -25,13 +25,18 @@ const DURATION_PRESETS = [
 ];
 
 export function RenewModal({ isOpen, organizationId, invitationId, patientName, onClose, onSuccess }: RenewModalProps) {
-    const { durationDays, setDurationDays, submit, isSubmitting, error } = useRenewExternalFollow(organizationId, { onSuccess });
+    const { durationDays, setDurationDays, startDate, setStartDate, endDate, setEndDate, submit, isSubmitting, error } =
+        useRenewExternalFollow(organizationId, { onSuccess });
     const [presetMode, setPresetMode] = useState<string>('90');
 
     const handlePresetChange = (value: string) => {
         setPresetMode(value);
         if (value !== 'custom') {
             setDurationDays(Number(value));
+            setStartDate('');
+            setEndDate('');
+        } else {
+            setDurationDays(null);
         }
     };
 
@@ -49,25 +54,27 @@ export function RenewModal({ isOpen, organizationId, invitationId, patientName, 
                 {error && <Alert variant="error">{error}</Alert>}
                 <p className="external-follow-form__intro">
                     Prolongez l'accès au dossier de <strong>{patientName}</strong>. Chaque jour ajouté
-                    s'applique à partir de la fin du délai courant.
+                    s'applique à partir de la fin du délai courant, ou définissez une nouvelle période.
                 </p>
                 <Form onSubmit={handleSubmit}>
                     <FormField label="Durée ajoutée *">
                         <Select
                             value={presetMode}
                             onChange={(e) => handlePresetChange(e.target.value)}
-                            options={[...DURATION_PRESETS, { value: 'custom', label: 'Durée personnalisée...' }]}
+                            options={[...DURATION_PRESETS, { value: 'custom', label: 'Période personnalisée (de / à)...' }]}
                         />
                     </FormField>
                     {presetMode === 'custom' && (
-                        <FormField label="Nombre de jours à ajouter *">
-                            <Input
-                                type="number"
-                                min={1}
-                                max={730}
-                                value={String(durationDays)}
-                                onChange={(e) => setDurationDays(Number(e.target.value))}
-                                required
+                        <FormField label="Nouvelle période (de / à) *">
+                            <DateRangePicker
+                                labelStart="Date de début"
+                                labelEnd="Date de fin"
+                                startDate={startDate}
+                                endDate={endDate}
+                                onChange={(range) => {
+                                    setStartDate(range.startDate);
+                                    setEndDate(range.endDate);
+                                }}
                             />
                         </FormField>
                     )}

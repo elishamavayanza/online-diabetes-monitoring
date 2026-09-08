@@ -72,9 +72,6 @@ class ExternalFollowService
                 throw new \DomainException('Une invitation en attente existe déjà pour ce professionnel et ce patient.', 409);
             }
 
-            $today = new \DateTimeImmutable('today');
-            $endDate = $today->modify('+' . $dto->durationDays . ' days');
-
             $invitation = new ExternalFollowInvitation();
             $invitation->setPatient($patient);
             $invitation->setOrganization($organization);
@@ -83,9 +80,36 @@ class ExternalFollowService
             $invitation->setProfessional($professional);
             $invitation->setToken(bin2hex(random_bytes(32)));
             $invitation->setStatus(ExternalFollowStatus::PENDING);
-            $invitation->setStartDate($today);
-            $invitation->setEndDate($endDate);
             $invitation->setMessage($dto->message);
+
+            $today = new \DateTimeImmutable('today');
+
+            if ($dto->endDate !== null) {
+                // Période personnalisée « de telle à telle date ».
+                $start = $dto->startDate ?? $today;
+
+                if ($dto->startDate !== null && $dto->startDate < $today) {
+                    throw new \InvalidArgumentException('La date de début ne peut pas être antérieure à aujourd’hui.');
+                }
+                if ($dto->endDate <= $start) {
+                    throw new \InvalidArgumentException('La date de fin doit être postérieure à la date de début.');
+                }
+                if ($dto->startDate !== null && (int) $dto->endDate->diff($dto->startDate)->days > 730) {
+                    throw new \InvalidArgumentException('La période ne peut pas dépasser 730 jours.');
+                }
+
+                $invitation->setStartDate($start);
+                $invitation->setEndDate($dto->endDate);
+            } else {
+                if ($dto->durationDays === null) {
+                    throw new \InvalidArgumentException(
+                        'Indiquez une durée en jours ou une période personnalisée (de / à).'
+                    );
+                }
+
+                $invitation->setStartDate($today);
+                $invitation->setEndDate($today->modify('+' . $dto->durationDays . ' days'));
+            }
 
             $this->entityManager->persist($invitation);
             $this->entityManager->flush();
@@ -157,9 +181,34 @@ class ExternalFollowService
             $currentEnd = $invitation->getEndDate();
 
             $base = ($currentEnd !== null && $currentEnd >= $today) ? $currentEnd : $today;
-            $newEnd = $base->modify('+' . $dto->durationDays . ' days');
 
-            $invitation->setEndDate($newEnd);
+            if ($dto->endDate !== null) {
+                // Nouvelle période personnalisée « de telle à telle date ».
+                $start = $dto->startDate ?? $base;
+
+                if ($dto->startDate !== null && $dto->startDate < $today) {
+                    throw new \InvalidArgumentException('La date de début ne peut pas être antérieure à aujourd’hui.');
+                }
+                if ($dto->endDate <= $start) {
+                    throw new \InvalidArgumentException('La date de fin doit être postérieure à la date de début.');
+                }
+                if ($dto->startDate !== null && (int) $dto->endDate->diff($dto->startDate)->days > 730) {
+                    throw new \InvalidArgumentException('La période ne peut pas dépasser 730 jours.');
+                }
+
+                $invitation->setStartDate($start);
+                $invitation->setEndDate($dto->endDate);
+                $newEnd = $dto->endDate;
+            } else {
+                if ($dto->durationDays === null) {
+                    throw new \InvalidArgumentException(
+                        'Indiquez un nombre de jours à ajouter ou une nouvelle période (de / à).'
+                    );
+                }
+
+                $newEnd = $base->modify('+' . $dto->durationDays . ' days');
+                $invitation->setEndDate($newEnd);
+            }
 
             if ($invitation->getStatus() !== ExternalFollowStatus::ACCEPTED) {
                 $invitation->setStatus(ExternalFollowStatus::PENDING);
@@ -167,6 +216,9 @@ class ExternalFollowService
 
             $assignment = $invitation->getAssignment();
             if ($assignment !== null) {
+                if ($dto->endDate !== null && $dto->startDate !== null) {
+                    $assignment->setStartDate($dto->startDate);
+                }
                 $assignment->setEndDate($newEnd);
                 $assignment->setActive(true);
             }
