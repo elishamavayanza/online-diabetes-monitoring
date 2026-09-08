@@ -1438,3 +1438,132 @@
         font-size: 1.8rem;
     }
 }
+
+/* ============================================================
+   Thème sombre (data-theme="dark" sur <html>)
+   Les classes locales sont hachées par CSS Modules, mais cette
+   section est compilée dans le même module => elle cible bien
+   les mêmes éléments, avec une spécificité supérieure au reste.
+   Aucune couleur claire en dur n'est conservée en mode sombre.
+   ============================================================ */
+
+/* ---------- Header & menu mobile : verre teinté sombre ---------- */
+html[data-theme='dark'] .header {
+    background-color: var(--color-surface-glass-strong);
+    border-bottom-color: var(--color-border);
+    box-shadow: 0 2px 24px var(--color-shadow);
+}
+
+html[data-theme='dark'] .mobileMenu {
+    background-color: var(--color-surface-glass-solid);
+    border-bottom-color: var(--color-border);
+    box-shadow: 0 8px 24px var(--color-shadow);
+}
+
+/* ---------- Hero : halo teal + illustration remise en couleurs ---------- */
+html[data-theme='dark'] .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 22% 55%, rgba(79, 179, 180, 0.22) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 90%, rgba(244, 162, 97, 0.08) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+html[data-theme='dark'] .heroIllustration circle[fill='#2C7A7B'] { fill: var(--color-primary); }
+html[data-theme='dark'] .heroIllustration circle[fill='#76B8B8'] { fill: var(--color-secondary); }
+html[data-theme='dark'] .heroIllustration rect { fill: var(--color-surface-elevated); stroke: var(--color-secondary); }
+html[data-theme='dark'] .heroIllustration line[stroke='#2C7A7B'] { stroke: var(--color-primary); }
+html[data-theme='dark'] .heroIllustration line[stroke='#76B8B8'] { stroke: var(--color-secondary); }
+html[data-theme='dark'] .heroIllustration path[stroke='#2C7A7B'] { stroke: var(--color-secondary); }
+
+/* ---------- About : fond dégradé sombre ---------- */
+html[data-theme='dark'] .about {
+    background:
+        radial-gradient(ellipse at 20% 80%, rgba(79, 179, 180, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(124, 196, 197, 0.08) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(14, 20, 23, 0.98) 0%, rgba(22, 32, 36, 0.98) 50%, rgba(16, 24, 28, 0.98) 100%);
+    border-top-color: var(--color-border);
+}
+
+html[data-theme='dark'] .aboutInner p {
+    text-shadow: none;
+    opacity: 0.9;
+}
+
+/* ---------- Features : cartes sombres avec halo au survol ---------- */
+html[data-theme='dark'] .card {
+    background-color: var(--color-surface);
+    border-color: var(--color-border);
+    box-shadow: 0 8px 24px var(--color-shadow);
+}
+
+html[data-theme='dark'] .card::after {
+    background: radial-gradient(circle, rgba(79, 179, 180, 0.12), transparent 70%);
+}
+
+html[data-theme='dark'] .card:hover {
+    background-color: var(--color-surface-elevated);
+    border-color: rgba(79, 179, 180, 0.45);
+    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(79, 179, 180, 0.18);
+}
+
+/* ---------- Users : blocs verre sombres ---------- */
+html[data-theme='dark'] .users {
+    background-color: var(--color-surface);
+    border-top-color: var(--color-border);
+    border-bottom-color: var(--color-border);
+}
+
+html[data-theme='dark'] .users::before {
+    opacity: 0.4;
+}
+
+html[data-theme='dark'] .users::after {
+    background: rgba(14, 20, 23, 0.6);
+}
+
+html[data-theme='dark'] .userBlocks div {
+    background-color: var(--color-surface-glass-solid);
+    border-color: var(--color-border);
+    box-shadow: 0 8px 24px var(--color-shadow);
+}
+
+html[data-theme='dark'] .userBlocks div::after {
+    background: radial-gradient(circle, rgba(79, 179, 180, 0.12), transparent 70%);
+}
+
+html[data-theme='dark'] .userBlocks div:hover {
+    background-color: var(--color-surface-elevated);
+    border-color: rgba(79, 179, 180, 0.45);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(79, 179, 180, 0.18);
+}
+
+/* ---------- Final CTA : panneau sombre lumineux ---------- */
+html[data-theme='dark'] .finalCta {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(79, 179, 180, 0.2) 0%, transparent 55%),
+        linear-gradient(135deg, #111B1F 0%, #162024 100%);
+    color: var(--color-text);
+    border-top: 1px solid var(--color-border);
+}
+
+html[data-theme='dark'] .finalCta .primaryCta {
+    background: linear-gradient(135deg, #3DA6A7 0%, #4FB3B4 100%);
+    color: var(--color-on-primary);
+    border-color: rgba(124, 196, 197, 0.4);
+    box-shadow: 0 8px 28px rgba(79, 179, 180, 0.35);
+}
+
+html[data-theme='dark'] .finalCta .primaryCta:hover {
+    background: linear-gradient(135deg, #63C0C1 0%, #4FB3B4 100%);
+    box-shadow: 0 12px 34px rgba(79, 179, 180, 0.45);
+    transform: translateY(-3px);
+}
+
+/* ---------- Footer : bordure sombre ---------- */
+html[data-theme='dark'] .footer {
+    border-top-color: var(--color-border);
+}
