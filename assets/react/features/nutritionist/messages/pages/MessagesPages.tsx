@@ -8,13 +8,13 @@ import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { useSearchParams } from 'react-router-dom';
-import { useIsMobile } from '@/react/hooks/useIsMobile';
+import { useIsCompact } from '@/react/hooks/useIsCompact';
 import '@/styles/pages/clinician/messages/_messages.scss';
 
 export function MessagesPages() {
     const [searchParams] = useSearchParams();
     const initialConversationId = searchParams.get('conversationId') || undefined;
-    const isMobile = useIsMobile();
+    const isCompact = useIsCompact(); // mobile, tablette ou portrait → rafraîchissement de la vue
 
     const {
         conversations,
@@ -38,7 +38,7 @@ export function MessagesPages() {
             pushAction(() => selectConversation(previousId));
         }
         void selectConversation(id);
-        if (isMobile) {
+        if (isCompact) {
             setMobileView('thread');
         }
     };
@@ -55,7 +55,7 @@ export function MessagesPages() {
         return <Alert variant="error">{error}</Alert>;
     }
 
-    if (isMobile) {
+    if (isCompact) {
         return (
             <div className="messages-page messages-page--mobile">
                 {mobileView === 'list' ? (

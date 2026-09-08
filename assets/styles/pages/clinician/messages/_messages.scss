@@ -1042,13 +1042,10 @@
 }
 
 /* ============================================================
-   RESPONSIVE MOBILE
-   ============================================================ */
-/* ============================================================
-   RESPONSIVE MOBILE
+   RESPONSIVE : MOBILE, TABLETTE ET PORTRAIT (style WhatsApp)
    ============================================================ */
 
-@media (max-width: 768px) {
+@media (max-width: 992px), (orientation: portrait) {
 
     /*
      * CONVERSATION PLEINE HAUTEUR (style WhatsApp)

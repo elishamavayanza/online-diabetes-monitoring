@@ -9,12 +9,12 @@ import { Alert } from '@/react/components/UI/Alert';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/messages/_messages.scss';
 import { useSearchParams } from 'react-router-dom';
-import { useIsMobile } from '@/react/hooks/useIsMobile'; // chemin à adapter
+import { useIsCompact } from '@/react/hooks/useIsCompact';
 
 export function MessagesPage() {
     const [searchParams] = useSearchParams();
     const initialConversationId = searchParams.get('conversationId') || undefined;
-    const isMobile = useIsMobile(); // détection mobile
+    const isCompact = useIsCompact(); // mobile, tablette ou portrait → rafraîchissement de la vue
 
     const {
         conversations,
@@ -40,8 +40,8 @@ export function MessagesPage() {
             pushAction(() => selectConversation(previousId));
         }
         void selectConversation(id);
-        if (isMobile) {
-            setMobileView('thread'); //  basculer vers le fil sur mobile
+        if (isCompact) {
+            setMobileView('thread'); //  basculer vers le fil en mode compact
         }
     };
 
@@ -58,9 +58,9 @@ export function MessagesPage() {
     }
 
     // ==============================
-    // RENDU MOBILE
+    // RENDU MOBILE / TABLETTE PORTRAIT / COMPACT
     // ==============================
-    if (isMobile) {
+    if (isCompact) {
         return (
             <div className="messages-page messages-page--mobile">
                 {mobileView === 'list' ? (
@@ -90,7 +90,7 @@ export function MessagesPage() {
     }
 
     // ==============================
-    // RENDU DESKTOP / TABLETTE
+    // RENDU DESKTOP (paysage)
     // ==============================
     return (
         <div className="messages-page">
