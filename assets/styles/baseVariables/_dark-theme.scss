@@ -85,17 +85,17 @@ html[data-theme='dark'] .tooltip {
 html[data-theme='dark'] .main-layout__body,
 html[data-theme='dark'] .main-layout__header,
 html[data-theme='dark'] .main-layout__footer {
-    background-color: #0B2527 !important;
+    background-color: #0C3032 !important;
 }
 
-/* ─────────────── Sidebar : rester sombre & moderne ─────────────── */
+/* ─────────────── Sidebar : chrome teal sombre (distincte du panneau central) ─────────────── */
 html[data-theme='dark'] .sidebar {
-    background-color: #122022 !important;
+    background-color: #10383A !important;
     color: var(--color-text);
 }
 
 html[data-theme='dark'] .sidebar__header {
-    background-color: #122022 !important;
+    background-color: #10383A !important;
     border-bottom-color: var(--color-border);
     color: var(--color-text);
 }
@@ -125,7 +125,7 @@ html[data-theme='dark'] .sidebar__collapse {
 }
 
 html[data-theme='dark'] .sidebar__footer {
-    background-color: #122022 !important;
+    background-color: #0E3436 !important;
     border-top: 1px solid var(--color-border);
 }
 
