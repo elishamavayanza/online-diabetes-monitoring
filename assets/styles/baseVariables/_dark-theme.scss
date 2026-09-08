@@ -134,6 +134,11 @@ html[data-theme='dark'] .sidebar-user-menu {
     color: var(--color-text);
 }
 
+html[data-theme='dark'] .sidebar-user-menu__name,
+html[data-theme='dark'] .sidebar-user-menu__role {
+    color: var(--color-text);
+}
+
 html[data-theme='dark'] .sidebar-user-menu:hover {
     background-color: rgba(255, 255, 255, 0.12);
 }
