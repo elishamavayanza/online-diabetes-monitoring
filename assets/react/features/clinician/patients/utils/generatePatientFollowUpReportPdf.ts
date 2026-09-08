@@ -136,41 +136,243 @@ function trendRows(series: TrendSeries): string[][] {
     ]);
 }
 
-function drawSimpleTrendChart(doc: jsPDF, y: number, series: TrendSeries): number {
+interface ChartXY {
+    x: number;
+    y: number;
+}
+
+function formatChartValue(value: number): string {
+    return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+function formatShortDate(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return new Intl.DateTimeFormat('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+    }).format(date);
+}
+
+function sampleCubicBezier(
+    p0: ChartXY,
+    cp1: ChartXY,
+    cp2: ChartXY,
+    p1: ChartXY,
+    t: number,
+): ChartXY {
+    const u = 1 - t;
+
+    return {
+        x: u * u * u * p0.x + 3 * u * u * t * cp1.x + 3 * u * t * t * cp2.x + t * t * t * p1.x,
+        y: u * u * u * p0.y + 3 * u * u * t * cp1.y + 3 * u * t * t * cp2.y + t * t * t * p1.y,
+    };
+}
+
+function sampleChartCurve(coords: ChartXY[]): ChartXY[] {
+    const sampled: ChartXY[] = [coords[0]];
+
+    for (let i = 0; i < coords.length - 1; i += 1) {
+        const p0 = coords[i - 1] ?? coords[i];
+        const p1 = coords[i];
+        const p2 = coords[i + 1];
+        const p3 = coords[i + 2] ?? p2;
+
+        const cp1 = {
+            x: p1.x + (p2.x - p0.x) / 6,
+            y: p1.y + (p2.y - p0.y) / 6,
+        };
+        const cp2 = {
+            x: p2.x - (p3.x - p1.x) / 6,
+            y: p2.y - (p3.y - p1.y) / 6,
+        };
+
+        for (let step = 1; step <= 12; step += 1) {
+            sampled.push(sampleCubicBezier(p1, cp1, cp2, p2, step / 12));
+        }
+    }
+
+    return sampled;
+}
+
+function drawLineChart(doc: jsPDF, y: number, series: TrendSeries): number {
     const points = series.points;
     if (points.length < 2) {
         return y;
     }
 
-    const chartHeight = 30;
     const chartWidth = CONTENT_WIDTH;
+    const chartHeight = 34;
+    const axisLeft = 16;
+    const axisRight = 4;
+    const axisTop = 6;
+    const axisBottom = 12;
+    const plotWidth = chartWidth - axisLeft - axisRight;
+    const plotHeight = chartHeight - axisTop - axisBottom;
+
     const values = points.map((point) => point.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const range = max - min || 1;
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    const pad = (maxValue - minValue) * 0.1 || 1;
+    const paddedMin = minValue - pad;
+    const paddedMax = maxValue + pad;
+    const range = paddedMax - paddedMin || 1;
 
-    doc.setDrawColor(...COLORS.border);
-    doc.setFillColor(...COLORS.surface);
-    doc.roundedRect(MARGIN, y, chartWidth, chartHeight, 2, 2, 'FD');
+    const xStep = points.length > 1 ? plotWidth / (points.length - 1) : plotWidth;
 
-    doc.setDrawColor(...COLORS.primary);
-    doc.setLineWidth(0.4);
+    const coords: ChartXY[] = points.map((point, index) => ({
+        x: MARGIN + axisLeft + xStep * index,
+        y: y + axisTop + ((paddedMax - point.value) / range) * plotHeight,
+    }));
 
-    points.forEach((point, index) => {
-        const x = MARGIN + (index / (points.length - 1)) * chartWidth;
-        const normalized = (point.value - min) / range;
-        const pointY = y + chartHeight - 4 - normalized * (chartHeight - 8);
+    const baselineY = y + axisTop + plotHeight;
+    const sampled = sampleChartCurve(coords);
 
-        if (index > 0) {
-            const prev = points[index - 1];
-            const prevX = MARGIN + ((index - 1) / (points.length - 1)) * chartWidth;
-            const prevNormalized = (prev.value - min) / range;
-            const prevY = y + chartHeight - 4 - prevNormalized * (chartHeight - 8);
-            doc.line(prevX, prevY, x, pointY);
-        }
+    drawChartBackground(doc, y, chartWidth, chartHeight);
+    drawChartGridAndAxis(doc, y, chartWidth, chartHeight, {
+        points,
+        coords,
+        minValue,
+        maxValue,
+        paddedMin,
+        paddedMax,
+        baselineY,
+        axisLeft,
+        axisTop,
+        axisBottom,
+        range,
+        plotHeight,
+        unit: series.unit,
+    });
+    drawChartArea(doc, sampled, baselineY, MARGIN + axisLeft, MARGIN + axisLeft + plotWidth);
+    drawChartCurve(doc, sampled);
+
+    coords.forEach((point) => {
+        doc.setFillColor(...COLORS.primary);
+        doc.setLineWidth(0.2);
+        doc.circle(point.x, point.y, 0.8, 'F');
     });
 
     return y + chartHeight + 6;
+}
+
+function drawChartBackground(doc: jsPDF, y: number, chartWidth: number, chartHeight: number): void {
+    doc.setDrawColor(...COLORS.border);
+    doc.setFillColor(...COLORS.surface);
+    doc.roundedRect(MARGIN, y, chartWidth, chartHeight, 2, 2, 'FD');
+}
+
+function drawChartArea(doc: jsPDF, sampled: ChartXY[], baselineY: number, left: number, right: number): void {
+    if (sampled.length < 2) {
+        return;
+    }
+
+    const lightTeal = hexToRgb('#DCEDED');
+    const polygon: [number, number][] = [
+        ...sampled.map((point) => [point.x, point.y] as [number, number]),
+        [right, baselineY],
+        [left, baselineY],
+    ];
+
+    doc.setFillColor(...lightTeal);
+    doc.setDrawColor(...lightTeal);
+    doc.setLineWidth(0);
+
+    const commands: [number, number][] = [];
+    for (let i = 1; i < polygon.length; i += 1) {
+        const prev = polygon[i - 1];
+        const current = polygon[i];
+        commands.push([current[0] - prev[0], current[1] - prev[1]]);
+    }
+
+    doc.lines(
+        commands as never,
+        polygon[0][0],
+        polygon[0][1],
+        [1, 1],
+        'F',
+        true,
+    );
+}
+
+function drawChartCurve(doc: jsPDF, sampled: ChartXY[]): void {
+    doc.setDrawColor(...COLORS.primary);
+    doc.setLineWidth(0.7);
+    for (let i = 1; i < sampled.length; i += 1) {
+        doc.line(sampled[i - 1].x, sampled[i - 1].y, sampled[i].x, sampled[i].y);
+    }
+}
+
+function drawChartGridAndAxis(
+    doc: jsPDF,
+    y: number,
+    chartWidth: number,
+    chartHeight: number,
+    options: {
+        points: TrendSeries['points'];
+        coords: ChartXY[];
+        minValue: number;
+        maxValue: number;
+        paddedMin: number;
+        paddedMax: number;
+        baselineY: number;
+        axisLeft: number;
+        axisTop: number;
+        axisBottom: number;
+        range: number;
+        plotHeight: number;
+        unit?: string | null;
+    },
+): void {
+    const {
+        minValue,
+        maxValue,
+        paddedMin,
+        paddedMax,
+        baselineY,
+        axisLeft,
+        axisTop,
+        plotHeight,
+        unit,
+    } = options;
+
+    const gridValues = [maxValue, (minValue + maxValue) / 2, minValue];
+
+    gridValues.forEach((value) => {
+        const gridY = y + axisTop + ((paddedMax - value) / (paddedMax - paddedMin)) * plotHeight;
+
+        doc.setDrawColor(...COLORS.border);
+        doc.setLineWidth(0.2);
+        doc.line(MARGIN + axisLeft, gridY, MARGIN + chartWidth - 4, gridY);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(...COLORS.muted);
+        doc.text(formatChartValue(value), MARGIN + axisLeft - 2, gridY + 1.5, { align: 'right' });
+    });
+
+    if (unit) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLORS.primary);
+        doc.text(unit, MARGIN + axisLeft, y + 3);
+    }
+
+    const dateLabelStep = Math.max(1, Math.ceil(options.points.length / 6));
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(...COLORS.muted);
+
+    options.points.forEach((point, index) => {
+        if (index % dateLabelStep !== 0) {
+            return;
+        }
+
+        doc.text(formatShortDate(point.date), options.coords[index].x, baselineY + 4, { align: 'center' });
+    });
 }
 
 class PatientFollowUpPdfBuilder {
@@ -529,7 +731,7 @@ class PatientFollowUpPdfBuilder {
             this.doc.setTextColor(...COLORS.text);
             this.doc.text('Évolution de la glycémie', MARGIN, this.y);
             this.y += 4;
-            this.y = drawSimpleTrendChart(this.doc, this.y, section.trend);
+            this.y = drawLineChart(this.doc, this.y, section.trend);
 
             autoTable(this.doc, {
                 startY: this.y,
@@ -560,7 +762,7 @@ class PatientFollowUpPdfBuilder {
             this.doc.setFontSize(10);
             this.doc.text('Évolution de l\'HbA1c', MARGIN, this.y);
             this.y += 4;
-            this.y = drawSimpleTrendChart(this.doc, this.y, section.trend);
+            this.y = drawLineChart(this.doc, this.y, section.trend);
         }
 
         this.drawInterpretationBox(interpretHbA1c(section.stats.average));
@@ -583,7 +785,7 @@ class PatientFollowUpPdfBuilder {
             this.doc.setFontSize(10);
             this.doc.text(`Évolution — ${trend.label}`, MARGIN, this.y);
             this.y += 4;
-            this.y = drawSimpleTrendChart(this.doc, this.y, trend);
+            this.y = drawLineChart(this.doc, this.y, trend);
         });
 
         this.drawInterpretationBox(interpretBloodPressure(section.systolic.average, section.diastolic.average));
@@ -606,7 +808,7 @@ class PatientFollowUpPdfBuilder {
             this.doc.setFontSize(10);
             this.doc.text('Évolution du poids', MARGIN, this.y);
             this.y += 4;
-            this.y = drawSimpleTrendChart(this.doc, this.y, section.weightTrend);
+            this.y = drawLineChart(this.doc, this.y, section.weightTrend);
         }
 
         this.drawInterpretationBox(interpretBmi(section.bmi.average));
@@ -646,7 +848,7 @@ class PatientFollowUpPdfBuilder {
             this.doc.setFontSize(10);
             this.doc.text('Évolution de l\'activité', MARGIN, this.y);
             this.y += 4;
-            this.y = drawSimpleTrendChart(this.doc, this.y, section.trend);
+            this.y = drawLineChart(this.doc, this.y, section.trend);
         }
 
         this.drawInterpretationBox(interpretActivity(section.totalMinutes, this.report.period.from, this.report.period.to));
