@@ -1,148 +1,221 @@
 // services/patientDashboardService.ts
-import apiClient from '@/services/api/client';
-import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback';
+import { fetchPatientDossier } from '@/react/features/clinician/patients/services/patientDossierService';
+import { fetchPatientTeam } from '@/react/features/patient/appointments/services/patientAppointmentsService';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
+import { PatientDossierData } from '@/react/features/clinician/patients/types';
 import {
     PatientDashboardData,
     HealthMetric,
     NextAppointment,
     NextMedication,
     WatchItem,
+    UpcomingAppointment,
+    ActiveTreatment,
+    RecentNote,
 } from '../types';
 
-// Types des réponses API (partiels)
-interface BloodGlucoseMeasurement {
-    id: string;
-    value: number;
-    unit?: string;
-    measuredAt?: string;
-    createdAt?: string;
+function latest<T>(items: T[]): T | undefined {
+    return items[0];
 }
 
-interface WeightMeasurement {
-    id: string;
-    valueKg: number;
-    measuredAt?: string;
-    createdAt?: string;
+function buildMetrics(dossier: PatientDossierData): HealthMetric[] {
+    const glucose = latest(dossier.measurements.bloodGlucose);
+    const weight = latest(dossier.measurements.weight);
+    const hba1c = latest(dossier.measurements.hba1c);
+    const bp = latest(dossier.measurements.bloodPressure);
+
+    return [
+        {
+            id: 'glycemie',
+            label: 'Glycémie',
+            value: glucose ? String(glucose.value) : '--',
+            unit: glucose?.unit ?? 'mg/dL',
+            date: glucose?.createdAt,
+            tone: glucose && glucose.value > 180 ? 'critical'
+                : glucose && glucose.value < 70 ? 'warning' : 'good',
+        },
+        {
+            id: 'tension',
+            label: 'Tension',
+            value: bp ? `${bp.systolic}/${bp.diastolic}` : '--',
+            unit: 'mmHg',
+            date: bp?.createdAt,
+            tone: bp && (bp.systolic >= 135 || bp.diastolic >= 85) ? 'warning' : 'good',
+        },
+        {
+            id: 'poids',
+            label: 'Poids',
+            value: weight ? String(weight.valueKg) : '--',
+            unit: 'kg',
+            date: weight?.createdAt,
+            tone: 'neutral',
+        },
+        {
+            id: 'hba1c',
+            label: 'HbA1c',
+            value: hba1c ? Number(hba1c.valuePercent).toFixed(1) : '--',
+            unit: '%',
+            date: hba1c?.createdAt,
+            tone: hba1c && hba1c.valuePercent > 7 ? 'warning' : 'good',
+        },
+    ];
 }
 
-interface HbA1cMeasurement {
-    id: string;
-    valuePercent: number;
-    measuredAt?: string;
-    createdAt?: string;
+function buildAppointments(
+    dossier: PatientDossierData,
+    professionalMap: Map<string, string>,
+): {
+    nextAppointment: NextAppointment;
+    upcomingAppointments: UpcomingAppointment[];
+} {
+    const now = new Date();
+    const future = dossier.appointments
+        .filter((a) => new Date(a.scheduledAt) > now)
+        .filter((a) => a.status !== 'CANCELLED' && a.status !== 'NO_SHOW')
+        .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+
+    const formatDate = (iso: string) =>
+        new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    const formatTime = (iso: string) =>
+        new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const doctorOf = (professionalId?: string, professionalName?: string) =>
+        professionalName?.trim()
+        || (professionalId ? professionalMap.get(professionalId) : undefined)
+        || 'Non spécifié';
+
+    const upcomingAppointments: UpcomingAppointment[] = future.slice(0, 3).map((a) => ({
+        id: a.id,
+        date: formatDate(a.scheduledAt),
+        time: formatTime(a.scheduledAt),
+        doctor: doctorOf(a.professionalId, a.professionalName),
+        reason: a.reason,
+        status: a.status,
+    }));
+
+    const next = upcomingAppointments[0];
+    return {
+        nextAppointment: next
+            ? { date: next.date, time: next.time, doctor: next.doctor }
+            : { date: 'Aucun', time: '', doctor: '' },
+        upcomingAppointments,
+    };
 }
 
-interface Appointment {
-    id: string;
-    scheduledAt: string;
-    reason?: string;
-    professional?: {
-        fullName?: string;
-    } | null;
-    status?: string;
+function buildTreatments(dossier: PatientDossierData): ActiveTreatment[] {
+    const activeIds = new Set(
+        dossier.prescriptions.filter((rx) => rx.status === 'ACTIVE').map((rx) => rx.id),
+    );
+    return dossier.prescriptionItems
+        .filter((item) => activeIds.has(item.prescriptionId))
+        .map((item) => ({
+            id: item.id,
+            name: item.medicationName ?? 'Médicament',
+            dosage: item.dosage,
+            morning: item.morning,
+            noon: item.noon,
+            evening: item.evening,
+            instructions: item.instructions,
+        }));
 }
 
-interface Prescription {
-    id: string;
-    status: string;
-    startDate?: string;
-    endDate?: string;
-    items?: Array<{
-        medication?: {
-            name?: string;
-        };
-    }>;
+function buildNotes(dossier: PatientDossierData): RecentNote[] {
+    return [...dossier.notes]
+        .sort(
+            (a, b) =>
+                new Date(b.notedAt ?? b.createdAt).getTime()
+                - new Date(a.notedAt ?? a.createdAt).getTime(),
+        )
+        .slice(0, 5)
+        .map((n) => ({
+            id: n.id,
+            content: n.content,
+            authorName: n.authorName,
+            date: n.notedAt ?? n.createdAt,
+        }));
 }
 
-function getLatestDate(...dates: (string | undefined)[]): string | undefined {
-    const valid = dates.filter(Boolean) as string[];
-    if (valid.length === 0) return undefined;
-    return valid.sort((a, b) => new Date(b).getTime() - new Date(a).getTime())[0];
+function buildWatchList(
+    dossier: PatientDossierData,
+    nextAppointment: NextAppointment,
+    treatments: ActiveTreatment[],
+    metrics: HealthMetric[],
+): WatchItem[] {
+    const glucose = latest(dossier.measurements.bloodGlucose);
+    const hba1c = latest(dossier.measurements.hba1c);
+    const bp = latest(dossier.measurements.bloodPressure);
+
+    const watchList: WatchItem[] = [];
+
+    if (glucose && glucose.value > 180) {
+        watchList.push({ id: 'high-glucose', message: `Glycémie élevée : ${glucose.value} mg/dL.`, level: 'critical' });
+    }
+    if (glucose && glucose.value < 70) {
+        watchList.push({ id: 'low-glucose', message: `Glycémie basse : ${glucose.value} mg/dL.`, level: 'warning' });
+    }
+    if (bp && (bp.systolic >= 135 || bp.diastolic >= 85)) {
+        watchList.push({
+            id: 'high-bp',
+            message: `Tension au-dessus de la cible : ${bp.systolic}/${bp.diastolic} mmHg.`,
+            level: 'warning',
+        });
+    }
+    if (hba1c && hba1c.valuePercent > 7) {
+        watchList.push({
+            id: 'hba1c',
+            message: `HbA1c à surveiller : ${Number(hba1c.valuePercent).toFixed(1)} % (cible < 7 %).`,
+            level: 'warning',
+        });
+    }
+    if (nextAppointment.date !== 'Aucun') {
+        watchList.push({
+            id: 'appointment',
+            message: `Prochain rendez-vous le ${nextAppointment.date} à ${nextAppointment.time}.`,
+            level: 'info',
+        });
+    }
+    if (treatments.length === 0) {
+        watchList.push({ id: 'no-med', message: 'Aucun traitement actif en cours.', level: 'info' });
+    }
+    if (metrics.every((m) => m.value === '--')) {
+        watchList.push({
+            id: 'no-data',
+            message: 'Ajoutez vos premières mesures pour activer le suivi.',
+            level: 'info',
+        });
+    }
+
+    return watchList;
 }
 
 export async function fetchPatientDashboard(): Promise<PatientDashboardData> {
     const patientId = getCurrentUserIdFromToken();
     if (!patientId) throw new Error('Utilisateur non identifié.');
 
-    let profile = { fullName: 'Patient' };
-    try {
-        const response = await apiClient.get<ApiFeedback<{ fullName: string }>>(`/patients/${patientId}/profile`);
-        profile = unwrapApiData(response.data, 'Erreur profil');
-    } catch (e) {
-        console.warn('Profil non chargé, valeur par défaut utilisée.');
-    }
+    const [dossier, team] = await Promise.all([
+        fetchPatientDossier(patientId),
+        fetchPatientTeam(patientId).catch(() => []),
+    ]);
 
-    // Mesures
-    let lastGlucose, lastWeight, lastHba1c;
-    try {
-        const resp = await apiClient.get<ApiFeedback<any[]>>(`/patients/${patientId}/blood-glucose-measurements`);
-        lastGlucose = unwrapApiData(resp.data)[0] ?? null;
-    } catch (e) { console.warn('Glycémie non disponible.'); }
+    const professionalMap = new Map(team.map((p) => [p.id, p.fullName]));
 
-    try {
-        const resp = await apiClient.get<ApiFeedback<any[]>>(`/patients/${patientId}/weight-measurements`);
-        lastWeight = unwrapApiData(resp.data)[0] ?? null;
-    } catch (e) { console.warn('Poids non disponible.'); }
-
-    try {
-        const resp = await apiClient.get<ApiFeedback<any[]>>(`/patients/${patientId}/hba1c-measurements`);
-        lastHba1c = unwrapApiData(resp.data)[0] ?? null;
-    } catch (e) { console.warn('HbA1c non disponible.'); }
-
-    // Rendez-vous
-    let nextAppointment: NextAppointment = { date: 'Aucun', time: '', doctor: '' };
-    try {
-        const resp = await apiClient.get<ApiFeedback<any[]>>(`/appointments/queries/patient/${patientId}`);
-        const appointments = unwrapApiData(resp.data);
-        const future = appointments
-            .filter((a) => new Date(a.scheduledAt) > new Date())
-            .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
-        if (future.length > 0) {
-            const a = future[0];
-            nextAppointment = {
-                date: new Date(a.scheduledAt).toLocaleDateString('fr-FR'),
-                time: new Date(a.scheduledAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-                doctor: a.professional?.fullName ?? 'Non spécifié',
-            };
-        }
-    } catch (e) { console.warn('Rendez-vous non disponible.'); }
-
-    // Prescriptions
-    let nextMedication: NextMedication = { time: 'Aucune', name: '' };
-    try {
-        const resp = await apiClient.get<ApiFeedback<any[]>>(`/prescriptions/patient/${patientId}`);
-        const prescriptions = unwrapApiData(resp.data);
-        const active = prescriptions.filter((p) => p.status === 'ACTIVE');
-        if (active.length > 0 && active[0].items?.length > 0) {
-            nextMedication = {
-                time: 'Selon ordonnance',
-                name: active[0].items[0].medication?.name ?? 'Non spécifié',
-            };
-        }
-    } catch (e) { console.warn('Prescriptions non disponibles.'); }
-
-    // Métriques
-    const hba1cValue = lastHba1c?.valuePercent !== undefined ? Number(lastHba1c.valuePercent) : null;
-    const hba1cDisplay = hba1cValue !== null && !isNaN(hba1cValue) ? hba1cValue.toFixed(1) : '--';
-
-    const metrics: HealthMetric[] = [
-        { id: 'glycemie', label: 'Glycémie', value: lastGlucose?.value?.toString() ?? '--', unit: lastGlucose?.unit ?? 'mg/dL' },
-        { id: 'poids', label: 'Poids', value: lastWeight?.valueKg?.toString() ?? '--', unit: 'kg' },
-        { id: 'hba1c', label: 'HbA1c', value: hba1cDisplay, unit: '%' },
-    ];
-
-    // Liste de surveillance
-    const watchList: WatchItem[] = [];
-    if (lastGlucose && lastGlucose.value > 180) watchList.push({ id: 'high-glucose', message: 'Glycémie élevée.' });
-    if (nextAppointment.date !== 'Aucun') watchList.push({ id: 'appointment', message: `RDV le ${nextAppointment.date}` });
-    if (!nextMedication.name) watchList.push({ id: 'no-med', message: 'Aucune prise prévue.' });
+    const metrics = buildMetrics(dossier);
+    const { nextAppointment, upcomingAppointments } = buildAppointments(dossier, professionalMap);
+    const treatments = buildTreatments(dossier);
+    const recentNotes = buildNotes(dossier);
+    const nextMedication: NextMedication = treatments[0]
+        ? { time: 'Selon ordonnance', name: treatments[0].name }
+        : { time: 'Aucune', name: '' };
+    const watchList = buildWatchList(dossier, nextAppointment, treatments, metrics);
 
     return {
-        patientName: profile.fullName || 'Patient',
+        patientName: dossier.profile.fullName || 'Patient',
         metrics,
         nextAppointment,
         nextMedication,
         watchList,
+        upcomingAppointments,
+        treatments,
+        recentNotes,
+        hasRecord: dossier.record !== null,
     };
 }

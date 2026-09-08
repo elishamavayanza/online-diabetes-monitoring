@@ -3,6 +3,9 @@ import { usePatientDashboard } from '../hooks/usePatientDashboard';
 import { HealthSummaryCard } from '../components/HealthSummaryCard';
 import { NextAppointmentCard } from '../components/NextAppointmentCard';
 import { WatchList } from '../components/WatchList';
+import { UpcomingAppointmentsCard } from '../components/UpcomingAppointmentsCard';
+import { ActiveTreatmentsCard } from '../components/ActiveTreatmentsCard';
+import { RecentNotesCard } from '../components/RecentNotesCard';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
@@ -30,15 +33,22 @@ export function PatientDashboardPage() {
                 <Button variant="secondary" onClick={openHelp}>Aide</Button>
             </div>
 
+            <HealthSummaryCard metrics={data.metrics} />
+
             <div className="patient-dashboard-page__grid">
-                <HealthSummaryCard metrics={data.metrics} />
-                <NextAppointmentCard appointment={data.nextAppointment} medication={data.nextMedication} />
                 <WatchList items={data.watchList} />
+                <NextAppointmentCard appointment={data.nextAppointment} medication={data.nextMedication} />
+            </div>
+
+            <div className="patient-dashboard-page__grid">
+                <UpcomingAppointmentsCard appointments={data.upcomingAppointments} />
+                <ActiveTreatmentsCard treatments={data.treatments} />
+                <RecentNotesCard notes={data.recentNotes} />
             </div>
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Ceci est votre résumé de santé : glycémie, poids, HbA1c, rendez-vous et prises.</p>
+                    <p>Ceci est votre espace de suivi : dernières mesures, rendez-vous à venir, traitements en cours et notes médicales récentes.</p>
                 </Modal>
             )}
         </div>
