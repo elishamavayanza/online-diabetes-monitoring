@@ -40,6 +40,24 @@
     .section-title { font-size: 1.2rem; margin-bottom: 1rem; color: var(--color-primary); }
 }
 
+.appointments-card__empty { font-size: 0.95rem; color: var(--color-text); opacity: 0.6; }
+
+.appointments-card__list { list-style: none; padding: 0; margin: 0; }
+
+.appointments-card__item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-border);
+    &:last-child { border-bottom: none; }
+}
+
+.appointments-card__main { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.appointments-card__patient { font-weight: 600; color: var(--color-text); }
+.appointments-card__doctor { font-size: 0.85rem; color: var(--color-text); opacity: 0.65; }
+.appointments-card__when { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+.appointments-card__date { font-size: 0.9rem; color: var(--color-text); opacity: 0.7; }
+.appointments-card__time { font-size: 0.9rem; font-weight: 600; color: var(--color-secondary-text); }
+
 .recent-activity__list, .org-status__list {
     list-style: none; padding: 0; margin: 0;
 }

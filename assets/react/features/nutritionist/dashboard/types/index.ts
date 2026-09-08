@@ -10,6 +10,21 @@ export interface AppointmentToday {
     patient: string;
 }
 
+export interface UpcomingAppointment {
+    id: string;
+    date: string;
+    time: string;
+    patient: string;
+    reason?: string;
+    isToday?: boolean;
+}
+
+export interface FollowUpPatient {
+    id: string;
+    name: string;
+    lastVisit: string;
+}
+
 export interface RecentActivity {
     id: string;
     message: string;
@@ -19,5 +34,7 @@ export interface RecentActivity {
 export interface NutritionistDashboardData {
     stats: NutritionistStat[];
     appointmentsToday: AppointmentToday[];
+    upcomingAppointments: UpcomingAppointment[];
+    followUpPatients: FollowUpPatient[];
     recentActivities: RecentActivity[];
 }

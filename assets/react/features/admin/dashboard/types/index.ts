@@ -18,6 +18,14 @@ export interface AppointmentToday {
     patient: string;
 }
 
+export interface UpcomingAppointment {
+    id: string;
+    date: string;
+    time: string;
+    doctor: string;
+    patient: string;
+}
+
 export interface OrganizationStatusItem {
     id: string;
     label: string;
@@ -28,5 +36,6 @@ export interface AdminDashboardData {
     stats: StatCardData[];
     recentActivities: RecentActivity[];
     appointmentsToday: AppointmentToday[];
+    upcomingAppointments: UpcomingAppointment[];
     organizationStatus: OrganizationStatusItem[];
 }

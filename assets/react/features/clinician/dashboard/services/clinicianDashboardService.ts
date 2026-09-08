@@ -1,5 +1,5 @@
 import apiClient from "@/services/api/client";
-import { ClinicianDashboardData } from '../types';
+import { ClinicianDashboardData, FollowUpPatient, UpcomingAppointment } from '../types';
 import { formatDateToApi } from '@/utils/date.utils';
 
 interface ApiFeedback<T> {
@@ -7,6 +7,30 @@ interface ApiFeedback<T> {
     error: boolean;
     message: string;
     data: T;
+}
+
+const DAY_MS = 1000 * 60 * 60 * 24;
+
+function isActive(status?: unknown): boolean {
+    return String(status ?? '').toUpperCase() === 'ACTIVE';
+}
+
+function dateLabel(date: Date, now: Date): { label: string; isToday: boolean } {
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+    const startOfDate = new Date(date);
+    startOfDate.setHours(0, 0, 0, 0);
+    const diffDays = Math.round((startOfDate.getTime() - startOfToday.getTime()) / DAY_MS);
+
+    if (diffDays <= 0) return { label: "Aujourd'hui", isToday: true };
+    if (diffDays === 1) return { label: 'Demain', isToday: false };
+    if (diffDays < 7) {
+        return { label: date.toLocaleDateString('fr-FR', { weekday: 'short' }), isToday: false };
+    }
+    return {
+        label: date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+        isToday: false,
+    };
 }
 
 export async function fetchClinicianDashboardData(): Promise<ClinicianDashboardData> {
@@ -21,23 +45,18 @@ export async function fetchClinicianDashboardData(): Promise<ClinicianDashboardD
         const appointments = appointmentsRes.data.data ?? [];
         const externalFollows = externalFollowsRes.data.data ?? [];
 
-        console.log('Patients bruts:', JSON.stringify(patients, null, 2));
-        console.log('Rendez-vous bruts:', JSON.stringify(appointments, null, 2));
-
-        // Map patientId -> nom complet pour affichage
         const patientMap = new Map(patients.map((p: any) => [String(p.id), p.fullName]));
 
         const now = new Date();
         const todayStr = formatDateToApi(now);
 
+        const sortedAsc = [...appointments].sort(
+            (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+        );
+
         const appointmentsToday = appointments
-            .filter((appt: any) => {
-                const d = new Date(appt.scheduledAt);
-                const localDate = formatDateToApi(d);
-                return localDate === todayStr;
-            })
+            .filter((appt: any) => formatDateToApi(new Date(appt.scheduledAt)) === todayStr)
             .map((appt: any) => {
-                // ✅ On recrée un objet Date ici pour le formatage
                 const apptDate = new Date(appt.scheduledAt);
                 return {
                     id: String(appt.id ?? ''),
@@ -46,33 +65,80 @@ export async function fetchClinicianDashboardData(): Promise<ClinicianDashboardD
                 };
             });
 
-        const upcomingAppointments = appointments.filter((appt: any) => {
-            return new Date(appt.scheduledAt) > now;
-        });
+        const upcomingAppointments: UpcomingAppointment[] = sortedAsc
+            .filter((appt: any) => new Date(appt.scheduledAt) > now)
+            .slice(0, 6)
+            .map((appt: any) => {
+                const apptDate = new Date(appt.scheduledAt);
+                const { label, isToday } = dateLabel(apptDate, now);
+                return {
+                    id: String(appt.id ?? ''),
+                    date: label,
+                    time: apptDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                    patient: patientMap.get(String(appt.patientId)) ?? `Patient #${appt.patientId}`,
+                    reason: appt.reason ?? undefined,
+                    isToday,
+                };
+            });
+
+        const upcomingPatientIds = new Set(
+            appointments
+                .filter((appt: any) => new Date(appt.scheduledAt) > now)
+                .map((appt: any) => String(appt.patientId))
+        );
+
+        const lastVisitByPatient = new Map<string, Date>();
+        appointments
+            .filter((appt: any) => new Date(appt.scheduledAt) <= now)
+            .forEach((appt: any) => {
+                const patientId = String(appt.patientId);
+                const scheduledAt = new Date(appt.scheduledAt);
+                const current = lastVisitByPatient.get(patientId);
+                if (!current || scheduledAt.getTime() > current.getTime()) {
+                    lastVisitByPatient.set(patientId, scheduledAt);
+                }
+            });
+
+        const followUpPatients: FollowUpPatient[] = patients
+            .filter((p: any) => isActive(p.status) && !upcomingPatientIds.has(String(p.id)))
+            .map((p: any) => ({
+                id: String(p.id),
+                name: p.fullName ?? `Patient #${p.id}`,
+                lastVisit:
+                    lastVisitByPatient.get(String(p.id))?.toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                    }) ?? 'Jamais consulté',
+            }));
+
+        const recentActivities = appointments
+            .filter((appt: any) => new Date(appt.scheduledAt) <= now)
+            .slice(0, 5)
+            .map((appt: any) => ({
+                id: String(appt.id ?? ''),
+                message: `Rendez-vous avec ${patientMap.get(String(appt.patientId)) ?? 'patient'}`,
+                timestamp: new Date(appt.scheduledAt).toLocaleString('fr-FR'),
+            }));
 
         const stats = [
             { id: 'patients', label: 'Mes patients', value: patients.length },
             { id: 'appointments-today', label: "Rendez-vous aujourd'hui", value: appointmentsToday.length },
-            { id: 'appointments-upcoming', label: 'Rendez-vous à venir', value: upcomingAppointments.length },
-            { id: 'follow-up-needed', label: 'Patients nécessitant un suivi', value: 0 },
+            { id: 'appointments-upcoming', label: 'Rendez-vous à venir', value: upcomingPatientIds.size },
+            { id: 'follow-up-needed', label: 'Patients nécessitant un suivi', value: followUpPatients.length },
         ];
 
         if (externalFollows.length > 0) {
             stats.push({ id: 'external-follows', label: 'Suivis externes', value: externalFollows.length });
         }
 
-        console.log('Stats construites:', stats);
-        console.log('Patients length:', patients.length);
-        console.log('Appointments today:', appointmentsToday.length);
-        console.log('Upcoming:', upcomingAppointments.length);
-
-        const recentActivities = appointments.slice(0, 5).map((appt: any) => ({
-            id: String(appt.id ?? ''),
-            message: `Rendez-vous avec ${patientMap.get(String(appt.patientId)) ?? 'patient'}`,
-            timestamp: new Date(appt.scheduledAt).toLocaleString('fr-FR'),
-        }));
-
-        return { stats, appointmentsToday, recentActivities };
+        return {
+            stats,
+            appointmentsToday,
+            upcomingAppointments,
+            followUpPatients,
+            recentActivities,
+        };
     } catch (error) {
         console.error('Erreur fetchClinicianDashboardData:', error);
         throw error;

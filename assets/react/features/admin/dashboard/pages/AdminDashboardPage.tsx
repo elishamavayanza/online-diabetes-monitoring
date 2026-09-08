@@ -3,6 +3,7 @@ import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import { StatCard } from '../components/StatCard';
 import { RecentActivityList } from '../components/RecentActivityList';
 import { TodayAppointments } from '../components/TodayAppointments';
+import { UpcomingAppointments } from '../components/UpcomingAppointments';
 import { OrganizationStatus } from '../components/OrganizationStatus';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
@@ -43,11 +44,14 @@ export function AdminDashboardPage() {
                 <OrganizationStatus items={data.organizationStatus} />
             </div>
 
-            <TodayAppointments appointments={data.appointmentsToday} />
+            <div className="admin-dashboard-page__grid">
+                <TodayAppointments appointments={data.appointmentsToday} />
+                <UpcomingAppointments appointments={data.upcomingAppointments} />
+            </div>
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Bienvenue sur le tableau de bord de votre organisation.</p>
+                    <p>Vue d'ensemble de votre organisation : patients, professionnels, établissements et rendez-vous.</p>
                 </Modal>
             )}
         </div>

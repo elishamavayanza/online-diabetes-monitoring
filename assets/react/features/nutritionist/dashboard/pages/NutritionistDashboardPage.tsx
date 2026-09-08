@@ -2,16 +2,20 @@ import { useState } from 'react';
 import { useNutritionistDashboard } from '../hooks/useNutritionistDashboard';
 import { StatCard } from '../components/StatCard';
 import { TodayAppointmentsList } from '../components/TodayAppointmentsList';
+import { UpcomingAppointmentsList } from '../components/UpcomingAppointmentsList';
+import { FollowUpList } from '../components/FollowUpList';
 import { RecentActivityList } from '../components/RecentActivityList';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useAuth } from '@/react/app/providers/AuthProvider';
 import '@/styles/pages/nutritionist/dashboard/_dashboard.scss';
 
 export function NutritionistDashboardPage() {
     const { data, isLoading, error } = useNutritionistDashboard();
+    const { user } = useAuth();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
@@ -27,7 +31,7 @@ export function NutritionistDashboardPage() {
         <div className="nutritionist-dashboard-page">
             <div className="nutritionist-dashboard-page__header">
                 <h1>Vue générale</h1>
-                <p>Bienvenue, Nutritionniste Sarah</p>
+                <p>{user?.name ? `Bienvenue, ${user.name}` : 'Bienvenue'}</p>
                 <Button variant="secondary" onClick={openHelp}>Aide</Button>
             </div>
 
@@ -37,12 +41,17 @@ export function NutritionistDashboardPage() {
 
             <div className="nutritionist-dashboard-page__grid">
                 <TodayAppointmentsList appointments={data.appointmentsToday} />
+                <UpcomingAppointmentsList appointments={data.upcomingAppointments} />
+            </div>
+
+            <div className="nutritionist-dashboard-page__grid">
                 <RecentActivityList activities={data.recentActivities} />
+                <FollowUpList patients={data.followUpPatients} />
             </div>
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Tableau de bord résumant vos activités nutritionnelles.</p>
+                    <p>Tableau de bord résumant vos rendez-vous, vos patients et les suivis nutritionnels à planifier.</p>
                 </Modal>
             )}
         </div>
