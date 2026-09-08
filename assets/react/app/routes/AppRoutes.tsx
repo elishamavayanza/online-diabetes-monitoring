@@ -62,9 +62,9 @@ import {
 } from "@/react/features/clinician/patients/pages/ClinicianPatientRecordClosedPage";
 import {NutritionPage} from "@/react/features/patient/nutrition/pages/NutritionPage";
 import { ProfessionalCreatePage } from '@/react/features/admin/professionals/pages/ProfessionalCreatePage';
-import { AdminExternalFollowsPage } from '@/react/features/external-follows/pages/AdminExternalFollowsPage';
-import { MyExternalFollowsPage } from '@/react/features/external-follows/pages/MyExternalFollowsPage';
-import { AcceptInvitationPage } from '@/react/features/external-follows/pages/AcceptInvitationPage';
+import { AdminExternalFollowsPage } from '@/react/features/admin/external-follows/pages/AdminExternalFollowsPage';
+import { MyExternalFollowsPage } from '@/react/features/admin/external-follows/pages/MyExternalFollowsPage';
+import { AcceptInvitationPage } from '@/react/features/admin/external-follows/pages/AcceptInvitationPage';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
     const { isAuthenticated } = useAuth();

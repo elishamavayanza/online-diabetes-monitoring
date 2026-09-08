@@ -1,7 +1,7 @@
 import { useClinicianPatients } from '../hooks/useClinicianPatients';
 import { PatientsTable } from '../components/PatientsTable';
-import { ExternalFollowPatientsCards } from '@/react/features/external-follows/components/ExternalFollowPatientsCards';
-import { useMyExternalFollows } from '@/react/features/external-follows/hooks/useMyExternalFollows';
+import { ExternalFollowPatientsCards } from '@/react/features/admin/external-follows/components/ExternalFollowPatientsCards';
+import { useMyExternalFollows } from '@/react/features/admin/external-follows/hooks/useMyExternalFollows';
 import { Tabs } from '@/react/components/Navigation/Tabs';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
