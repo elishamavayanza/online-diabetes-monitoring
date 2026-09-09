@@ -144,10 +144,7 @@ class UserController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $formData = array_merge(
-            $request->request->all(),
-            $request->files->all()
-        );
+        $formData = $this->resolvePayload($request);
 
         $dto = $this->serializer->denormalize(
             $formData,
@@ -290,10 +287,7 @@ DESC,
         int $id,
         Request $request
     ): JsonResponse {
-        $formData = array_merge(
-            $request->request->all(),
-            $request->files->all()
-        );
+        $formData = $this->resolvePayload($request);
 
         $dto = $this->serializer->denormalize(
             $formData,
@@ -319,5 +313,22 @@ DESC,
             : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
+    }
+
+    /**
+     * Fusionne les données de la requête (form-data ou JSON) et les fichiers uploadés.
+     */
+    private function resolvePayload(Request $request): array
+    {
+        $payload = $request->request->all();
+
+        if ($request->getContentTypeFormat() === 'json') {
+            $decoded = json_decode($request->getContent() ?: '{}', true);
+            if (is_array($decoded)) {
+                $payload = array_merge($payload, $decoded);
+            }
+        }
+
+        return array_merge($payload, $request->files->all());
     }
 }

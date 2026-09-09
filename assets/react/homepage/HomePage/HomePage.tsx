@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from '../../../styles/pages/HomePage/_homePage.module.scss';
 import {
@@ -8,8 +8,10 @@ import {
     IconMessageCircle,
     IconBell,
 } from './icons';
-import {useAuth} from "@/react/app/providers/AuthProvider";
+import { useAuth } from "@/react/app/providers/AuthProvider";
 import { useTheme } from '@/react/hooks/ThemeProvider';
+import { useSystemSettings } from '@/react/hooks/useSystemSettings';
+import { SettingsItem } from '@/react/features/root/settings/types';
 
 const SunIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -24,13 +26,64 @@ const MoonIcon = () => (
     </svg>
 );
 
+const DEFAULT_FEATURES: SettingsItem[] = [
+    { title: 'Suivi de santé', description: 'Suivre les principaux paramètres de santé et leur évolution au fil du temps.' },
+    { title: 'Traitements', description: 'Retrouver les prescriptions et les traitements associés au parcours du patient.' },
+    { title: 'Accompagnement médical', description: 'Permettre aux professionnels de santé de mieux suivre leurs patients.' },
+    { title: 'Communication', description: 'Faciliter les échanges entre patients et professionnels de santé.' },
+    { title: 'Rappels et événements', description: 'Aider à organiser les différents événements liés au suivi médical.' },
+];
+
+const DEFAULT_USERS: SettingsItem[] = [
+    { title: 'Patients', description: 'Un suivi plus clair de leur santé, de leurs traitements et de leur évolution.' },
+    { title: 'Professionnels de santé', description: 'Une meilleure visibilité sur les informations nécessaires au suivi de leurs patients.' },
+    { title: 'Structures de santé', description: 'Une organisation centralisée des utilisateurs et du suivi médical.' },
+];
+
+const FEATURE_ICONS = [IconActivity, IconClipboard, IconUsers, IconMessageCircle, IconBell];
+
+/** Rendu d'un texte multi-lignes : chaque saut de ligne devient un <br />. */
+function Lines({ text, fallback }: { text?: string; fallback: string }) {
+    const value = text && text.trim() ? text : fallback;
+    return (
+        <>
+            {value.split('\n').map((line, index, all) => (
+                <span key={index}>
+                    {line}
+                    {index < all.length - 1 && <br />}
+                </span>
+            ))}
+        </>
+    );
+}
+
+function Paragraphs({ text, fallback }: { text?: string; fallback: string }) {
+    const value = text && text.trim() ? text : fallback;
+    return (
+        <>
+            {value
+                .split(/\n+/)
+                .filter((item) => item.trim())
+                .map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                ))}
+        </>
+    );
+}
+
 const HomePage: React.FC = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const { settings } = useSystemSettings();
     const isDark = theme === 'dark';
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    const systemName = settings?.systemName || 'OnlineDIAB';
+    const logoUrl = settings?.logoUrl || '../../../images/logo.png';
+    const features = settings?.features?.length ? settings.features : DEFAULT_FEATURES;
+    const users = settings?.users?.length ? settings.users : DEFAULT_USERS;
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -87,8 +140,8 @@ const HomePage: React.FC = () => {
                             goToLogin();
                         }}
                     >
-                        <img src="../../../images/logo.png" alt="Logo OnlineDIAB" className={styles.logoImage} />
-                        <span>OnlineDIAB</span>
+                        <img src={logoUrl} alt={`Logo ${systemName}`} className={styles.logoImage} />
+                        <span>{systemName}</span>
                     </a>
 
                     <div className={styles.headerRight}>
@@ -163,12 +216,19 @@ const HomePage: React.FC = () => {
                 </div>
                 <div className={styles.heroContent}>
                     <h1>
-                        Mieux suivre le diabète.<br />
-                        Mieux accompagner chaque patient.
+                        <Lines
+                            text={settings?.heroTitle}
+                            fallback={'Mieux suivre le diabète.\nMieux accompagner chaque patient.'}
+                        />
                     </h1>
                     <p>
-                        OnlineDIAB facilite le suivi quotidien des personnes vivant avec le diabète
-                        et favorise une meilleure collaboration entre patients et professionnels de santé.
+                        <Lines
+                            text={settings?.heroSubtitle}
+                            fallback={
+                                'OnlineDIAB facilite le suivi quotidien des personnes vivant avec le diabète ' +
+                                'et favorise une meilleure collaboration entre patients et professionnels de santé.'
+                            }
+                        />
                     </p>
                     <button className={styles.primaryCta} onClick={goToLogin}>Se connecter</button>
                 </div>
@@ -221,48 +281,38 @@ const HomePage: React.FC = () => {
             {/* ===== ABOUT ===== */}
             <section id="about" className={styles.about}>
                 <div className={styles.aboutInner}>
-                    <h2>Pourquoi OnlineDIAB existe ?</h2>
-                    <p>
-                        Le suivi du diabète nécessite une attention régulière et une bonne coordination
-                        entre le patient et les professionnels qui l'accompagnent.
-                    </p>
-                    <p>
-                        OnlineDIAB propose un espace centralisé permettant de réunir les informations
-                        importantes du suivi médical afin de faciliter l'accompagnement et la prise de décision.
-                    </p>
+                    <h2>
+                        <Lines text={settings?.aboutTitle} fallback={'Pourquoi OnlineDIAB existe ?'} />
+                    </h2>
+                    <Paragraphs
+                        text={settings?.aboutContent}
+                        fallback={
+                            'Le suivi du diabète nécessite une attention régulière et une bonne coordination ' +
+                            'entre le patient et les professionnels qui l\'accompagnent.\n' +
+                            'OnlineDIAB propose un espace centralisé permettant de réunir les informations ' +
+                            'importantes du suivi médical afin de faciliter l\'accompagnement et la prise de décision.'
+                        }
+                    />
                 </div>
             </section>
 
             {/* ===== FEATURES ===== */}
             <section id="features" className={styles.features}>
                 <div className={styles.featuresInner}>
-                    <h2>Ce que OnlineDIAB permet</h2>
+                    <h2>
+                        <Lines text={settings?.featuresTitle} fallback={'Ce que OnlineDIAB permet'} />
+                    </h2>
                     <div className={styles.cardsGrid}>
-                        <div className={styles.card}>
-                            <IconActivity />
-                            <h3>Suivi de santé</h3>
-                            <p>Suivre les principaux paramètres de santé et leur évolution au fil du temps.</p>
-                        </div>
-                        <div className={styles.card}>
-                            <IconClipboard />
-                            <h3>Traitements</h3>
-                            <p>Retrouver les prescriptions et les traitements associés au parcours du patient.</p>
-                        </div>
-                        <div className={styles.card}>
-                            <IconUsers />
-                            <h3>Accompagnement médical</h3>
-                            <p>Permettre aux professionnels de santé de mieux suivre leurs patients.</p>
-                        </div>
-                        <div className={styles.card}>
-                            <IconMessageCircle />
-                            <h3>Communication</h3>
-                            <p>Faciliter les échanges entre patients et professionnels de santé.</p>
-                        </div>
-                        <div className={styles.card}>
-                            <IconBell />
-                            <h3>Rappels et événements</h3>
-                            <p>Aider à organiser les différents événements liés au suivi médical.</p>
-                        </div>
+                        {features.map((feature, index) => {
+                            const Icon = FEATURE_ICONS[index % FEATURE_ICONS.length];
+                            return (
+                                <div className={styles.card} key={index}>
+                                    <Icon />
+                                    <h3>{feature.title}</h3>
+                                    <p>{feature.description}</p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -270,20 +320,16 @@ const HomePage: React.FC = () => {
             {/* ===== FOR WHOM ===== */}
             <section id="users" className={styles.users}>
                 <div className={styles.usersInner}>
-                    <h2>Pour qui ?</h2>
+                    <h2>
+                        <Lines text={settings?.usersTitle} fallback={'Pour qui ?'} />
+                    </h2>
                     <div className={styles.userBlocks}>
-                        <div>
-                            <h3>Patients</h3>
-                            <p>Un suivi plus clair de leur santé, de leurs traitements et de leur évolution.</p>
-                        </div>
-                        <div>
-                            <h3>Professionnels de santé</h3>
-                            <p>Une meilleure visibilité sur les informations nécessaires au suivi de leurs patients.</p>
-                        </div>
-                        <div>
-                            <h3>Structures de santé</h3>
-                            <p>Une organisation centralisée des utilisateurs et du suivi médical.</p>
-                        </div>
+                        {users.map((user, index) => (
+                            <div key={index}>
+                                <h3>{user.title}</h3>
+                                <p>{user.description}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -291,8 +337,18 @@ const HomePage: React.FC = () => {
             {/* ===== FINAL CTA ===== */}
             <section className={styles.finalCta}>
                 <div className={styles.finalCtaInner}>
-                    <h2>Un suivi plus simple. <br />Une meilleure coordination.</h2>
-                    <p>Découvrez OnlineDIAB et son approche du suivi du diabète.</p>
+                    <h2>
+                        <Lines
+                            text={settings?.ctaTitle}
+                            fallback={'Un suivi plus simple.\nUne meilleure coordination.'}
+                        />
+                    </h2>
+                    <p>
+                        <Lines
+                            text={settings?.ctaSubtitle}
+                            fallback={'Découvrez OnlineDIAB et son approche du suivi du diabète.'}
+                        />
+                    </p>
                     <button className={styles.primaryCta} onClick={goToLogin}>Se connecter</button>
                 </div>
             </section>
@@ -301,8 +357,16 @@ const HomePage: React.FC = () => {
             <footer className={styles.footer}>
                 <div className={styles.footerInner}>
                     <div className={styles.footerBrand}>
-                        <strong>OnlineDIAB</strong>
-                        <p>Une plateforme pensée pour faciliter le suivi et l'accompagnement des personnes vivant avec le diabète.</p>
+                        <strong>{systemName}</strong>
+                        <p>
+                            <Lines
+                                text={settings?.footerTagline}
+                                fallback={
+                                    'Une plateforme pensée pour faciliter le suivi et l\'accompagnement des ' +
+                                    'personnes vivant avec le diabète.'
+                                }
+                            />
+                        </p>
                     </div>
                     <div className={styles.footerLinks}>
                         <div>
@@ -318,11 +382,16 @@ const HomePage: React.FC = () => {
                     </div>
                     {/* Image/logo à droite */}
                     <div className={styles.footerLogo}>
-                        <img src="../../../images/logo.png" alt="Logo OnlineDIAB" />
+                        <img src={logoUrl} alt={`Logo ${systemName}`} />
                     </div>
                 </div>
                 <div className={styles.footerBottom}>
-                    <p>© 2026 OnlineDIAB — Projet académique et éducatif.</p>
+                    <p>
+                        <Lines
+                            text={settings?.footerCopyright}
+                            fallback={'© 2026 OnlineDIAB — Projet académique et éducatif.'}
+                        />
+                    </p>
                 </div>
             </footer>
         </div>

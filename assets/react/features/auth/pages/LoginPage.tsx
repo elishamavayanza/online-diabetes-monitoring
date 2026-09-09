@@ -4,12 +4,17 @@ import logo from '@/images/logo.png';
 import { Card } from "@/react/components/UI/Card";
 import { Alert } from '@/react/components/UI/Alert';
 import { useIsMobile } from '@/react/hooks/useIsMobile';
+import { useSystemSettings } from '@/react/hooks/useSystemSettings';
 
 const SESSION_EXPIRED_KEY = 'diabcare-session-expired';
 
 export function LoginPage() {
     const isMobile = useIsMobile();
     const [showSessionExpired, setShowSessionExpired] = useState(false);
+    const { settings } = useSystemSettings();
+
+    const systemName = settings?.systemName || 'OnlineDIAB';
+    const brandLogo = settings?.logoUrl || logo;
 
     useEffect(() => {
         try {
@@ -40,8 +45,8 @@ export function LoginPage() {
             >
                 <div className="login-page__header">
                     <img
-                        src={logo}
-                        alt="OnlineDIAB"
+                        src={brandLogo}
+                        alt={systemName}
                         className="login-page__logo"
                         style={{
                             height: isMobile ? 54 : 85,
@@ -52,7 +57,7 @@ export function LoginPage() {
                         className="login-page__title"
                         style={{ fontSize: isMobile ? '1.6rem' : '2.25rem' }}
                     >
-                        OnlineDIAB
+                        {systemName}
                     </h1>
                     <p
                         className="login-page__subtitle"

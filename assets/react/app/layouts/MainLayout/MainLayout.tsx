@@ -17,6 +17,7 @@ import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelR
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useActionHistory } from './contexts/ActionHistoryContext';
 import { OfflineBanner } from '@/react/components/UI/OfflineBanner';
+import { useSystemSettings } from '@/react/hooks/useSystemSettings';
 
 // ---------- Icônes hamburger / fermer ----------
 const MenuIcon = () => (
@@ -84,6 +85,16 @@ export function MainLayout({
     const permissions = user?.permissions ?? [];
     const userRole = user?.role as UserRole | undefined;
     const menuConfig = userRole ? SIDEBAR_CONFIGS[userRole] : SIDEBAR_CONFIGS.ROOT;
+    const { settings: systemSettings } = useSystemSettings();
+    const brandName = systemSettings?.systemName || 'OnlineDIAB';
+
+    const BrandLogo = () => (
+        <img
+            src={systemSettings?.logoUrl || logo}
+            alt={brandName}
+            className="sidebar-brand__logo"
+        />
+    );
 
     // ---------- Gestion tactile (mobile uniquement) ----------
     const mainTouchStart = useRef<{ x: number; y: number } | null>(null);
@@ -202,8 +213,8 @@ export function MainLayout({
                                 }}
                                 header={
                                     <div className="sidebar-brand">
-                                        <img src={logo} alt="OnlineDIAB" className="sidebar-brand__logo" />
-                                        <span className="sidebar-brand__title">OnlineDIAB</span>
+                                        <BrandLogo />
+                                        <span className="sidebar-brand__title">{brandName}</span>
                                     </div>
                                 }
                                 footer={
