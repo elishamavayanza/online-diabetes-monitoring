@@ -7,14 +7,14 @@ import { UpcomingAppointmentsCard } from '../components/UpcomingAppointmentsCard
 import { ActiveTreatmentsCard } from '../components/ActiveTreatmentsCard';
 import { RecentNotesCard } from '../components/RecentNotesCard';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { Alert } from '@/react/components/UI/Alert';
+import { ErrorState } from '@/react/components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/patient/dashboard/_dashboard.scss';
 
 export function PatientDashboardPage() {
-    const { data, isLoading, error } = usePatientDashboard();
+    const { data, isLoading, error, reload } = usePatientDashboard();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
@@ -24,7 +24,18 @@ export function PatientDashboardPage() {
     };
 
     if (isLoading) return <Spinner />;
-    if (error || !data) return <Alert variant="error">{error ?? 'Aucune donnée'}</Alert>;
+    if (error || !data) {
+        return error ? (
+            <ErrorState size="full" {...error} onRetry={reload} />
+        ) : (
+            <ErrorState
+                size="full"
+                title="Aucune donnée disponible"
+                message="Le résumé de santé est vide pour le moment."
+                onRetry={reload}
+            />
+        );
+    }
 
     return (
         <div className="patient-dashboard-page">

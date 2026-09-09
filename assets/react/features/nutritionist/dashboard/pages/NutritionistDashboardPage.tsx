@@ -6,7 +6,7 @@ import { UpcomingAppointmentsList } from '../components/UpcomingAppointmentsList
 import { FollowUpList } from '../components/FollowUpList';
 import { RecentActivityList } from '../components/RecentActivityList';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { Alert } from '@/react/components/UI/Alert';
+import { ErrorState } from '@/react/components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
@@ -14,7 +14,7 @@ import { useAuth } from '@/react/app/providers/AuthProvider';
 import '@/styles/pages/nutritionist/dashboard/_dashboard.scss';
 
 export function NutritionistDashboardPage() {
-    const { data, isLoading, error } = useNutritionistDashboard();
+    const { data, isLoading, error, reload } = useNutritionistDashboard();
     const { user } = useAuth();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
@@ -25,7 +25,18 @@ export function NutritionistDashboardPage() {
     };
 
     if (isLoading) return <Spinner />;
-    if (error || !data) return <Alert variant="error">{error ?? 'Aucune donnée disponible.'}</Alert>;
+    if (error || !data) {
+        return error ? (
+            <ErrorState size="full" {...error} onRetry={reload} />
+        ) : (
+            <ErrorState
+                size="full"
+                title="Aucune donnée disponible"
+                message="Le tableau de bord est vide pour le moment."
+                onRetry={reload}
+            />
+        );
+    }
 
     return (
         <div className="nutritionist-dashboard-page">

@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from '@/react/components/ErrorBoundary';
 import { useAuth } from '../providers/AuthProvider';
 import { LoginPage } from '@/react/features/auth/pages/LoginPage';
 import { ForgotPasswordPage } from '@/react/features/auth/pages/ForgotPasswordPage';
@@ -101,9 +102,11 @@ function PublicRoute({ children }: { children: React.ReactElement }) {
     return children;
 }
 
-export default function AppRoutes() {
+function AppRoutesContent() {
+    const location = useLocation();
+
     return (
-        <BrowserRouter>
+        <ErrorBoundary key={location.pathname}>
             <Routes>
                 <Route path="/" element={<HomePage />} />
 
@@ -261,6 +264,14 @@ export default function AppRoutes() {
 
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+        </ErrorBoundary>
+    );
+}
+
+export default function AppRoutes() {
+    return (
+        <BrowserRouter>
+            <AppRoutesContent />
         </BrowserRouter>
     );
 }

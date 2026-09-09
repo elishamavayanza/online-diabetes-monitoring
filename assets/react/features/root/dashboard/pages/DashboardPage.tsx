@@ -4,14 +4,14 @@ import { StatCard } from '../components/StatCard';
 import { RecentActivityList } from '../components/RecentActivityList';
 import { PlatformStatus } from '../components/PlatformStatus';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { Alert } from '@/react/components/UI/Alert';
+import { ErrorState } from '@/react/components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/root/dashboard/_dashboard.scss';
 
 export function DashboardPage() {
-    const { data, isLoading, error } = useDashboard();
+    const { data, isLoading, error, reload } = useDashboard();
     const [modalOpen, setModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
@@ -26,7 +26,16 @@ export function DashboardPage() {
     }
 
     if (error || !data) {
-        return <Alert variant="error">{error ?? 'Aucune donnée disponible.'}</Alert>;
+        return error ? (
+            <ErrorState size="full" {...error} onRetry={reload} />
+        ) : (
+            <ErrorState
+                size="full"
+                title="Aucune donnée disponible"
+                message="Le tableau de bord est vide pour le moment."
+                onRetry={reload}
+            />
+        );
     }
 
     return (

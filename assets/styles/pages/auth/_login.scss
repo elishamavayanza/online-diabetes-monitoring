@@ -11,6 +11,12 @@
     justify-content: center;
     padding: 2rem;
 
+    &__session-expired {
+        width: 100%;
+        max-width: 440px;
+        margin-bottom: 1rem;
+    }
+
     &__card {
         width: 100%;
         max-width: 440px;

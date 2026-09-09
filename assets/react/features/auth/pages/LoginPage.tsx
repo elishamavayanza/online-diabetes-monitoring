@@ -1,14 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LoginForm } from '@/react/features/auth';
 import logo from '@/images/logo.png';
 import { Card } from "@/react/components/UI/Card";
+import { Alert } from '@/react/components/UI/Alert';
 import { useIsMobile } from '@/react/hooks/useIsMobile';
+
+const SESSION_EXPIRED_KEY = 'diabcare-session-expired';
 
 export function LoginPage() {
     const isMobile = useIsMobile();
+    const [showSessionExpired, setShowSessionExpired] = useState(false);
+
+    useEffect(() => {
+        try {
+            if (sessionStorage.getItem(SESSION_EXPIRED_KEY) === '1') {
+                setShowSessionExpired(true);
+                sessionStorage.removeItem(SESSION_EXPIRED_KEY);
+            }
+        } catch {
+            // stockage indisponible : pas de bannière
+        }
+    }, []);
 
     return (
         <div className="login-page">
+            {showSessionExpired && (
+                <Alert
+                    variant="warning"
+                    className="login-page__session-expired"
+                    onClose={() => setShowSessionExpired(false)}
+                >
+                    Votre session a expiré. Veuillez vous reconnecter pour continuer.
+                </Alert>
+            )}
             <Card
                 variant="elevated"
                 padding={isMobile ? 'small' : 'large'}

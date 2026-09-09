@@ -6,14 +6,14 @@ import { TodayAppointments } from '../components/TodayAppointments';
 import { UpcomingAppointments } from '../components/UpcomingAppointments';
 import { OrganizationStatus } from '../components/OrganizationStatus';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { Alert } from '@/react/components/UI/Alert';
+import { ErrorState } from '@/react/components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/admin/dashboard/_dashboard.scss';
 
 export function AdminDashboardPage() {
-    const { data, isLoading, error } = useAdminDashboard();
+    const { data, isLoading, error, reload } = useAdminDashboard();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
 
@@ -23,7 +23,18 @@ export function AdminDashboardPage() {
     };
 
     if (isLoading) return <Spinner />;
-    if (error || !data) return <Alert variant="error">{error ?? 'Aucune donnée disponible.'}</Alert>;
+    if (error || !data) {
+        return error ? (
+            <ErrorState size="full" {...error} onRetry={reload} />
+        ) : (
+            <ErrorState
+                size="full"
+                title="Aucune donnée disponible"
+                message="Le tableau de bord est vide pour le moment."
+                onRetry={reload}
+            />
+        );
+    }
 
     return (
         <div className="admin-dashboard-page">

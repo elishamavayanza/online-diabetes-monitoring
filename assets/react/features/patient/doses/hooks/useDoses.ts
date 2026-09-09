@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { fetchDoses, recordIntake as recordIntakeApi } from '../services/dosesService';
 import { MedicationIntake, IntakeStatus } from '../types';
+import { toErrorState, ErrorStateModel } from '@/services/api/errorDisplay';
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 
 export function useDoses() {
@@ -9,7 +10,7 @@ export function useDoses() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [markedDates, setMarkedDates] = useState<{ date: Date }[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<ErrorStateModel | null>(null);
 
     const load = useCallback(async () => {
         setIsLoading(true);
@@ -19,7 +20,7 @@ export function useDoses() {
             setIntakes(data.today);
             setMarkedDates(data.markedDates ?? []);
         } catch (err) {
-            setError('Impossible de charger les prises.');
+            setError(toErrorState(err, { fallbackMessage: 'Impossible de charger les prises.' }));
         } finally {
             setIsLoading(false);
         }

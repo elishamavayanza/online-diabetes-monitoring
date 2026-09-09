@@ -172,16 +172,32 @@ export const loggingResponseInterceptor: ResponseInterceptor = {
 
 /**
  * Intercepteur : capture les erreurs 401 et déclenche la déconnexion.
+ * - Une requête de connexion (login_check) n'est jamais interceptée :
+ *   le formulaire affiche l'erreur inline.
+ * - Déjà sur la page de connexion : on ne force pas de redirection.
+ * - Sinon : nettoyage des tokens, marqueur « session expirée », puis
+ *   redirection vers la page de connexion.
  */
+const SESSION_EXPIRED_KEY = 'diabcare-session-expired';
+
 export const authErrorInterceptor: ResponseInterceptor = {
     onFulfilled: (response: ApiResponse) => response,
     onRejected: (error: unknown): never => {
-        const apiError = error as { status?: number; isApiError?: boolean };
+        const apiError = error as { status?: number; isApiError?: boolean; config?: RequestConfig };
         if (apiError?.isApiError && apiError.status === 401) {
-            // Nettoyage des tokens et redirection vers le login
-            tokenStorage.clearAll();
-            const loginUrl = document.querySelector<HTMLMetaElement>('meta[name="login-url"]')?.content ?? '/login';
-            window.location.href = loginUrl;
+            const url = apiError.config?.url ?? '';
+            const isLoginRequest = url.includes('login_check') || url.includes('/login');
+            const isOnLoginPage = window.location.pathname.startsWith('/login');
+            if (!isLoginRequest && !isOnLoginPage) {
+                tokenStorage.clearAll();
+                try {
+                    sessionStorage.setItem(SESSION_EXPIRED_KEY, '1');
+                } catch {
+                    // stockage indisponible : on redirige sans marqueur
+                }
+                const loginUrl = document.querySelector<HTMLMetaElement>('meta[name="login-url"]')?.content ?? '/login';
+                window.location.href = loginUrl;
+            }
         }
         throw error;
     },

@@ -3,7 +3,7 @@ import { useDoses } from '../hooks/useDoses';
 import { DosesList } from '../components/DosesList';
 import { IntakeActionModal } from '../components/IntakeActionModal';
 import { Spinner } from '@/react/components/UI/Spinner';
-import { Alert } from '@/react/components/UI/Alert';
+import { ErrorState } from '@/react/components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { RightSidebar } from '@/react/components/Navigation/RightSidebar';
@@ -13,7 +13,7 @@ import { MedicationIntake, IntakeStatus } from '../types';
 import '@/styles/pages/patient/doses/_doses.scss';
 
 export function DosesPage() {
-    const { intakes, selectedDate, setSelectedDate, markedDates, isLoading, error, recordIntake } = useDoses();
+    const { intakes, selectedDate, setSelectedDate, markedDates, isLoading, error, recordIntake, reload } = useDoses();
     const [selectedIntake, setSelectedIntake] = useState<MedicationIntake | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -39,7 +39,7 @@ export function DosesPage() {
     };
 
     if (isLoading) return <Spinner />;
-    if (error) return <Alert variant="error">{error}</Alert>;
+    if (error) return <ErrorState size="full" {...error} onRetry={reload} />;
 
     const isToday = selectedDate.toDateString() === new Date().toDateString();
     const title = isToday
