@@ -4,26 +4,31 @@ export interface UsePaginationProps {
     totalItems: number;
     pageSize?: number;
     initialPage?: number;
+    /** Mode contrôlé : la page courante est imposée par le parent (pagination serveur). */
+    currentPage?: number;
     siblingCount?: number;
     onPageChange?: (page: number) => void;
     className?: string;
 }
 
 export function usePagination({
-                                  totalItems,
-                                  pageSize = 10,
-                                  initialPage = 1,
-                                  siblingCount = 1,
-                                  onPageChange,
-                                  className = '',
-                              }: UsePaginationProps) {
-    const [currentPage, setCurrentPage] = useState(initialPage);
+                                   totalItems,
+                                   pageSize = 10,
+                                   initialPage = 1,
+                                   currentPage: externalCurrentPage,
+                                   siblingCount = 1,
+                                   onPageChange,
+                                   className = '',
+                               }: UsePaginationProps) {
+    const [internalPage, setInternalPage] = useState(initialPage);
+
+    const currentPage = externalCurrentPage ?? internalPage;
 
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
     const goToPage = (page: number) => {
         if (page < 1 || page > totalPages) return;
-        setCurrentPage(page);
+        setInternalPage(page);
         onPageChange?.(page);
     };
 

@@ -6,14 +6,31 @@ import { Professional } from '../types/types';
 
 interface ProfessionalsTableProps {
     professionals: Professional[];
+    total: number;
+    page: number;
+    limit: number;
+    loading: boolean;
+    onPageChange: (page: number) => void;
+    onSort: (key: string, direction: 'asc' | 'desc') => void;
     onViewDetails?: (professional: Professional) => void;
     onSuspend?: (professional: Professional) => void;
     onReactivate?: (professional: Professional) => void;
 }
 
-export function ProfessionalsTable({ professionals, onViewDetails, onSuspend, onReactivate }: ProfessionalsTableProps) {
+export function ProfessionalsTable({
+                                        professionals,
+                                        total,
+                                        page,
+                                        limit,
+                                        loading,
+                                        onPageChange,
+                                        onSort,
+                                        onViewDetails,
+                                        onSuspend,
+                                        onReactivate,
+                                    }: ProfessionalsTableProps) {
     const columns = [
-        { key: 'nom', title: 'Nom' },
+        { key: 'nom', title: 'Nom', sortable: true },
         { key: 'type', title: 'Type' },
         {
             key: 'statut',
@@ -60,7 +77,17 @@ export function ProfessionalsTable({ professionals, onViewDetails, onSuspend, on
 
     return (
         <Card className="professionals-card">
-            <DataTable columns={columns} data={professionals} />
+            <DataTable
+                columns={columns}
+                data={professionals}
+                mode="server"
+                loading={loading}
+                pageSize={limit}
+                totalItems={total}
+                currentPage={page}
+                onPageChange={onPageChange}
+                onSort={onSort}
+            />
         </Card>
     );
 }

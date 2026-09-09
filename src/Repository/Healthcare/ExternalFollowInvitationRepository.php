@@ -6,6 +6,7 @@ use App\Entity\Healthcare\ExternalFollowInvitation;
 use App\Entity\Healthcare\ExternalFollowStatus;
 use App\Entity\Healthcare\HealthcareOrganization;
 use App\Entity\Identity\HealthcareProfessional;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -28,7 +29,7 @@ class ExternalFollowInvitationRepository extends ServiceEntityRepository
     ): array {
         $today = new \DateTimeImmutable('today');
 
-        $qb = $this->createQueryBuilder('i')
+        $qb = $this->createWithJoins()
             ->andWhere('i.organization = :organization')
             ->andWhere('i.deletedAt IS NULL')
             ->setParameter('organization', $organization)
@@ -63,7 +64,7 @@ class ExternalFollowInvitationRepository extends ServiceEntityRepository
     {
         $today = new \DateTimeImmutable('today');
 
-        return $this->createQueryBuilder('i')
+        return $this->createWithJoins()
             ->andWhere('i.professional = :professional')
             ->andWhere('i.status = :accepted')
             ->andWhere('(i.endDate IS NULL OR i.endDate >= :today)')
@@ -74,6 +75,20 @@ class ExternalFollowInvitationRepository extends ServiceEntityRepository
             ->orderBy('i.startDate', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Base commune avec JOIN FETCH des relations nécessaires aux DTO de liste
+     * (patient, professionnel, organisation, invitant, affectation liée).
+     */
+    private function createWithJoins(): QueryBuilder
+    {
+        return $this->createQueryBuilder('i')
+            ->addSelect('pat')->leftJoin('i.patient', 'pat')
+            ->addSelect('pro')->leftJoin('i.professional', 'pro')
+            ->addSelect('org')->leftJoin('i.organization', 'org')
+            ->addSelect('ib')->leftJoin('i.invitedBy', 'ib')
+            ->addSelect('cta')->leftJoin('i.assignment', 'cta');
     }
 
     public function findPendingBetween(

@@ -6,14 +6,31 @@ import { Patient } from '../types';
 
 interface PatientsTableProps {
     patients: Patient[];
+    total: number;
+    page: number;
+    limit: number;
+    loading: boolean;
+    onPageChange: (page: number) => void;
+    onSort: (key: string, direction: 'asc' | 'desc') => void;
     onViewDetails?: (patient: Patient) => void;
     onSuspend?: (patient: Patient) => void;
     onReactivate?: (patient: Patient) => void;
 }
 
-export function PatientsTable({ patients, onViewDetails, onSuspend, onReactivate }: PatientsTableProps) {
+export function PatientsTable({
+                                  patients,
+                                  total,
+                                  page,
+                                  limit,
+                                  loading,
+                                  onPageChange,
+                                  onSort,
+                                  onViewDetails,
+                                  onSuspend,
+                                  onReactivate,
+                              }: PatientsTableProps) {
     const columns = [
-        { key: 'nom', title: 'Nom' },
+        { key: 'nom', title: 'Nom', sortable: true },
         { key: 'dateNaissance', title: 'Date de naissance' },
         { key: 'typeDiabete', title: 'Type de diabète' },
         {
@@ -61,7 +78,17 @@ export function PatientsTable({ patients, onViewDetails, onSuspend, onReactivate
 
     return (
         <Card className="patients-card">
-            <DataTable columns={columns} data={patients} />
+            <DataTable
+                columns={columns}
+                data={patients}
+                mode="server"
+                loading={loading}
+                pageSize={limit}
+                totalItems={total}
+                currentPage={page}
+                onPageChange={onPageChange}
+                onSort={onSort}
+            />
         </Card>
     );
 }

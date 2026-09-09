@@ -30,8 +30,21 @@ class UserService
 
     /**
      * Liste tous les utilisateurs de l'organisation de l'administrateur connecté.
+     *
+     * Contrat additif : si $page est fourni, la réponse devient
+     * paginée { items, total, page, limit, totalPages } et la recherche/tri
+     * sont exécutés côté serveur. Sans $page, le comportement historique
+     * (tableau complet) est conservé.
      */
-    public function getAll(): Feedback
+    public function getAll(
+        ?int $page = null,
+        ?int $limit = 20,
+        ?string $q = null,
+        ?string $sort = null,
+        string $order = 'desc',
+        ?string $role = null,
+        ?string $organization = null
+    ): Feedback
     {
         $feedback = new Feedback();
 
@@ -58,10 +71,46 @@ class UserService
                 );
             }
 
-            $users = $this->repository->findBy(
-                ['deletedAt' => null],
-                ['createdAt' => 'DESC']
-            );
+            // Chemin paginé : requête SQL ciblée (pas de chargement complet).
+            if ($page !== null) {
+                $roles = match ($role) {
+                    'admin' => [Role::ROLE_ADMIN->value, Role::ROLE_ROOT->value],
+                    'professional' => [Role::ROLE_CLINICIAN->value, Role::ROLE_NUTRITIONIST->value],
+                    'patient' => [Role::ROLE_PATIENT->value],
+                    default => null,
+                };
+
+                $result = $this->repository->searchPaginated(
+                    \App\Entity\Identity\User::class,
+                    $targetOrganization?->getId(),
+                    $isSuperAdmin,
+                    $q,
+                    $sort,
+                    $order,
+                    $page,
+                    $limit ?? 20,
+                    $roles,
+                    $organization
+                );
+
+                $items = array_map(
+                    fn ($user) => $this->mapper->mapEntityToResponse($user),
+                    $result['items']
+                );
+
+                return $feedback
+                    ->setData([
+                        'items'      => array_values($items),
+                        'total'      => $result['total'],
+                        'page'       => $page,
+                        'limit'      => $limit ?? 20,
+                        'totalPages' => (int) ceil($result['total'] / max(1, $limit ?? 20)),
+                    ])
+                    ->setFlushDescription('Liste des utilisateurs récupérée avec succès.')
+                    ->autoInitFlush();
+            }
+
+            $users = $this->repository->findAllWithOrganizationMemberships(User::class);
 
             // Le Super Admin voit tous les utilisateurs de la plateforme ; sinon
             // on filtre par l'organisation de l'administrateur connecté.

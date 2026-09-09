@@ -10,7 +10,7 @@ import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/admin/patients/_patients.scss';
 import { PatientFormModal } from '../components/PatientFormModal';
-import { Patient } from '../types';
+import { Patient, PatientsFilters } from '../types';
 import { PatientFormValues } from "@/react/features/root/users/types/userForm.types";
 import { AttachPeopleModal } from '../components/AttachPeopleModal';
 import { suspendPatient, reactivatePatient } from '../services/patientsService';
@@ -46,7 +46,7 @@ function toPatientFormValues(patient: Patient): PatientFormValues {
 }
 
 export function PatientsPage() {
-    const { patients, isLoading, error, refetch } = usePatients(); // récupération de refetch
+    const { patients, total, page, limit, isLoading, error, refetch, setFilters, setPage, setSort } = usePatients(); // récupération de refetch
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [diabeteFilter, setDiabeteFilter] = useState<string>('Tous');
@@ -137,17 +137,8 @@ export function PatientsPage() {
         }
     };
 
-    if (isLoading) return <Spinner />;
+    if (isLoading && patients.length === 0) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
-
-    const filteredPatients = patients.filter((patient) => {
-        const q = search.toLowerCase();
-        const matchSearch =
-            patient.nom.toLowerCase().includes(q) ||
-            patient.equipeSoins.toLowerCase().includes(q);
-        const matchDiabete = diabeteFilter === 'Tous' || patient.typeDiabete === diabeteFilter;
-        return matchSearch && matchDiabete;
-    });
 
     const diabeteOptions = ['Tous', 'Type 1', 'Type 2', 'Gestationnel'];
 
@@ -163,7 +154,10 @@ export function PatientsPage() {
                     <SearchInput
                         placeholder="Rechercher un patient..."
                         value={search}
-                        onSearch={(value: string) => setSearch(value)}
+                        onSearch={(value: string) => {
+                            setSearch(value);
+                            setFilters({ search: value, typeDiabete: diabeteFilter as PatientsFilters['typeDiabete'] });
+                        }}
                     />
                 </div>
 
@@ -201,7 +195,13 @@ export function PatientsPage() {
             </div>
 
             <PatientsTable
-                patients={filteredPatients}
+                patients={patients}
+                total={total}
+                page={page}
+                limit={limit}
+                loading={isLoading}
+                onPageChange={setPage}
+                onSort={setSort}
                 onViewDetails={openDetails}
                 onSuspend={handleSuspend}
                 onReactivate={handleReactivate}

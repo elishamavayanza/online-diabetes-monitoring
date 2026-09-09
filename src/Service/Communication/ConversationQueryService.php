@@ -57,8 +57,11 @@ class ConversationQueryService
             } else {
                 $conversations = [];
             }
+            // Pré-chargement des résumés en batch (dernier message + non lus).
+            $lastMessageMap = $this->messageRepository->findLastMessageByConversations($conversations);
+            $unreadMap = $this->messageRepository->countUnreadByConversation($conversations, $currentUser);
             $summaries = array_map(
-                fn (Conversation $c) => $this->buildSummary($c, $currentUser),
+                fn (Conversation $c) => $this->buildSummary($c, $currentUser, $lastMessageMap, $unreadMap),
                 $conversations
             );
 
@@ -90,8 +93,11 @@ class ConversationQueryService
             $this->securityService->checkPatientAccess($patient, SecurityAction::READ_MESSAGE);
 
             $conversations = $this->conversationRepository->findByPatientUser((string) $patient->getId());
+
+            $lastMessageMap = $this->messageRepository->findLastMessageByConversations($conversations);
+            $unreadMap = $this->messageRepository->countUnreadByConversation($conversations, $currentUser);
             $summaries = array_map(
-                fn (Conversation $c) => $this->buildSummary($c, $currentUser),
+                fn (Conversation $c) => $this->buildSummary($c, $currentUser, $lastMessageMap, $unreadMap),
                 $conversations
             );
 
@@ -127,8 +133,19 @@ class ConversationQueryService
             $this->securityService->checkPatientAccess($patient, SecurityAction::READ_MESSAGE);
 
             $messages = $this->messageRepository->findByConversationOrderedAsc($conversation);
+
+            // Pré-chargement groupé (évite le N+1 : sender déjà fetch, et
+            // pièces jointes + accusés de lecture en 2 requêtes au total).
+            $attachmentMap = $this->messageRepository->findAttachmentsByMessages($messages);
+            $receiptMap = $this->readReceiptRepository->findReceiptsByMessages($messages);
+
             $details = array_map(
-                fn (Message $message) => $this->buildMessageDetail($message, $currentUser),
+                fn (Message $message) => $this->buildMessageDetail(
+                    $message,
+                    $currentUser,
+                    $attachmentMap[(string) $message->getId()] ?? [],
+                    $receiptMap[(string) $message->getId()] ?? []
+                ),
                 $messages
             );
 
@@ -146,11 +163,13 @@ class ConversationQueryService
         return $feedback;
     }
 
-    private function buildSummary(Conversation $conversation, User $currentUser): ConversationSummaryResponseDTO
-    {
-        $messages = $conversation->getMessages()->toArray();
-        usort($messages, static fn (Message $a, Message $b) => $b->getSentAt() <=> $a->getSentAt());
-        $lastMessage = $messages[0] ?? null;
+    private function buildSummary(
+        Conversation $conversation,
+        User $currentUser,
+        array $lastMessageMap,
+        array $unreadMap
+    ): ConversationSummaryResponseDTO {
+        $lastMessage = $lastMessageMap[(string) $conversation->getId()] ?? null;
 
         $patient = $conversation->getPatient();
         $patientName = $patient instanceof Patient ? $patient->getFullName() : null;
@@ -163,13 +182,17 @@ class ConversationQueryService
             patientPhotoUrl: AvatarUrl::toPublicUrl($patient?->getAvatarUrl()),
             lastMessageContent: $lastMessage?->getContent(),
             lastMessageAt: $lastMessage?->getSentAt(),
-            unreadCount: $this->messageRepository->countUnreadForUser($conversation, $currentUser),
+            unreadCount: $unreadMap[(string) $conversation->getId()] ?? 0,
             createdAt: $conversation->getCreatedAt(),
         );
     }
 
-    private function buildMessageDetail(Message $message, User $currentUser): MessageDetailResponseDTO
-    {
+    private function buildMessageDetail(
+        Message $message,
+        User $currentUser,
+        array $attachments,
+        array $receipts
+    ): MessageDetailResponseDTO {
         $senderId = (string) $message->getSender()?->getId();
         $currentUserId = (string) $currentUser->getId();
         $isMine = $senderId === $currentUserId;
@@ -180,16 +203,15 @@ class ConversationQueryService
             ? $sender->getFullName()
             : null;
 
-        $attachments = array_map(
+        $attachmentDtos = array_map(
             static fn ($attachment) => MessageAttachmentResponseDTO::fromEntity(
                 $attachment,
                 sprintf('/api/message-attachments/%s/download', $attachment->getId())
             ),
-            $message->getAttachments()->toArray()
+            $attachments
         );
 
         if ($isMine) {
-            $receipts = $this->readReceiptRepository->findReadReceiptsForMessage($message);
             $recipientRead = null;
             foreach ($receipts as $receipt) {
                 if ((string) $receipt->getUser()?->getId() !== $currentUserId) {
@@ -203,19 +225,25 @@ class ConversationQueryService
                 true,
                 $recipientRead !== null,
                 $recipientRead,
-                $attachments,
+                $attachmentDtos,
                 $authorName
             );
         }
 
-        $myReceipt = $this->readReceiptRepository->findByMessageAndUser($message, $currentUser);
+        $myReceipt = null;
+        foreach ($receipts as $receipt) {
+            if ((string) $receipt->getUser()?->getId() === $currentUserId) {
+                $myReceipt = $receipt;
+                break;
+            }
+        }
 
         return MessageDetailResponseDTO::fromEntity(
             $message,
             false,
             $myReceipt !== null,
             $myReceipt?->getReadAt(),
-            $attachments,
+            $attachmentDtos,
             $authorName
         );
     }

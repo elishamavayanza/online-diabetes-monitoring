@@ -34,8 +34,18 @@ class HealthcareProfessionalService
 
     /**
      * Liste tous les professionnels actifs de l'organisation de l'administrateur connecté.
+     *
+     * Contrat additif : si $page est fourni, la réponse devient paginée
+     * { items, total, page, limit, totalPages } avec recherche/tri serveur.
      */
-    public function getAll(): Feedback
+    public function getAll(
+        ?int $page = null,
+        ?int $limit = 20,
+        ?string $q = null,
+        ?string $sort = null,
+        string $order = 'desc',
+        ?string $organization = null
+    ): Feedback
     {
         $feedback = new Feedback();
 
@@ -62,11 +72,41 @@ class HealthcareProfessionalService
                 );
             }
 
+            // Chemin paginé : requête SQL ciblée (jointures, COUNT + LIMIT).
+            if ($page !== null) {
+                $result = $this->repository->searchPaginated(
+                    HealthcareProfessional::class,
+                    $targetOrganization?->getId(),
+                    $isSuperAdmin,
+                    $q,
+                    $sort,
+                    $order,
+                    $page,
+                    $limit ?? 20,
+                    null,
+                    $organization
+                );
+
+                $items = array_map(
+                    fn (HealthcareProfessional $professional) =>
+                    $this->mapper->mapEntityToResponse($professional),
+                    $result['items']
+                );
+
+                return $feedback
+                    ->setData([
+                        'items'      => array_values($items),
+                        'total'      => $result['total'],
+                        'page'       => $page,
+                        'limit'      => $limit ?? 20,
+                        'totalPages' => (int) ceil($result['total'] / max(1, $limit ?? 20)),
+                    ])
+                    ->setFlushDescription('Liste des professionnels récupérée avec succès.')
+                    ->autoInitFlush();
+            }
+
             // Récupération de tous les professionnels non supprimés
-            $professionals = $this->repository->findBy(
-                ['deletedAt' => null],
-                ['createdAt' => 'DESC']
-            );
+            $professionals = $this->repository->findAllWithOrganizationMemberships(HealthcareProfessional::class);
 
             // Le Super Admin voit tous les professionnels de la plateforme ; sinon
             // on ne garde que ceux de l'organisation active de l'admin.

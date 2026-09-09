@@ -59,6 +59,7 @@
 @use 'components/UI/_imageEditor' as *;
 @use 'components/UI/theme-toggle' as *;
 @use 'components/UI/error-state' as *;
+@use 'components/UI/offline-banner' as *;
 @use './layouts/layouts' as *;
 @use '../react/app/layouts/MainLayout/MainLayout' as *;
 
@@ -157,4 +158,11 @@ body,
 *::before,
 *::after {
     box-sizing: border-box;
+}
+
+.route-loading {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

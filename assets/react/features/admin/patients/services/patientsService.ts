@@ -31,6 +31,61 @@ export async function fetchPatients(filters: PatientsFilters): Promise<Patient[]
     }
 }
 
+export interface PaginatedPatients {
+    items: Patient[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export interface PatientsQuery {
+    q?: string;
+    page?: number;
+    limit?: number;
+    sort?: string;
+    order?: 'asc' | 'desc';
+    org?: string;
+}
+
+/**
+ * Liste paginée des patients avec recherche / tri serveur.
+ */
+export async function fetchPaginatedPatients(query: PatientsQuery = {}): Promise<PaginatedPatients> {
+    const { q, page = 1, limit = 10, sort, order = 'desc', org } = query;
+
+    const params: Record<string, string | number | undefined> = {
+        page,
+        limit,
+        q: q || undefined,
+        sort,
+        order,
+        org: org || undefined,
+    };
+
+    const response = await apiClient.get<ApiFeedback<any>>('/patients', { params });
+
+    if (response.data.error) {
+        throw new Error(response.data.message || 'Erreur lors du chargement des patients.');
+    }
+
+    const payload = response.data.data;
+
+    // Fallback : tableau (ancien contrat) traité comme une seule page.
+    const items = Array.isArray(payload) ? payload.slice(0, limit) : (payload?.items ?? []);
+    const total = Array.isArray(payload) ? payload.length : (payload?.total ?? items.length);
+
+    return {
+        items: items.map(mapApiToPatient),
+        total,
+        page: Array.isArray(payload) ? 1 : (payload?.page ?? page),
+        limit: Array.isArray(payload) ? limit : (payload?.limit ?? limit),
+        totalPages: Array.isArray(payload)
+            ? Math.ceil(total / limit)
+            : (payload?.totalPages ?? Math.ceil(total / limit)),
+    };
+}
+
 // Récupère un patient complet (profil) par son ID
 export async function getPatientById(id: string): Promise<PatientFormValues> {
     try {

@@ -32,9 +32,14 @@ class PatientController extends AbstractController
 
     #[Route('', name: 'api_patients_list', methods: ['GET'])]
     #[OA\Get(
-        description: 'Récupère la liste de tous les patients.',
+        description: 'Récupère la liste de tous les patients. Supporte la pagination (page, limit), la recherche (q) et le tri (sort, order).',
         summary: 'Lister les patients'
     )]
+    #[OA\Parameter(name: 'page', in: 'query', description: 'Numéro de page (active la pagination)', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'limit', in: 'query', description: 'Nombre d\'éléments par page', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'q', in: 'query', description: 'Recherche sur nom / e-mail', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'sort', in: 'query', description: 'Champ de tri (createdAt, fullName, email)', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'order', in: 'query', description: 'Sens de tri (asc|desc)', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(
         response: 200,
         description: 'Liste des patients récupérée avec succès',
@@ -53,9 +58,16 @@ class PatientController extends AbstractController
     )]
     #[OA\Response(response: 401, description: 'Non authentifié')]
     #[OA\Response(response: 403, description: 'Permission insuffisante')]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $feedback = $this->patientService->getAll();
+        $feedback = $this->patientService->getAll(
+            $request->query->has('page') ? max(1, $request->query->getInt('page')) : null,
+            $request->query->has('limit') ? min(100, max(1, $request->query->getInt('limit'))) : 20,
+            $request->query->get('q'),
+            $request->query->get('sort'),
+            $request->query->get('order', 'desc'),
+            $request->query->get('org'),
+        );
 
         return $this->json(
             $feedback,

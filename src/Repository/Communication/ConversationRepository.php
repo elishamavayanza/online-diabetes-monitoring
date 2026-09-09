@@ -23,6 +23,8 @@ class ConversationRepository extends ServiceEntityRepository
     public function findByPatientUser(string $patientUserId): array
     {
         return $this->createQueryBuilder('c')
+            ->addSelect('pat')
+            ->leftJoin('c.patient', 'pat')
             ->andWhere('c.patient = :patient')
             ->andWhere('c.deletedAt IS NULL')
             ->setParameter('patient', $patientUserId)
@@ -42,6 +44,8 @@ class ConversationRepository extends ServiceEntityRepository
         }
 
         return $this->createQueryBuilder('c')
+            ->addSelect('pat')
+            ->leftJoin('c.patient', 'pat')
             ->andWhere('c.patient IN (:patients)')
             ->andWhere('c.deletedAt IS NULL')
             ->setParameter('patients', $patientUserIds)

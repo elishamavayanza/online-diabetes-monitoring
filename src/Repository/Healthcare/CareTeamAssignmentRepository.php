@@ -41,6 +41,8 @@ class CareTeamAssignmentRepository extends ServiceEntityRepository
     public function findByProfessional(HealthcareProfessional $professional): array
     {
         return $this->createQueryBuilder('cta')
+            ->addSelect('p')
+            ->leftJoin('cta.patient', 'p')
             ->andWhere('cta.professional = :professional')
             ->andWhere('cta.deletedAt IS NULL')
             ->setParameter('professional', $professional)
@@ -54,6 +56,8 @@ class CareTeamAssignmentRepository extends ServiceEntityRepository
     public function findActiveByProfessional(HealthcareProfessional $professional): array
     {
         return $this->createQueryBuilder('cta')
+            ->addSelect('p')
+            ->leftJoin('cta.patient', 'p')
             ->andWhere('cta.professional = :professional')
             ->andWhere('cta.active = :active')
             ->andWhere('cta.deletedAt IS NULL')
@@ -66,7 +70,16 @@ class CareTeamAssignmentRepository extends ServiceEntityRepository
     /** @return CareTeamAssignment[] */
     public function findByOrganization(HealthcareOrganization $organization): array
     {
-        return $this->findBy(['organization' => $organization], ['createdAt' => 'DESC']);
+        return $this->createQueryBuilder('cta')
+            ->addSelect('pat')->leftJoin('cta.patient', 'pat')
+            ->addSelect('pro')->leftJoin('cta.professional', 'pro')
+            ->addSelect('org')->leftJoin('cta.organization', 'org')
+            ->andWhere('cta.organization = :organization')
+            ->andWhere('cta.deletedAt IS NULL')
+            ->setParameter('organization', $organization)
+            ->orderBy('cta.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     public function hasActiveAssignment(

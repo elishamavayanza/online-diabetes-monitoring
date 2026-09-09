@@ -6,13 +6,28 @@ import { User } from '../types';
 
 interface UsersTableProps {
     users: User[];
+    total: number;
+    page: number;
+    limit: number;
+    loading: boolean;
+    onPageChange: (page: number) => void;
+    onSort: (key: string, direction: 'asc' | 'desc') => void;
     onViewDetails: (user: User) => void;
 }
 
-export function UsersTable({ users, onViewDetails }: UsersTableProps) {
+export function UsersTable({
+                               users,
+                               total,
+                               page,
+                               limit,
+                               loading,
+                               onPageChange,
+                               onSort,
+                               onViewDetails,
+                           }: UsersTableProps) {
     const columns = [
-        { key: 'nom', title: 'Nom' },
-        { key: 'email', title: 'Email' },
+        { key: 'nom', title: 'Nom', sortable: true },
+        { key: 'email', title: 'Email', sortable: true },
         { key: 'type', title: 'Type' },
         {
             key: 'organisation',
@@ -61,7 +76,13 @@ export function UsersTable({ users, onViewDetails }: UsersTableProps) {
             <DataTable
                 columns={columns}
                 data={users}
-                pageSize={10}   // active la pagination
+                mode="server"
+                loading={loading}
+                pageSize={limit}
+                totalItems={total}
+                currentPage={page}
+                onPageChange={onPageChange}
+                onSort={onSort}
             />
         </Card>
     );

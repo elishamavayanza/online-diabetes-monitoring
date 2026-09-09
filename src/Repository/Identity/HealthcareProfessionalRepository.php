@@ -12,6 +12,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class HealthcareProfessionalRepository extends ServiceEntityRepository
 {
+    use UserListQueryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, HealthcareProfessional::class);

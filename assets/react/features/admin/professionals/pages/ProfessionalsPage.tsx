@@ -49,9 +49,9 @@ function toFormValues(professional: Professional): ProfessionalFormValues {
 
 export function ProfessionalsPage() {
     // on récupère refetch pour actualiser la liste après action
-    const { professionals, isLoading, error, refetch } = useProfessionals();
+    const { professionals, total, page, limit, isLoading, error, refetch, setSearch, setPage, setSort } = useProfessionals();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [search, setSearch] = useState('');
+    const [search, setSearchInput] = useState('');
     const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingProfessionalId, setEditingProfessionalId] = useState<string | null>(null);
@@ -139,17 +139,8 @@ export function ProfessionalsPage() {
         }
     };
 
-    if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
-
-    const filteredProfessionals = professionals.filter((pro) => {
-        const q = search.toLowerCase();
-        return (
-            pro.nom.toLowerCase().includes(q) ||
-            pro.specialite.toLowerCase().includes(q) ||
-            pro.etablissement.toLowerCase().includes(q)
-        );
-    });
+    if (isLoading && professionals.length === 0) return <Spinner />;
 
     return (
         <div className="professionals-page">
@@ -163,7 +154,10 @@ export function ProfessionalsPage() {
                     <SearchInput
                         placeholder="Rechercher un professionnel..."
                         value={search}
-                        onSearch={(value: string) => setSearch(value)}
+                        onSearch={(value: string) => {
+                            setSearchInput(value);
+                            setSearch(value);
+                        }}
                     />
                 </div>
                 <Button variant="primary" onClick={() => navigate('/admin/professionals/new')}>
@@ -172,7 +166,13 @@ export function ProfessionalsPage() {
             </div>
 
             <ProfessionalsTable
-                professionals={filteredProfessionals}
+                professionals={professionals}
+                total={total}
+                page={page}
+                limit={limit}
+                loading={isLoading}
+                onPageChange={setPage}
+                onSort={setSort}
                 onViewDetails={openDetails}
                 onSuspend={handleSuspend}
                 onReactivate={handleReactivate}

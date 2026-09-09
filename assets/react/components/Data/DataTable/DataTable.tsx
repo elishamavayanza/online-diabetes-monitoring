@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDataTable, UseDataTableProps } from '@/react/hook-components/Data/DataTable';
 import { Pagination } from '../Pagination';
 
-export interface DataTableProps<T> extends UseDataTableProps<T> {}
+export interface DataTableProps<T> extends UseDataTableProps<T> {
+    /** Mode serveur : la pagination et le tri sont contrôlés par le parent. */
+    mode?: 'local' | 'server';
+    /** Chargement en cours (mode serveur) */
+    loading?: boolean;
+    /** Nombre total d'éléments (mode serveur) */
+    totalItems?: number;
+    /** Page courante (mode serveur, contrôlée) */
+    currentPage?: number;
+    /** Changement de page (mode serveur) */
+    onPageChange?: (page: number) => void;
+    /** Changement de tri (mode serveur) */
+    onSort?: (key: string, direction: 'asc' | 'desc') => void;
+}
 
 export function DataTable<T>({
                                  columns,
@@ -11,15 +24,26 @@ export function DataTable<T>({
                                  initialSortKey,
                                  initialSortDirection,
                                  className,
+                                 mode = 'local',
+                                 loading = false,
+                                 totalItems,
+                                 currentPage = 1,
+                                 onPageChange,
+                                 onSort,
                              }: DataTableProps<T>) {
+    const isServer = mode === 'server';
+
+    const [serverSortKey, setServerSortKey] = useState<string | null>(initialSortKey ?? null);
+    const [serverSortDirection, setServerSortDirection] = useState<'asc' | 'desc'>(initialSortDirection ?? 'asc');
+
     const {
         classes,
         paginatedData,
-        totalPages,
-        currentPage,
+        totalPages: localTotalPages,
+        currentPage: localCurrentPage,
         setCurrentPage,
-        sortKey,
-        sortDirection,
+        sortKey: localSortKey,
+        sortDirection: localSortDirection,
         toggleSort,
     } = useDataTable<T>({
         columns,
@@ -29,6 +53,35 @@ export function DataTable<T>({
         initialSortDirection,
         className,
     });
+
+    const sortKey = isServer ? serverSortKey : localSortKey;
+    const sortDirection = isServer ? serverSortDirection : localSortDirection;
+
+    const displayData = isServer ? data : paginatedData;
+    const serverTotalPages = Math.max(1, Math.ceil((totalItems ?? data.length) / (pageSize || 10)));
+    const activeTotalPages = isServer ? serverTotalPages : localTotalPages;
+    const activeCurrentPage = isServer ? currentPage : localCurrentPage;
+
+    const handleSort = (key: string) => {
+        const nextDirection: 'asc' | 'desc' =
+            sortKey === key ? (sortDirection === 'asc' ? 'desc' : 'asc') : 'asc';
+
+        if (isServer) {
+            setServerSortKey(key);
+            setServerSortDirection(nextDirection);
+            onSort?.(key, nextDirection);
+        } else {
+            toggleSort(key);
+        }
+    };
+
+    const handlePageChange = (page: number) => {
+        if (isServer) {
+            onPageChange?.(page);
+        } else {
+            setCurrentPage(page);
+        }
+    };
 
     return (
         <div className={classes}>
@@ -40,7 +93,7 @@ export function DataTable<T>({
                             <th
                                 key={String(col.key)}
                                 className={col.sortable ? 'datatable__th--sortable' : ''}
-                                onClick={col.sortable ? () => toggleSort(String(col.key)) : undefined}
+                                onClick={col.sortable ? () => handleSort(String(col.key)) : undefined}
                                 aria-sort={
                                     col.sortable && sortKey === String(col.key)
                                         ? sortDirection === 'asc' ? 'ascending' : 'descending'
@@ -62,13 +115,19 @@ export function DataTable<T>({
                     </tr>
                     </thead>
                     <tbody>
-                    {paginatedData.length > 0 ? (
-                        paginatedData.map((row, rowIndex) => (
+                    {loading ? (
+                        <tr>
+                            <td colSpan={columns.length} className="datatable__empty datatable__loading">
+                                Chargement...
+                            </td>
+                        </tr>
+                    ) : displayData.length > 0 ? (
+                        displayData.map((row, rowIndex) => (
                             <tr key={rowIndex}>
                                 {columns.map((col) => (
                                     <td key={String(col.key)}>
                                         {col.render
-                                            ? col.render(row, rowIndex + (currentPage - 1) * (pageSize || 10))
+                                            ? col.render(row, rowIndex + (activeCurrentPage - 1) * (pageSize || 10))
                                             : (row[col.key as keyof T] as React.ReactNode)}
                                     </td>
                                 ))}
@@ -85,13 +144,14 @@ export function DataTable<T>({
                 </table>
             </div>
 
-            {totalPages > 1 && (
+            {!loading && activeTotalPages > 1 && (
                 <div className="datatable__pagination">
                     <Pagination
-                        totalItems={data.length}
+                        totalItems={totalItems ?? data.length}
                         pageSize={pageSize}
-                        initialPage={currentPage}
-                        onPageChange={setCurrentPage}
+                        initialPage={activeCurrentPage}
+                        currentPage={activeCurrentPage}
+                        onPageChange={handlePageChange}
                     />
                 </div>
             )}

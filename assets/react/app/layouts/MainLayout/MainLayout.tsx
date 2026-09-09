@@ -16,6 +16,7 @@ import { useIsCompact } from '@/react/hooks/useIsCompact';
 import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useActionHistory } from './contexts/ActionHistoryContext';
+import { OfflineBanner } from '@/react/components/UI/OfflineBanner';
 
 // ---------- Icônes hamburger / fermer ----------
 const MenuIcon = () => (
@@ -147,6 +148,9 @@ export function MainLayout({
             onTouchEnd={handleMainTouchEnd}
             style={{ touchAction: 'pan-y' }}
         >
+            {/* Bannière hors-ligne globale */}
+            <OfflineBanner />
+
             {/* Bouton hamburger (mobile uniquement) */}
             {isMobile && !mobileSidebarOpen && (
                 <button

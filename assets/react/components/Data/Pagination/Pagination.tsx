@@ -3,11 +3,12 @@ import { usePagination, UsePaginationProps } from '../../../hook-components/Data
 
 export interface PaginationProps extends UsePaginationProps {}
 
-export function Pagination({ totalItems, pageSize, initialPage, siblingCount, onPageChange, className }: PaginationProps) {
-    const { currentPage, totalPages, pages, goToPage, goToNext, goToPrev, classes } = usePagination({
+export function Pagination({ totalItems, pageSize, initialPage, currentPage, siblingCount, onPageChange, className }: PaginationProps) {
+    const { currentPage: activePage, totalPages, pages, goToPage, goToNext, goToPrev, classes } = usePagination({
         totalItems,
         pageSize,
         initialPage,
+        currentPage,
         siblingCount,
         onPageChange,
         className,
@@ -15,7 +16,7 @@ export function Pagination({ totalItems, pageSize, initialPage, siblingCount, on
 
     return (
         <nav className={classes} aria-label="Pagination">
-            <button className="pagination__button" onClick={goToPrev} disabled={currentPage === 1}>
+            <button className="pagination__button" onClick={goToPrev} disabled={activePage === 1}>
                 Précédent
             </button>
             {pages.map((page, index) => {
@@ -25,15 +26,15 @@ export function Pagination({ totalItems, pageSize, initialPage, siblingCount, on
                 return (
                     <button
                         key={page}
-                        className={`pagination__button ${page === currentPage ? 'pagination__button--active' : ''}`}
+                        className={`pagination__button ${page === activePage ? 'pagination__button--active' : ''}`}
                         onClick={() => goToPage(page as number)}
-                        aria-current={page === currentPage ? 'page' : undefined}
+                        aria-current={page === activePage ? 'page' : undefined}
                     >
                         {page}
                     </button>
                 );
             })}
-            <button className="pagination__button" onClick={goToNext} disabled={currentPage === totalPages}>
+            <button className="pagination__button" onClick={goToNext} disabled={activePage === totalPages}>
                 Suivant
             </button>
         </nav>

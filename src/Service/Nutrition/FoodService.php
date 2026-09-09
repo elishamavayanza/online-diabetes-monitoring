@@ -2,6 +2,7 @@
 
 namespace App\Service\Nutrition;
 
+use App\Cache\CatalogCache;
 use App\DTO\Feedback;
 use App\DTO\Request\Nutrition\FoodRequestDTO;
 use App\Entity\Nutrition\Food;
@@ -26,7 +27,8 @@ class FoodService
         private readonly FoodMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly FileUploaderService $fileUploaderService
+        private readonly FileUploaderService $fileUploaderService,
+        private readonly CatalogCache $catalogCache
     ) {
     }
 
@@ -40,8 +42,11 @@ class FoodService
                 throw new AccessDeniedException("Accès non autorisé.");
             }
 
-            $foods = $this->repository->findAll();
-            $data = array_map(fn(Food $food) => $this->mapper->mapEntityToResponse($food), $foods);
+            $data = $this->catalogCache->get('foods', function () {
+                $foods = $this->repository->findAll();
+
+                return array_map(fn(Food $food) => $this->mapper->mapEntityToResponse($food), $foods);
+            });
 
             return $feedback
                 ->setData($data)
@@ -128,6 +133,7 @@ class FoodService
 
             $this->entityManager->persist($food);
             $this->entityManager->flush();
+            $this->catalogCache->evict('foods');
 
             return $feedback
                 ->setData(
@@ -197,6 +203,7 @@ class FoodService
             );
 
             $this->entityManager->flush();
+            $this->catalogCache->evict('foods');
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($food))
@@ -233,6 +240,7 @@ class FoodService
 
             $this->entityManager->remove($food);
             $this->entityManager->flush();
+            $this->catalogCache->evict('foods');
 
             return $feedback
                 ->setFlushDescription("Aliment supprimé avec succès.")

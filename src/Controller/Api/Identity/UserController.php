@@ -9,9 +9,11 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Security\SecurityServiceInterface;
 
 #[Route('/api/users')]
 #[OA\Tag(
@@ -21,15 +23,22 @@ use Symfony\Component\Routing\Attribute\Route;
 class UserController extends AbstractController
 {
     public function __construct(
-        private readonly UserService $userService
+        private readonly UserService $userService,
+        private readonly SecurityServiceInterface $securityService
     ) {
     }
 
     #[Route('', name: 'api_users_list', methods: ['GET'])]
     #[OA\Get(
-        description: 'Récupère la liste de tous les utilisateurs (ou administrateurs).',
+        description: 'Récupère la liste de tous les utilisateurs (ou administrateurs). Supporte la pagination (page, limit), la recherche (q), le tri (sort, order) et un filtre par type de rôle (role).',
         summary: 'Lister les utilisateurs'
     )]
+    #[OA\Parameter(name: 'page', in: 'query', description: 'Numéro de page (active la pagination)', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'limit', in: 'query', description: 'Nombre d\'éléments par page', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'q', in: 'query', description: 'Recherche sur nom / e-mail', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'sort', in: 'query', description: 'Champ de tri (createdAt, fullName, email)', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'order', in: 'query', description: 'Sens de tri (asc|desc)', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'role', in: 'query', description: 'Filtre par rôle (admin, professional, patient)', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(
         response: 200,
         description: 'Liste des utilisateurs récupérée avec succès',
@@ -48,9 +57,17 @@ class UserController extends AbstractController
     )]
     #[OA\Response(response: 401, description: 'Non authentifié')]
     #[OA\Response(response: 403, description: 'Permission insuffisante')]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $feedback = $this->userService->getAll();
+        $feedback = $this->userService->getAll(
+            $request->query->has('page') ? max(1, $request->query->getInt('page')) : null,
+            $request->query->has('limit') ? min(100, max(1, $request->query->getInt('limit'))) : 20,
+            $request->query->get('q'),
+            $request->query->get('sort'),
+            $request->query->get('order', 'desc'),
+            $request->query->get('role'),
+            $request->query->get('org'),
+        );
 
         return $this->json(
             $feedback,
