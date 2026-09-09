@@ -43,13 +43,15 @@ export function UsersTable({ users, onViewDetails }: UsersTableProps) {
             key: 'actions',
             title: 'Actions',
             render: (row: User) => (
-                <Button
-                    variant="secondary"
-                    size="small"
-                    onClick={() => onViewDetails(row)}
-                >
-                    Détails
-                </Button>
+                <div className="users-table__actions">
+                    <Button
+                        variant="secondary"
+                        size="small"
+                        onClick={() => onViewDetails(row)}
+                    >
+                        Détails
+                    </Button>
+                </div>
             ),
         },
     ];

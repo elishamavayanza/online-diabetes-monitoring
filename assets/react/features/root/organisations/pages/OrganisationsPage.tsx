@@ -20,9 +20,16 @@ import { TreeNode } from "@/react/hook-components/Data/Tree/types";
 import { OrgAdminFormModal } from '../components/OrgAdminFormModal';
 import { NodeDetailsPanel } from '../components/NodeDetailsPanel';
 import { OrganisationsTable } from '../components/OrganisationsTable';
+import { SuspensionModal } from '@/react/features/security/components/SuspensionModal';
+import { ReactivateModal } from '@/react/features/security/components/ReactivateModal';
+import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { suspendOrganisation, reactivateOrganisation } from '../services/organisationsService';
+import { SuspensionPayload } from '@/react/features/security/types';
+import { ApiError } from '@/services/api/api.types';
 
 export function OrganisationsPage() {
     const { treeNodes, isLoading, error, refetch } = useOrganisations();
+    const { showToast } = useToast();
     const [modalCreateOpen, setModalCreateOpen] = useState(false);
     const [modalEditOpen, setModalEditOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<CreateOrganisationPayload | null>(null);
@@ -41,6 +48,8 @@ export function OrganisationsPage() {
     const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedAdminOrgId, setSelectedAdminOrgId] = useState<string>('');
+    const [suspendingNode, setSuspendingNode] = useState<TreeNode | null>(null);
+    const [reactivatingNode, setReactivatingNode] = useState<TreeNode | null>(null);
 
     const openAddModal = () => {
         setModalCreateOpen(true);
@@ -69,12 +78,43 @@ export function OrganisationsPage() {
         }
     };
 
-    const handleSuspend = async (node: TreeNode) => {
+    const handleSuspend = (node: TreeNode) => {
+        setSuspendingNode(node);
+    };
+
+    const handleConfirmSuspend = async (payload: SuspensionPayload) => {
+        if (!suspendingNode) return;
         try {
+            await suspendOrganisation(suspendingNode.id, payload);
+            showToast({
+                type: 'success',
+                message: `L'organisation « ${suspendingNode.label} » a été suspendue.`,
+            });
             await refetch();
-            console.log('Suspendre', node.label);
-        } catch (error) {
-            console.error('Erreur lors de la suspension :', error);
+        } catch (err) {
+            const message = err instanceof ApiError ? (err.data?.message ?? err.message) : (err instanceof Error ? err.message : 'Une erreur est survenue.');
+            showToast({ type: 'error', message });
+            throw err;
+        }
+    };
+
+    const handleReactivate = (node: TreeNode) => {
+        setReactivatingNode(node);
+    };
+
+    const handleConfirmReactivate = async () => {
+        if (!reactivatingNode) return;
+        try {
+            await reactivateOrganisation(reactivatingNode.id);
+            showToast({
+                type: 'success',
+                message: `L'organisation « ${reactivatingNode.label} » a été réactivée.`,
+            });
+            await refetch();
+        } catch (err) {
+            const message = err instanceof ApiError ? (err.data?.message ?? err.message) : (err instanceof Error ? err.message : 'Une erreur est survenue.');
+            showToast({ type: 'error', message });
+            throw err;
         }
     };
 
@@ -115,7 +155,7 @@ export function OrganisationsPage() {
                 pushAction(() => setModalAdminOpen(false));
                 break;
             case 'suspend':
-                console.log('Suspendre', node.label);
+                setSuspendingNode(node);
                 break;
             default:
                 break;
@@ -147,6 +187,7 @@ export function OrganisationsPage() {
                 onDetail={handleNodeClick}
                 onModify={handleModify}
                 onSuspend={handleSuspend}
+                onReactivate={handleReactivate}
                 onAddAdmin={handleAddAdmin}
             />
 
@@ -206,6 +247,22 @@ export function OrganisationsPage() {
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
                 node={selectedNode}
+            />
+
+            <SuspensionModal
+                isOpen={!!suspendingNode}
+                onClose={() => setSuspendingNode(null)}
+                title="Suspendre une organisation"
+                entityLabel={suspendingNode ? `Organisation : ${suspendingNode.label}` : ''}
+                onConfirm={handleConfirmSuspend}
+            />
+
+            <ReactivateModal
+                isOpen={!!reactivatingNode}
+                onClose={() => setReactivatingNode(null)}
+                title="Réactiver une organisation"
+                message={reactivatingNode ? `Confirmer la réactivation de « ${reactivatingNode.label} » ? L'organisation et ses comptes pourront à nouveau accéder à la plateforme.` : ''}
+                onConfirm={handleConfirmReactivate}
             />
         </div>
     );

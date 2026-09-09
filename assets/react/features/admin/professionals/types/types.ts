@@ -10,7 +10,7 @@ export interface Professional {
     specialite: string;
     etablissement: string;
     departement: string;
-    statut: 'Active' | 'Inactive';
+    statut: 'Active' | 'Inactive' | 'Suspended';
     avatarUrl?: string;
     email?: string;
 }

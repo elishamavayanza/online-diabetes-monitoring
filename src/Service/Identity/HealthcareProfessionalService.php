@@ -7,6 +7,7 @@ use App\DTO\Request\Identity\HealthcareProfessionalCreateRequestDTO;
 use App\DTO\Request\Identity\HealthcareProfessionalUpdateRequestDTO;
 use App\Entity\Common\UserStatus;
 use App\Entity\Healthcare\OrganizationMembership;
+use App\Entity\Healthcare\MembershipStatus;
 use App\Entity\Identity\HealthcareProfessional;
 use App\Entity\Identity\ProfessionalType;
 use App\Entity\Identity\Role;
@@ -41,22 +42,25 @@ class HealthcareProfessionalService
         try {
             $currentUser = $this->securityService->getCurrentUser();
             $targetOrganization = null;
+            $isSuperAdmin = $this->securityService->isSuperAdmin();
 
-            foreach ($currentUser->getOrganizationMemberships() as $membership) {
-                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
-                    $targetOrganization = $membership->getOrganization();
-                    break;
+            if (!$isSuperAdmin) {
+                foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                        $targetOrganization = $membership->getOrganization();
+                        break;
+                    }
                 }
-            }
 
-            if (!$targetOrganization) {
-                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
-            }
+                if (!$targetOrganization) {
+                    throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+                }
 
-            $this->securityService->checkOrganizationAccess(
-                $targetOrganization,
-                SecurityAction::VIEW
-            );
+                $this->securityService->checkOrganizationAccess(
+                    $targetOrganization,
+                    SecurityAction::VIEW
+                );
+            }
 
             // Récupération de tous les professionnels non supprimés
             $professionals = $this->repository->findBy(
@@ -64,19 +68,28 @@ class HealthcareProfessionalService
                 ['createdAt' => 'DESC']
             );
 
-            // Filtrage pour ne garder que ceux qui appartiennent à l'organisation active de l'admin
-            $professionals = array_filter($professionals, function (HealthcareProfessional $professional) use ($targetOrganization) {
-                foreach ($professional->getOrganizationMemberships() as $membership) {
-                    if (
-                        $membership->getStatus()->isActive() &&
-                        $membership->getOrganization() !== null &&
-                        $membership->getOrganization()->getId() === $targetOrganization->getId()
-                    ) {
-                        return true;
+            // Le Super Admin voit tous les professionnels de la plateforme ; sinon
+            // on ne garde que ceux de l'organisation active de l'admin.
+            if (!$isSuperAdmin) {
+                $professionals = array_filter($professionals, function (HealthcareProfessional $professional) use ($targetOrganization) {
+                    foreach ($professional->getOrganizationMemberships() as $membership) {
+                        if ($membership->getStatus() !== null && $membership->getStatus()->isActive() &&
+                            $membership->getOrganization() !== null &&
+                            $membership->getOrganization()->getId() === $targetOrganization->getId()
+                        ) {
+                            return true;
+                        }
+
+                        if ($membership->getStatus() === MembershipStatus::SUSPENDED &&
+                            $membership->getOrganization() !== null &&
+                            $membership->getOrganization()->getId() === $targetOrganization->getId()
+                        ) {
+                            return true;
+                        }
                     }
-                }
-                return false;
-            });
+                    return false;
+                });
+            }
 
             $data = array_map(
                 fn (HealthcareProfessional $professional) =>

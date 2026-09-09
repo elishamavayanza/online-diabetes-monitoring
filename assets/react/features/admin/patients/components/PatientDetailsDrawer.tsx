@@ -11,6 +11,8 @@ interface PatientDetailsDrawerProps {
     onClose: () => void;
     onModify: (patient: Patient) => void;
     onAttachToPeople: (patient: Patient) => void;
+    onSuspend: (patient: Patient) => void;
+    onReactivate: (patient: Patient) => void;
 }
 
 export function PatientDetailsDrawer({
@@ -19,6 +21,8 @@ export function PatientDetailsDrawer({
                                          onClose,
                                          onModify,
                                          onAttachToPeople,
+                                         onSuspend,
+                                         onReactivate,
                                      }: PatientDetailsDrawerProps) {
     if (!patient) return null;
 
@@ -49,8 +53,8 @@ export function PatientDetailsDrawer({
                     {patient.telephone && <p><strong>Téléphone :</strong> {patient.telephone}</p>}
                     <p>
                         <strong>Statut :</strong>{' '}
-                        <Badge variant={patient.statut === 'Active' ? 'success' : 'error'}>
-                            {patient.statut}
+                        <Badge variant={patient.statut === 'Active' ? 'success' : patient.statut === 'Suspended' ? 'warning' : 'error'}>
+                            {patient.statut === 'Suspended' ? 'Suspendu' : patient.statut}
                         </Badge>
                     </p>
                 </div>
@@ -62,6 +66,15 @@ export function PatientDetailsDrawer({
                     <Button variant="secondary" onClick={() => onAttachToPeople(patient)}>
                         Attacher à des personnes
                     </Button>
+                    {patient.statut === 'Suspended' ? (
+                        <Button variant="success" onClick={() => onReactivate(patient)}>
+                            Réactiver
+                        </Button>
+                    ) : (
+                        <Button variant="danger" onClick={() => onSuspend(patient)}>
+                            Suspendre
+                        </Button>
+                    )}
                 </div>
             </div>
         </Drawer>

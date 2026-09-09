@@ -4,6 +4,7 @@ import { tokenStorage } from '@/services/storage/storage.service';
 import { decodeJwtPayload } from '@/services/security/security.utils';
 import { Patient, PatientsFilters } from "@/react/features/admin/patients/types";
 import { PatientFormValues } from "@/react/features/admin/patients/types/types";
+import type { SuspensionPayload } from '@/react/features/security/types';
 
 interface ApiFeedback<T> {
     status: number;
@@ -119,14 +120,44 @@ export async function updatePatient(id: string, payload: PatientFormValues, avat
 
 // --- Fonctions utilitaires ---
 
+export async function suspendPatient(
+    id: string,
+    payload: SuspensionPayload
+): Promise<void> {
+    const token = tokenStorage.getAccessToken();
+    const response = await apiClient.post<ApiFeedback<unknown>>(`/users/${id}/suspend`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (response.data.error) {
+        throw new Error(response.data.message || 'Erreur lors de la suspension du patient');
+    }
+}
+
+export async function reactivatePatient(id: string): Promise<void> {
+    const token = tokenStorage.getAccessToken();
+    const response = await apiClient.post<ApiFeedback<unknown>>(`/users/${id}/reactivate`, undefined, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (response.data.error) {
+        throw new Error(response.data.message || 'Erreur lors de la réactivation du patient');
+    }
+}
+
 function mapApiToPatient(apiData: any): Patient {
+    let statut: Patient['statut'] = 'Active';
+    if (apiData.status === 'SUSPENDED' || apiData.accountStatus === 'SUSPENDED') {
+        statut = 'Suspended';
+    } else if (apiData.active === false) {
+        statut = 'Inactive';
+    }
+
     return {
         id: String(apiData.id ?? ''),
         nom: apiData.fullName ?? apiData.name ?? '',
         dateNaissance: apiData.dateOfBirth ?? '',
         typeDiabete: apiData.diabetesType ?? 'Type 1',
         equipeSoins: apiData.careTeamName ?? 'Non assigné',
-        statut: apiData.active === false ? 'Inactive' : 'Active',
+        statut,
         avatarUrl: apiData.avatarUrl ?? '',
         email: apiData.email ?? '',
         telephone: apiData.phone ?? '',

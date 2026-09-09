@@ -21,6 +21,7 @@ enum SecurityAction: string
     case MANAGE_USERS = 'manage_users';
     case SUSPEND_USER = 'suspend_user';
     case ACTIVATE_USER = 'activate_user';
+    case SUSPEND_PROFESSIONAL = 'suspend_professional';
 
     // Patients
     case VIEW_PATIENT = 'view_patient';
@@ -28,6 +29,7 @@ enum SecurityAction: string
     case TRANSFER_PATIENT = 'transfer_patient';
     case ARCHIVE_PATIENT = 'archive_patient';
     case ACTIVATE_PATIENT = 'activate_patient';
+    case SUSPEND_PATIENT = 'suspend_patient';
     case CREATE_ALLERGY = 'create_allergy';
     case VIEW_ALLERGY = 'view_allergy';
     case UPDATE_ALLERGY = 'update_allergy';

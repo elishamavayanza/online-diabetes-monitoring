@@ -91,6 +91,11 @@ class HealthcareProfessionalResponseDTO
                 $orgName = $membership->getOrganization()->getName();
                 break;
             }
+
+            if ($orgId === null && $membership->getStatus() === \App\Entity\Healthcare\MembershipStatus::SUSPENDED && $membership->getOrganization() !== null) {
+                $orgId = (string) $membership->getOrganization()->getId();
+                $orgName = $membership->getOrganization()->getName();
+            }
         }
 
         return new self(

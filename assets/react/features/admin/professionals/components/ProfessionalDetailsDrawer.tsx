@@ -16,6 +16,8 @@ interface ProfessionalDetailsDrawerProps {
     onClose: () => void;
     onModify: (professional: Professional) => void;
     onAttachPatient: (professional: Professional) => void;
+    onSuspend: (professional: Professional) => void;
+    onReactivate: (professional: Professional) => void;
 }
 
 export function ProfessionalDetailsDrawer({
@@ -24,6 +26,8 @@ export function ProfessionalDetailsDrawer({
                                               onClose,
                                               onModify,
                                               onAttachPatient,
+                                              onSuspend,
+                                              onReactivate,
                                           }: ProfessionalDetailsDrawerProps) {
     const { patients, isLoading, error, toggleActive } = useAttachedPatients(
         professional?.id ?? ''
@@ -64,8 +68,8 @@ export function ProfessionalDetailsDrawer({
                     <p><strong>Département :</strong> {professional.departement || '—'}</p>
                     <p>
                         <strong>Statut :</strong>{' '}
-                        <Badge variant={professional.statut === 'Active' ? 'success' : 'error'}>
-                            {professional.statut}
+                        <Badge variant={professional.statut === 'Active' ? 'success' : professional.statut === 'Suspended' ? 'warning' : 'error'}>
+                            {professional.statut === 'Suspended' ? 'Suspendu' : professional.statut}
                         </Badge>
                     </p>
                 </div>
@@ -114,6 +118,15 @@ export function ProfessionalDetailsDrawer({
                     <Button variant="secondary" onClick={() => onAttachPatient(professional)}>
                         Attacher un patient
                     </Button>
+                    {professional.statut === 'Suspended' ? (
+                        <Button variant="success" onClick={() => onReactivate(professional)}>
+                            Réactiver
+                        </Button>
+                    ) : (
+                        <Button variant="danger" onClick={() => onSuspend(professional)}>
+                            Suspendre
+                        </Button>
+                    )}
                 </div>
             </div>
         </Drawer>

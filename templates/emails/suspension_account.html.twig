@@ -1,0 +1,59 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}
+    {% if action == 'reactivated' %}Compte réactivé{% else %}Compte suspendu{% endif %}
+{% endblock %}
+
+{% block body %}
+    {% apply inline_css(source('@styles/email.css')) %}
+        <div class="email-wrapper">
+            <div class="email-content">
+                <div class="email-header">
+                    <img src="{{ logo_cid }}" alt="OnlineDIAB" class="logo">
+                </div>
+                <div class="email-body">
+                    <h2>
+                        {% if action == 'reactivated' %}
+                            Bonne nouvelle, votre compte a été réactivé
+                        {% else %}
+                            Votre compte a été suspendu
+                        {% endif %}
+                    </h2>
+
+                    <p>Bonjour {{ user.fullName }},</p>
+
+                    {% if action == 'reactivated' %}
+                        <p>
+                            La suspension de votre compte a été levée. Vous pouvez de nouveau
+                            accéder à la plateforme OnlineDIAB avec vos identifiants habituels.
+                        </p>
+                    {% else %}
+                        <p>
+                            Votre accès à la plateforme OnlineDIAB a été suspendu
+                            {% if endsAt %}<strong>jusqu'au {{ endsAt|date('d/m/Y') }}</strong>{% else %}<strong>jusqu'à nouvel ordre</strong>{% endif %}.
+                        </p>
+                        {% if reason %}
+                            <div class="quote">
+                                <strong>Motif :</strong> {{ reason }}
+                            </div>
+                        {% endif %}
+                        <p>
+                            Si vous pensez qu'il s'agit d'une erreur, veuillez contacter
+                            le support ou votre administrateur d'organisation.
+                        </p>
+                    {% endif %}
+
+                    <div class="btn-container">
+                        <a href="{{ appUrl }}" class="btn-reset" target="_blank">
+                            Accéder à la plateforme
+                        </a>
+                    </div>
+                </div>
+                <div class="email-footer">
+                    <p>&copy; {{ "now"|date("Y") }} OnlineDIAB. Tous droits réservés.</p>
+                    <p><a href="https://www.onlinediab.com">www.onlinediab.com</a></p>
+                </div>
+            </div>
+        </div>
+    {% endapply %}
+{% endblock %}

@@ -24,6 +24,7 @@ security:
             pattern: ^/api
             stateless: true
             jwt: ~
+            user_checker: App\Security\AccountStatusUserChecker
 
     # Note: Only the *first* matching rule is applied
     access_control:

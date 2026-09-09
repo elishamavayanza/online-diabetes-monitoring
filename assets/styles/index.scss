@@ -66,6 +66,8 @@
 @use './emails/email' as *;
 @use './emails/reset_password_form' as *;
 
+@use './features/suspension' as *;
+
 @use './pages/auth/login' as *;
 @use './pages/auth/forgot-password' as *;
 @use './pages/root/dashboard/dashboard' as *;

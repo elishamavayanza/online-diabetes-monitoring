@@ -13,6 +13,12 @@ import { PatientFormModal } from '../components/PatientFormModal';
 import { Patient } from '../types';
 import { PatientFormValues } from "@/react/features/root/users/types/userForm.types";
 import { AttachPeopleModal } from '../components/AttachPeopleModal';
+import { suspendPatient, reactivatePatient } from '../services/patientsService';
+import { SuspensionModal } from '@/react/features/security/components/SuspensionModal';
+import { ReactivateModal } from '@/react/features/security/components/ReactivateModal';
+import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { SuspensionPayload } from '@/react/features/security/types';
+import { ApiError } from '@/services/api/api.types';
 
 const FilterIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -55,8 +61,11 @@ export function PatientsPage() {
     const [isAttachPeopleOpen, setIsAttachPeopleOpen] = useState(false);
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const [attachMode, setAttachMode] = useState<'create' | 'edit'>('create');
+    const [suspendingPatient, setSuspendingPatient] = useState<Patient | null>(null);
+    const [reactivatingPatient, setReactivatingPatient] = useState<Patient | null>(null);
 
     const { pushAction } = useActionHistory();
+    const { showToast } = useToast();
 
     const openAddModal = () => {
         setIsAddModalOpen(true);
@@ -86,6 +95,46 @@ export function PatientsPage() {
         setAttachMode(mode);
         setIsAttachPeopleOpen(true);
         closeDrawer();
+    };
+
+    const handleSuspend = (patient: Patient) => {
+        setSuspendingPatient(patient);
+    };
+
+    const handleConfirmSuspend = async (payload: SuspensionPayload) => {
+        if (!suspendingPatient) return;
+        try {
+            await suspendPatient(suspendingPatient.id, payload);
+            showToast({
+                type: 'success',
+                message: `Le patient « ${suspendingPatient.nom} » a été suspendu.`,
+            });
+            await refetch();
+        } catch (err) {
+            const message = err instanceof ApiError ? (err.data?.message ?? err.message) : (err instanceof Error ? err.message : 'Une erreur est survenue.');
+            showToast({ type: 'error', message });
+            throw err;
+        }
+    };
+
+    const handleReactivate = (patient: Patient) => {
+        setReactivatingPatient(patient);
+    };
+
+    const handleConfirmReactivate = async () => {
+        if (!reactivatingPatient) return;
+        try {
+            await reactivatePatient(reactivatingPatient.id);
+            showToast({
+                type: 'success',
+                message: `Le patient « ${reactivatingPatient.nom} » a été réactivé.`,
+            });
+            await refetch();
+        } catch (err) {
+            const message = err instanceof ApiError ? (err.data?.message ?? err.message) : (err instanceof Error ? err.message : 'Une erreur est survenue.');
+            showToast({ type: 'error', message });
+            throw err;
+        }
     };
 
     if (isLoading) return <Spinner />;
@@ -154,6 +203,8 @@ export function PatientsPage() {
             <PatientsTable
                 patients={filteredPatients}
                 onViewDetails={openDetails}
+                onSuspend={handleSuspend}
+                onReactivate={handleReactivate}
             />
 
             {/* Modale de création  onSuccess={refetch} */}
@@ -181,6 +232,8 @@ export function PatientsPage() {
                 onClose={closeDrawer}
                 onModify={handleModify}
                 onAttachToPeople={handleAttachToPeople}
+                onSuspend={handleSuspend}
+                onReactivate={handleReactivate}
             />
 
             {/* Modale d'attachement  onSuccess={refetch} */}
@@ -193,6 +246,22 @@ export function PatientsPage() {
                     onSuccess={refetch}
                 />
             )}
+
+            <SuspensionModal
+                isOpen={!!suspendingPatient}
+                onClose={() => setSuspendingPatient(null)}
+                title="Suspendre un patient"
+                entityLabel={suspendingPatient ? `Patient : ${suspendingPatient.nom}` : ''}
+                onConfirm={handleConfirmSuspend}
+            />
+
+            <ReactivateModal
+                isOpen={!!reactivatingPatient}
+                onClose={() => setReactivatingPatient(null)}
+                title="Réactiver un patient"
+                message={reactivatingPatient ? `Confirmer la réactivation de « ${reactivatingPatient.nom} » ?` : ''}
+                onConfirm={handleConfirmReactivate}
+            />
         </div>
     );
 }

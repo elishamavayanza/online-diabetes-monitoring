@@ -190,12 +190,31 @@ export async function updateOrganisation(
 
 /**
  * Suspend une organisation.
+ * @param id Identifiant de l'organisation.
+ * @param payload Motif de la suspension et délai éventuel.
  */
-export async function suspendOrganisation(id: string): Promise<void> {
-    const response = await apiClient.patch<ApiFeedback<unknown>>(
-        `/healthcare-organizations/${id}/suspend`
+export async function suspendOrganisation(
+    id: string,
+    payload: { reason: string; durationDays?: number; startsAt?: string; endsAt?: string }
+): Promise<void> {
+    const response = await apiClient.post<ApiFeedback<unknown>>(
+        `/healthcare-organizations/${id}/suspend`,
+        payload
     );
     if (response.data.error) {
         throw new Error(response.data.message || "Erreur lors de la suspension de l'organisation");
+    }
+}
+
+/**
+ * Réactive une organisation précédemment suspendue.
+ * @param id Identifiant de l'organisation.
+ */
+export async function reactivateOrganisation(id: string): Promise<void> {
+    const response = await apiClient.post<ApiFeedback<unknown>>(
+        `/healthcare-organizations/${id}/reactivate`
+    );
+    if (response.data.error) {
+        throw new Error(response.data.message || "Erreur lors de la réactivation de l'organisation");
     }
 }

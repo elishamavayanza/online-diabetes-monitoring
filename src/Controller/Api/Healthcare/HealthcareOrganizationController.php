@@ -3,8 +3,10 @@
 namespace App\Controller\Api\Healthcare;
 
 use App\DTO\Request\Healthcare\HealthcareOrganizationRequestDTO;
+use App\DTO\Request\Security\SuspensionRequestDTO;
 use App\DTO\Response\Healthcare\HealthcareOrganizationResponseDTO;
 use App\Service\Healthcare\HealthcareOrganizationService;
+use App\Service\Security\SuspensionService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +20,8 @@ use Symfony\Component\Routing\Attribute\Route;
 class HealthcareOrganizationController extends AbstractController
 {
     public function __construct(
-        private readonly HealthcareOrganizationService $service
+        private readonly HealthcareOrganizationService $service,
+        private readonly SuspensionService $suspensionService
     ) {}
 
     #[Route('', name: 'api_healthcare_organizations_list', methods: ['GET'])]
@@ -248,14 +251,39 @@ class HealthcareOrganizationController extends AbstractController
         return $this->json($feedback, $status);
     }
 
-    #[Route('/{id}/suspend', name: 'api_healthcare_organizations_suspend', methods: ['PATCH'])]
-    #[OA\Patch(
-        description: 'Permet de désactiver/suspendre une organisation de santé.',
-        summary: 'Suspendre une organisation de santé'
+    #[Route('/{id}/suspend', name: 'api_healthcare_organizations_suspend', methods: ['POST'])]
+    #[OA\Post(
+        description: 'Suspend l’accès à une organisation : motif obligatoire, délai optionnel (durée en jours ou date de fin). Les administrateurs et tous les membres reçoivent un email.',
+        summary: 'Suspendre une organisation de santé (root)'
     )]
-    public function suspend(string $id): JsonResponse
+    #[OA\RequestBody(
+        description: 'Motif et délai de la suspension',
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'reason', type: 'string', example: 'Non-respect des conditions d’utilisation'),
+                new OA\Property(property: 'durationDays', type: 'integer', example: 30),
+                new OA\Property(property: 'startsAt', type: 'string', format: 'date-time', example: '2026-09-10T08:00:00+00:00'),
+                new OA\Property(property: 'endsAt', type: 'string', format: 'date-time', example: '2026-10-10T08:00:00+00:00')
+            ]
+        )
+    )]
+    public function suspend(string $id, #[MapRequestPayload] SuspensionRequestDTO $dto): JsonResponse
     {
-        $feedback = $this->service->suspend($id);
+        $feedback = $this->suspensionService->suspendOrganization($id, $dto);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/{id}/reactivate', name: 'api_healthcare_organizations_reactivate', methods: ['POST'])]
+    #[OA\Post(
+        description: 'Lève la suspension d’une organisation et notifie à nouveau ses membres.',
+        summary: 'Réactiver une organisation de santé (root)'
+    )]
+    public function reactivate(string $id): JsonResponse
+    {
+        $feedback = $this->suspensionService->reactivateOrganization($id);
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);

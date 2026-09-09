@@ -24,15 +24,31 @@ function mapApiToUser(apiData: any, fallbackType?: UserType): User {
     const email = apiData.email ?? apiData.user?.email ?? '';
     const id = apiData.id ?? apiData.user?.id ?? '';
 
+    const roles: string[] = Array.isArray(apiData.roles)
+        ? apiData.roles
+        : (apiData.role ? [apiData.role] : []);
+    const hasRole = (role: string) =>
+        roles.includes(role) || apiData.user?.role === role;
+
     const type: UserType =
         apiData.type ??
-        (apiData.role === 'ROLE_CLINICIAN' || apiData.professionalType ? 'Professional' : null) ??
-        (apiData.role === 'ROLE_PATIENT' || apiData.user?.role === 'ROLE_PATIENT' ? 'Patient' : null) ??
-        (apiData.role === 'ROLE_ADMIN' || apiData.role === 'ROLE_ROOT' || apiData.user?.role === 'ROLE_ADMIN' ? 'Administrator' : null) ??
+        (hasRole('ROLE_CLINICIAN') || hasRole('ROLE_NUTRITIONIST') || apiData.professionalType
+            ? 'Professional'
+            : null) ??
+        (hasRole('ROLE_PATIENT') ? 'Patient' : null) ??
+        (hasRole('ROLE_ADMIN') || hasRole('ROLE_ROOT') ? 'Administrator' : null) ??
         fallbackType ??
         'Patient';
 
-    const statut = apiData.active === false ? 'Inactive' : 'Active';
+    const rawStatus =
+        apiData.status ??
+        (apiData.active === false ? 'INACTIVE' : 'ACTIVE');
+    const statut =
+        rawStatus === 'SUSPENDED'
+            ? 'Inactive'
+            : rawStatus === 'PENDING_ACTIVATION'
+                ? 'Pending'
+                : 'Active';
     const derniereConnexion = apiData.lastLogin ?? apiData.derniereConnexion ?? '';
 
     return {

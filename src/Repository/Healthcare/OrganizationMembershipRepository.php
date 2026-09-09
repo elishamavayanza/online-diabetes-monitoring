@@ -35,9 +35,6 @@ class OrganizationMembershipRepository extends ServiceEntityRepository
     }
 
   /**
-     * Retourne les utilisateurs ROLE_ADMIN membres actifs d'une organisation.
-     * Utilisé pour notifier les administrateurs de l'organisation d'origine.
-     *
      * @return \App\Entity\Identity\User[]
      */
     public function findActiveAdminsByOrganization(HealthcareOrganization $organization): array
@@ -62,6 +59,36 @@ class OrganizationMembershipRepository extends ServiceEntityRepository
             static fn (\App\Entity\Identity\User $user) => in_array('ROLE_ADMIN', $user->getRoles(), true)
         ));
     }
+
+  /**
+   * Retourne tous les utilisateurs membres actifs d'une organisation (distincts).
+   * Utilisé pour notifier les membres lors d'une suspension d'organisation.
+   *
+   * @return \App\Entity\Identity\User[]
+   */
+  public function findActiveUsersByOrganization(HealthcareOrganization $organization): array
+  {
+    $memberships = $this->createQueryBuilder('om')
+      ->select('om', 'u')
+      ->join('om.user', 'u')
+      ->andWhere('om.organization = :organization')
+      ->andWhere('om.status = :status')
+      ->andWhere('om.deletedAt IS NULL')
+      ->setParameter('organization', $organization)
+      ->setParameter('status', MembershipStatus::ACTIVE)
+      ->getQuery()
+      ->getResult();
+
+    $users = [];
+    foreach ($memberships as $membership) {
+      $user = $membership->getUser();
+      if ($user !== null) {
+        $users[$user->getId()] = $user;
+      }
+    }
+
+    return array_values($users);
+  }
 
   /**
    * @return int[]

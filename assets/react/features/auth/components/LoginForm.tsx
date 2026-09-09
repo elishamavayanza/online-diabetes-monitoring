@@ -7,6 +7,7 @@ import {Password} from "@/react/components/Forms/Password";
 import {ErrorMessage} from "@/react/components/Forms/ErrorMessage";
 import {Button} from "@/react/components/UI/Button";
 import { Checkbox } from "@/react/components/Forms/Checkbox";
+import { Alert } from '@/react/components/UI/Alert';
 
 export function LoginForm() {
     const {
@@ -14,10 +15,40 @@ export function LoginForm() {
         errors,
         isSubmitting,
         submitError,
+        block,
+        resetBlock,
         handleChange,
         handleBooleanChange,
         handleSubmit,
     } = useLoginForm();
+
+    if (block) {
+        const formattedEnd = block.endsAt ? new Date(block.endsAt).toLocaleString('fr-FR') : undefined;
+        return (
+            <div className="login-block">
+                <div className="login-block__icon" aria-hidden="true" />
+                <h2 className="login-block__title">{block.title}</h2>
+                <p className="login-block__message">{block.message}</p>
+                <Alert variant="warning">
+                    <div className="login-block__details">
+                        {block.reason && (
+                            <p><strong>Motif :</strong> {block.reason}</p>
+                        )}
+                        {formattedEnd && (
+                            <p><strong>Fin de suspension :</strong> {formattedEnd}</p>
+                        )}
+                        <p>
+                            Pour toute question, contactez le support :{' '}
+                            <a href="mailto:support@onlinediab.com">support@onlinediab.com</a>.
+                        </p>
+                    </div>
+                </Alert>
+                <Button type="button" variant="outline" fullWidth onClick={resetBlock}>
+                    Retour à la connexion
+                </Button>
+            </div>
+        );
+    }
 
     return (
         <Form layout="vertical" gap="medium" fullWidth onSubmit={handleSubmit} noValidate>

@@ -38,41 +38,47 @@ class UserService
         try {
             $currentUser = $this->securityService->getCurrentUser();
             $targetOrganization = null;
+            $isSuperAdmin = $this->securityService->isSuperAdmin();
 
-            foreach ($currentUser->getOrganizationMemberships() as $membership) {
-                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
-                    $targetOrganization = $membership->getOrganization();
-                    break;
+            if (!$isSuperAdmin) {
+                foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                        $targetOrganization = $membership->getOrganization();
+                        break;
+                    }
                 }
-            }
 
-            if (!$targetOrganization) {
-                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
-            }
+                if (!$targetOrganization) {
+                    throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+                }
 
-            $this->securityService->checkOrganizationAccess(
-                $targetOrganization,
-                SecurityAction::VIEW
-            );
+                $this->securityService->checkOrganizationAccess(
+                    $targetOrganization,
+                    SecurityAction::VIEW
+                );
+            }
 
             $users = $this->repository->findBy(
                 ['deletedAt' => null],
                 ['createdAt' => 'DESC']
             );
 
-            // Filtrer par l'organisation de l'administrateur connecté
-            $users = array_filter($users, function ($user) use ($targetOrganization) {
-                foreach ($user->getOrganizationMemberships() as $membership) {
-                    if (
-                        $membership->getStatus()->isActive() &&
-                        $membership->getOrganization() !== null &&
-                        $membership->getOrganization()->getId() === $targetOrganization->getId()
-                    ) {
-                        return true;
+            // Le Super Admin voit tous les utilisateurs de la plateforme ; sinon
+            // on filtre par l'organisation de l'administrateur connecté.
+            if (!$isSuperAdmin) {
+                $users = array_filter($users, function ($user) use ($targetOrganization) {
+                    foreach ($user->getOrganizationMemberships() as $membership) {
+                        if (
+                            $membership->getStatus()->isActive() &&
+                            $membership->getOrganization() !== null &&
+                            $membership->getOrganization()->getId() === $targetOrganization->getId()
+                        ) {
+                            return true;
+                        }
                     }
-                }
-                return false;
-            });
+                    return false;
+                });
+            }
 
             $data = array_map(
                 fn ($user) => $this->mapper->mapEntityToResponse($user),

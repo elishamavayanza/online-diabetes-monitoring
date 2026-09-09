@@ -1,5 +1,6 @@
 import apiClient from "@/services/api/client";
 import { Professional, ProfessionalFormValues } from "@/react/features/admin/professionals/types/types";
+import type { SuspensionPayload } from '@/react/features/security/types';
 
 interface ApiFeedback<T> {
     status: number;
@@ -19,7 +20,12 @@ function mapApiToProfessional(apiData: any): Professional {
         type = 'Clinician';
     }
 
-    const statut = apiData.active === false ? 'Inactive' : 'Active';
+    let statut: Professional['statut'] = 'Active';
+    if (apiData.status === 'SUSPENDED' || apiData.accountStatus === 'SUSPENDED') {
+        statut = 'Suspended';
+    } else if (apiData.active === false) {
+        statut = 'Inactive';
+    }
 
     const etablissement = apiData.establishment?.name ?? apiData.organization?.name ?? apiData.facility?.name ?? 'Non assigné';
 
@@ -156,6 +162,23 @@ export async function deleteProfessional(id: string): Promise<void> {
     } catch (error) {
         console.error('Exception deleteProfessional:', error);
         throw error;
+    }
+}
+
+export async function suspendProfessional(
+    id: string,
+    payload: SuspensionPayload
+): Promise<void> {
+    const response = await apiClient.post<ApiFeedback<unknown>>(`/users/${id}/suspend`, payload);
+    if (response.data.error) {
+        throw new Error(response.data.message || 'Erreur lors de la suspension du professionnel');
+    }
+}
+
+export async function reactivateProfessional(id: string): Promise<void> {
+    const response = await apiClient.post<ApiFeedback<unknown>>(`/users/${id}/reactivate`);
+    if (response.data.error) {
+        throw new Error(response.data.message || 'Erreur lors de la réactivation du professionnel');
     }
 }
 

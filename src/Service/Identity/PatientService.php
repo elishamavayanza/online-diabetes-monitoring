@@ -8,6 +8,7 @@ use App\DTO\Response\Identity\PatientResponseDTO;
 use App\Entity\Identity\Address;
 use App\Entity\Identity\Patient;
 use App\Entity\Healthcare\CareTeamRole;
+use App\Entity\Healthcare\MembershipStatus;
 use App\Repository\Appointment\AppointmentRepository;
 use App\Repository\Healthcare\CareTeamAssignmentRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
@@ -42,22 +43,25 @@ class PatientService
         try {
             $currentUser = $this->securityService->getCurrentUser();
             $targetOrganization = null;
+            $isSuperAdmin = $this->securityService->isSuperAdmin();
 
-            foreach ($currentUser->getOrganizationMemberships() as $membership) {
-                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
-                    $targetOrganization = $membership->getOrganization();
-                    break;
+            if (!$isSuperAdmin) {
+                foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                        $targetOrganization = $membership->getOrganization();
+                        break;
+                    }
                 }
-            }
 
-            if (!$targetOrganization) {
-                throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
-            }
+                if (!$targetOrganization) {
+                    throw new AccessDeniedException('Aucune organisation active trouvée pour cet administrateur.');
+                }
 
-            $this->securityService->checkOrganizationAccess(
-                $targetOrganization,
-                SecurityAction::VIEW
-            );
+                $this->securityService->checkOrganizationAccess(
+                    $targetOrganization,
+                    SecurityAction::VIEW
+                );
+            }
 
             // Récupère uniquement les instances de Patient non supprimées
             $patients = $this->repository->findBy(
@@ -65,24 +69,36 @@ class PatientService
                 ['createdAt' => 'DESC']
             );
 
-            // Filtrer explicitement pour ne garder que les patients de l'organisation active
+            // Le Super Admin voit tous les patients de la plateforme ; sinon
+            // on ne garde que ceux de l'organisation active de l'admin.
+            if (!$isSuperAdmin) {
             $patients = array_filter($patients, function ($user) use ($targetOrganization) {
-                if (!$user instanceof Patient) {
-                    return false;
-                }
-
-                foreach ($user->getOrganizationMemberships() as $membership) {
-                    if (
-                        $membership->getStatus()->isActive() &&
-                        $membership->getOrganization() !== null &&
-                        $membership->getOrganization()->getId() === $targetOrganization->getId()
-                    ) {
-                        return true;
+                    if (!$user instanceof Patient) {
+                        return false;
                     }
-                }
 
-                return false;
-            });
+                    foreach ($user->getOrganizationMemberships() as $membership) {
+                        if (
+                            $membership->getStatus() !== null &&
+                            $membership->getStatus()->isActive() &&
+                            $membership->getOrganization() !== null &&
+                            $membership->getOrganization()->getId() === $targetOrganization->getId()
+                        ) {
+                            return true;
+                        }
+
+                        if (
+                            $membership->getStatus() === MembershipStatus::SUSPENDED &&
+                            $membership->getOrganization() !== null &&
+                            $membership->getOrganization()->getId() === $targetOrganization->getId()
+                        ) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+            }
 
             $data = array_map(
                 fn (Patient $patient) => PatientResponseDTO::fromEntity($patient),

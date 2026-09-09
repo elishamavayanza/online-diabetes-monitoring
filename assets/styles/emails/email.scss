@@ -67,6 +67,15 @@ body {
     p {
         margin-bottom: 18px;
     }
+
+    .quote {
+        background: #f0f5f8;
+        border-left: 4px solid map.get($theme-colors, primary);
+        padding: 14px 16px;
+        margin: 0 0 18px 0;
+        border-radius: 0 8px 8px 0;
+        color: map.get($theme-colors, text);
+    }
 }
 
 .btn-container {

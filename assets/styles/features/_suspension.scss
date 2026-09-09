@@ -1,0 +1,104 @@
+// assets/styles/features/_suspension.scss
+// Styles pour la suspension / réactivation (modales + écran de blocage au login)
+
+.suspend-modal {
+    h2 {
+        margin: 0 0 0.25rem;
+        font-size: 1.35rem;
+    }
+
+    &__entity {
+        margin: 0 0 1rem;
+        color: var(--color-text-muted, #6b7280);
+        font-size: 0.95rem;
+    }
+
+    &__custom {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+
+        & > * {
+            min-width: 0;
+        }
+
+        .form-field__control,
+        .input-field {
+            min-width: 0;
+            width: 100%;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+    }
+}
+
+.professionals-table__actions,
+.patients-table__actions,
+.users-table__actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    width: fit-content;
+    min-width: 0;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.login-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    &__icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        margin: 0 auto;
+        background: linear-gradient(135deg, var(--color-warning, #f59e0b), var(--color-danger, #dc2626));
+        position: relative;
+
+        &::before {
+            content: '!';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+    }
+
+    &__title {
+        text-align: center;
+        margin: 0;
+        font-size: 1.4rem;
+    }
+
+    &__message {
+        text-align: center;
+        margin: 0;
+        color: var(--color-text-muted, #6b7280);
+        line-height: 1.5;
+    }
+
+    &__details {
+        p {
+            margin: 0.35rem 0;
+        }
+    }
+}
+
+@media (max-width: 560px) {
+    .suspend-modal__custom {
+        grid-template-columns: 1fr;
+    }
+}

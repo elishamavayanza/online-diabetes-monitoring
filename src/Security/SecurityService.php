@@ -571,12 +571,14 @@ final class SecurityService implements SecurityServiceInterface
             SecurityAction::MANAGE_USERS,
             SecurityAction::SUSPEND_USER,
             SecurityAction::ACTIVATE_USER,
+            SecurityAction::SUSPEND_PROFESSIONAL,
 
             SecurityAction::VIEW_PATIENT,
             SecurityAction::UPDATE_PATIENT,
             SecurityAction::TRANSFER_PATIENT,
             SecurityAction::ARCHIVE_PATIENT,
             SecurityAction::ACTIVATE_PATIENT,
+            SecurityAction::SUSPEND_PATIENT,
 
             SecurityAction::VIEW_MEDICAL_RECORD,
             SecurityAction::CREATE_MEDICAL_RECORD,

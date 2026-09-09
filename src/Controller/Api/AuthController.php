@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Common\UserStatus;
 use App\Entity\Identity\User;
+use App\Repository\Security\AccountSuspensionRepository;
 use App\Service\Security\PasswordManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -50,7 +51,8 @@ class AuthController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UserPasswordHasherInterface $passwordHasher,
-        JWTTokenManagerInterface $jwtManager
+        JWTTokenManagerInterface $jwtManager,
+        AccountSuspensionRepository $suspensionRepository
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -94,7 +96,18 @@ class AuthController extends AbstractController
             ], 401);
         }
 
-        // 3. Connexion réussie : Réinitialiser les compteurs et enregistrer la dernière connexion
+        // 3. Vérifier l'état de suspension du compte et de l'organisation
+        $blocked = $this->blockingData($user, $suspensionRepository);
+        if ($blocked !== null) {
+            return new JsonResponse([
+                'code' => $blocked['code'],
+                'status' => 403,
+                'error' => true,
+                'message' => $blocked['message'],
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        // 4. Connexion réussie : Réinitialiser les compteurs et enregistrer la dernière connexion
         $user->setLoginAttempts(0);
         $user->setLockedUntil(null);
         $user->setLastLoginAt(new \DateTimeImmutable());
@@ -298,8 +311,12 @@ class AuthController extends AbstractController
             new OA\Response(response: 401, description: 'Refresh token invalide ou expiré')
         ]
     )]
-    public function refreshToken(Request $request, EntityManagerInterface $entityManager, JWTTokenManagerInterface $jwtManager): JsonResponse
-    {
+    public function refreshToken(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        JWTTokenManagerInterface $jwtManager,
+        AccountSuspensionRepository $suspensionRepository
+    ): JsonResponse {
         $data = json_decode($request->getContent(), true);
         $refreshTokenString = $data['refresh_token'] ?? '';
         if (!is_string($refreshTokenString) || $refreshTokenString === '') {
@@ -313,6 +330,17 @@ class AuthController extends AbstractController
 
         if ($user === null || $user->getRefreshTokenExpiresAt() === null || $user->getRefreshTokenExpiresAt() <= new \DateTimeImmutable()) {
             return new JsonResponse(['message' => 'Session expirée.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Ne pas renouveler une session pour un compte suspendu ou une organisation suspendue.
+        $blocked = $this->blockingData($user, $suspensionRepository);
+        if ($blocked !== null) {
+            return new JsonResponse([
+                'code' => $blocked['code'],
+                'status' => 403,
+                'error' => true,
+                'message' => $blocked['message'],
+            ], Response::HTTP_FORBIDDEN);
         }
 
         // Rotation : le refresh token présenté ne peut plus être réutilisé.
@@ -338,5 +366,59 @@ class AuthController extends AbstractController
         $user->setRefreshTokenExpiresAt(new \DateTimeImmutable('+14 days'));
 
         return $token;
+    }
+
+    /**
+     * Retourne les informations de blocage si le compte ou son organisation
+     * est suspendu(e), sinon null.
+     *
+     * @return array{code: string, message: string}|null
+     */
+    private function blockingData(User $user, AccountSuspensionRepository $suspensionRepository): ?array
+    {
+        $status = $user->getStatus();
+
+        if ($status === UserStatus::SUSPENDED || $status === UserStatus::DISABLED) {
+            $suspension = $suspensionRepository->findLatestActiveForUser($user);
+
+            return [
+                'code' => 'account_suspended',
+                'message' => sprintf(
+                    'Votre compte est suspendu%s%s.',
+                    $suspension?->getReason() ? ' pour le motif suivant : « ' . $suspension->getReason() . ' »' : '',
+                    $suspension?->getEndsAt() ? ' — accès rétabli le ' . $suspension->getEndsAt()->format('d/m/Y') : ''
+                ),
+            ];
+        }
+
+        if (in_array('ROLE_ROOT', $user->getRoles(), true)) {
+            return null;
+        }
+
+        // Organisation suspendue : un membership actif sur une organisation inactive bloque.
+        foreach ($user->getOrganizationMemberships() as $membership) {
+            if (!$membership->getStatus()?->isActive()) {
+                continue;
+            }
+
+            $organization = $membership->getOrganization();
+            if ($organization === null || $organization->isActive()) {
+                continue;
+            }
+
+            $suspension = $suspensionRepository->findLatestActiveForOrganization($organization);
+
+            return [
+                'code' => 'organization_suspended',
+                'message' => sprintf(
+                    'L’organisation « %s » est suspendue%s%s.',
+                    $organization->getName(),
+                    $suspension?->getReason() ? ' pour le motif suivant : « ' . $suspension->getReason() . ' »' : '',
+                    $suspension?->getEndsAt() ? ' — accès rétabli le ' . $suspension->getEndsAt()->format('d/m/Y') : ''
+                ),
+            ];
+        }
+
+        return null;
     }
 }

@@ -6,7 +6,7 @@ export interface Patient {
     dateNaissance: string;
     typeDiabete: DiabetesType; //  aligné sur l'enum backend
     equipeSoins: string;
-    statut: 'Active' | 'Inactive';
+    statut: 'Active' | 'Inactive' | 'Suspended';
     avatarUrl?: string;
     email?: string;
     telephone?: string;

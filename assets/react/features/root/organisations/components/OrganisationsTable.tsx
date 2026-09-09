@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { IconButton } from '@/react/components/UI/IconButton';
+import { Button } from '@/react/components/UI/Button';
 import { Tooltip } from '@/react/components/UI/Tooltip';
 import { TreeNode } from '@/react/hook-components/Data/Tree/types';
 import { EyeIcon, ModifyIcon, SuspendIcon, AdminIcon } from './OrganisationIcons';
@@ -11,6 +12,7 @@ interface OrganisationsTableProps {
     onDetail?: (node: TreeNode) => void;
     onModify?: (node: TreeNode) => void;
     onSuspend?: (node: TreeNode) => void;
+    onReactivate?: (node: TreeNode) => void;
     onAddAdmin?: (node: TreeNode) => void;
 }
 
@@ -19,6 +21,7 @@ export function OrganisationsTable({
                                        onDetail,
                                        onModify,
                                        onSuspend,
+                                       onReactivate,
                                        onAddAdmin,
                                    }: OrganisationsTableProps) {
     const organisations = treeNodes;
@@ -59,7 +62,9 @@ export function OrganisationsTable({
         {
             key: 'actions',
             title: 'Actions',
-            render: (node: TreeNode) => (
+            render: (node: TreeNode) => {
+                const data = node.data as Record<string, unknown> | undefined;
+                return (
                 <div className="organisations-table__actions">
                     <Tooltip content="Détail">
                         <IconButton
@@ -89,8 +94,20 @@ export function OrganisationsTable({
                             icon={<SuspendIcon />}
                         />
                     </Tooltip>
+                    {data?.dataType === 'organisation' && data?.active === false && (
+                        <Tooltip content="Réactiver">
+                            <Button
+                                variant="success"
+                                size="small"
+                                onClick={() => onReactivate?.(node)}
+                            >
+                                Réactiver
+                            </Button>
+                        </Tooltip>
+                    )}
                 </div>
-            ),
+                );
+            },
         },
     ];
 

@@ -13,7 +13,12 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import { Professional } from '../types/types';
 import { ProfessionalFormValues } from "@/react/features/root/users/types/userForm.types";
 import { AttachPatientModal } from '../components/AttachPatientModal';
-import { getProfessionalById } from '../services/professionalsService';
+import { getProfessionalById, suspendProfessional, reactivateProfessional } from '../services/professionalsService';
+import { SuspensionModal } from '@/react/features/security/components/SuspensionModal';
+import { ReactivateModal } from '@/react/features/security/components/ReactivateModal';
+import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { SuspensionPayload } from '@/react/features/security/types';
+import { ApiError } from '@/services/api/api.types';
 
 
 import '@/styles/pages/admin/professionals/_professionals.scss';
@@ -54,9 +59,12 @@ export function ProfessionalsPage() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isAttachModalOpen, setIsAttachModalOpen] = useState(false);
     const [attachProfessionalId, setAttachProfessionalId] = useState<string | null>(null);
+    const [suspendingProfessional, setSuspendingProfessional] = useState<Professional | null>(null);
+    const [reactivatingProfessional, setReactivatingProfessional] = useState<Professional | null>(null);
 
     const { pushAction } = useActionHistory();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const openAddModal = () => {
         setIsAddModalOpen(true);
@@ -89,6 +97,46 @@ export function ProfessionalsPage() {
         setAttachProfessionalId(professional.id);
         setIsAttachModalOpen(true);
         closeDrawer();
+    };
+
+    const handleSuspend = (professional: Professional) => {
+        setSuspendingProfessional(professional);
+    };
+
+    const handleConfirmSuspend = async (payload: SuspensionPayload) => {
+        if (!suspendingProfessional) return;
+        try {
+            await suspendProfessional(suspendingProfessional.id, payload);
+            showToast({
+                type: 'success',
+                message: `Le professionnel « ${suspendingProfessional.nom} » a été suspendu.`,
+            });
+            await refetch();
+        } catch (err) {
+            const message = err instanceof ApiError ? (err.data?.message ?? err.message) : (err instanceof Error ? err.message : 'Une erreur est survenue.');
+            showToast({ type: 'error', message });
+            throw err;
+        }
+    };
+
+    const handleReactivate = (professional: Professional) => {
+        setReactivatingProfessional(professional);
+    };
+
+    const handleConfirmReactivate = async () => {
+        if (!reactivatingProfessional) return;
+        try {
+            await reactivateProfessional(reactivatingProfessional.id);
+            showToast({
+                type: 'success',
+                message: `Le professionnel « ${reactivatingProfessional.nom} » a été réactivé.`,
+            });
+            await refetch();
+        } catch (err) {
+            const message = err instanceof ApiError ? (err.data?.message ?? err.message) : (err instanceof Error ? err.message : 'Une erreur est survenue.');
+            showToast({ type: 'error', message });
+            throw err;
+        }
     };
 
     if (isLoading) return <Spinner />;
@@ -126,6 +174,8 @@ export function ProfessionalsPage() {
             <ProfessionalsTable
                 professionals={filteredProfessionals}
                 onViewDetails={openDetails}
+                onSuspend={handleSuspend}
+                onReactivate={handleReactivate}
             />
 
             {/* Modale de création onSuccess={refetch} */}
@@ -153,6 +203,8 @@ export function ProfessionalsPage() {
                 onClose={closeDrawer}
                 onModify={handleModify}
                 onAttachPatient={handleAttachPatient}
+                onSuspend={handleSuspend}
+                onReactivate={handleReactivate}
             />
             {attachProfessionalId && (
                 <AttachPatientModal
@@ -162,6 +214,22 @@ export function ProfessionalsPage() {
                     onSuccess={refetch}
                 />
             )}
+
+            <SuspensionModal
+                isOpen={!!suspendingProfessional}
+                onClose={() => setSuspendingProfessional(null)}
+                title="Suspendre un professionnel"
+                entityLabel={suspendingProfessional ? `Professionnel : ${suspendingProfessional.nom}` : ''}
+                onConfirm={handleConfirmSuspend}
+            />
+
+            <ReactivateModal
+                isOpen={!!reactivatingProfessional}
+                onClose={() => setReactivatingProfessional(null)}
+                title="Réactiver un professionnel"
+                message={reactivatingProfessional ? `Confirmer la réactivation de « ${reactivatingProfessional.nom} » ?` : ''}
+                onConfirm={handleConfirmReactivate}
+            />
         </div>
     );
 }
