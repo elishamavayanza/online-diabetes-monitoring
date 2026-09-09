@@ -3,6 +3,7 @@
 namespace App\Controller\Api\Identity;
 
 use App\DTO\Request\Identity\UserCreateRequestDTO;
+use App\DTO\Request\Identity\UserUpdateRequestDTO;
 use App\DTO\Response\Identity\UserResponseDTO;
 use App\Service\Identity\UserService;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Security\SecurityServiceInterface;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users')]
 #[OA\Tag(
@@ -24,7 +27,9 @@ class UserController extends AbstractController
 {
     public function __construct(
         private readonly UserService $userService,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly SerializerInterface $serializer,
+        private readonly ValidatorInterface $validator
     ) {
     }
 
@@ -75,12 +80,43 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/profile', name: 'api_users_update_profile', methods: ['PUT', 'PATCH'])]
+    #[Route('/profile', name: 'api_users_get_profile', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Récupérer son propre profil utilisateur',
+        description: 'Permet à un utilisateur (root, admin, …) de récupérer ses propres informations, y compris sa photo de profil.'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Profil récupéré avec succès',
+        content: new OA\JsonContent(ref: new Model(type: UserResponseDTO::class))
+    )]
+    public function getProfile(): JsonResponse
+    {
+        $currentUser = $this->securityService->getCurrentUser();
+
+        if (!$currentUser) {
+            return $this->json([
+                'status' => 401,
+                'error' => true,
+                'message' => 'Non authentifié.'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $feedback = $this->userService->getProfile((string) $currentUser->getId());
+
+        $status = $feedback->hasErrors()
+            ? Response::HTTP_BAD_REQUEST
+            : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/profile', name: 'api_users_update_profile', methods: ['PUT', 'PATCH', 'POST'])]
     #[OA\Put(summary: 'Modifier son propre profil utilisateur')]
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            ref: new Model(type: UserCreateRequestDTO::class)
+            ref: new Model(type: UserUpdateRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -96,7 +132,7 @@ class UserController extends AbstractController
         )
     )]
     public function updateProfile(
-        #[MapRequestPayload] UserCreateRequestDTO $dto
+        Request $request
     ): JsonResponse {
         $currentUser = $this->securityService->getCurrentUser();
 
@@ -106,6 +142,28 @@ class UserController extends AbstractController
                 'error' => true,
                 'message' => 'Non authentifié.'
             ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $formData = array_merge(
+            $request->request->all(),
+            $request->files->all()
+        );
+
+        $dto = $this->serializer->denormalize(
+            $formData,
+            UserUpdateRequestDTO::class,
+            null,
+            ['allow_extra_attributes' => true]
+        );
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Données invalides',
+                'errors' => (string) $errors
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $feedback = $this->userService->update((string) $currentUser->getId(), $dto);
@@ -198,7 +256,7 @@ DESC,
         );
     }
 
-    #[Route('/{id}', name: 'api_users_update', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', name: 'api_users_update', methods: ['PUT', 'POST', 'PATCH'])]
     #[OA\Put(summary: 'Modifier un utilisateur')]
     #[OA\Patch(summary: 'Modifier partiellement un utilisateur')]
     #[OA\Parameter(
@@ -211,7 +269,7 @@ DESC,
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            ref: new Model(type: UserCreateRequestDTO::class)
+            ref: new Model(type: UserUpdateRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -230,8 +288,30 @@ DESC,
     #[OA\Response(response: 404, description: 'Utilisateur introuvable')]
     public function update(
         int $id,
-        #[MapRequestPayload] UserCreateRequestDTO $dto
+        Request $request
     ): JsonResponse {
+        $formData = array_merge(
+            $request->request->all(),
+            $request->files->all()
+        );
+
+        $dto = $this->serializer->denormalize(
+            $formData,
+            UserUpdateRequestDTO::class,
+            null,
+            ['allow_extra_attributes' => true]
+        );
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Données invalides',
+                'errors' => (string) $errors
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $feedback = $this->userService->update($id, $dto);
 
         $status = $feedback->hasErrors()

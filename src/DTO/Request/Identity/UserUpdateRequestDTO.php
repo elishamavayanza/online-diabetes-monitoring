@@ -7,38 +7,35 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
-    title: 'UserCreateRequestDTO',
-    description: 'Données requises pour la création d’un compte utilisateur (Patient)'
+    title: 'UserUpdateRequestDTO',
+    description: 'Données de mise à jour d’un compte utilisateur (tous les champs sont optionnels)'
 )]
-class UserCreateRequestDTO
+class UserUpdateRequestDTO
 {
-    #[Assert\NotBlank(message: 'L’e-mail est obligatoire.')]
     #[Assert\Email(message: 'Format d’e-mail invalide.')]
     #[OA\Property(
         description: 'Adresse e-mail unique de l’utilisateur',
         type: 'string',
         format: 'email',
-        example: 'patient@diabcare.com'
+        example: 'admin@diabcare.com'
     )]
-    public string $email;
+    public ?string $email = null;
 
-    #[Assert\NotBlank(message: 'Le mot de passe est obligatoire.')]
     #[Assert\Length(min: 8, minMessage: 'Le mot de passe doit contenir au moins {{ limit }} caractères.')]
     #[OA\Property(
-        description: 'Mot de passe (minimum 8 caractères)',
+        description: 'Nouveau mot de passe (minimum 8 caractères)',
         type: 'string',
         format: 'password',
         example: 'SecurePassword123!'
     )]
-    public string $password;
+    public ?string $password = null;
 
-    #[Assert\NotBlank(message: 'Le nom complet est obligatoire.')]
     #[OA\Property(
         description: 'Nom complet de l’utilisateur',
         type: 'string',
         example: 'Jean Mukendi'
     )]
-    public string $fullName;
+    public ?string $fullName = null;
 
     #[OA\Property(
         description: 'Numéro de téléphone',

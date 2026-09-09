@@ -57,16 +57,22 @@ export async function fetchUserProfile(providedUserId?: string): Promise<UserPro
         const response = await apiClient.get<ApiFeedback<any>>(`/professionals/${userId}`);
         return mapProfessionalToProfile(response.data.data, userId, payload);
     } else {
-        // Admin / Root : pas d'endpoint GET /users/{id}, on utilise les données du token
-        return {
-            id: userId,
-            name: payload.fullName ?? payload.username ?? 'Utilisateur',
-            email: payload.email ?? '',
-            role: roles[0] ?? 'ROOT',
-            phone: payload.phone ?? undefined,
-            avatarUrl: payload.photoUrl ?? undefined,
-            locale: payload.locale ?? 'fr',
-        };
+        // Admin / Root : GET /users/profile renvoie le profil réel depuis le backend
+        // (y compris la photo de profil), avec repli sur les données du token.
+        try {
+            const response = await apiClient.get<ApiFeedback<any>>(`/users/profile`);
+            return mapUserToProfile(response.data.data, userId, payload);
+        } catch {
+            return {
+                id: userId,
+                name: payload.fullName ?? payload.username ?? 'Utilisateur',
+                email: payload.email ?? '',
+                role: roles[0] ?? 'ROOT',
+                phone: payload.phone ?? undefined,
+                avatarUrl: payload.photoUrl ?? undefined,
+                locale: payload.locale ?? 'fr',
+            };
+        }
     }
 }
 
@@ -112,13 +118,14 @@ export async function updateUserProfile(
         );
         return mapProfessionalToProfile(response.data.data, userId, decoded);
     } else {
-        // Admin / Root : endpoint PUT /users/{id} (JSON)
-        const body = {
-            fullName: payload.name,
-            phone: payload.phone,
-            avatarUrl: payload.avatarUrl,
-        };
-        const response = await apiClient.put<ApiFeedback<any>>(`/users/${userId}`, body);
+        // Admin / Root : endpoint /users/{id} accepte le multipart (POST) pour
+        // recevoir avatarFile comme pour patients / professionnels.
+        const formData = buildFormData(payload, avatarFile);
+        const response = await apiClient.post<ApiFeedback<any>>(
+            `/users/${userId}`,
+            formData,
+            { headers: { 'Content-Type': undefined } as any }
+        );
         return mapUserToProfile(response.data.data, userId, decoded);
     }
 }

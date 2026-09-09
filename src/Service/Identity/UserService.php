@@ -3,7 +3,7 @@
 namespace App\Service\Identity;
 
 use App\DTO\Feedback;
-use App\DTO\Request\Identity\UserCreateRequestDTO;
+use App\DTO\Request\Identity\UserUpdateRequestDTO;
 use App\Entity\Common\Gender;
 use App\Entity\Common\UserStatus;
 use App\Entity\Healthcare\OrganizationMembership;
@@ -13,6 +13,7 @@ use App\Mapper\Identity\UserMapper;
 use App\Repository\Identity\UserRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\File\FileUploaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -24,7 +25,8 @@ class UserService
         private readonly UserMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly UserPasswordHasherInterface $passwordHasher
+        private readonly UserPasswordHasherInterface $passwordHasher,
+        private readonly FileUploaderService $fileUploader
     ) {
     }
 
@@ -151,31 +153,65 @@ class UserService
     }
 
     /**
-     * Met à jour un compte utilisateur.
+     * Récupère le profil d'un utilisateur (auto-consommation).
      */
-    public function update(string $id, UserCreateRequestDTO $dto): Feedback
+    public function getProfile(string $id): Feedback
     {
         $feedback = new Feedback();
 
         try {
             $currentUser = $this->securityService->getCurrentUser();
+            if ($currentUser === null || (string) $currentUser->getId() !== $id) {
+                throw new AccessDeniedException('Accès à votre propre profil uniquement.');
+            }
+
+            $user = $this->repository->find($id);
+            if (!$user) {
+                return $feedback->setErrorFlushDescription('Utilisateur introuvable.')->autoInitFlush();
+            }
+
+            return $feedback
+                ->setData($this->mapper->mapEntityToResponse($user))
+                ->setFlushDescription('Profil récupéré avec succès.')
+                ->autoInitFlush();
+
+        } catch (AccessDeniedException $e) {
+            return $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback->setErrorFlushDescription('Erreur lors de la récupération du profil : ' . $e->getMessage())->autoInitFlush();
+        }
+    }
+
+    /**
+     * Met à jour un compte utilisateur.
+     */
+    public function update(string $id, UserUpdateRequestDTO $dto): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $currentUser = $this->securityService->getCurrentUser();
+            $isSelf = $currentUser !== null && (string) $currentUser->getId() === $id;
+
             $targetOrganization = null;
 
-            foreach ($currentUser->getOrganizationMemberships() as $membership) {
-                if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
-                    $targetOrganization = $membership->getOrganization();
-                    break;
+            if (!$isSelf) {
+                foreach ($currentUser->getOrganizationMemberships() as $membership) {
+                    if ($membership->getStatus()->isActive() && $membership->getOrganization() !== null) {
+                        $targetOrganization = $membership->getOrganization();
+                        break;
+                    }
                 }
-            }
 
-            if (!$targetOrganization) {
-                throw new AccessDeniedException('Aucune organisation active trouvée.');
-            }
+                if (!$targetOrganization) {
+                    throw new AccessDeniedException('Aucune organisation active trouvée.');
+                }
 
-            $this->securityService->checkOrganizationAccess(
-                $targetOrganization,
-                SecurityAction::MANAGE_USERS
-            );
+                $this->securityService->checkOrganizationAccess(
+                    $targetOrganization,
+                    SecurityAction::MANAGE_USERS
+                );
+            }
 
             $user = $this->repository->find($id);
             if (!$user) {
@@ -200,6 +236,17 @@ class UserService
 
             if ($dto->gender !== null) {
                 $user->setGender(Gender::from($dto->gender));
+            }
+
+            if ($dto->avatarFile !== null) {
+                if ($user->getAvatarUrl()) {
+                    $this->fileUploader->remove($user->getAvatarUrl(), 'avatars');
+                }
+
+                $fileName = $this->fileUploader->upload($dto->avatarFile, 'avatars');
+                $user->setAvatarUrl($fileName);
+            } elseif (!empty($dto->avatarUrl)) {
+                $user->setAvatarUrl($dto->avatarUrl);
             }
 
             if (!empty($dto->password)) {

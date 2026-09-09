@@ -1,5 +1,5 @@
-@use '../baseVariables/variables' as *;
-@use '../baseVariables/mixins' as *;
+@use '../../baseVariables/variables' as *;
+@use '../../baseVariables/mixins' as *;
 
 // Bannière globale affichée lorsque le navigateur est hors-ligne.
 .offline-banner {
