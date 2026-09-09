@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
@@ -27,15 +28,17 @@ export function AppointmentsTable({
                                       onRemind = () => {},
                                       showActions = true,
                                   }: AppointmentsTableProps) {
+    const { t } = useI18n();
+
     const columns = [
-        { key: 'patient', title: 'Patient' },
-        { key: 'professionnel', title: 'Professionnel' },
-        { key: 'etablissement', title: 'Établissement' },
-        { key: 'date', title: 'Date' },
-        { key: 'heure', title: 'Heure' },
+        { key: 'patient', title: t('Patient') },
+        { key: 'professionnel', title: t('Professionnel') },
+        { key: 'etablissement', title: t('Établissement') },
+        { key: 'date', title: t('Date') },
+        { key: 'heure', title: t('Heure') },
         {
             key: 'statut',
-            title: 'Statut',
+            title: t('Statut'),
             render: (row: Appointment) => (
                 <Badge variant={statusVariant[row.statut]}>
                     {row.statut}
@@ -44,19 +47,19 @@ export function AppointmentsTable({
         },
         ...(showActions ? [{
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: Appointment) => {
                 if (row.statut === 'Cancelled') return null;
                 return (
                     <div className="appointments-table__actions" style={{ display: 'flex', gap: '0.5rem' }}>
-                        <Tooltip content="Modifier">
-                            <IconButton onClick={() => onEdit(row)} aria-label="Modifier" icon={<EditIcon />} />
+                        <Tooltip content={t('Modifier')}>
+                            <IconButton onClick={() => onEdit(row)} aria-label={t('Modifier')} icon={<EditIcon />} />
                         </Tooltip>
-                        <Tooltip content="Annuler">
-                            <IconButton onClick={() => onCancel(row)} aria-label="Annuler" icon={<CancelIcon />} />
+                        <Tooltip content={t('Annuler')}>
+                            <IconButton onClick={() => onCancel(row)} aria-label={t('Annuler')} icon={<CancelIcon />} />
                         </Tooltip>
-                        <Tooltip content="Rappeler">
-                            <IconButton onClick={() => onRemind(row)} aria-label="Rappeler" icon={<RemindIcon />} />
+                        <Tooltip content={t('Rappeler')}>
+                            <IconButton onClick={() => onRemind(row)} aria-label={t('Rappeler')} icon={<RemindIcon />} />
                         </Tooltip>
                     </div>
                 );

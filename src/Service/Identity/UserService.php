@@ -238,6 +238,10 @@ class UserService
                 $user->setGender(Gender::from($dto->gender));
             }
 
+            if ($dto->locale !== null) {
+                $user->setLocale($dto->locale);
+            }
+
             if ($dto->avatarFile !== null) {
                 if ($user->getAvatarUrl()) {
                     $this->fileUploader->remove($user->getAvatarUrl(), 'avatars');

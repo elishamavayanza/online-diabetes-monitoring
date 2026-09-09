@@ -150,6 +150,7 @@ function buildFormData(payload: ProfileUpdatePayload, avatarFile?: File | null):
     const formData = new FormData();
     formData.append('fullName', payload.name);
     if (payload.phone) formData.append('phone', payload.phone);
+    if (payload.locale) formData.append('locale', payload.locale);
     // avatarUrl est un aperçu (souvent data:image/...) dans le formulaire.
     // Il ne doit jamais remplacer l'avatar enregistré quand un fichier est fourni.
     if (!avatarFile && payload.avatarUrl && !/^(data:|blob:)/i.test(payload.avatarUrl)) {

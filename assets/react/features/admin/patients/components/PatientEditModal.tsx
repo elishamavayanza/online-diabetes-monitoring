@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Modal } from '@/react/components/UI/Modal';
 import { Stepper } from '@/react/components/Navigation/Stepper';
 import { Button } from '@/react/components/UI/Button';
@@ -24,6 +25,7 @@ export function PatientEditModal({
                                      patientData,
                                      onSuccess,
                                  }: PatientEditModalProps) {
+    const { t } = useI18n();
     const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } =
         useUpdatePatient(patientData, patientId);
     const [step, setStep] = useState(0);
@@ -33,10 +35,10 @@ export function PatientEditModal({
     }, [isOpen]);
 
     const steps = [
-        { id: 'infos', label: 'Informations' },
-        { id: 'address', label: 'Adresse' },
-        { id: 'photo', label: 'Photo' },
-        { id: 'summary', label: 'Récapitulatif' },
+        { id: 'infos', label: t('Informations') },
+        { id: 'address', label: t('Adresse') },
+        { id: 'photo', label: t('Photo') },
+        { id: 'summary', label: t('Récapitulatif') },
     ];
 
     const activeStepId = steps[step].id;
@@ -68,14 +70,14 @@ export function PatientEditModal({
             case 3:
                 return (
                     <div className="patient-form-modal__summary">
-                        <h3>Vérifiez les informations</h3>
-                        <p><strong>Nom complet :</strong> {form.fullName}</p>
-                        <p><strong>Téléphone :</strong> {form.phone || '—'}</p>
-                        <p><strong>Genre :</strong> {form.gender}</p>
-                        <p><strong>Date de naissance :</strong> {form.dateOfBirth || '—'}</p>
-                        <p><strong>Groupe sanguin :</strong> {form.bloodType || '—'}</p>
-                        <p><strong>Taille :</strong> {form.heightCm ? `${form.heightCm} cm` : '—'}</p>
-                        <p><strong>Adresse :</strong> {form.address.street} {form.address.city} {form.address.postalCode} {form.address.country}</p>
+                        <h3>{t('Vérifiez les informations')}</h3>
+                        <p><strong>{t('Nom complet :')}</strong> {form.fullName}</p>
+                        <p><strong>{t('Téléphone :')}</strong> {form.phone || '—'}</p>
+                        <p><strong>{t('Genre :')}</strong> {form.gender}</p>
+                        <p><strong>{t('Date de naissance :')}</strong> {form.dateOfBirth || '—'}</p>
+                        <p><strong>{t('Groupe sanguin :')}</strong> {form.bloodType || '—'}</p>
+                        <p><strong>{t('Taille :')}</strong> {form.heightCm ? `${form.heightCm} cm` : '—'}</p>
+                        <p><strong>{t('Adresse :')}</strong> {form.address.street} {form.address.city} {form.address.postalCode} {form.address.country}</p>
                     </div>
                 );
             default:
@@ -86,17 +88,17 @@ export function PatientEditModal({
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="large">
             <div className="patient-form-modal">
-                <h2>Modifier le patient</h2>
+                <h2>{t('Modifier le patient')}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Stepper steps={steps} activeStepId={activeStepId} onStepChange={handleStepChange} />
                 <div className="patient-form-modal__content">{renderStepContent()}</div>
                 <div className="patient-form-modal__footer">
-                    {step > 0 && <Button variant="outline" onClick={handlePrev}>Précédent</Button>}
+                    {step > 0 && <Button variant="outline" onClick={handlePrev}>{t('Précédent')}</Button>}
                     {step < steps.length - 1 ? (
-                        <Button variant="primary" onClick={handleNext}>Suivant</Button>
+                        <Button variant="primary" onClick={handleNext}>{t('Suivant')}</Button>
                     ) : (
                         <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
-                            {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+                            {isSubmitting ? t('Enregistrement...') : t('Enregistrer')}
                         </Button>
                     )}
                 </div>

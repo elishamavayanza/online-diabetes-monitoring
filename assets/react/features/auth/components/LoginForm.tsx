@@ -8,8 +8,10 @@ import {ErrorMessage} from "@/react/components/Forms/ErrorMessage";
 import {Button} from "@/react/components/UI/Button";
 import { Checkbox } from "@/react/components/Forms/Checkbox";
 import { Alert } from '@/react/components/UI/Alert';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export function LoginForm() {
+    const { t } = useI18n();
     const {
         values,
         errors,
@@ -44,7 +46,7 @@ export function LoginForm() {
                     </div>
                 </Alert>
                 <Button type="button" variant="outline" fullWidth onClick={resetBlock}>
-                    Retour à la connexion
+                    {t('Retour à la connexion')}
                 </Button>
             </div>
         );
@@ -53,7 +55,7 @@ export function LoginForm() {
     return (
         <Form layout="vertical" gap="medium" fullWidth onSubmit={handleSubmit} noValidate>
             <FormField
-                label="Email ou nom d'utilisateur"
+                label={t('Email ou nom d\'utilisateur')}
                 htmlFor="emailOrUsername"
                 required
                 error={errors.emailOrUsername}
@@ -71,7 +73,7 @@ export function LoginForm() {
             </FormField>
 
             <FormField
-                label="Mot de passe"
+                label={t('Mot de passe')}
                 htmlFor="password"
                 required
                 error={errors.password}
@@ -89,14 +91,14 @@ export function LoginForm() {
 
             <div className="login-form__options-row">
                 <Checkbox
-                    label="Se souvenir de moi"
+                    label={t('Se souvenir de moi')}
                     checked={values.rememberMe}
                     onChange={handleBooleanChange('rememberMe')}
                     name="rememberMe"
                     id="rememberMe"
                 />
                 <a href="/forgot-password" className="login-form__forgot-link">
-                    Mot de passe oublié ?
+                    {t('Mot de passe oublié ?')}
                 </a>
             </div>
 
@@ -108,7 +110,7 @@ export function LoginForm() {
                 fullWidth
                 isLoading={isSubmitting}
             >
-                {isSubmitting ? 'Connexion en cours...' : 'Se connecter'}
+                {isSubmitting ? t('Connexion en cours...') : t('Se connecter')}
             </Button>
         </Form>
     );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDataTable, UseDataTableProps } from '@/react/hook-components/Data/DataTable';
 import { Pagination } from '../Pagination';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface DataTableProps<T> extends UseDataTableProps<T> {
     /** Mode serveur : la pagination et le tri sont contrôlés par le parent. */
@@ -32,6 +33,7 @@ export function DataTable<T>({
                                  onSort,
                              }: DataTableProps<T>) {
     const isServer = mode === 'server';
+    const { t } = useI18n();
 
     const [serverSortKey, setServerSortKey] = useState<string | null>(initialSortKey ?? null);
     const [serverSortDirection, setServerSortDirection] = useState<'asc' | 'desc'>(initialSortDirection ?? 'asc');

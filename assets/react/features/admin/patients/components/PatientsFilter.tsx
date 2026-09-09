@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { FormField } from '@/react/components/Forms/FormField';
 import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
@@ -9,23 +10,25 @@ interface PatientsFilterProps {
 }
 
 export function PatientsFilter({ filters, onChange }: PatientsFilterProps) {
+    const { t } = useI18n();
+
     const typeOptions = [
-        { value: 'Tous', label: 'Tous' },
-        { value: 'Type 1', label: 'Type 1' },
-        { value: 'Type 2', label: 'Type 2' },
-        { value: 'Gestationnel', label: 'Gestationnel' },
+        { value: 'Tous', label: t('Tous') },
+        { value: 'Type 1', label: t('Type 1') },
+        { value: 'Type 2', label: t('Type 2') },
+        { value: 'Gestationnel', label: t('Gestationnel') },
     ];
 
     return (
         <div className="patients-filter">
-            <FormField label="Rechercher">
+            <FormField label={t('Rechercher')}>
                 <Input
-                    placeholder="Nom du patient..."
+                    placeholder={t('Nom du patient...')}
                     value={filters.search}
                     onChange={(e) => onChange({ ...filters, search: e.target.value })}
                 />
             </FormField>
-            <FormField label="Type de diabète">
+            <FormField label={t('Type de diabète')}>
                 <Select
                     value={filters.typeDiabete}
                     onChange={(e) => onChange({ ...filters, typeDiabete: e.target.value as typeof filters.typeDiabete })}

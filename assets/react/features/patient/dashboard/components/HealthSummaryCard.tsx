@@ -1,4 +1,5 @@
 import { Card } from '@/react/components/UI/Card';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { HealthMetric } from '../types';
 
 interface HealthSummaryCardProps {
@@ -13,9 +14,11 @@ function formatDate(iso?: string): string {
 }
 
 export function HealthSummaryCard({ metrics }: HealthSummaryCardProps) {
+    const { t } = useI18n();
+
     return (
         <Card className="health-summary-card">
-            <h2>Résumé de santé</h2>
+            <h2>{t('Résumé de santé')}</h2>
             <div className="health-summary-card__metrics">
                 {metrics.map((metric) => (
                     <div

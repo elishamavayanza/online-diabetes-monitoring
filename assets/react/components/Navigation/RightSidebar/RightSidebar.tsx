@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useRightSidebar, UseRightSidebarProps } from '../../../hook-components/Navigation/RightSidebar';
 import { useIsCompact } from '@/react/hooks/useIsCompact';   // ← mobile / tablette / portrait
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const CollapseIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -52,6 +53,7 @@ export function RightSidebar({
                                  collapsedWidth = 35,
                              }: RightSidebarProps) {
     const isCompact = useIsCompact();
+    const { t } = useI18n();
 
     // Ajustements mode compact (mobile / tablette / portrait)
     const effectiveMinWidth = isCompact ? 120 : minWidth;
@@ -193,8 +195,8 @@ export function RightSidebar({
                     type="button"
                     className="right-sidebar__mobile-trigger"
                     onClick={handleToggle}
-                    aria-label="Ouvrir le panneau"
-                    title="Ouvrir le panneau"
+                    aria-label={t('Ouvrir le panneau')}
+                    title={t('Ouvrir le panneau')}
                 >
                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="9 18 15 12 9 6" />
@@ -215,7 +217,7 @@ export function RightSidebar({
                         onClick={(e) => {
                             if (!isDraggingRef.current) handleToggle();
                         }}
-                        title="Cliquer pour ouvrir ou glisser vers la gauche"
+                        title={t('Cliquer pour ouvrir ou glisser vers la gauche')}
                     >
                         <span className="right-sidebar__collapsed-text">{title || ''}</span>
                     </div>
@@ -224,7 +226,7 @@ export function RightSidebar({
                         <div
                             className="right-sidebar__resizer"
                             onMouseDown={startDragging}
-                            title="Glisser pour redimensionner"
+                            title={t('Glisser pour redimensionner')}
                         />
 
                         {header && <div className="right-sidebar__header">{header}</div>}
@@ -234,8 +236,8 @@ export function RightSidebar({
                                 type="button"
                                 className="right-sidebar__collapse"
                                 onClick={handleToggle}
-                                aria-label="Fermer le panneau"
-                                title="Fermer le panneau"
+                                aria-label={t('Fermer le panneau')}
+                                title={t('Fermer le panneau')}
                             >
                                 <CloseIcon />
                             </button>

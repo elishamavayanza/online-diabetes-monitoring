@@ -6,6 +6,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { fetchInvitationByToken, acceptInvitation, declineInvitation } from '../services/externalFollowsService';
 import { ExternalFollowInvitation, EXTERNAL_FOLLOW_STATUS_LABELS } from '../types/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 function formatDate(value: string | null): string {
     if (!value) return '—';
@@ -15,6 +16,7 @@ function formatDate(value: string | null): string {
 export function AcceptInvitationPage() {
     const { token } = useParams<{ token: string }>();
     const { isAuthenticated, user } = useAuth();
+    const { t } = useI18n();
     const [invitation, setInvitation] = useState<ExternalFollowInvitation | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export function AcceptInvitationPage() {
                 if (!cancelled) setInvitation(data);
             })
             .catch((err) => {
-                if (!cancelled) setError(err instanceof Error ? err.message : 'Invitation introuvable.');
+                if (!cancelled) setError(err instanceof Error ? err.message : t('Invitation introuvable.'));
             })
             .finally(() => {
                 if (!cancelled) setIsLoading(false);
@@ -44,7 +46,7 @@ export function AcceptInvitationPage() {
     if (!token) {
         return (
             <div className="invite-public-page">
-                <Alert variant="error">Lien d'invitation invalide.</Alert>
+                <Alert variant="error">{t("Lien d'invitation invalide.")}</Alert>
             </div>
         );
     }
@@ -60,7 +62,7 @@ export function AcceptInvitationPage() {
     if (error || !invitation) {
         return (
             <div className="invite-public-page">
-                <Alert variant="error">{error ?? 'Invitation introuvable.'}</Alert>
+                <Alert variant="error">{error ?? t('Invitation introuvable.')}</Alert>
                 <Link to="/login">
                     <Button variant="outline" className="invite-public-page__cta">Retour à la connexion</Button>
                 </Link>
@@ -71,18 +73,18 @@ export function AcceptInvitationPage() {
     if (invitation.status !== 'PENDING') {
         const message =
             invitation.status === 'ACCEPTED'
-                ? 'Cette invitation a déjà été acceptée.'
+                ? t('Cette invitation a déjà été acceptée.')
                 : invitation.status === 'DECLINED'
-                    ? 'Cette invitation a été refusée.'
+                    ? t('Cette invitation a été refusée.')
                     : invitation.status === 'REVOKED'
-                        ? 'Cette invitation a été révoquée.'
-                        : 'Cette invitation n’est plus active.';
+                        ? t('Cette invitation a été révoquée.')
+                        : t('Cette invitation n’est plus active.');
         return (
             <div className="invite-public-page invite-public-page--final">
                 <h1>{EXTERNAL_FOLLOW_STATUS_LABELS[invitation.status]}</h1>
                 <p>{message}</p>
                 <Link to="/login">
-                    <Button variant="outline" className="invite-public-page__cta">Retour à la connexion</Button>
+                    <Button variant="outline" className="invite-public-page__cta">{t('Retour à la connexion')}</Button>
                 </Link>
             </div>
         );
@@ -92,9 +94,9 @@ export function AcceptInvitationPage() {
         return (
             <div className="invite-public-page invite-public-page--login">
                 <div className="invite-public-page__card">
-                    <h1>Invitation de suivi externe</h1>
+                    <h1>{t('Invitation de suivi externe')}</h1>
                     <p className="invite-public-page__intro">
-                        <strong>{invitation.invitedByName}</strong> ({invitation.organizationName}) vous invite à suivre le patient <strong>{invitation.patientName}</strong> jusqu'au <strong>{formatDate(invitation.endDate)}</strong>.
+                        {t('{{ invitedBy }} ({{ organization }}) vous invite à suivre le patient {{ patient }} jusqu\'au {{ endDate }}.', { invitedBy: invitation.invitedByName, organization: invitation.organizationName, patient: invitation.patientName, endDate: formatDate(invitation.endDate) })}
                     </p>
                     {invitation.message && (
                         <p className="invite-public-page__message">
@@ -102,7 +104,7 @@ export function AcceptInvitationPage() {
                         </p>
                     )}
                     <Alert variant="warning">
-                        Vous devez être connecté avec le compte <strong>{invitation.email}</strong> pour accepter.
+                        {t('Vous devez être connecté avec le compte {{ email }} pour accepter.', { email: invitation.email })}
                     </Alert>
                     <div className="invite-public-page__actions">
                         <Link to="/login">
@@ -111,7 +113,7 @@ export function AcceptInvitationPage() {
                                     if (token) sessionStorage.setItem('pendingInviteToken', token);
                                 }}
                             >
-                                Se connecter pour accepter
+                                {t('Se connecter pour accepter')}
                             </Button>
                         </Link>
                     </div>
@@ -127,11 +129,10 @@ export function AcceptInvitationPage() {
         return (
             <div className="invite-public-page invite-public-page--wrong-account">
                 <Alert variant="error">
-                    Cette invitation est addressée à <strong>{invitation.email}</strong>.
-                    Vous êtes connecté en tant que <strong>{user?.email}</strong>.
+                    {t('Cette invitation est addressée à {{ email }}. Vous êtes connecté en tant que {{ currentEmail }}.', { email: invitation.email, currentEmail: user?.email ?? '' })}
                 </Alert>
                 <Link to="/login">
-                    <Button variant="outline">Se connecter avec le bon compte</Button>
+                    <Button variant="outline">{t('Se connecter avec le bon compte')}</Button>
                 </Link>
             </div>
         );
@@ -142,19 +143,19 @@ export function AcceptInvitationPage() {
             <div className="invite-public-page invite-public-page--final">
                 {success && (
                     <>
-                        <h1>Invitation acceptée</h1>
-                        <p>Vous pouvez désormais accéder au dossier de <strong>{invitation.patientName}</strong>.</p>
+                        <h1>{t('Invitation acceptée')}</h1>
+                        <p>{t('Vous pouvez désormais accéder au dossier de {{ patient }}.', { patient: invitation.patientName })}</p>
                         <Link to={`/clinician/patients/${invitation.patientId}/record`}>
-                            <Button className="invite-public-page__cta">Accéder au dossier</Button>
+                            <Button className="invite-public-page__cta">{t('Accéder au dossier')}</Button>
                         </Link>
                     </>
                 )}
                 {isDeclined && (
                     <>
-                        <h1>Invitation refusée</h1>
-                        <p>Vous avez refusé l'invitation au suivi de <strong>{invitation.patientName}</strong>.</p>
+                        <h1>{t('Invitation refusée')}</h1>
+                        <p>{t('Vous avez refusé l\'invitation au suivi de {{ patient }}.', { patient: invitation.patientName })}</p>
                         <Link to="/login">
-                            <Button variant="outline" className="invite-public-page__cta">Retour à l'accueil</Button>
+                            <Button variant="outline" className="invite-public-page__cta">{t('Retour à l\'accueil')}</Button>
                         </Link>
                     </>
                 )}

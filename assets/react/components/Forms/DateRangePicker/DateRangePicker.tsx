@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDateRangePicker, UseDateRangePickerProps } from '../../../hook-components/Forms/DateRangePicker';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface DateRangePickerProps extends UseDateRangePickerProps {
     labelStart?: string;
@@ -15,9 +16,12 @@ export function DateRangePicker({
                                     disabled,
                                     onChange,
                                     className,
-                                    labelStart = 'Date de début',
-                                    labelEnd = 'Date de fin',
+                                    labelStart,
+                                    labelEnd,
                                 }: DateRangePickerProps) {
+    const { t } = useI18n();
+    const effectiveLabelStart = labelStart ?? t('Date de début');
+    const effectiveLabelEnd = labelEnd ?? t('Date de fin');
     const { classes, startDate: start, endDate: end, updateStartDate, updateEndDate } =
         useDateRangePicker({
             startDate,
@@ -33,7 +37,7 @@ export function DateRangePicker({
     return (
         <div className={classes}>
             <div className="daterange__field">
-                <label className="daterange__label">{labelStart}</label>
+                <label className="daterange__label">{effectiveLabelStart}</label>
                 <input
                     type="date"
                     className="daterange__input"
@@ -44,7 +48,7 @@ export function DateRangePicker({
             </div>
             <span className="daterange__separator">→</span>
             <div className="daterange__field">
-                <label className="daterange__label">{labelEnd}</label>
+                <label className="daterange__label">{effectiveLabelEnd}</label>
                 <input
                     type="date"
                     className="daterange__input"

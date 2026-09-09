@@ -19,6 +19,7 @@ import { ReactivateModal } from '@/react/features/security/components/Reactivate
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 import { SuspensionPayload } from '@/react/features/security/types';
 import { ApiError } from '@/services/api/api.types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 
 import '@/styles/pages/admin/professionals/_professionals.scss';
@@ -65,6 +66,7 @@ export function ProfessionalsPage() {
     const { pushAction } = useActionHistory();
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { t } = useI18n();
 
     const openAddModal = () => {
         setIsAddModalOpen(true);
@@ -109,7 +111,7 @@ export function ProfessionalsPage() {
             await suspendProfessional(suspendingProfessional.id, payload);
             showToast({
                 type: 'success',
-                message: `Le professionnel « ${suspendingProfessional.nom} » a été suspendu.`,
+                message: t('Le professionnel « {{ nom }} » a été suspendu.', { nom: suspendingProfessional.nom }),
             });
             await refetch();
         } catch (err) {
@@ -129,7 +131,7 @@ export function ProfessionalsPage() {
             await reactivateProfessional(reactivatingProfessional.id);
             showToast({
                 type: 'success',
-                message: `Le professionnel « ${reactivatingProfessional.nom} » a été réactivé.`,
+                message: t('Le professionnel « {{ nom }} » a été réactivé.', { nom: reactivatingProfessional.nom }),
             });
             await refetch();
         } catch (err) {
@@ -145,14 +147,14 @@ export function ProfessionalsPage() {
     return (
         <div className="professionals-page">
             <div className="professionals-page__header">
-                <h1>Professionnels</h1>
-                <p>Gérez les professionnels de votre organisation</p>
+                <h1>{t('Professionnels')}</h1>
+                <p>{t('Gérez les professionnels de votre organisation')}</p>
             </div>
 
             <div className="professionals-page__actions">
                 <div className="professionals-page__search">
                     <SearchInput
-                        placeholder="Rechercher un professionnel..."
+                        placeholder={t('Rechercher un professionnel...')}
                         value={search}
                         onSearch={(value: string) => {
                             setSearchInput(value);
@@ -161,7 +163,7 @@ export function ProfessionalsPage() {
                     />
                 </div>
                 <Button variant="primary" onClick={() => navigate('/admin/professionals/new')}>
-                    + Ajouter un professionnel
+                    + {t('Ajouter un professionnel')}
                 </Button>
             </div>
 
@@ -218,16 +220,16 @@ export function ProfessionalsPage() {
             <SuspensionModal
                 isOpen={!!suspendingProfessional}
                 onClose={() => setSuspendingProfessional(null)}
-                title="Suspendre un professionnel"
-                entityLabel={suspendingProfessional ? `Professionnel : ${suspendingProfessional.nom}` : ''}
+                title={t('Suspendre un professionnel')}
+                entityLabel={suspendingProfessional ? t('Professionnel : {{ nom }}', { nom: suspendingProfessional.nom }) : ''}
                 onConfirm={handleConfirmSuspend}
             />
 
             <ReactivateModal
                 isOpen={!!reactivatingProfessional}
                 onClose={() => setReactivatingProfessional(null)}
-                title="Réactiver un professionnel"
-                message={reactivatingProfessional ? `Confirmer la réactivation de « ${reactivatingProfessional.nom} » ?` : ''}
+                title={t('Réactiver un professionnel')}
+                message={reactivatingProfessional ? t('Confirmer la réactivation de « {{ nom }} » ?', { nom: reactivatingProfessional.nom }) : ''}
                 onConfirm={handleConfirmReactivate}
             />
         </div>

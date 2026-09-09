@@ -1,14 +1,16 @@
 import { Card } from '@/react/components/UI/Card';
 import { RecentActivity } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface RecentActivityListProps {
     activities: RecentActivity[];
 }
 
 export function RecentActivityList({ activities }: RecentActivityListProps) {
+    const { t } = useI18n();
     return (
         <Card className="recent-activity">
-            <h2 className="section-title">Activité récente</h2>
+            <h2 className="section-title">{t('Activité récente')}</h2>
             <ul className="recent-activity__list">
                 {activities.map((activity) => (
                     <li key={activity.id} className="recent-activity__item">

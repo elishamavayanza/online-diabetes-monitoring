@@ -9,6 +9,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { SettingsData } from '../types';
 import '@/styles/pages/root/settings/_settings.scss';
 
@@ -24,6 +25,7 @@ export function SettingsPage() {
     );
     const [modalOpen, setModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
+    const { t } = useI18n();
 
     useEffect(() => {
         const tab = searchParams.get('tab');
@@ -49,7 +51,7 @@ export function SettingsPage() {
     }
 
     if (error && !draft) {
-        return <Alert variant="error">{error ?? 'Paramètres indisponibles.'}</Alert>;
+        return <Alert variant="error">{error ?? t('Paramètres indisponibles.')}</Alert>;
     }
 
     const handleChange = (patch: Partial<SettingsData>) => {
@@ -67,9 +69,9 @@ export function SettingsPage() {
     return (
         <div className="settings-page">
             <div className="settings-page__header">
-                <h1>Configuration système</h1>
-                <p>Gérez les paramètres globaux de la plateforme</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Configuration système')}</h1>
+                <p>{t('Gérez les paramètres globaux de la plateforme')}</p>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 
             {error && <Alert variant="error">{error}</Alert>}
@@ -82,7 +84,7 @@ export function SettingsPage() {
                     className={`settings-tabs__tab${activeTab === 'general' ? ' settings-tabs__tab--active' : ''}`}
                     onClick={() => setActiveTab('general')}
                 >
-                    Identité
+                    {t('Identité')}
                 </button>
                 <button
                     type="button"
@@ -91,7 +93,7 @@ export function SettingsPage() {
                     className={`settings-tabs__tab${activeTab === 'home' ? ' settings-tabs__tab--active' : ''}`}
                     onClick={() => setActiveTab('home')}
                 >
-                    Page d’accueil
+                    {t('Page d\u2019accueil')}
                 </button>
             </div>
 
@@ -116,9 +118,7 @@ export function SettingsPage() {
             {modalOpen && (
                 <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
                     <p>
-                        La configuration système permet au super administrateur de personnaliser
-                        l’identité de la plateforme (nom, logo) et les textes affichés sur la page
-                        d’accueil publique.
+                        {t('La configuration système permet au super administrateur de personnaliser l\u2019identité de la plateforme (nom, logo) et les textes affichés sur la page d\u2019accueil publique.')}
                     </p>
                 </Modal>
             )}

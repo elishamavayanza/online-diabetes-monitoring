@@ -6,6 +6,7 @@ import { Select } from '@/react/components/Forms/Select';
 import { Input } from '@/react/components/Forms/Input';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { useRequestAppointmentModal } from '../hooks/useRequestAppointmentModal';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface RequestAppointmentModalProps {
     isOpen: boolean;
@@ -35,6 +36,7 @@ export function RequestAppointmentModal({
         isSubmitting,
         handleSubmit,
     } = useRequestAppointmentModal({ isOpen, onClose, onSuccess });
+    const { t } = useI18n();
 
     const professionalOptions = professionals.map((p) => ({
         value: p.id,
@@ -42,9 +44,9 @@ export function RequestAppointmentModal({
     }));
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Demander un rendez-vous">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Demander un rendez-vous')}>
             <form onSubmit={handleSubmit} className="dossier-form">
-                <FormField label="Professionnel *">
+                <FormField label={t('Professionnel *')}>
                     <Select
                         value={professionalId}
                         onChange={(e) => setProfessionalId(e.target.value)}
@@ -52,13 +54,13 @@ export function RequestAppointmentModal({
                         required
                     />
                 </FormField>
-                <FormField label="Date *">
+                <FormField label={t('Date *')}>
                     <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
                 </FormField>
-                <FormField label="Heure *">
+                <FormField label={t('Heure *')}>
                     <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} required />
                 </FormField>
-                <FormField label="Durée (minutes)">
+                <FormField label={t('Durée (minutes)')}>
                     <Input
                         type="number"
                         min="10"
@@ -67,26 +69,26 @@ export function RequestAppointmentModal({
                         onChange={(e) => setDuration(e.target.value)}
                     />
                 </FormField>
-                <FormField label="Motif">
+                <FormField label={t('Motif')}>
                     <Input
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
-                        placeholder="Consultation, suivi..."
+                        placeholder={t('Consultation, suivi...')}
                     />
                 </FormField>
-                <FormField label="Notes">
+                <FormField label={t('Notes')}>
                     <Textarea
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Informations complémentaires..."
+                        placeholder={t('Informations complémentaires...')}
                     />
                 </FormField>
                 <div className="dossier-form__actions">
                     <Button type="button" variant="secondary" onClick={onClose}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button type="submit" variant="primary" disabled={isSubmitting}>
-                        {isSubmitting ? 'Envoi...' : 'Envoyer la demande'}
+                        {isSubmitting ? t('Envoi...') : t('Envoyer la demande')}
                     </Button>
                 </div>
             </form>

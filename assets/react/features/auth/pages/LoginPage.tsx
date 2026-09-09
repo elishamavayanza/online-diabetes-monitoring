@@ -5,6 +5,7 @@ import { Card } from "@/react/components/UI/Card";
 import { Alert } from '@/react/components/UI/Alert';
 import { useIsMobile } from '@/react/hooks/useIsMobile';
 import { useSystemSettings } from '@/react/hooks/useSystemSettings';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const SESSION_EXPIRED_KEY = 'diabcare-session-expired';
 
@@ -12,6 +13,7 @@ export function LoginPage() {
     const isMobile = useIsMobile();
     const [showSessionExpired, setShowSessionExpired] = useState(false);
     const { settings } = useSystemSettings();
+    const { t } = useI18n();
 
     const systemName = settings?.systemName || 'OnlineDIAB';
     const brandLogo = settings?.logoUrl || logo;
@@ -35,7 +37,7 @@ export function LoginPage() {
                     className="login-page__session-expired"
                     onClose={() => setShowSessionExpired(false)}
                 >
-                    Votre session a expiré. Veuillez vous reconnecter pour continuer.
+                    {t('Votre session a expiré. Veuillez vous reconnecter pour continuer.')}
                 </Alert>
             )}
             <Card
@@ -63,7 +65,7 @@ export function LoginPage() {
                         className="login-page__subtitle"
                         style={{ fontSize: isMobile ? '0.9rem' : '1.05rem' }}
                     >
-                        Connectez-vous à votre espace
+                        {t('Connectez-vous à votre espace')}
                     </p>
                 </div>
                 <LoginForm />

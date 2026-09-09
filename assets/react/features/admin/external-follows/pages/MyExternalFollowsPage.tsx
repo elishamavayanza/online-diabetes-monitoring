@@ -10,6 +10,7 @@ import type { BadgeVariant } from '@/react/hook-components/UI/Badge';
 import { ExternalFollowInvitation, EXTERNAL_FOLLOW_STATUS_LABELS } from '../types/types';
 import { fetchMyExternalFollows } from '../services/externalFollowsService';
 import { CloseFollowModal } from '../components/CloseFollowModal';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 function formatDate(value: string | null): string {
     if (!value) return '—';
@@ -27,6 +28,7 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
 
 export function MyExternalFollowsPage() {
     const { user } = useAuth();
+    const { t } = useI18n();
     const [follows, setFollows] = useState<ExternalFollowInvitation[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export function MyExternalFollowsPage() {
             const data = await fetchMyExternalFollows();
             setFollows(data);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de la récupération de vos suivis externes.');
+            setError(err instanceof Error ? err.message : t('Erreur lors de la récupération de vos suivis externes.'));
         } finally {
             setIsLoading(false);
         }
@@ -70,8 +72,8 @@ export function MyExternalFollowsPage() {
     if (follows.length === 0) {
         return (
             <div className="my-external-follows-page my-external-follows-page--empty">
-                <h1>Mes suivis externes</h1>
-                <p>Vous ne suivez aucun patient en dehors de votre organisation pour le moment.</p>
+                <h1>{t('Mes suivis externes')}</h1>
+                <p>{t('Vous ne suivez aucun patient en dehors de votre organisation pour le moment.')}</p>
             </div>
         );
     }
@@ -79,7 +81,7 @@ export function MyExternalFollowsPage() {
     return (
         <div className="my-external-follows-page">
             <div className="my-external-follows-page__header">
-                <h1>Mes suivis externes</h1>
+                <h1>{t('Mes suivis externes')}</h1>
                 <span className="my-external-follows-page__count">{follows.length} patient{follows.length > 1 ? 's' : ''}</span>
             </div>
             <div className="my-external-follows-page__list">
@@ -87,8 +89,8 @@ export function MyExternalFollowsPage() {
                     <div key={follow.id} className="my-external-follows-page__item">
                         <div className="my-external-follows-page__item-info">
                             <h3>{follow.patientName}</h3>
-                            <p>Organisation : {follow.organizationName}</p>
-                            <p>Accès jusqu'au : {formatDate(follow.endDate)}</p>
+                            <p>{t('Organisation :')} {follow.organizationName}</p>
+                            <p>{t("Accès jusqu'au :")} {formatDate(follow.endDate)}</p>
                         </div>
                         <div className="my-external-follows-page__item-actions">
                             <Badge variant={STATUS_VARIANT[follow.status] ?? 'default'}>
@@ -97,11 +99,11 @@ export function MyExternalFollowsPage() {
                             {(follow.status === 'ACCEPTED' || follow.status === 'PENDING') && (
                                 <>
                                     <Link to={`/${rolePrefix}/patients/${follow.patientId}/record`}>
-                                        <Button variant="outline" size="small">Voir le dossier</Button>
+                                        <Button variant="outline" size="small">{t('Voir le dossier')}</Button>
                                     </Link>
                                     {follow.status === 'ACCEPTED' && (
                                         <Button variant="danger" size="small" onClick={() => setSelectedToClose(follow)}>
-                                            Fermer mon suivi
+                                            {t('Fermer mon suivi')}
                                         </Button>
                                     )}
                                 </>

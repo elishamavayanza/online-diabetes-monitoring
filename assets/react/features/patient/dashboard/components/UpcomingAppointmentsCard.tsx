@@ -1,4 +1,5 @@
 import { Card } from '@/react/components/UI/Card';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { UpcomingAppointment } from '../types';
 
 interface UpcomingAppointmentsCardProps {
@@ -6,18 +7,20 @@ interface UpcomingAppointmentsCardProps {
 }
 
 export function UpcomingAppointmentsCard({ appointments }: UpcomingAppointmentsCardProps) {
+    const { t } = useI18n();
+
     if (appointments.length === 0) {
         return (
             <Card className="upcoming-appointments-card">
-                <h3>Vos prochains rendez-vous</h3>
-                <p className="upcoming-appointments-card__empty">Aucun rendez-vous à venir.</p>
+                <h3>{t('Vos prochains rendez-vous')}</h3>
+                <p className="upcoming-appointments-card__empty">{t('Aucun rendez-vous à venir.')}</p>
             </Card>
         );
     }
 
     return (
         <Card className="upcoming-appointments-card">
-            <h3>Vos prochains rendez-vous</h3>
+            <h3>{t('Vos prochains rendez-vous')}</h3>
             <ul>
                 {appointments.map((appt) => (
                     <li key={appt.id} className="upcoming-appointments-card__item">
@@ -26,7 +29,7 @@ export function UpcomingAppointmentsCard({ appointments }: UpcomingAppointmentsC
                             <span>{appt.time}</span>
                         </div>
                         <div className="upcoming-appointments-card__info">
-                            <strong>{appt.reason || 'Consultation'}</strong>
+                            <strong>{appt.reason || t('Consultation')}</strong>
                             <span>{appt.doctor}</span>
                         </div>
                     </li>

@@ -9,6 +9,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { SearchInput } from '@/react/components/Forms/SearchInput'; // ✅ import
 import { Professional } from '../types/types';
 import { useAttachedPatients } from '../hooks/useAttachedPatients';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ProfessionalDetailsDrawerProps {
     professional: Professional | null;
@@ -33,6 +34,7 @@ export function ProfessionalDetailsDrawer({
         professional?.id ?? ''
     );
     const [searchTerm, setSearchTerm] = useState('');
+    const { t } = useI18n();
 
     if (!professional) return null;
 
@@ -62,21 +64,21 @@ export function ProfessionalDetailsDrawer({
                 </div>
 
                 <div className="professional-details__body">
-                    <p><strong>Type :</strong> {professional.type}</p>
-                    <p><strong>Spécialité :</strong> {professional.specialite || '—'}</p>
-                    <p><strong>Établissement :</strong> {professional.etablissement || '—'}</p>
-                    <p><strong>Département :</strong> {professional.departement || '—'}</p>
+                    <p><strong>{t('Type :')}</strong> {professional.type}</p>
+                    <p><strong>{t('Spécialité :')}</strong> {professional.specialite || '—'}</p>
+                    <p><strong>{t('Établissement :')}</strong> {professional.etablissement || '—'}</p>
+                    <p><strong>{t('Département :')}</strong> {professional.departement || '—'}</p>
                     <p>
-                        <strong>Statut :</strong>{' '}
+                        <strong>{t('Statut :')}</strong>{' '}
                         <Badge variant={professional.statut === 'Active' ? 'success' : professional.statut === 'Suspended' ? 'warning' : 'error'}>
-                            {professional.statut === 'Suspended' ? 'Suspendu' : professional.statut}
+                            {professional.statut === 'Suspended' ? t('Suspendu') : professional.statut}
                         </Badge>
                     </p>
                 </div>
 
                 {/* Section patients attachés */}
                 <div className="professional-details__patients">
-                    <h3>Patients attachés</h3>
+                    <h3>{t('Patients attachés')}</h3>
 
                     {!isLoading && !error && patients.length > 0 && (
                         <SearchInput
@@ -85,7 +87,7 @@ export function ProfessionalDetailsDrawer({
                                 onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
                                     setSearchTerm(e.target.value),
                             }}
-                            placeholder="Rechercher un patient..."
+                            placeholder={t('Rechercher un patient...')}
                             fullWidth
                         />
                     )}
@@ -95,7 +97,7 @@ export function ProfessionalDetailsDrawer({
                     ) : error ? (
                         <Alert variant="error">{error}</Alert>
                     ) : filteredPatients.length === 0 ? (
-                        <p>Aucun patient trouvé.</p>
+                        <p>{t('Aucun patient trouvé.')}</p>
                     ) : (
                         <ul className="attached-patients-list">
                             {filteredPatients.map((patient) => (
@@ -113,18 +115,18 @@ export function ProfessionalDetailsDrawer({
 
                 <div className="professional-details__actions">
                     <Button variant="primary" onClick={() => onModify(professional)}>
-                        Modifier
+                        {t('Modifier')}
                     </Button>
                     <Button variant="secondary" onClick={() => onAttachPatient(professional)}>
-                        Attacher un patient
+                        {t('Attacher un patient')}
                     </Button>
                     {professional.statut === 'Suspended' ? (
                         <Button variant="success" onClick={() => onReactivate(professional)}>
-                            Réactiver
+                            {t('Réactiver')}
                         </Button>
                     ) : (
                         <Button variant="danger" onClick={() => onSuspend(professional)}>
-                            Suspendre
+                            {t('Suspendre')}
                         </Button>
                     )}
                 </div>

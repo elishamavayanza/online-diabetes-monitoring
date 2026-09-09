@@ -11,6 +11,7 @@ import {
 import { useAuth } from "@/react/app/providers/AuthProvider";
 import { useTheme } from '@/react/hooks/ThemeProvider';
 import { useSystemSettings } from '@/react/hooks/useSystemSettings';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { SettingsItem } from '@/react/features/root/settings/types';
 
 const SunIcon = () => (
@@ -76,6 +77,7 @@ const HomePage: React.FC = () => {
     const { isAuthenticated } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const { settings } = useSystemSettings();
+    const { t } = useI18n();
     const isDark = theme === 'dark';
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -147,10 +149,10 @@ const HomePage: React.FC = () => {
                     <div className={styles.headerRight}>
                         {/* Navigation desktop (visible sur écrans larges) */}
                         <nav className={styles.nav}>
-                            <a href="#about">À propos</a>
-                            <a href="#features">Fonctionnalités</a>
-                            <a href="#users">Pour qui ?</a>
-                            <button className={styles.ctaButton} onClick={goToLogin}>Se connecter</button>
+                            <a href="#about">{t('À propos')}</a>
+                            <a href="#features">{t('Fonctionnalités')}</a>
+                            <a href="#users">{t('Pour qui ?')}</a>
+                            <button className={styles.ctaButton} onClick={goToLogin}>{t('Se connecter')}</button>
                         </nav>
 
                         <div className={styles.headerActions}>
@@ -184,10 +186,10 @@ const HomePage: React.FC = () => {
                 {/* Menu mobile (affiché uniquement si isMenuOpen est true) */}
                 {isMenuOpen && (
                     <div className={styles.mobileMenu}>
-                        <a href="#about" onClick={toggleMenu}>À propos</a>
-                        <a href="#features" onClick={toggleMenu}>Fonctionnalités</a>
-                        <a href="#users" onClick={toggleMenu}>Pour qui ?</a>
-                        <button className={styles.ctaButton} onClick={() => { toggleMenu(); goToLogin(); }}>Se connecter</button>
+                        <a href="#about" onClick={toggleMenu}>{t('À propos')}</a>
+                        <a href="#features" onClick={toggleMenu}>{t('Fonctionnalités')}</a>
+                        <a href="#users" onClick={toggleMenu}>{t('Pour qui ?')}</a>
+                        <button className={styles.ctaButton} onClick={() => { toggleMenu(); goToLogin(); }}>{t('Se connecter')}</button>
                     </div>
                 )}
             </header>
@@ -230,7 +232,7 @@ const HomePage: React.FC = () => {
                             }
                         />
                     </p>
-                    <button className={styles.primaryCta} onClick={goToLogin}>Se connecter</button>
+                    <button className={styles.primaryCta} onClick={goToLogin}>{t('Se connecter')}</button>
                 </div>
                 <div className={styles.heroIllustration}>
                     <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -321,7 +323,7 @@ const HomePage: React.FC = () => {
             <section id="users" className={styles.users}>
                 <div className={styles.usersInner}>
                     <h2>
-                        <Lines text={settings?.usersTitle} fallback={'Pour qui ?'} />
+                        <Lines text={settings?.usersTitle} fallback={t('Pour qui ?')} />
                     </h2>
                     <div className={styles.userBlocks}>
                         {users.map((user, index) => (
@@ -349,7 +351,7 @@ const HomePage: React.FC = () => {
                             fallback={'Découvrez OnlineDIAB et son approche du suivi du diabète.'}
                         />
                     </p>
-                    <button className={styles.primaryCta} onClick={goToLogin}>Se connecter</button>
+                    <button className={styles.primaryCta} onClick={goToLogin}>{t('Se connecter')}</button>
                 </div>
             </section>
 
@@ -370,14 +372,14 @@ const HomePage: React.FC = () => {
                     </div>
                     <div className={styles.footerLinks}>
                         <div>
-                            <h4>Navigation</h4>
-                            <a href="#about">À propos</a>
-                            <a href="#features">Fonctionnalités</a>
-                            <a href="#users">Pour qui ?</a>
+                            <h4>{t('Navigation')}</h4>
+                            <a href="#about">{t('À propos')}</a>
+                            <a href="#features">{t('Fonctionnalités')}</a>
+                            <a href="#users">{t('Pour qui ?')}</a>
                         </div>
                         <div>
-                            <h4>Compte</h4>
-                            <a href="/login" onClick={(event) => { event.preventDefault(); goToLogin(); }}>Se connecter</a>
+                            <h4>{t('Compte')}</h4>
+                            <a href="/login" onClick={(event) => { event.preventDefault(); goToLogin(); }}>{t('Se connecter')}</a>
                         </div>
                     </div>
                     {/* Image/logo à droite */}

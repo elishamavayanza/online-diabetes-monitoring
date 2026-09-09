@@ -3,6 +3,7 @@ import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { Notification, NotificationType } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface NotificationsTableProps {
     notifications: Notification[];
@@ -17,12 +18,13 @@ const typeVariant: Partial<Record<NotificationType, 'success' | 'warning' | 'err
 };
 
 export function NotificationsTable({ notifications, onNotificationClick, onMarkAsRead }: NotificationsTableProps) {
+    const { t } = useI18n();
     const columns = [
-        { key: 'titre', title: 'Titre' },
-        { key: 'message', title: 'Message' },
+        { key: 'titre', title: t('Titre') },
+        { key: 'message', title: t('Message') },
         {
             key: 'type',
-            title: 'Type',
+            title: t('Type'),
             render: (row: Notification) => (
                 <Badge variant={typeVariant[row.type] ?? 'secondary'}>
                     {row.type}
@@ -31,26 +33,26 @@ export function NotificationsTable({ notifications, onNotificationClick, onMarkA
         },
         {
             key: 'estLue',
-            title: 'État',
+            title: t('État'),
             render: (row: Notification) => (
                 <Badge variant={row.estLue ? 'success' : 'warning'}>
-                    {row.estLue ? 'Lue' : 'Non lue'}
+                    {row.estLue ? t('Lue') : t('Non lue')}
                 </Badge>
             ),
         },
-        { key: 'date', title: 'Date' },
+        { key: 'date', title: t('Date') },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: Notification) => (
                 <div className="notifications-table__actions">
                     {!row.estLue && onMarkAsRead && (
                         <Button variant="outline" size="small" onClick={() => onMarkAsRead(row.id)}>
-                            Marquer lue
+                            {t('Marquer lue')}
                         </Button>
                     )}
                     <Button variant="secondary" size="small" onClick={() => onNotificationClick(row)}>
-                        Détails
+                        {t('Détails')}
                     </Button>
                 </div>
             ),

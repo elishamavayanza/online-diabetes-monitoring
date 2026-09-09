@@ -5,6 +5,7 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Input } from '@/react/components/Forms/Input';
 import { Textarea } from '@/react/components/Forms/Textarea';
 import { Button } from '@/react/components/UI/Button';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { SettingsData, SettingsItem } from '../types';
 
 interface HomeSettingsProps {
@@ -15,16 +16,17 @@ interface HomeSettingsProps {
 }
 
 export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSettingsProps) {
+    const { t } = useI18n();
     return (
         <Card className="settings-card">
-            <h2>Page d’accueil</h2>
+            <h2>{t('Page d\u2019accueil')}</h2>
             <Form
                 onSubmit={(e: React.FormEvent) => {
                     e.preventDefault();
                     onSave();
                 }}
             >
-                <FormField label="Titre (héro)">
+                <FormField label={t('Titre (héro)')}>
                     <Textarea
                         rows={2}
                         value={settings.heroTitle}
@@ -34,7 +36,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Sous-titre (héro)">
+                <FormField label={t('Sous-titre (héro)')}>
                     <Textarea
                         rows={3}
                         value={settings.heroSubtitle}
@@ -44,7 +46,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Titre (À propos)">
+                <FormField label={t('Titre (À propos)')}>
                     <Input
                         value={settings.aboutTitle}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -53,7 +55,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Contenu (À propos)">
+                <FormField label={t('Contenu (À propos)')}>
                     <Textarea
                         rows={4}
                         value={settings.aboutContent}
@@ -63,7 +65,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Titre (Fonctionnalités)">
+                <FormField label={t('Titre (Fonctionnalités)')}>
                     <Input
                         value={settings.featuresTitle}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -72,14 +74,14 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Fonctionnalités">
+                <FormField label={t('Fonctionnalités')}>
                     <ItemsEditor
                         items={settings.features}
                         onChange={(features) => onChange({ features })}
                     />
                 </FormField>
 
-                <FormField label="Titre (Pour qui ?)">
+                <FormField label={t('Titre (Pour qui ?)')}>
                     <Input
                         value={settings.usersTitle}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -88,14 +90,14 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Publics cibles">
+                <FormField label={t('Publics cibles')}>
                     <ItemsEditor
                         items={settings.users}
                         onChange={(users) => onChange({ users })}
                     />
                 </FormField>
 
-                <FormField label="Titre (appel à l’action)">
+                <FormField label={t('Titre (appel à l\u2019action)')}>
                     <Textarea
                         rows={2}
                         value={settings.ctaTitle}
@@ -105,7 +107,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Sous-titre (appel à l’action)">
+                <FormField label={t('Sous-titre (appel à l\u2019action)')}>
                     <Textarea
                         rows={2}
                         value={settings.ctaSubtitle}
@@ -115,7 +117,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Slogan du pied de page">
+                <FormField label={t('Slogan du pied de page')}>
                     <Textarea
                         rows={2}
                         value={settings.footerTagline}
@@ -125,7 +127,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                     />
                 </FormField>
 
-                <FormField label="Copyright">
+                <FormField label={t('Copyright')}>
                     <Input
                         value={settings.footerCopyright}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -135,7 +137,7 @@ export function HomeSettings({ settings, onChange, onSave, isSaving }: HomeSetti
                 </FormField>
 
                 <Button type="submit" disabled={isSaving}>
-                    {isSaving ? 'Enregistrement...' : 'Enregistrer'}
+                    {isSaving ? t('Enregistrement...') : t('Enregistrer')}
                 </Button>
             </Form>
         </Card>
@@ -162,6 +164,7 @@ interface ItemsEditorProps {
 }
 
 function ItemsEditor({ items, onChange }: ItemsEditorProps) {
+    const { t } = useI18n();
     const update = (index: number, patch: Partial<SettingsItem>) => {
         const next = items.map((item, i) => (i === index ? { ...item, ...patch } : item));
         onChange(next);
@@ -180,14 +183,14 @@ function ItemsEditor({ items, onChange }: ItemsEditorProps) {
             {items.map((item, index) => (
                 <div className="settings-items__row" key={index}>
                     <Input
-                        placeholder="Titre"
+                        placeholder={t('Titre')}
                         value={item.title}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             update(index, { title: e.target.value })
                         }
                     />
                     <Input
-                        placeholder="Description"
+                        placeholder={t('Description')}
                         value={item.description}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             update(index, { description: e.target.value })
@@ -197,8 +200,8 @@ function ItemsEditor({ items, onChange }: ItemsEditorProps) {
                         type="button"
                         className="settings-items__remove"
                         onClick={() => remove(index)}
-                        aria-label="Supprimer l’élément"
-                        title="Supprimer"
+                        aria-label={t('Supprimer l\u2019élément')}
+                        title={t('Supprimer')}
                     >
                         <TrashIcon />
                     </button>
@@ -206,7 +209,7 @@ function ItemsEditor({ items, onChange }: ItemsEditorProps) {
             ))}
             <button type="button" className="settings-items__add" onClick={add}>
                 <AddIcon />
-                Ajouter un élément
+                {t('Ajouter un élément')}
             </button>
         </div>
     );

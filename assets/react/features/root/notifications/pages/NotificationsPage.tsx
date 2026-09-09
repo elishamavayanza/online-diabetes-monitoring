@@ -8,10 +8,12 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Tabs } from '@/react/components/Navigation/Tabs';
 import { Button } from '@/react/components/UI/Button';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/root/notifications/_notifications.scss';
 import { Notification } from '../types';
 
 export function NotificationsPage() {
+    const { t } = useI18n();
     const { notifications, filter, setFilter, markAsRead, reload, isLoading, error } = useNotifications();
     const { pushAction } = useActionHistory();
     const [publishOpen, setPublishOpen] = useState(false);
@@ -19,9 +21,9 @@ export function NotificationsPage() {
     const [detailsOpen, setDetailsOpen] = useState(false);
 
     const tabs = [
-        { id: 'Toutes', label: 'Toutes' },
-        { id: 'Non lues', label: 'Non lues' },
-        { id: 'Alertes système', label: 'Alertes système' },
+        { id: 'Toutes', label: t('Toutes') },
+        { id: 'Non lues', label: t('Non lues') },
+        { id: 'Alertes système', label: t('Alertes système') },
     ];
 
     const handleFilterChange = (newFilter: string) => {
@@ -46,13 +48,13 @@ export function NotificationsPage() {
     return (
         <div className="notifications-page">
             <div className="notifications-page__header">
-                <h1>Notifications</h1>
-                <p>Gérez les notifications système et les alertes</p>
+                <h1>{t('Notifications')}</h1>
+                <p>{t('Gérez les notifications système et les alertes')}</p>
             </div>
 
             <div className="notifications-page__actions">
                 <Button variant="primary" onClick={openPublishModal}>
-                    Publier une alerte
+                    {t('Publier une alerte')}
                 </Button>
             </div>
 

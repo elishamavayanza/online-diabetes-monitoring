@@ -16,6 +16,8 @@ export interface AuthUser {
     /** URL de la photo de profil (optionnel) */
     photoUrl?: string;
     organizationId?: string;
+    /** Langue de l'interface choisie par l'utilisateur (ex. 'fr', 'en') */
+    locale?: string;
 }
 
 export interface AuthResponse {

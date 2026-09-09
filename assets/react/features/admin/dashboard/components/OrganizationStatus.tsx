@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { OrganizationStatusItem } from '../types';
@@ -7,9 +8,11 @@ interface OrganizationStatusProps {
 }
 
 export function OrganizationStatus({ items }: OrganizationStatusProps) {
+    const { t } = useI18n();
+
     return (
         <Card className="org-status">
-            <h2 className="section-title">État de l'organisation</h2>
+            <h2 className="section-title">{t("État de l'organisation")}</h2>
             <ul className="org-status__list">
                 {items.map((item) => (
                     <li key={item.id} className="org-status__item">

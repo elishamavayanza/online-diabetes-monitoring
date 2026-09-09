@@ -51,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         role: role,
                         photoUrl: resolveAvatarUrl(payload.photoUrl ?? payload.avatarUrl),
                         organizationId: organizations[0]?.organization_id,
+                        locale: (payload.locale as string) ?? 'fr',
                     };
                     setUser(restoredUser);
 
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         const profile = await fetchUserProfile(restoredUser.id);
                         if (isMounted) {
                             setUser((currentUser) => currentUser && currentUser.id === restoredUser.id
-                                ? { ...currentUser, name: profile.name || currentUser.name, photoUrl: resolveAvatarUrl(profile.avatarUrl) }
+                                ? { ...currentUser, name: profile.name || currentUser.name, photoUrl: resolveAvatarUrl(profile.avatarUrl), locale: profile.locale || currentUser.locale }
                                 : currentUser
                             );
                         }

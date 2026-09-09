@@ -9,6 +9,7 @@ import { ProfessionalFormFields } from "@/react/features/root/users/components/P
 import { AddressFields } from "@/react/features/root/users/components/AddressFields";
 import { AvatarUpload } from "@/react/features/root/users/components/AvatarUpload";
 import { useProfessionalCreatePage } from '../hooks/useProfessionalCreatePage';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/admin/professionals/_professional-create.scss';
 
 export function ProfessionalCreatePage() {
@@ -17,16 +18,17 @@ export function ProfessionalCreatePage() {
         step, patients, selectedPatients, isLoadingPatients, patientsError, steps, activeStepId,
         handleStepChange, handleNext, handlePrev, togglePatient, toggleAllPatients,
     } = useProfessionalCreatePage();
+    const { t } = useI18n();
 
     const renderStepContent = () => {
         switch (step) {
             case 0:
                 return (
                     <div className="step-infos-address">
-                        <Card header={<h3>Informations</h3>}>
+                        <Card header={<h3>{t('Informations')}</h3>}>
                             <ProfessionalFormFields form={form} updateField={updateField} />
                         </Card>
-                        <Card header={<h3>Adresse</h3>}>
+                        <Card header={<h3>{t('Adresse')}</h3>}>
                             <AddressFields address={form.address} onChange={updateAddress} />
                         </Card>
                     </div>
@@ -47,7 +49,7 @@ export function ProfessionalCreatePage() {
                         {isLoadingPatients ? (
                             <div className="step-attach-patients__loading">
                                 <Spinner />
-                                <p>Chargement des patients...</p>
+                                <p>{t('Chargement des patients...')}</p>
                             </div>
                         ) : patientsError ? (
                             <Alert variant="error">{patientsError}</Alert>
@@ -56,16 +58,16 @@ export function ProfessionalCreatePage() {
                                 className="attach-patients-card"
                                 header={
                                     <div className="attach-patients-card__header">
-                                        <h3>Patients de l'organisation</h3>
+                                        <h3>{t('Patients de l\'organisation')}</h3>
                                         <span className="attach-patients-card__count">
-                                          {selectedPatients.length} sélectionné(s)
+                                          {selectedPatients.length} {t('sélectionné(s)')}
                                         </span>
                                     </div>
                                 }
                                 footer={
                                     <div className="attach-patients-card__footer">
                                         <Checkbox
-                                            label="Tout sélectionner"
+                                            label={t('Tout sélectionner')}
                                             checked={selectedPatients.length === patients.length}
                                             onChange={toggleAllPatients}
                                         />
@@ -97,12 +99,12 @@ export function ProfessionalCreatePage() {
                 return (
                     <div className="step-summary">
                         <div className="step-summary__header">
-                            <h3>Vérifiez les informations</h3>
+                            <h3>{t('Vérifiez les informations')}</h3>
                         </div>
                         <div className="step-summary__content">
                             <div className="step-summary__avatar">
                                 {form.avatarUrl ? (
-                                    <img src={form.avatarUrl} alt="Avatar" className="avatar-image" />
+                                    <img src={form.avatarUrl} alt={t('Avatar')} className="avatar-image" />
                                 ) : (
                                     <div className="avatar-placeholder">
                                         {form.fullName?.charAt(0)?.toUpperCase() || '?'}
@@ -110,14 +112,14 @@ export function ProfessionalCreatePage() {
                                 )}
                             </div>
                             <div className="step-summary__details">
-                                <p><strong>Nom complet :</strong> {form.fullName}</p>
-                                <p><strong>Email :</strong> {form.email}</p>
-                                <p><strong>Téléphone :</strong> {form.phone || '—'}</p>
-                                <p><strong>Genre :</strong> {form.gender}</p>
-                                <p><strong>Licence :</strong> {form.licenseNumber || '—'}</p>
-                                <p><strong>Spécialité :</strong> {form.specialty || '—'}</p>
-                                <p><strong>Adresse :</strong> {form.address.street} {form.address.city} {form.address.postalCode} {form.address.country}</p>
-                                <p><strong>Patients attachés :</strong> {selectedPatients.length}</p>
+                                <p><strong>{t('Nom complet :')}</strong> {form.fullName}</p>
+                                <p><strong>{t('Email :')}</strong> {form.email}</p>
+                                <p><strong>{t('Téléphone :')}</strong> {form.phone || '—'}</p>
+                                <p><strong>{t('Genre :')}</strong> {form.gender}</p>
+                                <p><strong>{t('Licence :')}</strong> {form.licenseNumber || '—'}</p>
+                                <p><strong>{t('Spécialité :')}</strong> {form.specialty || '—'}</p>
+                                <p><strong>{t('Adresse :')}</strong> {form.address.street} {form.address.city} {form.address.postalCode} {form.address.country}</p>
+                                <p><strong>{t('Patients attachés :')}</strong> {selectedPatients.length}</p>
                             </div>
                         </div>
                     </div>
@@ -130,8 +132,8 @@ export function ProfessionalCreatePage() {
     return (
         <div className="professional-create-page">
             <div className="professional-create-page__header">
-                <h1>Ajouter un professionnel</h1>
-                <p>Complétez les informations, la photo et attachez des patients</p>
+                <h1>{t('Ajouter un professionnel')}</h1>
+                <p>{t('Complétez les informations, la photo et attachez des patients')}</p>
             </div>
             {error && <Alert variant="error">{error}</Alert>}
 
@@ -150,16 +152,16 @@ export function ProfessionalCreatePage() {
             <div className="professional-create-page__footer">
                 {step > 0 && (
                     <Button variant="outline" onClick={handlePrev}>
-                        Précédent
+                        {t('Précédent')}
                     </Button>
                 )}
                 {step < steps.length - 1 ? (
                     <Button variant="primary" onClick={handleNext}>
-                        Suivant
+                        {t('Suivant')}
                     </Button>
                 ) : (
                     <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
-                        {isSubmitting ? 'Création...' : 'Créer'}
+                        {isSubmitting ? t('Création...') : t('Créer')}
                     </Button>
                 )}
             </div>

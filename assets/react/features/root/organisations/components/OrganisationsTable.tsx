@@ -6,6 +6,7 @@ import { Button } from '@/react/components/UI/Button';
 import { Tooltip } from '@/react/components/UI/Tooltip';
 import { TreeNode } from '@/react/hook-components/Data/Tree/types';
 import { EyeIcon, ModifyIcon, SuspendIcon, AdminIcon } from './OrganisationIcons';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface OrganisationsTableProps {
     treeNodes: TreeNode[];
@@ -24,6 +25,7 @@ export function OrganisationsTable({
                                        onReactivate,
                                        onAddAdmin,
                                    }: OrganisationsTableProps) {
+    const { t } = useI18n();
     const organisations = treeNodes;
 
     const columns = [
@@ -56,52 +58,52 @@ export function OrganisationsTable({
         },
         {
             key: 'nom',
-            title: 'Nom',
+            title: t('Nom'),
             render: (node: TreeNode) => <span>{node.label}</span>,
         },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (node: TreeNode) => {
                 const data = node.data as Record<string, unknown> | undefined;
                 return (
                 <div className="organisations-table__actions">
-                    <Tooltip content="Détail">
+                    <Tooltip content={t('Détail')}>
                         <IconButton
                             onClick={() => onDetail?.(node)}
-                            aria-label="Voir détails"
+                            aria-label={t('Voir détails')}
                             icon={<EyeIcon />}
                         />
                     </Tooltip>
-                    <Tooltip content="Modifier">
+                    <Tooltip content={t('Modifier')}>
                         <IconButton
                             onClick={() => onModify?.(node)}
-                            aria-label="Modifier"
+                            aria-label={t('Modifier')}
                             icon={<ModifyIcon />}
                         />
                     </Tooltip>
-                    <Tooltip content="Ajouter un admin">
+                    <Tooltip content={t('Ajouter un admin')}>
                         <IconButton
                             onClick={() => onAddAdmin?.(node)}
-                            aria-label="Ajouter un admin"
+                            aria-label={t('Ajouter un admin')}
                             icon={<AdminIcon />}
                         />
                     </Tooltip>
-                    <Tooltip content="Suspendre">
+                    <Tooltip content={t('Suspendre')}>
                         <IconButton
                             onClick={() => onSuspend?.(node)}
-                            aria-label="Suspendre"
+                            aria-label={t('Suspendre')}
                             icon={<SuspendIcon />}
                         />
                     </Tooltip>
                     {data?.dataType === 'organisation' && data?.active === false && (
-                        <Tooltip content="Réactiver">
+                        <Tooltip content={t('Réactiver')}>
                             <Button
                                 variant="success"
                                 size="small"
                                 onClick={() => onReactivate?.(node)}
                             >
-                                Réactiver
+                                {t('Réactiver')}
                             </Button>
                         </Tooltip>
                     )}

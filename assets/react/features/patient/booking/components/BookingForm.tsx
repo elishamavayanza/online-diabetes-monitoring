@@ -6,8 +6,10 @@ import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { useBooking } from '../hooks/useBooking';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export function BookingForm() {
+    const { t } = useI18n();
     const {
         professionals,
         slots,
@@ -21,7 +23,7 @@ export function BookingForm() {
     } = useBooking();
 
     if (isLoading) return <Spinner />;
-    if (success) return <Alert variant="success">Rendez-vous confirmé !</Alert>;
+    if (success) return <Alert variant="success">{t('Rendez-vous confirmé !')}</Alert>;
 
     const professionalOptions = professionals.map((p) => ({
         value: p.id,
@@ -34,7 +36,7 @@ export function BookingForm() {
 
     return (
         <Card className="booking-card">
-            <h2>Prendre rendez-vous</h2>
+            <h2>{t('Prendre rendez-vous')}</h2>
             {error && <Alert variant="error">{error}</Alert>}
             <form
                 onSubmit={(e) => {
@@ -42,38 +44,38 @@ export function BookingForm() {
                     submit();
                 }}
             >
-                <FormField label="Professionnel">
+                <FormField label={t('Professionnel')}>
                     <Select
                         value={form.professionnelId}
                         onChange={(e) => updateForm('professionnelId', e.target.value)}
                         options={professionalOptions}
-                        placeholder="Choisir un professionnel"
+                        placeholder={t('Choisir un professionnel')}
                     />
                 </FormField>
-                <FormField label="Date">
+                <FormField label={t('Date')}>
                     <Input
                         type="date"
                         value={form.date}
                         onChange={(e) => updateForm('date', e.target.value)}
                     />
                 </FormField>
-                <FormField label="Heure">
+                <FormField label={t('Heure')}>
                     <Select
                         value={form.heure}
                         onChange={(e) => updateForm('heure', e.target.value)}
                         options={slotOptions}
-                        placeholder="Choisir une heure"
+                        placeholder={t('Choisir une heure')}
                     />
                 </FormField>
-                <FormField label="Motif">
+                <FormField label={t('Motif')}>
                     <Input
                         value={form.motif}
                         onChange={(e) => updateForm('motif', e.target.value)}
-                        placeholder="Motif de la consultation"
+                        placeholder={t('Motif de la consultation')}
                     />
                 </FormField>
                 <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Confirmation...' : 'Confirmer'}
+                    {isSubmitting ? t('Confirmation...') : t('Confirmer')}
                 </Button>
             </form>
         </Card>
