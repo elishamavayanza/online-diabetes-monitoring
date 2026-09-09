@@ -41,4 +41,21 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * Retourne tous les utilisateurs actifs possédant le rôle donné
+     * (ex. "ROLE_PATIENT"). Correspond au « niveau de publication » ROLE.
+     *
+     * @return User[]
+     */
+    public function findByRole(string $role): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.roles LIKE :roleJson')
+            ->andWhere('u.deletedAt IS NULL')
+            ->setParameter('roleJson', '%"' . $role . '"%')
+            ->orderBy('u.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

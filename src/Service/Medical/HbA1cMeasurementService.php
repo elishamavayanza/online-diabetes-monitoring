@@ -21,7 +21,8 @@ class HbA1cMeasurementService
         private readonly HbA1cMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly OwnershipGuardService $ownershipGuard
+        private readonly OwnershipGuardService $ownershipGuard,
+        private readonly PatientAlarmService $alarmService
     ) {}
 
     public function create(string $patientId, HbA1cMeasurementRequestDTO $dto): Feedback
@@ -40,6 +41,9 @@ class HbA1cMeasurementService
 
             $this->entityManager->persist($measurement);
             $this->entityManager->flush();
+
+            // Alarme automatique si l'HbA1c dépasse l'objectif
+            $this->alarmService->evaluateHbA1c($measurement);
 
             $feedback->setData($this->mapper->mapEntityToResponse($measurement))
                 ->setFlushDescription("Mesure HbA1c enregistrée avec succès.")

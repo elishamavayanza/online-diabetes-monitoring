@@ -8,25 +8,25 @@ const mapBackendType = (backendType: string): PatientNotification['type'] => {
     switch (backendType) {
         case 'MEDICATION_REMINDER':
             return 'MEDICATION_REMINDER';
-        case 'APPOINTMENT':
+        case 'APPOINTMENT_REMINDER':
             return 'APPOINTMENT';
-        case 'NEW_MESSAGE':
+        case 'MESSAGE_RECEIVED':
             return 'NEW_MESSAGE';
         case 'PRESCRIPTION_UPDATED':
             return 'PRESCRIPTION_UPDATED';
         case 'MEASUREMENT_REMINDER':
             return 'MEASUREMENT_REMINDER';
+        case 'SYSTEM_ALERT':
+            return 'SYSTEM_ALERT';
         default:
-            // Si le type n'est pas reconnu, on le met dans NEW_MESSAGE ou on le laisse ?
-            // On peut aussi retourner 'NEW_MESSAGE' par défaut.
             return 'NEW_MESSAGE';
     }
 };
 
-// Formater la date si nécessaire (le backend renvoie probablement un ISO string)
+// Formater la date si nécessaire (le backend renvoie un ISO string)
 const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toISOString().slice(0, 19).replace('T', ' '); // format 'YYYY-MM-DD HH:mm'
+    return date.toLocaleString('fr-FR'); // format lisible en français
 };
 
 export async function fetchPatientNotifications(
@@ -39,11 +39,11 @@ export async function fetchPatientNotifications(
     // Mapping des données backend vers le type PatientNotification
     const mapped = notifications.map((n: any) => ({
         id: n.id,
-        titre: n.title || n.titre || '',
-        message: n.content || n.message || '',
+        titre: n.title || '',
+        message: n.body || n.message || '',
         type: mapBackendType(n.type),
-        estLue: n.isRead ?? n.estLue ?? false, // selon le champ backend
-        date: formatDate(n.createdAt || n.date || new Date().toISOString()),
+        estLue: !!n.readAt,
+        date: formatDate(n.createdAt || new Date().toISOString()),
     }));
 
     // Filtre côté client

@@ -1,59 +1,61 @@
+import apiClient from '@/services/api/client';
+import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback';
 import {
     Notification,
     NotificationFilter,
     CreateSystemNotificationPayload,
 } from '../types';
 
-export async function fetchNotifications(filter: NotificationFilter): Promise<Notification[]> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+interface BackendNotification {
+    id: string;
+    type: string | null;
+    title: string;
+    body: string;
+    channel: string | null;
+    readAt: string | null;
+    createdAt: string;
+}
 
-    const all: Notification[] = [
-        {
-            id: '1',
-            titre: 'Alerte système',
-            message: 'Une mise à jour critique est disponible.',
-            type: 'SYSTEM_ALERT',
-            estLue: false,
-            date: '2026-08-25 09:00',
-        },
-        {
-            id: '2',
-            titre: 'Message reçu',
-            message: 'Nouveau message de la part du support.',
-            type: 'MESSAGE_RECEIVED',
-            estLue: false,
-            date: '2026-08-24 17:45',
-        },
-        {
-            id: '3',
-            titre: 'Prescription mise à jour',
-            message: 'Une prescription a été modifiée par Dr. Jean.',
-            type: 'PRESCRIPTION_UPDATED',
-            estLue: true,
-            date: '2026-08-23 11:20',
-        },
-        {
-            id: '4',
-            titre: 'Alerte système',
-            message: 'Sauvegarde automatique effectuée avec succès.',
-            type: 'SYSTEM_ALERT',
-            estLue: true,
-            date: '2026-08-22 03:00',
-        },
-    ];
+const typeMapping: Record<string, Notification['type']> = {
+    MEDICATION_REMINDER: 'MEDICATION_REMINDER',
+    APPOINTMENT_REMINDER: 'APPOINTMENT_REMINDER',
+    MEASUREMENT_REMINDER: 'MEASUREMENT_REMINDER',
+    MESSAGE_RECEIVED: 'MESSAGE_RECEIVED',
+    PRESCRIPTION_UPDATED: 'PRESCRIPTION_UPDATED',
+    SYSTEM_ALERT: 'SYSTEM_ALERT',
+};
+
+function mapNotification(n: BackendNotification): Notification {
+    return {
+        id: n.id,
+        titre: n.title,
+        message: n.body,
+        type: typeMapping[n.type ?? ''] ?? 'SYSTEM_ALERT',
+        estLue: !!n.readAt,
+        date: n.createdAt ? new Date(n.createdAt).toLocaleString('fr-FR') : '',
+    };
+}
+
+export async function fetchNotifications(filter: NotificationFilter): Promise<Notification[]> {
+    const response = await apiClient.get<ApiFeedback<BackendNotification[]>>('/notifications/me');
+    const data = unwrapApiData(response.data, 'Erreur lors du chargement des notifications.');
+
+    const mapped = data.map(mapNotification);
 
     switch (filter) {
         case 'Non lues':
-            return all.filter((n) => !n.estLue);
+            return mapped.filter((n) => !n.estLue);
         case 'Alertes système':
-            return all.filter((n) => n.type === 'SYSTEM_ALERT');
+            return mapped.filter((n) => n.type === 'SYSTEM_ALERT');
         default:
-            return all;
+            return mapped;
     }
 }
 
 export async function publishSystemNotification(payload: CreateSystemNotificationPayload): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log('Notification système publiée', payload);
-    // Appel API réel à implémenter
+    await apiClient.post<ApiFeedback<null>>('/notifications', payload);
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<void> {
+    await apiClient.patch<ApiFeedback<null>>(`/notifications/${notificationId}/read`);
 }

@@ -3,7 +3,8 @@ export type PatientNotificationType =
     | 'APPOINTMENT'
     | 'NEW_MESSAGE'
     | 'PRESCRIPTION_UPDATED'
-    | 'MEASUREMENT_REMINDER';
+    | 'MEASUREMENT_REMINDER'
+    | 'SYSTEM_ALERT';
 
 export interface PatientNotification {
     id: string;

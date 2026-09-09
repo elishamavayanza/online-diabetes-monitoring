@@ -46,8 +46,6 @@ export async function fetchClinicianNotifications(
 }
 
 export async function markNotificationAsRead(notificationId: string): Promise<void> {
-    const response = await apiClient.patch<ApiFeedback<unknown>>(`/notifications/${notificationId}`, {
-        readAt: new Date().toISOString(),
-    });
+    const response = await apiClient.patch<ApiFeedback<unknown>>(`/notifications/${notificationId}/read`);
     unwrapApiData(response.data, "Erreur lors du marquage de la notification comme lue.");
 }

@@ -13,8 +13,8 @@ class NotificationRequestDTO
 {
     public function __construct(
         #[Assert\NotBlank]
-        #[Assert\Choice(choices: ['USER', 'ORGANIZATION', 'GLOBAL'], message: 'Le scope doit être USER, ORGANIZATION ou GLOBAL.')]
-        #[OA\Property(description: 'Portée de la notification (USER, ORGANIZATION, GLOBAL)', type: 'string', example: 'USER')]
+        #[Assert\Choice(choices: ['USER', 'ORGANIZATION', 'ROLE', 'GLOBAL'], message: 'Le scope doit être USER, ORGANIZATION, ROLE ou GLOBAL.')]
+        #[OA\Property(description: 'Portée de la notification (USER, ORGANIZATION, ROLE, GLOBAL)', type: 'string', example: 'USER')]
         public readonly string $scope,
 
         #[OA\Property(description: 'Requis si scope = USER', type: 'string', format: 'uuid', example: '19', nullable: true)]
@@ -22,6 +22,9 @@ class NotificationRequestDTO
 
         #[OA\Property(description: 'Requis si scope = ORGANIZATION', type: 'string', format: 'uuid', example: 'org-uuid-1234', nullable: true)]
         public readonly ?string $organizationId = null,
+
+        #[OA\Property(description: 'Requis si scope = ROLE — niveau de publication (ROLE_ROOT, ROLE_ADMIN, ROLE_CLINICIAN, ROLE_NUTRITIONIST, ROLE_PATIENT)', type: 'string', example: 'ROLE_PATIENT', nullable: true)]
+        public readonly ?string $role = null,
 
         #[Assert\NotBlank]
         #[OA\Property(description: 'Type de notification', type: 'string', example: 'ALERT')]

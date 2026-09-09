@@ -52,7 +52,7 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             id: "system",
             label: "Système",
             items: [
-                // { id: "root-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/root/notifications", permission: "NOTIFICATION_VIEW" },
+                { id: "root-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/root/notifications", permission: "NOTIFICATION_VIEW" },
                 // { id: "audit-logs", label: "Journaux d’audit", icon: <AuditIcon />, route: "/root/audit", permission: "AUDIT_VIEW" },
             ],
         },
@@ -110,15 +110,15 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
                 { id: "organization-reports", label: "Rapport organisation", icon: <ActivityIcon />, route: "/admin/reports", permission: "DASHBOARD_VIEW" },
             ],
         },
-        // {
-        //     id: "activity-admin",
-        //     label: "Activité",
-        //     items: [
-        //         // { id: "admin-appointments", label: "Rendez-vous", icon: <AppointmentsIcon />, route: "/admin/appointments", permission: "APPOINTMENT_VIEW" },
-        //         // { id: "activity-log", label: "Activité", icon: <ActivityIcon />, route: "/admin/activity", permission: "ACTIVITY_VIEW" },
-        //         // { id: "admin-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/admin/notifications", permission: "NOTIFICATION_VIEW" },
-        //     ],
-        // },
+        {
+            id: "activity-admin",
+            label: "Notifications",
+            items: [
+                // { id: "admin-appointments", label: "Rendez-vous", icon: <AppointmentsIcon />, route: "/admin/appointments", permission: "APPOINTMENT_VIEW" },
+                // { id: "activity-log", label: "Activité", icon: <ActivityIcon />, route: "/admin/activity", permission: "ACTIVITY_VIEW" },
+                { id: "admin-notifications", label: "Notifications", icon: <NotificationsIcon />, route: "/admin/notifications", permission: "NOTIFICATION_VIEW" },
+            ],
+        },
 
         // {
         //     id: "settings-admin",

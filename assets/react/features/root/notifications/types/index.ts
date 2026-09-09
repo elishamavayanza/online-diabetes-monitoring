@@ -20,8 +20,8 @@ export interface Notification {
 // Filtre pour la liste des notifications
 export type NotificationFilter = 'Toutes' | 'Non lues' | 'Alertes système';
 
-// Portée d'une notification système
-export type NotificationScope = 'USER' | 'ORGANIZATION' | 'GLOBAL';
+// Portée d'une notification système (niveau de publication)
+export type NotificationScope = 'USER' | 'ORGANIZATION' | 'ROLE' | 'GLOBAL';
 export type NotificationChannel = 'PUSH' | 'EMAIL' | 'SMS' | 'IN_APP';
 
 // Payload pour publier une notification système
@@ -29,6 +29,7 @@ export interface CreateSystemNotificationPayload {
     scope: NotificationScope;
     userId?: string;
     organizationId?: string;
+    role?: string;
     type: NotificationType;       // ✅ maintenant correct
     title: string;
     body: string;
@@ -36,3 +37,12 @@ export interface CreateSystemNotificationPayload {
     relatedEntityType?: string;
     relatedEntityId?: string;
 }
+
+// Niveaux de publication par rôle
+export const PUBLICATION_ROLES = [
+    { value: 'ROLE_ROOT', label: 'Root (super admin)' },
+    { value: 'ROLE_ADMIN', label: 'Administrateurs' },
+    { value: 'ROLE_CLINICIAN', label: 'Cliniciens' },
+    { value: 'ROLE_NUTRITIONIST', label: 'Nutritionnistes' },
+    { value: 'ROLE_PATIENT', label: 'Patients' },
+] as const;

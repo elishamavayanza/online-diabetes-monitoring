@@ -31,4 +31,18 @@ class ReminderRuleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return ReminderRule[]
+     */
+    public function findAllActive(): array
+    {
+        return $this->createQueryBuilder('rr')
+            ->andWhere('rr.active = :active')
+            ->andWhere('rr.deletedAt IS NULL')
+            ->setParameter('active', true)
+            ->orderBy('rr.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -45,6 +45,13 @@ class ReminderRule extends BaseEntity
     private bool $active = true;
 
     /**
+     * @var \DateTimeImmutable|null Dernière exécution de la règle
+     * (évite les envois en double lors d'une même minute de planification).
+     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastTriggeredAt = null;
+
+    /**
      * Récupère le patient associé.
      */
     public function getPatient(): ?Patient
@@ -126,6 +133,23 @@ class ReminderRule extends BaseEntity
     public function setActive(bool $active): static
     {
         $this->active = $active;
+        return $this;
+    }
+
+    /**
+     * Récupère la dernière date d'exécution de la règle.
+     */
+    public function getLastTriggeredAt(): ?\DateTimeImmutable
+    {
+        return $this->lastTriggeredAt;
+    }
+
+    /**
+     * Définit la dernière date d'exécution de la règle.
+     */
+    public function setLastTriggeredAt(?\DateTimeImmutable $lastTriggeredAt): static
+    {
+        $this->lastTriggeredAt = $lastTriggeredAt;
         return $this;
     }
 }

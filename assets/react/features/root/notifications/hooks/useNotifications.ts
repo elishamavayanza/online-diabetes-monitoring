@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { fetchNotifications } from '../services/notificationsService';
+import { useCallback, useEffect, useState } from 'react';
+import { fetchNotifications, markNotificationAsRead } from '../services/notificationsService';
 import { Notification, NotificationFilter } from '../types';
 
 export function useNotifications() {
@@ -8,21 +8,33 @@ export function useNotifications() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const load = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const data = await fetchNotifications(filter);
-                setNotifications(data);
-            } catch (err) {
-                setError('Impossible de charger les notifications.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        load();
+    const reload = useCallback(async (currentFilter: NotificationFilter = filter) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const data = await fetchNotifications(currentFilter);
+            setNotifications(data);
+        } catch (err) {
+            setError('Impossible de charger les notifications.');
+        } finally {
+            setIsLoading(false);
+        }
     }, [filter]);
 
-    return { notifications, filter, setFilter, isLoading, error };
+    useEffect(() => {
+        reload();
+    }, [reload, filter]);
+
+    const markAsRead = useCallback(async (id: string) => {
+        try {
+            await markNotificationAsRead(id);
+            setNotifications((prev) =>
+                prev.map((n) => (n.id === id ? { ...n, estLue: true } : n))
+            );
+        } catch {
+            setError('Erreur lors du marquage de la notification.');
+        }
+    }, []);
+
+    return { notifications, filter, setFilter, markAsRead, reload, isLoading, error };
 }

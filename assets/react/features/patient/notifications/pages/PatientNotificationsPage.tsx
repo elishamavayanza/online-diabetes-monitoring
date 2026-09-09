@@ -36,6 +36,7 @@ export function PatientNotificationsPage() {
                 defaultActiveTabId={filter}
                 onChange={handleFilterChange}
             />
+            <NotificationsTable notifications={notifications} onMarkAsRead={markAsRead} />
         </div>
     );
 }

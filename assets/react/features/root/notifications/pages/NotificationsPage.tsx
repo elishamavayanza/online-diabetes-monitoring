@@ -12,7 +12,7 @@ import '@/styles/pages/root/notifications/_notifications.scss';
 import { Notification } from '../types';
 
 export function NotificationsPage() {
-    const { notifications, filter, setFilter, isLoading, error } = useNotifications();
+    const { notifications, filter, setFilter, markAsRead, reload, isLoading, error } = useNotifications();
     const { pushAction } = useActionHistory();
     const [publishOpen, setPublishOpen] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
@@ -61,6 +61,7 @@ export function NotificationsPage() {
             <NotificationsTable
                 notifications={notifications}
                 onNotificationClick={openDetails}
+                onMarkAsRead={markAsRead}
             />
 
             <NotificationDetailsModal
@@ -72,6 +73,7 @@ export function NotificationsPage() {
             <PublishNotificationModal
                 isOpen={publishOpen}
                 onClose={() => setPublishOpen(false)}
+                onPublished={reload}
             />
         </div>
     );

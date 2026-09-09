@@ -7,7 +7,6 @@ use App\DTO\Response\Notification\NotificationResponseDTO;
 use App\Entity\Appointment\ReminderChannel;
 use App\Entity\Notification\Notification;
 use App\Entity\Notification\NotificationType;
-use App\Entity\Notification\NotificationChannel;
 use App\Entity\Identity\User;
 
 class NotificationMapper

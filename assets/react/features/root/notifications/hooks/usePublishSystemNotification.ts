@@ -22,14 +22,17 @@ export function usePublishSystemNotification() {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const submit = async () => {
+    const submit = async (): Promise<boolean> => {
         setIsSubmitting(true);
         setError(null);
         try {
             await publishSystemNotification(form);
             setForm(initialForm);
+            return true;
         } catch (err) {
-            setError('Erreur lors de la publication.');
+            const message = err instanceof Error ? err.message : 'Erreur lors de la publication.';
+            setError(message);
+            return false;
         } finally {
             setIsSubmitting(false);
         }

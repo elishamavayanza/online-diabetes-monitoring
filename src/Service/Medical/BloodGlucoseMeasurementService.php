@@ -21,7 +21,8 @@ class BloodGlucoseMeasurementService
         private readonly BloodGlucoseMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly OwnershipGuardService $ownershipGuard
+        private readonly OwnershipGuardService $ownershipGuard,
+        private readonly PatientAlarmService $alarmService
     ) {}
 
     public function index(string $patientId): Feedback
@@ -98,6 +99,9 @@ class BloodGlucoseMeasurementService
 
             $this->entityManager->persist($measurement);
             $this->entityManager->flush();
+
+            // Alarme automatique si la glycémie est anormale (seuils >> À surveiller <<)
+            $this->alarmService->evaluateBloodGlucose($measurement);
 
             $feedback->setData($this->mapper->mapEntityToResponse($measurement))
                 ->setFlushDescription("Mesure de glycémie enregistrée avec succès.")

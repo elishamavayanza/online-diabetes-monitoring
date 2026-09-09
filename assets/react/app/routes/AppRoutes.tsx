@@ -150,7 +150,7 @@ function AppRoutesContent() {
                     <Route path="organisations" element={<OrganisationsPage />} />
                     <Route path="users" element={<UsersPage />} />
                     <Route path="roles" element={<RolesPage />} />
-                    {/*<Route path="notifications" element={<NotificationsPage />} />*/}
+                    <Route path="notifications" element={<NotificationsPage />} />
                     {/*<Route path="audit" element={<AuditPage />} />*/}
                     <Route path="settings" element={<SettingsPage />} />
                 </Route>
@@ -175,7 +175,7 @@ function AppRoutesContent() {
                     <Route path="reports" element={<OrganizationReportPage />} />
                     {/*<Route path="appointments" element={<AppointmentsPage />} />*/}
                     {/*<Route path="activity" element={<ActivityPage />} />*/}
-                    {/*<Route path="notifications" element={<AdminNotificationsPage />} />*/}
+                    <Route path="notifications" element={<AdminNotificationsPage />} />
                     {/*<Route path="settings" element={<AdminSettingsPage />} />*/}
                     <Route path="establishments/:type/:id" element={<EstablishmentDetailPage />} />
                     <Route path="professionals/new" element={<ProfessionalCreatePage />} />

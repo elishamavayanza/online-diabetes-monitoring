@@ -4,7 +4,11 @@ namespace App\Service\Notification;
 
 use App\DTO\Feedback;
 use App\DTO\Request\Notification\NotificationRequestDTO;
+use App\Entity\Appointment\ReminderChannel;
+use App\Entity\Identity\Role;
 use App\Entity\Identity\User;
+use App\Entity\Notification\Notification;
+use App\Entity\Notification\NotificationType;
 use App\Mapper\Notification\NotificationMapper;
 use App\Repository\Notification\NotificationRepository;
 use App\Repository\Identity\UserRepository;
@@ -20,7 +24,8 @@ class NotificationService
         private readonly UserRepository $userRepository,
         private readonly NotificationMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly NotificationMailer $notificationMailer
     ) {}
 
     /**
@@ -78,6 +83,7 @@ class NotificationService
             $this->securityService->checkPermission(SecurityAction::CREATE_NOTIFICATION->value);
 
             $usersToNotify = [];
+            $createdNotifications = [];
 
             switch (strtoupper($dto->scope)) {
                 case 'USER':
@@ -104,13 +110,24 @@ class NotificationService
                     $usersToNotify = $queryBuilder->getQuery()->getResult();
                     break;
 
+                case 'ROLE':
+                    if (!$dto->role) {
+                        return $feedback->setErrorFlushDescription("Le niveau de publication (role) est requis pour le scope ROLE.")->autoInitFlush();
+                    }
+                    $role = strtoupper($dto->role);
+                    if (!in_array($role, Role::values(), true)) {
+                        return $feedback->setErrorFlushDescription("Niveau de publication invalide. Valeurs acceptées : " . implode(', ', Role::values()) . ".")->autoInitFlush();
+                    }
+                    $usersToNotify = $this->userRepository->findByRole($role);
+                    break;
+
                 case 'GLOBAL':
                     $this->securityService->checkPermission('ROLE_SUPER_ADMIN');
                     $usersToNotify = $this->userRepository->findAll();
                     break;
 
                 default:
-                    return $feedback->setErrorFlushDescription("Scope invalide. Valeurs acceptées : USER, ORGANIZATION, GLOBAL.")->autoInitFlush();
+                    return $feedback->setErrorFlushDescription("Scope invalide. Valeurs acceptées : USER, ORGANIZATION, ROLE, GLOBAL.")->autoInitFlush();
             }
 
             if (empty($usersToNotify)) {
@@ -121,15 +138,23 @@ class NotificationService
             foreach ($usersToNotify as $user) {
                 $notification = $this->mapper->mapRequestToEntity($dto, $user);
                 $this->entityManager->persist($notification);
+                $createdNotifications[] = $notification;
                 $count++;
 
                 if (($count % 500) === 0) {
                     $this->entityManager->flush();
-                    $this->entityManager->clear();
                 }
             }
 
             $this->entityManager->flush();
+
+            // Diffusion par email lorsque le canal est EMAIL (Mailpit en dev).
+            $channel = is_string($dto->channel) ? ReminderChannel::tryFrom($dto->channel) : $dto->channel;
+            if ($channel === ReminderChannel::EMAIL) {
+                foreach ($createdNotifications as $notification) {
+                    $this->notificationMailer->send($notification);
+                }
+            }
 
             $message = $count === 1 ? "Notification créée avec succès." : "$count notifications envoyées avec succès.";
             $feedback->setFlushDescription($message)->autoInitFlush();
@@ -141,6 +166,44 @@ class NotificationService
         }
 
         return $feedback;
+    }
+
+    /**
+     * Crée et persiste une notification destinée à un utilisateur précis
+     * (usage interne : alarmes patient, rappels automatiques…).
+     * L'email est envoyé si le canal est EMAIL.
+     */
+    public function createDirect(
+        User $user,
+        NotificationType $type,
+        string $title,
+        string $body,
+        ReminderChannel $channel,
+        ?string $relatedEntityType = null,
+        ?string $relatedEntityId = null
+    ): ?Notification {
+        try {
+            $notification = (new Notification())
+                ->setUser($user)
+                ->setType($type)
+                ->setTitle($title)
+                ->setBody($body)
+                ->setChannel($channel)
+                ->setReadAt(null)
+                ->setRelatedEntityType($relatedEntityType)
+                ->setRelatedEntityId($relatedEntityId);
+
+            $this->entityManager->persist($notification);
+            $this->entityManager->flush();
+
+            if ($channel === ReminderChannel::EMAIL) {
+                $this->notificationMailer->send($notification);
+            }
+
+            return $notification;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
@@ -156,7 +219,7 @@ class NotificationService
                 return $feedback->setErrorFlushDescription("Notification introuvable.")->autoInitFlush();
             }
 
-            $notification->setIsRead(true);
+            $notification->setReadAt(new \DateTimeImmutable());
             $this->entityManager->flush();
 
             // refresh inutile, mais peut être conservé

@@ -21,8 +21,10 @@ class BloodPressureMeasurementService
         private readonly BloodPressureMeasurementMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly OwnershipGuardService $ownershipGuard
-    ) {}
+        private readonly OwnershipGuardService $ownershipGuard,
+        private readonly PatientAlarmService $alarmService
+    ) {
+    }
 
     public function index(string $patientId): Feedback
     {
@@ -98,6 +100,9 @@ class BloodPressureMeasurementService
 
             $this->entityManager->persist($measurement);
             $this->entityManager->flush();
+
+            // Alarme automatique si la tension est anormale (seuils >> À surveiller <<)
+            $this->alarmService->evaluateBloodPressure($measurement);
 
             $feedback->setData($this->mapper->mapEntityToResponse($measurement))
                 ->setFlushDescription("Mesure de pression artérielle enregistrée avec succès.")

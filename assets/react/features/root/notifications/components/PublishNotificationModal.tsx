@@ -9,32 +9,38 @@ import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { usePublishSystemNotification } from '../hooks/usePublishSystemNotification';
-import { CreateSystemNotificationPayload } from '../types';
+import { CreateSystemNotificationPayload, PUBLICATION_ROLES } from '../types';
 
 interface PublishNotificationModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onPublished?: () => void;
 }
 
-export function PublishNotificationModal({ isOpen, onClose }: PublishNotificationModalProps) {
+export function PublishNotificationModal({ isOpen, onClose, onPublished }: PublishNotificationModalProps) {
     const { form, updateField, submit, isSubmitting, error } = usePublishSystemNotification();
 
     const scopeOptions = [
         { value: 'GLOBAL', label: 'Tous les utilisateurs' },
+        { value: 'ROLE', label: 'Par niveau (rôle)' },
         { value: 'ORGANIZATION', label: 'Une organisation' },
         { value: 'USER', label: 'Un utilisateur' },
     ];
 
     const channelOptions = [
         { value: 'IN_APP', label: 'In-app' },
+        { value: 'EMAIL', label: 'Email (Mailpit)' },
         { value: 'PUSH', label: 'Push' },
-        { value: 'EMAIL', label: 'Email' },
         { value: 'SMS', label: 'SMS' },
     ];
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        submit();
+        const success = await submit();
+        if (success) {
+            onClose();
+            onPublished?.();
+        }
     };
 
     return (
@@ -43,13 +49,23 @@ export function PublishNotificationModal({ isOpen, onClose }: PublishNotificatio
                 <h2>Publier une notification système</h2>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <FormField label="Portée *">
+                    <FormField label="Niveau de publication *">
                         <Select
                             value={form.scope}
                             onChange={(e) => updateField('scope', e.target.value as CreateSystemNotificationPayload['scope'])}
                             options={scopeOptions}
                         />
                     </FormField>
+
+                    {form.scope === 'ROLE' && (
+                        <FormField label="Rôle cible *">
+                            <Select
+                                value={form.role ?? 'ROLE_PATIENT'}
+                                onChange={(e) => updateField('role', e.target.value)}
+                                options={PUBLICATION_ROLES.map((r) => ({ value: r.value, label: r.label }))}
+                            />
+                        </FormField>
+                    )}
 
                     {form.scope === 'USER' && (
                         <FormField label="Rechercher un utilisateur (par email) *">

@@ -1,10 +1,12 @@
 import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
+import { Button } from '@/react/components/UI/Button';
 import { PatientNotification, PatientNotificationType } from '../types';
 
 interface NotificationsTableProps {
     notifications: PatientNotification[];
+    onMarkAsRead?: (id: string) => void;
 }
 
 const typeVariant: Record<PatientNotificationType, 'success' | 'warning' | 'error' | 'primary'> = {
@@ -13,9 +15,10 @@ const typeVariant: Record<PatientNotificationType, 'success' | 'warning' | 'erro
     NEW_MESSAGE: 'success',
     PRESCRIPTION_UPDATED: 'warning',
     MEASUREMENT_REMINDER: 'primary',
+    SYSTEM_ALERT: 'error',
 };
 
-export function NotificationsTable({ notifications }: NotificationsTableProps) {
+export function NotificationsTable({ notifications, onMarkAsRead }: NotificationsTableProps) {
     const columns = [
         { key: 'titre', title: 'Titre' },
         { key: 'message', title: 'Message' },
@@ -36,6 +39,19 @@ export function NotificationsTable({ notifications }: NotificationsTableProps) {
             ),
         },
         { key: 'date', title: 'Date' },
+        {
+            key: 'actions',
+            title: 'Actions',
+            render: (row: PatientNotification) => (
+                <div className="notifications-table__actions">
+                    {!row.estLue && onMarkAsRead && (
+                        <Button variant="outline" size="small" onClick={() => onMarkAsRead(row.id)}>
+                            Marquer lue
+                        </Button>
+                    )}
+                </div>
+            ),
+        },
     ];
 
     return (

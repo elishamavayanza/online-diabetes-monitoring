@@ -7,7 +7,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/admin/notifications/_notifications.scss';
 
 export function AdminNotificationsPage() {
-    const { notifications, filter, setFilter, isLoading, error } = useAdminNotifications();
+    const { notifications, filter, setFilter, markAsRead, isLoading, error } = useAdminNotifications();
     const { pushAction } = useActionHistory();
 
     const tabs = [
@@ -38,7 +38,7 @@ export function AdminNotificationsPage() {
                 onChange={handleFilterChange}
             />
 
-            <NotificationsTable notifications={notifications} />
+            <NotificationsTable notifications={notifications} onMarkAsRead={markAsRead} />
         </div>
     );
 }

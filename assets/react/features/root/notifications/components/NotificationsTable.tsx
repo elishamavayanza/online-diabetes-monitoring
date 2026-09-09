@@ -7,6 +7,7 @@ import { Notification, NotificationType } from '../types';
 interface NotificationsTableProps {
     notifications: Notification[];
     onNotificationClick: (notification: Notification) => void;
+    onMarkAsRead?: (id: string) => void;
 }
 
 const typeVariant: Partial<Record<NotificationType, 'success' | 'warning' | 'error'>> = {
@@ -15,7 +16,7 @@ const typeVariant: Partial<Record<NotificationType, 'success' | 'warning' | 'err
     PRESCRIPTION_UPDATED: 'warning',
 };
 
-export function NotificationsTable({ notifications, onNotificationClick }: NotificationsTableProps) {
+export function NotificationsTable({ notifications, onNotificationClick, onMarkAsRead }: NotificationsTableProps) {
     const columns = [
         { key: 'titre', title: 'Titre' },
         { key: 'message', title: 'Message' },
@@ -42,9 +43,16 @@ export function NotificationsTable({ notifications, onNotificationClick }: Notif
             key: 'actions',
             title: 'Actions',
             render: (row: Notification) => (
-                <Button variant="secondary" size="small" onClick={() => onNotificationClick(row)}>
-                    Détails
-                </Button>
+                <div className="notifications-table__actions">
+                    {!row.estLue && onMarkAsRead && (
+                        <Button variant="outline" size="small" onClick={() => onMarkAsRead(row.id)}>
+                            Marquer lue
+                        </Button>
+                    )}
+                    <Button variant="secondary" size="small" onClick={() => onNotificationClick(row)}>
+                        Détails
+                    </Button>
+                </div>
             ),
         },
     ];
