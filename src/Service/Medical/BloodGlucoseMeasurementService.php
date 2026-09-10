@@ -10,6 +10,7 @@ use App\Repository\Identity\PatientRepository;
 use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\Common\ListQueryParams;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -25,9 +26,10 @@ class BloodGlucoseMeasurementService
         private readonly PatientAlarmService $alarmService
     ) {}
 
-    public function index(string $patientId): Feedback
+    public function index(string $patientId, ?ListQueryParams $listParams = null): Feedback
     {
         $feedback = new Feedback();
+        $listParams ??= new ListQueryParams();
 
         try {
             $patient = $this->patientRepository->find($patientId);
@@ -37,7 +39,12 @@ class BloodGlucoseMeasurementService
 
             $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_GLUCOSE);
 
-            $measurements = $this->repository->findBy(['patient' => $patient]);
+            $measurements = $this->repository->findByPatientWithIssuer(
+                $patient,
+                $listParams->from,
+                $listParams->to,
+                $listParams->limit
+            );
             $responseDTOs = array_map([$this->mapper, 'mapEntityToResponse'], $measurements);
 
             $feedback->setData($responseDTOs)

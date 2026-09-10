@@ -30,4 +30,23 @@ class PrescriptionVersionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @param array<int|string> $prescriptionIds
+     * @return PrescriptionVersion[]
+     */
+    public function findByPrescriptionIds(array $prescriptionIds): array
+    {
+        if ($prescriptionIds === []) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('pv')
+            ->andWhere('pv.prescription IN (:ids)')
+            ->andWhere('pv.deletedAt IS NULL')
+            ->setParameter('ids', $prescriptionIds)
+            ->orderBy('pv.versionNumber', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -6,6 +6,7 @@ import {
     HbA1cMeasurement,
     InsulinInjection,
     LaboratoryResult,
+    MedicalRecord,
     PatientAllergy,
     PatientAppointment,
     PatientDiagnosis,
@@ -22,16 +23,41 @@ import {
     PhysicalActivityMeasurement,
     WeightMeasurement,
 } from '../types';
-import { fetchMedicalRecord } from './medicalRecordService';
-import { fetchPatientProfile } from './clinicianPatientsService';
 
-async function fetchList<T>(url: string): Promise<T[]> {
-    try {
-        const response = await apiClient.get<ApiFeedback<T[]>>(url);
-        return unwrapApiData(response.data) ?? [];
-    } catch {
-        return [];
-    }
+interface ApiMedicalRecord {
+    id: string;
+    patientId: string;
+    organizationId: string;
+    status: string;
+    openedAt: string;
+    closedAt?: string | null;
+    createdAt?: string;
+    updatedAt?: string | null;
+}
+
+interface AggregatedDossierPayload {
+    profile: Record<string, unknown>;
+    record: ApiMedicalRecord | null;
+    allergies: PatientAllergy[];
+    diagnoses: PatientDiagnosis[];
+    emergencyContacts: PatientEmergencyContact[];
+    consents: PatientMedicalConsent[];
+    notes: PatientMedicalNote[];
+    prescriptions: PatientPrescription[];
+    prescriptionItems: PrescriptionItem[];
+    prescriptionVersions: PrescriptionVersion[];
+    appointments: PatientAppointment[];
+    meals: (PatientMeal & { items?: PatientMealItem[] })[];
+    mealItems: PatientMealItem[];
+    measurements: {
+        bloodGlucose: BloodGlucoseMeasurement[];
+        bloodPressure: BloodPressureMeasurement[];
+        hba1c: HbA1cMeasurement[];
+        weight: WeightMeasurement[];
+        physicalActivity: PhysicalActivityMeasurement[];
+        laboratoryResults: LaboratoryResult[];
+        insulinInjections: InsulinInjection[];
+    };
 }
 
 function mapProfile(data: Record<string, unknown>): PatientProfile {
@@ -50,84 +76,61 @@ function mapProfile(data: Record<string, unknown>): PatientProfile {
     };
 }
 
-export async function fetchPatientDossier(patientId: string): Promise<PatientDossierData> {
-    const profileRaw = await fetchPatientProfile(patientId);
-    const profile = mapProfile(profileRaw as unknown as Record<string, unknown>);
-    const record = await fetchMedicalRecord(patientId);
-
-    const [
-        allergies,
-        diagnoses,
-        emergencyContacts,
-        consents,
-        prescriptions,
-        appointments,
-        bloodGlucose,
-        bloodPressure,
-        hba1c,
-        weight,
-        physicalActivity,
-        laboratoryResults,
-        insulinInjections,
-        notes,
-        meals,
-        mealItems,
-    ] = await Promise.all([
-        fetchList<PatientAllergy>(`/allergies/patient/${patientId}`),
-        fetchList<PatientDiagnosis>(`/diagnoses/patient/${patientId}`),
-        fetchList<PatientEmergencyContact>(`/emergency-contacts/patient/${patientId}`),
-        fetchList<PatientMedicalConsent>(`/medical-consents/patient/${patientId}`),
-        fetchList<PatientPrescription>(`/prescriptions/patient/${patientId}`),
-        fetchList<PatientAppointment>(`/appointments/queries/patient/${patientId}`),
-        fetchList<BloodGlucoseMeasurement>(`/patients/${patientId}/blood-glucose-measurements`),
-        fetchList<BloodPressureMeasurement>(`/patients/${patientId}/blood-pressure-measurements`),
-        fetchList<HbA1cMeasurement>(`/patients/${patientId}/hba1c-measurements`),
-        fetchList<WeightMeasurement>(`/patients/${patientId}/weight-measurements`),
-        fetchList<PhysicalActivityMeasurement>(`/patients/${patientId}/physical-activity-measurements`),
-        fetchList<LaboratoryResult>(`/patients/${patientId}/laboratory-results`),
-        fetchList<InsulinInjection>(`/insulin-injections/patient/${patientId}`),
-        record
-            ? fetchList<PatientMedicalNote>(`/medical-notes/record/${record.id}`)
-            : Promise.resolve([]),
-        fetchList<PatientMeal>(`/meals?patientId=${patientId}`),
-        fetchList<PatientMealItem>(`/meal-items/patient/${patientId}`),
-    ]);
-
-    const [prescriptionItems, prescriptionVersions] = await Promise.all([
-        Promise.all(
-            prescriptions.map((rx) =>
-                fetchList<PrescriptionItem>(`/prescription-items/prescription/${rx.id}`),
-            ),
-        ).then((lists) => lists.flat()),
-        Promise.all(
-            prescriptions.map((rx) =>
-                fetchList<PrescriptionVersion>(`/prescription-versions/prescription/${rx.id}`),
-            ),
-        ).then((lists) => lists.flat()),
-    ]);
+function mapMedicalRecord(api: ApiMedicalRecord | null): MedicalRecord | null {
+    if (!api) return null;
+    const normalized = String(api.status ?? '').toUpperCase();
+    const status: MedicalRecord['status'] =
+        normalized === 'CLOSED' ? 'closed' : normalized === 'OPEN' ? 'open' : 'none';
 
     return {
-        profile,
-        record,
-        allergies,
-        diagnoses,
-        emergencyContacts,
-        consents,
-        notes,
-        prescriptions,
-        prescriptionItems,
-        prescriptionVersions,
-        appointments,
+        id: String(api.id),
+        patientId: String(api.patientId),
+        organizationId: String(api.organizationId),
+        status,
+        createdAt: api.createdAt ?? api.openedAt,
+        updatedAt: api.updatedAt ?? undefined,
+        openedAt: api.openedAt,
+        closedAt: api.closedAt ?? undefined,
+    };
+}
+
+/**
+ * Charge le dossier patient via l'endpoint agrégé (1 requête HTTP au lieu de ~18).
+ */
+export async function fetchPatientDossier(patientId: string): Promise<PatientDossierData> {
+    const response = await apiClient.get<ApiFeedback<AggregatedDossierPayload>>(
+        `/patients/${patientId}/dossier`,
+    );
+    const payload = unwrapApiData(response.data, 'Impossible de charger le dossier patient.');
+
+    const meals = payload.meals ?? [];
+    let mealItems = payload.mealItems ?? [];
+    if (mealItems.length === 0 && meals.length > 0) {
+        mealItems = meals.flatMap((meal) => (Array.isArray(meal.items) ? meal.items : []));
+    }
+
+    return {
+        profile: mapProfile(payload.profile as unknown as Record<string, unknown>),
+        record: mapMedicalRecord(payload.record ?? null),
+        allergies: payload.allergies ?? [],
+        diagnoses: payload.diagnoses ?? [],
+        emergencyContacts: payload.emergencyContacts ?? [],
+        consents: payload.consents ?? [],
+        notes: payload.notes ?? [],
+        prescriptions: payload.prescriptions ?? [],
+        prescriptionItems: payload.prescriptionItems ?? [],
+        prescriptionVersions: payload.prescriptionVersions ?? [],
+        appointments: payload.appointments ?? [],
         meals,
         mealItems,
         measurements: {
-            bloodGlucose,
-            bloodPressure,
-            hba1c,
-            weight,
-            physicalActivity,
-            laboratoryResults,
-            insulinInjections,
+            bloodGlucose: payload.measurements?.bloodGlucose ?? [],
+            bloodPressure: payload.measurements?.bloodPressure ?? [],
+            hba1c: payload.measurements?.hba1c ?? [],
+            weight: payload.measurements?.weight ?? [],
+            physicalActivity: payload.measurements?.physicalActivity ?? [],
+            laboratoryResults: payload.measurements?.laboratoryResults ?? [],
+            insulinInjections: payload.measurements?.insulinInjections ?? [],
         },
     };
 }

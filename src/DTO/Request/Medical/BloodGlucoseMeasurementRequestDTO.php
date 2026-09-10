@@ -23,6 +23,9 @@ class BloodGlucoseMeasurementRequestDTO
 
         #[Assert\NotBlank]
         #[OA\Property(type: 'string', example: 'FASTING', description: 'Contexte de la mesure')]
-        public readonly mixed $context
+        public readonly mixed $context,
+
+        #[OA\Property(description: 'Date et heure de la mesure (optionnel, prend l’heure actuelle si vide)', type: 'string', format: 'date-time', example: '2026-09-10T08:19:00Z')]
+        public readonly ?string $measuredAt = null
     ) {}
 }

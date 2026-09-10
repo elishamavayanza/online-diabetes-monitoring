@@ -5,9 +5,10 @@ namespace App\Service\Nutrition;
 use App\Cache\CatalogCache;
 use App\DTO\Feedback;
 use App\DTO\Request\Nutrition\FoodRequestDTO;
+use App\Entity\Healthcare\HealthcareOrganization;
+use App\Entity\Identity\HealthcareProfessional;
 use App\Entity\Nutrition\Food;
 use App\Mapper\Nutrition\FoodMapper;
-use App\Repository\Identity\UserRepository;
 use App\Repository\Nutrition\FoodCategoryRepository;
 use App\Repository\Nutrition\FoodRepository;
 use App\Security\SecurityAction;
@@ -23,7 +24,6 @@ class FoodService
     public function __construct(
         private readonly FoodRepository $repository,
         private readonly FoodCategoryRepository $categoryRepository,
-        private readonly UserRepository $userRepository,
         private readonly FoodMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
@@ -32,18 +32,63 @@ class FoodService
     ) {
     }
 
+    private function currentOrganization(): ?HealthcareOrganization
+    {
+        if ($this->securityService->isSuperAdmin()) {
+            return null;
+        }
+
+        $user = $this->securityService->getCurrentUser();
+        foreach ($user->getOrganizationMemberships() as $membership) {
+            if ($membership->getStatus()?->isActive() && $membership->getOrganization() !== null) {
+                return $membership->getOrganization();
+            }
+        }
+
+        throw new AccessDeniedException('Aucune organisation active n’est associée à cet utilisateur.');
+    }
+
+    private function findAccessibleFood(int $id): ?Food
+    {
+        $organization = $this->currentOrganization();
+
+        return $organization === null
+            ? $this->repository->find($id)
+            : $this->repository->findOneByIdAndOrganization($id, $organization);
+    }
+
+    private function assertCurrentProfessionalIsCreator(Food $food): void
+    {
+        if ($this->securityService->isSuperAdmin()) {
+            return;
+        }
+
+        $user = $this->securityService->getCurrentUser();
+        if (!$user instanceof HealthcareProfessional || $food->getCreatedBy()?->getId() !== $user->getId()) {
+            throw new AccessDeniedException('Seul le nutritionniste ayant créé cet aliment peut le modifier ou le supprimer.');
+        }
+    }
+
+    private function cacheKey(?HealthcareOrganization $organization): string
+    {
+        return 'foods.' . ($organization?->getId() ?? 'root');
+    }
+
     public function all(): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $currentUser = $this->securityService->getCurrentUser();
             if (!$this->securityService->hasAnyRole(['ROLE_CLINICIAN', 'ROLE_NUTRITIONIST', 'ROLE_ADMIN', 'ROLE_ROOT', 'ROLE_PATIENT'])) {
                 throw new AccessDeniedException("Accès non autorisé.");
             }
 
-            $data = $this->catalogCache->get('foods', function () {
-                $foods = $this->repository->findAll();
+            $organization = $this->currentOrganization();
+
+            $data = $this->catalogCache->get($this->cacheKey($organization), function () use ($organization) {
+                $foods = $organization === null
+                    ? $this->repository->findAllWithCategoryAndCreator()
+                    : $this->repository->findByOrganizationWithCategoryAndCreator($organization);
 
                 return array_map(fn(Food $food) => $this->mapper->mapEntityToResponse($food), $foods);
             });
@@ -68,12 +113,11 @@ class FoodService
         $feedback = new Feedback();
 
         try {
-            $currentUser = $this->securityService->getCurrentUser();
             if (!$this->securityService->hasAnyRole(['ROLE_CLINICIAN', 'ROLE_NUTRITIONIST', 'ROLE_ADMIN', 'ROLE_ROOT', 'ROLE_PATIENT'])) {
                 throw new AccessDeniedException("Accès non autorisé.");
             }
 
-            $food = $this->repository->find($id);
+            $food = $this->findAccessibleFood($id);
 
             if (!$food) {
                 return $feedback
@@ -117,12 +161,9 @@ class FoodService
                     ->autoInitFlush();
             }
 
-            $createdBy = null;
-
-            if ($dto->createdById) {
-                $createdBy = $this->userRepository->find(
-                    $dto->createdById
-                );
+            $createdBy = $this->securityService->getCurrentUser();
+            if (!$createdBy instanceof HealthcareProfessional) {
+                throw new AccessDeniedException('Seul un professionnel peut créer un aliment.');
             }
 
             $food = $this->mapper->mapRequestToEntity(
@@ -130,10 +171,12 @@ class FoodService
                 $category,
                 $createdBy
             );
+            $organization = $this->currentOrganization();
+            $food->setOrganization($organization);
 
             $this->entityManager->persist($food);
             $this->entityManager->flush();
-            $this->catalogCache->evict('foods');
+            $this->catalogCache->evict($this->cacheKey($organization));
 
             return $feedback
                 ->setData(
@@ -169,13 +212,15 @@ class FoodService
                 SecurityAction::MANAGE_FOOD
             );
 
-            $food = $this->repository->find($id);
+            $food = $this->findAccessibleFood($id);
 
             if (!$food) {
                 return $feedback
                     ->setErrorFlushDescription("Aliment introuvable.")
                     ->autoInitFlush();
             }
+
+            $this->assertCurrentProfessionalIsCreator($food);
 
             $category = $this->categoryRepository->find(
                 $dto->categoryId
@@ -187,23 +232,15 @@ class FoodService
                     ->autoInitFlush();
             }
 
-            $createdBy = null;
-
-            if ($dto->createdById) {
-                $createdBy = $this->userRepository->find(
-                    $dto->createdById
-                );
-            }
-
             $food = $this->mapper->mapRequestToEntity(
                 $dto,
                 $category,
-                $createdBy,
+                $food->getCreatedBy(),
                 $food
             );
 
             $this->entityManager->flush();
-            $this->catalogCache->evict('foods');
+            $this->catalogCache->evict($this->cacheKey($food->getOrganization()));
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($food))
@@ -230,7 +267,7 @@ class FoodService
                 SecurityAction::MANAGE_FOOD
             );
 
-            $food = $this->repository->find($id);
+            $food = $this->findAccessibleFood($id);
 
             if (!$food) {
                 return $feedback
@@ -238,9 +275,11 @@ class FoodService
                     ->autoInitFlush();
             }
 
+            $this->assertCurrentProfessionalIsCreator($food);
+
             $this->entityManager->remove($food);
             $this->entityManager->flush();
-            $this->catalogCache->evict('foods');
+            $this->catalogCache->evict($this->cacheKey($food->getOrganization()));
 
             return $feedback
                 ->setFlushDescription("Aliment supprimé avec succès.")

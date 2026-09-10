@@ -26,8 +26,9 @@ class LaboratoryResultRequestDTO
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                 'image/jpeg',
                 'image/png',
+                'image/webp',
             ],
-            mimeTypesMessage: 'Veuillez uploader un fichier PDF, Word ou une image valide (JPEG, PNG).'
+            mimeTypesMessage: 'Veuillez uploader un fichier PDF, Word ou une image valide (JPEG, PNG, WebP).'
         )]
         #[OA\Property(description: 'Fichier du résultat (PDF, Word, Image)', type: 'string', format: 'binary', nullable: true)]
         public readonly ?UploadedFile $file, // Remplacé de fileUrl vers file

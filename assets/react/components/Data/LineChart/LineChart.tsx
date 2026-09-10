@@ -100,9 +100,9 @@ export function LineChart({
                 {/* Lignes de grille horizontales */}
                 {showAxis && (
                     <g className="line-chart__grid">
-                        {[maxValue, midValue, minValue].map((value) => (
+                        {[maxValue, midValue, minValue].map((value, index) => (
                             <line
-                                key={value}
+                                key={`grid-${index}`}
                                 x1={m.left}
                                 x2={w - m.right}
                                 y1={getY(value)}
@@ -115,9 +115,9 @@ export function LineChart({
                 {/* Étiquettes verticales (valeurs) */}
                 {showAxis && (
                     <g className="line-chart__axis">
-                        {[maxValue, midValue, minValue].map((value) => (
+                        {[maxValue, midValue, minValue].map((value, index) => (
                             <text
-                                key={value}
+                                key={`axis-${index}`}
                                 x={m.left - 8}
                                 y={getY(value) + 4}
                                 textAnchor="end"

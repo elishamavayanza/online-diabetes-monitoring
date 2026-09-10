@@ -55,21 +55,35 @@ export function useLineChart({
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
-    const minValue = data.length > 0 ? Math.min(...data.map((d) => d.value)) : 0;
-    const maxValue = data.length > 0 ? Math.max(...data.map((d) => d.value)) : 1;
-    const pad = (maxValue - minValue) * 0.08;
+    const values = data
+        .map((point) => Number(point.value))
+        .filter((value) => Number.isFinite(value));
+    const minValue = values.length > 0 ? Math.min(...values) : 0;
+    const maxValue = values.length > 0 ? Math.max(...values) : 1;
+    const valueRange = maxValue - minValue;
+    // Une série constante (ex. 1.26, 1.26) ne doit pas créer une division par zéro.
+    const pad = valueRange > 0 ? valueRange * 0.08 : Math.max(Math.abs(maxValue) * 0.08, 1);
     const paddedMin = minValue - pad;
     const paddedMax = maxValue + pad;
 
     const xStep = data.length > 1 ? chartWidth / (data.length - 1) : 0;
 
     const getX = (index: number) => margin.left + xStep * index;
-    const getY = (value: number) =>
-        margin.top + ((paddedMax - value) / (paddedMax - paddedMin)) * chartHeight;
+    const getY = (value: number) => {
+        const numericValue = Number(value);
+        const safeValue = Number.isFinite(numericValue) ? numericValue : minValue;
+
+        return margin.top + ((paddedMax - safeValue) / (paddedMax - paddedMin)) * chartHeight;
+    };
 
     const coords: XYPoint[] = useMemo(
-        () => data.map((d, i) => ({ ...d, x: getX(i), y: getY(d.value) })),
-        [data, width, height]
+        () => data.map((d, i) => {
+            const numericValue = Number(d.value);
+            const value = Number.isFinite(numericValue) ? numericValue : minValue;
+
+            return { ...d, value, x: getX(i), y: getY(value) };
+        }),
+        [data, width, height, margin.left, margin.right, margin.top, margin.bottom, minValue, paddedMax, paddedMin, chartWidth, chartHeight]
     );
 
     const linePath = useMemo(() => buildSmoothPath(coords), [coords]);

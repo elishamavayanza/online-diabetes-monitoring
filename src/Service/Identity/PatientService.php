@@ -234,6 +234,9 @@ class PatientService
                     ->autoInitFlush();
             }
 
+            // Hydrate memberships + organisations en une requête (évite N+1 dans PatientResponseDTO)
+            $this->repository->findWithMembershipsByIds(Patient::class, [(string) $user->getId()]);
+
             $this->securityService->checkPatientAccess($user, SecurityAction::VIEW_PATIENT);
 
             return $feedback

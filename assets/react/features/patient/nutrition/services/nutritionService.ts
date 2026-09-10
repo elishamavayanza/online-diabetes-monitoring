@@ -4,23 +4,23 @@ import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 import {PatientMeal, PatientMealItem, NutritionData, FoodOption, MealPlan} from '../types';
 
-// Récupère tous les repas et leurs éléments pour le patient connecté
+let foodCategoriesPromise: Promise<{ id: string; label: string }[]> | null = null;
+
+// Récupère tous les repas (items nestés) pour le patient connecté — 1 requête au lieu de 2
 export async function fetchNutrition(): Promise<NutritionData> {
     const patientId = getCurrentUserIdFromToken();
     if (!patientId) throw new Error('Utilisateur non identifié.');
 
-    const [mealsResp, itemsResp] = await Promise.all([
-        apiClient.get<ApiFeedback<PatientMeal[]>>(`/meals?patientId=${patientId}`),
-        apiClient.get<ApiFeedback<PatientMealItem[]>>(`/meal-items/patient/${patientId}`),
-    ]);
+    const mealsResp = await apiClient.get<ApiFeedback<(PatientMeal & { items?: PatientMealItem[] })[]>>(
+        `/meals?patientId=${patientId}&includeItems=true`,
+    );
 
     const meals = unwrapApiData(mealsResp.data, 'Erreur lors du chargement des repas.');
-    const allItems = unwrapApiData(itemsResp.data, 'Erreur lors du chargement des éléments de repas.');
 
     const mealItems: Record<string, PatientMealItem[]> = {};
-    allItems.forEach((item) => {
-        if (!mealItems[item.mealId]) mealItems[item.mealId] = [];
-        mealItems[item.mealId].push(item);
+    meals.forEach((meal) => {
+        const items = Array.isArray(meal.items) ? meal.items : [];
+        mealItems[meal.id] = items;
     });
 
     return { meals, mealItems };
@@ -31,7 +31,7 @@ export async function fetchFoods(): Promise<FoodOption[]> {
     const response = await apiClient.get<ApiFeedback<any[]>>('/foods');
     const foods = unwrapApiData(response.data, 'Erreur lors du chargement des aliments.');
 
-    // Récupère les catégories pour construire une table de correspondance
+    // Récupère les catégories une seule fois (promise partagée anti-doublon)
     const categories = await fetchFoodCategories();
     const categoryMap = new Map(categories.map((c) => [c.id, c.label]));
 
@@ -39,7 +39,6 @@ export async function fetchFoods(): Promise<FoodOption[]> {
         id: String(f.id),
         name: f.name,
         photoUrl: f.photoUrl ?? '',
-        // ✅ Utilise categoryId pour retrouver le libellé de la catégorie
         category: f.categoryId
             ? (categoryMap.get(String(f.categoryId)) ?? '')
             : (f.category ?? ''),
@@ -85,7 +84,6 @@ export async function createMealPlan(mealIds: string[]): Promise<MealPlan> {
     const patientId = getCurrentUserIdFromToken();
     if (!patientId) throw new Error('Utilisateur non identifié.');
 
-    // Simulation d'appel API – remplacez l'URL par votre endpoint réel
     const response = await apiClient.post<ApiFeedback<MealPlan>>('/meal-plans', {
         patientId: Number(patientId),
         mealIds,
@@ -93,15 +91,20 @@ export async function createMealPlan(mealIds: string[]): Promise<MealPlan> {
     return unwrapApiData(response.data, 'Erreur lors de la création du plan.');
 }
 
-// services/nutritionService.ts
-
-// Récupère les catégories d'aliments avec leur ID et libellé
+// Récupère les catégories d'aliments avec leur ID et libellé (dédupliquée en vol)
 export async function fetchFoodCategories(): Promise<{ id: string; label: string }[]> {
-    const response = await apiClient.get<ApiFeedback<any[]>>('/food-categories');
-    const categories = unwrapApiData(response.data, 'Erreur lors du chargement des catégories.');
-    return categories.map((c) => ({
-        id: String(c.id),
-        label: c.label ?? c.name ?? '',
-    }));
+    if (!foodCategoriesPromise) {
+        foodCategoriesPromise = (async () => {
+            const response = await apiClient.get<ApiFeedback<any[]>>('/food-categories');
+            const categories = unwrapApiData(response.data, 'Erreur lors du chargement des catégories.');
+            return categories.map((c) => ({
+                id: String(c.id),
+                label: c.label ?? c.name ?? '',
+            }));
+        })().catch((err) => {
+            foodCategoriesPromise = null;
+            throw err;
+        });
+    }
+    return foodCategoriesPromise;
 }
-

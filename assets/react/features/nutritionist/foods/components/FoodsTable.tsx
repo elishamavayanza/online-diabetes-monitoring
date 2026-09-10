@@ -7,6 +7,7 @@ import { Food, FoodCategory } from '../types';
 interface FoodsTableProps {
     foods: Food[];
     categories: FoodCategory[];
+    currentUserId: string | null;
     onEdit: (food: Food) => void;
     onDelete: (food: Food) => void;
 }
@@ -15,7 +16,7 @@ function getCategoryLabel(categories: FoodCategory[], categoryId: string): strin
     return categories.find((c) => c.id === categoryId)?.label ?? '—';
 }
 
-export function FoodsTable({ foods, categories, onEdit, onDelete }: FoodsTableProps) {
+export function FoodsTable({ foods, categories, currentUserId, onEdit, onDelete }: FoodsTableProps) {
     const { t } = useI18n();
     const columns = [
         {
@@ -62,12 +63,12 @@ export function FoodsTable({ foods, categories, onEdit, onDelete }: FoodsTablePr
         {
             key: 'actions',
             title: t('Actions'),
-            render: (row: Food) => (
+            render: (row: Food) => row.createdById === currentUserId ? (
                 <div className="foods-table__actions">
                     <Button variant="secondary" size="small" onClick={() => onEdit(row)}>{t('Modifier')}</Button>
                     <Button variant="danger" size="small" onClick={() => onDelete(row)}>{t('Supprimer')}</Button>
                 </div>
-            ),
+            ) : '—',
         },
     ];
 

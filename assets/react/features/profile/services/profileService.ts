@@ -36,8 +36,11 @@ function getUserIdFromToken(payload: JwtPayload | null): string {
 
 /**
  * Récupère le profil de l'utilisateur connecté.
+ * Promise partagée pour éviter les appels HTTP en double (AuthProvider + useProfile).
  * @param providedUserId - ID fourni par le contexte (optionnel, prioritaire)
  */
+const profileInflight = new Map<string, Promise<UserProfileData>>();
+
 export async function fetchUserProfile(providedUserId?: string): Promise<UserProfileData> {
     const token = tokenStorage.getAccessToken();
     if (!token) throw new Error("Non authentifié");
@@ -48,32 +51,46 @@ export async function fetchUserProfile(providedUserId?: string): Promise<UserPro
     const userId = providedUserId || getUserIdFromToken(payload);
     if (!userId) throw new Error("Identifiant utilisateur introuvable");
 
-    const roles: string[] = payload.roles ?? (payload.role ? [payload.role] : []);
-
-    if (roles.includes('ROLE_PATIENT')) {
-        const response = await apiClient.get<ApiFeedback<any>>(`/patients/${userId}/profile`);
-        return mapPatientToProfile(response.data.data, userId, payload);
-    } else if (roles.includes('ROLE_CLINICIAN') || roles.includes('ROLE_NUTRITIONIST')) {
-        const response = await apiClient.get<ApiFeedback<any>>(`/professionals/${userId}`);
-        return mapProfessionalToProfile(response.data.data, userId, payload);
-    } else {
-        // Admin / Root : GET /users/profile renvoie le profil réel depuis le backend
-        // (y compris la photo de profil), avec repli sur les données du token.
-        try {
-            const response = await apiClient.get<ApiFeedback<any>>(`/users/profile`);
-            return mapUserToProfile(response.data.data, userId, payload);
-        } catch {
-            return {
-                id: userId,
-                name: payload.fullName ?? payload.username ?? 'Utilisateur',
-                email: payload.email ?? '',
-                role: roles[0] ?? 'ROOT',
-                phone: payload.phone ?? undefined,
-                avatarUrl: payload.photoUrl ?? undefined,
-                locale: payload.locale ?? 'fr',
-            };
-        }
+    const cacheKey = userId;
+    const existing = profileInflight.get(cacheKey);
+    if (existing) {
+        return existing;
     }
+
+    const promise = (async (): Promise<UserProfileData> => {
+        const roles: string[] = payload.roles ?? (payload.role ? [payload.role] : []);
+
+        if (roles.includes('ROLE_PATIENT')) {
+            const response = await apiClient.get<ApiFeedback<any>>(`/patients/${userId}/profile`);
+            return mapPatientToProfile(response.data.data, userId, payload);
+        } else if (roles.includes('ROLE_CLINICIAN') || roles.includes('ROLE_NUTRITIONIST')) {
+            const response = await apiClient.get<ApiFeedback<any>>(`/professionals/${userId}`);
+            return mapProfessionalToProfile(response.data.data, userId, payload);
+        } else {
+            // Admin / Root : GET /users/profile renvoie le profil réel depuis le backend
+            // (y compris la photo de profil), avec repli sur les données du token.
+            try {
+                const response = await apiClient.get<ApiFeedback<any>>(`/users/profile`);
+                return mapUserToProfile(response.data.data, userId, payload);
+            } catch {
+                return {
+                    id: userId,
+                    name: payload.fullName ?? payload.username ?? 'Utilisateur',
+                    email: payload.email ?? '',
+                    role: roles[0] ?? 'ROOT',
+                    phone: payload.phone ?? undefined,
+                    avatarUrl: payload.photoUrl ?? undefined,
+                    locale: payload.locale ?? 'fr',
+                };
+            }
+        }
+    })().finally(() => {
+        // Garde courte pour coalescer StrictMode / mounts parallèles, puis libère.
+        setTimeout(() => profileInflight.delete(cacheKey), 1500);
+    });
+
+    profileInflight.set(cacheKey, promise);
+    return promise;
 }
 
 /**
@@ -87,6 +104,8 @@ export async function updateUserProfile(
     avatarFile?: File | null,
     providedUserId?: string
 ): Promise<UserProfileData> {
+    // Invalide le cache de coalescence pour forcer un rechargement frais ensuite
+    profileInflight.clear();
     const token = tokenStorage.getAccessToken();
     if (!token) throw new Error("Non authentifié");
 

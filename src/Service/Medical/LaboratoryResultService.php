@@ -10,6 +10,7 @@ use App\Repository\Identity\PatientRepository;
 use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\Common\ListQueryParams;
 use App\Service\File\FileUploaderService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -64,9 +65,10 @@ class LaboratoryResultService
         return $feedback;
     }
 
-    public function getByPatient(string $patientId): Feedback
+    public function getByPatient(string $patientId, ?ListQueryParams $listParams = null): Feedback
     {
         $feedback = new Feedback();
+        $listParams ??= new ListQueryParams();
 
         try {
             $patient = $this->patientRepository->find($patientId);
@@ -77,7 +79,12 @@ class LaboratoryResultService
             // Utilisation de l'action de lecture appropriée
             $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_LABORATORY_RESULT);
 
-            $results = $this->repository->findBy(['patient' => $patient]);
+            $results = $this->repository->findByPatientWithIssuer(
+                $patient,
+                $listParams->from,
+                $listParams->to,
+                $listParams->limit
+            );
             $responseDTOs = array_map(fn($result) => $this->mapper->mapEntityToResponse($result), $results);
 
             $feedback->setData($responseDTOs)

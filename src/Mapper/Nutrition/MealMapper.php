@@ -61,8 +61,8 @@ class MealMapper
         return $meal;
     }
 
-    public function mapEntityToResponse(Meal $meal): MealResponseDTO
+    public function mapEntityToResponse(Meal $meal, bool $withItems = false): MealResponseDTO
     {
-        return MealResponseDTO::fromEntity($meal);
+        return MealResponseDTO::fromEntity($meal, $withItems);
     }
 }

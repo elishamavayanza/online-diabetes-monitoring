@@ -2,6 +2,7 @@
 
 namespace App\Service\Nutrition;
 
+use App\Cache\CatalogCache;
 use App\DTO\Feedback;
 use App\DTO\Request\Nutrition\FoodCategoryRequestDTO;
 use App\Entity\Nutrition\FoodCategory;
@@ -18,7 +19,8 @@ class FoodCategoryService
         private readonly FoodCategoryRepository $repository,
         private readonly FoodCategoryMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly CatalogCache $catalogCache
     ) {
     }
 
@@ -33,8 +35,14 @@ class FoodCategoryService
                 throw new AccessDeniedException("Accès non autorisé.");
             }
 
-            $categories = $this->repository->findAll();
-            $data = array_map(fn(FoodCategory $category) => $this->mapper->mapEntityToResponse($category), $categories);
+            $data = $this->catalogCache->get('food-categories', function () {
+                $categories = $this->repository->findAll();
+
+                return array_map(
+                    fn(FoodCategory $category) => $this->mapper->mapEntityToResponse($category),
+                    $categories
+                );
+            });
 
             return $feedback
                 ->setData($data)
@@ -97,6 +105,7 @@ class FoodCategoryService
 
             $this->entityManager->persist($category);
             $this->entityManager->flush();
+            $this->catalogCache->evict('food-categories');
 
             return $feedback
                 ->setData(
@@ -143,6 +152,7 @@ class FoodCategoryService
             $category = $this->mapper->mapRequestToEntity($dto, $category);
 
             $this->entityManager->flush();
+            $this->catalogCache->evict('food-categories');
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($category))
@@ -179,6 +189,7 @@ class FoodCategoryService
 
             $this->entityManager->remove($category);
             $this->entityManager->flush();
+            $this->catalogCache->evict('food-categories');
 
             return $feedback
                 ->setFlushDescription('Catégorie d’aliment supprimée avec succès.')

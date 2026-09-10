@@ -12,6 +12,7 @@ use App\Repository\Nutrition\MealRepository;
 use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\Common\ListQueryParams;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -61,9 +62,10 @@ class MealService
         return $feedback;
     }
 
-    public function list(?int $patientId): Feedback
+    public function list(?int $patientId, ?ListQueryParams $listParams = null, bool $includeItems = true): Feedback
     {
         $feedback = new Feedback();
+        $listParams ??= new ListQueryParams();
 
         try {
             $currentUser = $this->securityService->getCurrentUser();
@@ -72,8 +74,16 @@ class MealService
             // Vérification des droits de lecture
             $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_NUTRITION);
 
-            $meals = $this->repository->findBy(['patient' => $patient]);
-            $responseDTOs = array_map([$this->mapper, 'mapEntityToResponse'], $meals);
+            $meals = $this->repository->findByPatientWithIssuerAndItems(
+                $patient,
+                $listParams->from,
+                $listParams->to,
+                $listParams->limit
+            );
+            $responseDTOs = array_map(
+                fn ($meal) => $this->mapper->mapEntityToResponse($meal, $includeItems),
+                $meals
+            );
 
             $feedback->setData($responseDTOs)
                 ->setFlushDescription("Liste des repas récupérée avec succès.")

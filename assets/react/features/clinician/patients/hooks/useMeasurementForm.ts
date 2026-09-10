@@ -17,6 +17,15 @@ function getCurrentDateTimeLocal(): string {
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
+function initialFormForMeasurement(type: MeasurementTypeId): Record<string, string> {
+    const dateField = type === 'insulinInjection' ? 'injectedAt' : 'measuredAt';
+    const initialForm = { [dateField]: getCurrentDateTimeLocal() };
+
+    return type === 'bloodGlucose'
+        ? { ...initialForm, unit: 'MG_DL', context: 'FASTING' }
+        : initialForm;
+}
+
 export function useMeasurementForm({
                                        isOpen,
                                        onClose,
@@ -40,11 +49,7 @@ export function useMeasurementForm({
         } else if (initialType) {
             setType(initialType);
             setStep('form');
-            setForm(
-                initialType === 'insulinInjection'
-                    ? { injectedAt: getCurrentDateTimeLocal() }
-                    : { measuredAt: getCurrentDateTimeLocal() },
-            );
+            setForm(initialFormForMeasurement(initialType));
         }
     }, [isOpen, initialType]);
 
@@ -55,11 +60,7 @@ export function useMeasurementForm({
     const handleSelectType = (selected: MeasurementTypeId) => {
         setType(selected);
         setStep('form');
-        setForm(
-            selected === 'insulinInjection'
-                ? { injectedAt: getCurrentDateTimeLocal() }
-                : { measuredAt: getCurrentDateTimeLocal() },
-        );
+        setForm(initialFormForMeasurement(selected));
     };
 
     const handleSubmit = async (e: React.FormEvent, labFile?: File | null) => {

@@ -234,7 +234,7 @@ export function MeasurementFormModal({
                         </FormField>
                         <FormField label={t('Fichier du résultat')} htmlFor="labFile">
                             <FileUpload
-                                accept=".pdf,.doc,.docx,.jpg,.png"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
                                 multiple={false}
                                 maxFiles={1}
                                 maxSizeInMB={10}
@@ -244,7 +244,7 @@ export function MeasurementFormModal({
                                     }
                                 }}
                                 label={t('Cliquez ou déposez le fichier ici')}
-                                hint={t('PDF, Word ou image (max 10 Mo)')}
+                                hint={t('PDF, Word ou image (JPEG, PNG, WebP — max 10 Mo)')}
                             />
                         </FormField>
                     </>

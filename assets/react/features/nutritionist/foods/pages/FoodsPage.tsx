@@ -11,6 +11,7 @@ import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
 import {Food, FoodCategory} from '../types';
 import { foodToFormValues } from '../services/foodsService';
+import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 import '@/styles/pages/nutritionist/foods/_foods.scss';
 
 const FilterIcon = () => (
@@ -21,6 +22,7 @@ const FilterIcon = () => (
 
 export function FoodsPage() {
     const { t } = useI18n();
+    const currentUserId = getCurrentUserIdFromToken();
     const { foods, categories, filters, setFilters, isLoading, error, refetch, removeFood } = useFoods();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingFood, setEditingFood] = useState<Food | null>(null);
@@ -104,6 +106,7 @@ export function FoodsPage() {
             <FoodsTable
                 foods={foods}
                 categories={categories}
+                currentUserId={currentUserId}
                 onEdit={setEditingFood}
                 onDelete={setDeletingFood}
             />

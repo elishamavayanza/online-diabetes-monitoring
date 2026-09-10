@@ -166,7 +166,7 @@ export function ErrorState({
     });
 
     const displayedTitle = title ? (typeof title === 'string' ? t(title) : title) : t('Une erreur est survenue');
-    const displayedMessage = message ? (typeof message === 'string' ? t(message) : message) : null;
+    const displayedMessage = message ? (typeof message === 'string' ? t(message) : message) : undefined;
     const displayedCode = status !== undefined
         ? (codeLabel
             ? t('ERREUR {{ status }} · {{ codeLabel }}', { status: String(status), codeLabel })

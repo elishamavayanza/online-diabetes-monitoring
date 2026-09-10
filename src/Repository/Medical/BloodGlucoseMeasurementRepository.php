@@ -12,6 +12,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class BloodGlucoseMeasurementRepository extends ServiceEntityRepository
 {
+    use PatientMeasurementQueryTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, BloodGlucoseMeasurement::class);

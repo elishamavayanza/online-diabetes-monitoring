@@ -12,6 +12,9 @@ use OpenApi\Attributes as OA;
 )]
 class MealResponseDTO
 {
+    /**
+     * @param MealItemResponseDTO[]|null $items
+     */
     public function __construct(
         #[OA\Property(description: 'Identifiant unique', type: 'string', example: '1')]
         public readonly string $id,
@@ -41,22 +44,42 @@ class MealResponseDTO
         public readonly ?string $createdById,
 
         #[OA\Property(description: 'Nom de l\'auteur', type: 'string', nullable: true, example: 'Dr. Dupont')]
-        public readonly ?string $createdByName
+        public readonly ?string $createdByName,
+
+        #[OA\Property(
+            description: 'Éléments du repas (inclus lorsque la liste hydrate les items)',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/MealItemResponseDTO'),
+            nullable: true
+        )]
+        public readonly ?array $items = null,
     ) {}
 
-    public static function fromEntity(Meal $meal): self
+    public static function fromEntity(Meal $meal, bool $withItems = false): self
     {
+        $items = null;
+        if ($withItems) {
+            $items = [];
+            foreach ($meal->getMealItems() as $mealItem) {
+                if ($mealItem->getDeletedAt() !== null) {
+                    continue;
+                }
+                $items[] = MealItemResponseDTO::fromEntity($mealItem);
+            }
+        }
+
         return new self(
             id: (string) $meal->getId(),
             name: $meal->getName(),
             description: $meal->getDescription(),
             mealType: $meal->getMealType()?->value,
             measuredAt: method_exists($meal, 'getMeasuredAt') ? $meal->getMeasuredAt() : null,
-            patientId: $meal->getPatient()?->getId(),
+            patientId: $meal->getPatient()?->getId() !== null ? (int) $meal->getPatient()->getId() : null,
             createdAt: method_exists($meal, 'getCreatedAt') ? $meal->getCreatedAt() : null,
             updatedAt: method_exists($meal, 'getUpdatedAt') ? $meal->getUpdatedAt() : null,
-            createdById: (string) $meal->getIssuer()?->getId(),
-            createdByName: $meal->getIssuer()?->getFullName()
+            createdById: $meal->getIssuer()?->getId() !== null ? (string) $meal->getIssuer()->getId() : null,
+            createdByName: $meal->getIssuer()?->getFullName(),
+            items: $items,
         );
     }
 }

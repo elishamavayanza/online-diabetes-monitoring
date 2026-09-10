@@ -34,12 +34,13 @@ class InsulinInjectionService
         $feedback = new Feedback();
 
         try {
-            $injections = $this->repository->findAll();
-            $data = array_map(fn(InsulinInjection $injection) => $this->mapper->mapEntityToResponse($injection), $injections);
-
+            // Endpoint non scopé interdit : utilisez getByPatient pour éviter de charger toute la table.
+            throw new AccessDeniedException(
+                'La liste globale des injections est désactivée. Utilisez /insulin-injections/patient/{id}.'
+            );
+        } catch (AccessDeniedException $e) {
             return $feedback
-                ->setData($data)
-                ->setFlushDescription('Liste des injections d’insuline récupérée avec succès.')
+                ->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())
                 ->autoInitFlush();
         } catch (\Throwable $e) {
             return $feedback

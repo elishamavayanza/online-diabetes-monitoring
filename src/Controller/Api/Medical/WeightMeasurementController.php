@@ -5,10 +5,12 @@ namespace App\Controller\Api\Medical;
 use App\DTO\Request\Medical\WeightMeasurementRequestDTO;
 use App\DTO\Response\Medical\WeightMeasurementResponseDTO;
 use App\Service\Medical\WeightMeasurementService;
+use App\Service\Common\ListQueryParams;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -43,9 +45,9 @@ class WeightMeasurementController extends AbstractController
     )]
     #[OA\Response(response: 401, description: 'Non authentifié')]
     #[OA\Response(response: 404, description: 'Patient non trouvé')]
-    public function all(string $patientId): JsonResponse
+    public function all(string $patientId, Request $request): JsonResponse
     {
-        $feedback = $this->service->all($patientId);
+        $feedback = $this->service->all($patientId, ListQueryParams::fromRequest($request));
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);

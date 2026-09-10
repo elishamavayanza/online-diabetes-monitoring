@@ -5,6 +5,7 @@ namespace App\Controller\Api\Medical;
 use App\DTO\Request\Medical\LaboratoryResultRequestDTO;
 use App\DTO\Response\Medical\LaboratoryResultResponseDTO;
 use App\Service\Medical\LaboratoryResultService;
+use App\Service\Common\ListQueryParams;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -37,9 +38,9 @@ class LaboratoryResultController extends AbstractController
     #[OA\Response(response: 200, description: 'Liste récupérée avec succès')]
     #[OA\Response(response: 401, description: 'Non authentifié')]
     #[OA\Response(response: 404, description: 'Patient non trouvé')]
-    public function list(string $patientId): JsonResponse
+    public function list(string $patientId, Request $request): JsonResponse
     {
-        $feedback = $this->service->getByPatient($patientId);
+        $feedback = $this->service->getByPatient($patientId, ListQueryParams::fromRequest($request));
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);

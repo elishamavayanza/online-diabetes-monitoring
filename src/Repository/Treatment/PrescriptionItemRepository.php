@@ -29,4 +29,26 @@ class PrescriptionItemRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Charge tous les items pour un ensemble de prescriptions (évite le waterfall N requêtes).
+     *
+     * @param array<int|string> $prescriptionIds
+     * @return PrescriptionItem[]
+     */
+    public function findByPrescriptionIds(array $prescriptionIds): array
+    {
+        if ($prescriptionIds === []) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('pi')
+            ->leftJoin('pi.createdBy', 'cb')->addSelect('cb')
+            ->leftJoin('pi.medication', 'med')->addSelect('med')
+            ->andWhere('pi.prescription IN (:ids)')
+            ->andWhere('pi.deletedAt IS NULL')
+            ->setParameter('ids', $prescriptionIds)
+            ->getQuery()
+            ->getResult();
+    }
 }
