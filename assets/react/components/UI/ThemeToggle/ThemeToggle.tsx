@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTheme } from '@/react/hooks/ThemeProvider';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const SunIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -20,6 +21,7 @@ export interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ className = '', compact = false }: ThemeToggleProps) {
+    const { t } = useI18n();
     const { theme, toggleTheme } = useTheme();
     const isDark = theme === 'dark';
 
@@ -28,11 +30,11 @@ export function ThemeToggle({ className = '', compact = false }: ThemeToggleProp
             type="button"
             className={`theme-toggle ${className}`.trim()}
             onClick={toggleTheme}
-            aria-label={isDark ? 'Activer le thème clair' : 'Activer le thème sombre'}
-            title={isDark ? 'Thème clair' : 'Thème sombre'}
+            aria-label={isDark ? t('Activer le thème clair') : t('Activer le thème sombre')}
+            title={isDark ? t('Thème clair') : t('Thème sombre')}
         >
             {isDark ? <SunIcon /> : <MoonIcon />}
-            {!compact && <span className="theme-toggle__label">{isDark ? 'Clair' : 'Sombre'}</span>}
+            {!compact && <span className="theme-toggle__label">{isDark ? t('Clair') : t('Sombre')}</span>}
         </button>
     );
 }

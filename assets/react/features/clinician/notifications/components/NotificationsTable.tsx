@@ -2,6 +2,7 @@ import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { ClinicianNotification, ClinicianNotificationType } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface NotificationsTableProps {
     notifications: ClinicianNotification[];
@@ -16,12 +17,14 @@ const typeVariant: Record<ClinicianNotificationType, 'success' | 'warning' | 'er
 };
 
 export function NotificationsTable({ notifications }: NotificationsTableProps) {
+    const { t } = useI18n();
+
     const columns = [
-        { key: 'titre', title: 'Titre' },
-        { key: 'message', title: 'Message' },
+        { key: 'titre', title: t('Titre') },
+        { key: 'message', title: t('Message') },
         {
             key: 'type',
-            title: 'Type',
+            title: t('Type'),
             render: (row: ClinicianNotification) => (
                 <Badge variant={typeVariant[row.type]}>
                     {row.type}
@@ -30,14 +33,14 @@ export function NotificationsTable({ notifications }: NotificationsTableProps) {
         },
         {
             key: 'estLue',
-            title: 'État',
+            title: t('État'),
             render: (row: ClinicianNotification) => (
                 <Badge variant={row.estLue ? 'success' : 'warning'}>
-                    {row.estLue ? 'Lue' : 'Non lue'}
+                    {row.estLue ? t('Lue') : t('Non lue')}
                 </Badge>
             ),
         },
-        { key: 'date', title: 'Date' },
+        { key: 'date', title: t('Date') },
     ];
 
     return (

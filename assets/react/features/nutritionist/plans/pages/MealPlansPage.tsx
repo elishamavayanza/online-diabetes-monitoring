@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useMealPlans } from '../hooks/useMealPlans';
 import { MealPlansTable } from '../components/MealPlansTable';
 import { Spinner } from '@/react/components/UI/Spinner';
@@ -9,6 +10,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/nutritionist/plans/_plans.scss';
 
 export function MealPlansPage() {
+    const { t } = useI18n();
     const { plans, isLoading, error } = useMealPlans();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
@@ -25,14 +27,14 @@ export function MealPlansPage() {
     return (
         <div className="meal-plans-page">
             <div className="meal-plans-page__header">
-                <h1>Plans alimentaires</h1>
-                <Button variant="primary" onClick={openAddModal}>+ Nouveau plan</Button>
+                <h1>{t('Plans alimentaires')}</h1>
+                <Button variant="primary" onClick={openAddModal}>{t('+ Nouveau plan')}</Button>
             </div>
             <MealPlansTable plans={plans} />
 
             {isAddModalOpen && (
                 <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
-                    <p>Formulaire d'ajout de plan alimentaire (à implémenter).</p>
+                    <p>{t("Formulaire d'ajout de plan alimentaire (à implémenter).")}</p>
                 </Modal>
             )}
         </div>

@@ -4,12 +4,14 @@ import { Button } from '@/react/components/UI/Button';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { getOrCreatePatientConversation } from '../../services/dossierActionsService';
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export function CommunicationsTab() {
     const { data, basePath } = usePatientDossierContext();
     const { profile } = data;
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { t } = useI18n();
 
     const handleOpenMessaging = async () => {
         try {
@@ -22,7 +24,7 @@ export function CommunicationsTab() {
             console.error(error);
             showToast({
                 type: 'error',
-                message: "Impossible d'ouvrir la messagerie avec ce patient.",
+                message: t("Impossible d'ouvrir la messagerie avec ce patient."),
             });
         }
     };
@@ -30,16 +32,15 @@ export function CommunicationsTab() {
     return (
         <div className="patient-dossier-tab patient-dossier-tab--communications">
             <Card>
-                <h3>Communication avec le patient</h3>
+                <h3>{t('Communication avec le patient')}</h3>
                 <p>
-                    Contactez <strong>{profile.fullName}</strong> via la messagerie interne
-                    ou par les coordonnées ci-dessous.
+                    {t('Contactez {{ name }} via la messagerie interne ou par les coordonnées ci-dessous.', { name: profile.fullName })}
                 </p>
-                <p><strong>Email :</strong> {profile.email || '—'}</p>
-                <p><strong>Téléphone :</strong> {profile.phone || '—'}</p>
+                <p><strong>{t('Email :')}</strong> {profile.email || '—'}</p>
+                <p><strong>{t('Téléphone :')}</strong> {profile.phone || '—'}</p>
                 <div className="patient-dossier-tab__actions">
                     <Button variant="primary" onClick={handleOpenMessaging}>
-                        Ouvrir la messagerie
+                        {t('Ouvrir la messagerie')}
                     </Button>
                 </div>
             </Card>

@@ -1,6 +1,7 @@
 import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { MeasurementRecord } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 // Fonction utilitaire pour formater une date ISO en format lisible
 function formatDisplayDateTime(dateStr: string): string {
@@ -20,16 +21,17 @@ interface MeasurementsTableProps {
 }
 
 export function MeasurementsTable({ records }: MeasurementsTableProps) {
+    const { t } = useI18n();
     const columns = [
         {
             key: 'date',
-            title: 'Date',
+            title: t('Date'),
             render: (row: MeasurementRecord) => formatDisplayDateTime(row.date),
         },
-        { key: 'value', title: 'Valeur' },
+        { key: 'value', title: t('Valeur') },
         {
             key: 'note',
-            title: 'Note',
+            title: t('Note'),
             render: (row: MeasurementRecord) => row.note ?? '—',
         },
     ];

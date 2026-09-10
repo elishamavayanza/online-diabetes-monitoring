@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { useTree } from '@/react/hook-components/Data/Tree/useTree';
 import { TreeNode, TreeProps } from '@/react/hook-components/Data/Tree/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '../../../../styles/components/Data/Tree.scss';
 
 const ChevronIcon = () => (
@@ -33,7 +34,8 @@ export function Tree({
                          size = 'medium',
                          variant = 'default',
                          showLines = false,
-                     }: TreeProps) {
+                      }: TreeProps) {
+    const { t } = useI18n();
     const {
         expandedMap,
         toggleNode,
@@ -90,7 +92,7 @@ export function Tree({
                                 e.stopPropagation();
                                 toggleNode(node);
                             }}
-                            aria-label={isExpanded ? 'Replier' : 'Déplier'}
+                            aria-label={isExpanded ? t('Replier') : t('Déplier')}
                         >
                             <ChevronIcon />
                         </button>
@@ -120,7 +122,7 @@ export function Tree({
     return (
         <div className={`tree tree--${variant} ${showLines ? 'tree--lines' : ''}`}>
             {filteredNodes.length === 0 ? (
-                <div className="tree__empty">Aucun résultat</div>
+                <div className="tree__empty">{t('Aucun résultat')}</div>
             ) : (
                 filteredNodes.map((node) => renderNode(node, 0))
             )}

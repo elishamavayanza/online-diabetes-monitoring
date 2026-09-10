@@ -1,20 +1,29 @@
 import { Card } from '@/react/components/UI/Card';
 import { useI18n } from '@/react/i18n/I18nContext';
+import { formattingLocale } from '@/react/i18n/formatters';
 import { HealthMetric } from '../types';
 
 interface HealthSummaryCardProps {
     metrics: HealthMetric[];
 }
 
-function formatDate(iso?: string): string {
+function formatDate(
+    iso: string | undefined,
+    t: (key: string, values?: Record<string, string | number>) => string,
+    locale: 'fr' | 'en'
+): string {
     if (!iso) return '';
     const date = new Date(iso);
-    if (isNaN(date.getTime())) return '';
-    return `le ${date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}`;
+    if (Number.isNaN(date.getTime())) return '';
+    const formatted = date.toLocaleDateString(formattingLocale(locale), {
+        day: '2-digit',
+        month: 'short',
+    });
+    return t('le {{ date }}', { date: formatted });
 }
 
 export function HealthSummaryCard({ metrics }: HealthSummaryCardProps) {
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
 
     return (
         <Card className="health-summary-card">
@@ -29,7 +38,7 @@ export function HealthSummaryCard({ metrics }: HealthSummaryCardProps) {
                         <span className="health-metric__value">
                             {metric.value} <small>{metric.unit}</small>
                         </span>
-                        {metric.date && <em className="health-metric__date">{formatDate(metric.date)}</em>}
+                        {metric.date && <em className="health-metric__date">{formatDate(metric.date, t, locale)}</em>}
                     </div>
                 ))}
             </div>

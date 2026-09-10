@@ -43,7 +43,7 @@ export function PatientAppointmentsTable({ appointments, onCancel }: PatientAppo
             key: 'statut',
             title: t('Statut'),
             render: (row: PatientAppointment) => (
-                <Badge variant={statusVariant[row.statut]}>{row.statut}</Badge>
+                <Badge variant={statusVariant[row.statut]}>{t(row.statut)}</Badge>
             ),
         },
     ];

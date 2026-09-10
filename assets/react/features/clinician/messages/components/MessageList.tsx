@@ -9,6 +9,7 @@ import {
     BackIcon,
 } from "@/react/features/clinician/messages/components/MessageIcons";
 import { usePresence } from '../hooks/usePresence';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface MessageListProps {
     thread: ConversationThread;
@@ -21,6 +22,7 @@ export function MessageList({
                                 onDeleteMessage,
                                 onBack,
                             }: MessageListProps) {
+    const { t } = useI18n();
     const messagesContainerRef = useRef<HTMLDivElement>(null);
     const isOnline = usePresence(thread.participantId);
 
@@ -46,8 +48,8 @@ export function MessageList({
                         type="button"
                         className="icon-button message-thread__back-btn"
                         onClick={onBack}
-                        title="Retour"
-                        aria-label="Retour"
+                        title={t('Retour')}
+                        aria-label={t('Retour')}
                     >
                         <BackIcon />
                     </button>
@@ -74,7 +76,7 @@ export function MessageList({
                                     : 'message-thread__status--offline'
                             }`}
                         >
-                            {isOnline ? 'En ligne' : 'Hors ligne'}
+                            {isOnline ? t('En ligne') : t('Hors ligne')}
                         </span>
                     </div>
                 </div>
@@ -123,8 +125,8 @@ export function MessageList({
                                         type="button"
                                         className="message-bubble__delete-btn"
                                         onClick={() => onDeleteMessage(msg.id)}
-                                        title="Supprimer"
-                                        aria-label="Supprimer le message"
+                                        title={t('Supprimer')}
+                                        aria-label={t('Supprimer le message')}
                                     >
                                         <DeleteIcon />
                                     </button>

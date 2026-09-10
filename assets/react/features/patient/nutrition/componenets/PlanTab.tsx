@@ -7,6 +7,8 @@ import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
 import { PatientMeal, PatientMealItem, FoodOption } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
+import { formatDate } from '@/react/i18n/formatters';
 
 const MEAL_TYPE_LABELS: Record<string, string> = {
     BREAKFAST: 'Petit-déjeuner',
@@ -47,6 +49,7 @@ export function PlanTab({
                             onRemoveItem,
                             onAddItem,
                         }: PlanTabProps) {
+    const { locale, t } = useI18n();
     const [mealToDelete, setMealToDelete] = useState<string | null>(null);
 
     const foodMap = new Map(foods.map((food) => [food.id, food]));
@@ -61,10 +64,10 @@ export function PlanTab({
     return (
         <div className="nutrition-page__plan-layout">
             <div className="nutrition-page__plan-content">
-                <h2>Repas du {selectedDate.toLocaleDateString('fr-FR')}</h2>
+                <h2>{t('Repas du {{ date }}', { date: formatDate(selectedDate, locale) })}</h2>
                 {meals.length === 0 ? (
                     <Card>
-                        <p>Aucun repas planifié pour cette date.</p>
+                        <p>{t('Aucun repas planifié pour cette date.')}</p>
                     </Card>
                 ) : (
                     <div className="nutrition-page__meals">
@@ -73,14 +76,14 @@ export function PlanTab({
                                 <div className="meal-card__header">
                                     <h3>{meal.name}</h3>
                                     <Badge variant="info">
-                                        {MEAL_TYPE_LABELS[meal.mealType] || meal.mealType}
+                                        {t(MEAL_TYPE_LABELS[meal.mealType] || meal.mealType)}
                                     </Badge>
                                     <Button
                                         variant="danger"
                                         size="small"
                                         onClick={() => setMealToDelete(meal.id)}
                                     >
-                                        Supprimer
+                                        {t('Supprimer')}
                                     </Button>
                                 </div>
                                 {meal.description && (
@@ -102,7 +105,7 @@ export function PlanTab({
                                                         <div className="meal-item__placeholder">🍽️</div>
                                                     )}
                                                     <span className="meal-item__name">
-                                                        {food?.name || item.foodName || 'Aliment'}
+                                                        {food?.name || item.foodName || t('Aliment')}
                                                     </span>
                                                     <span className="meal-item__portion">
                                                         {item.portionGrams} g
@@ -116,8 +119,8 @@ export function PlanTab({
                                                         type="button"
                                                         className="meal-item__remove-btn"
                                                         onClick={() => onRemoveItem(item.id)}
-                                                        title="Retirer"
-                                                        aria-label="Retirer cet aliment"
+                                                        title={t('Retirer')}
+                                                        aria-label={t('Retirer cet aliment')}
                                                     >
                                                         <TrashIcon />
                                                     </button>
@@ -125,7 +128,7 @@ export function PlanTab({
                                             );
                                         })
                                     ) : (
-                                        <p>Aucun aliment dans ce repas.</p>
+                                        <p>{t('Aucun aliment dans ce repas.')}</p>
                                     )}
                                 </div>
                                 <Button
@@ -133,7 +136,7 @@ export function PlanTab({
                                     size="small"
                                     onClick={() => onAddItem(meal)}
                                 >
-                                    + Aliment
+                                    {t('+ Aliment')}
                                 </Button>
                             </Card>
                         ))}
@@ -148,8 +151,8 @@ export function PlanTab({
                 maxWidth={400}
                 closeThreshold={80}
                 collapsedWidth={35}
-                title="Calendrier"
-                header={<div>Naviguez par date</div>}
+                title={t('Calendrier')}
+                header={<div>{t('Naviguez par date')}</div>}
             >
                 <div className="nutrition-page__right-content">
                     <Calendar
@@ -164,10 +167,10 @@ export function PlanTab({
                 isOpen={!!mealToDelete}
                 onClose={() => setMealToDelete(null)}
                 onConfirm={handleConfirmDeleteMeal}
-                title="Supprimer le repas"
-                message="Voulez-vous vraiment supprimer ce repas ?"
-                confirmLabel="Supprimer"
-                cancelLabel="Annuler"
+                title={t('Supprimer le repas')}
+                message={t('Voulez-vous vraiment supprimer ce repas ?')}
+                confirmLabel={t('Supprimer')}
+                cancelLabel={t('Annuler')}
             />
         </div>
     );

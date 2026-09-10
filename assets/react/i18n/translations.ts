@@ -6,6 +6,12 @@
 // chaîne française. `t(key, { param: v })` interpole `{{ param }}`.
 
 import { en as sharedEn } from './extra/shared';
+import { en as rootEn } from './extra/root';
+import { en as adminEn } from './extra/admin';
+import { en as patientEn } from './extra/patient';
+import { en as clinicianEn } from './extra/clinician';
+import { en as nutritionistEn } from './extra/nutritionist';
+import { en as hooksEn } from './extra/hooks';
 
 export const STORAGE_KEY = 'diabcare-locale';
 
@@ -119,6 +125,34 @@ const en: Record<string, string> = {
     'Navigation': 'Navigation',
     'Compte': 'Account',
     'À propos': 'About',
+    'Entrez votre email pour recevoir un lien de réinitialisation.':
+        'Enter your email to receive a reset link.',
+    'Adresse email': 'Email address',
+    'Envoi en cours...': 'Sending...',
+    'Envoyer le lien': 'Send link',
+    'Veuillez saisir votre adresse email.': 'Please enter your email address.',
+    'Format d\u2019email invalide.': 'Invalid email format.',
+    'Une erreur est survenue.': 'An error occurred.',
+    'Motif de la suspension *': 'Suspension reason *',
+    'Expliquez la raison de la suspension (manquement, enquête...)':
+        'Explain the reason for the suspension (breach, investigation...)',
+    'Durée': 'Duration',
+    '15 jours': '15 days',
+    '30 jours': '30 days',
+    '60 jours': '60 days',
+    '90 jours': '90 days',
+    'Indéterminée (levée manuelle)': 'Indefinite (manual lift)',
+    'Période personnalisée': 'Custom period',
+    'Suspension...': 'Suspending...',
+    'Veuillez indiquer le motif de la suspension.': 'Please provide the suspension reason.',
+    'Le motif ne peut pas dépasser 500 caractères.': 'Reason cannot exceed 500 characters.',
+    'Veuillez indiquer la date de fin de la suspension.': 'Please provide the end date of the suspension.',
+    'La date de fin doit être postérieure à la date de début.': 'End date must be after the start date.',
+    'Une erreur est survenue lors de la suspension.': 'An error occurred while suspending.',
+    'Réactivation...': 'Reactivating...',
+    'Une erreur est survenue lors de la réactivation.': 'An error occurred while reactivating.',
+    'Administrateurs': 'Administrators',
+    'Erreur lors de l\u2019enregistrement.': 'Error while saving.',
 
     // --- Settings (ROOT) ---
     'Configuration système': 'System configuration',
@@ -209,7 +243,16 @@ interface Dictionary {
 
 const dictionaries: Dictionary = {
     fr: {},
-    en: { ...en, ...sharedEn },
+    en: {
+        ...en,
+        ...sharedEn,
+        ...rootEn,
+        ...adminEn,
+        ...patientEn,
+        ...clinicianEn,
+        ...nutritionistEn,
+        ...hooksEn,
+    },
 };
 
 function interpolate(template: string, params?: Record<string, string | number>): string {

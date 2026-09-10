@@ -1,5 +1,6 @@
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Conversation } from '../types';
 
 interface ConversationListProps {
@@ -9,9 +10,10 @@ interface ConversationListProps {
 }
 
 export function ConversationList({ conversations, selectedId, onSelect }: ConversationListProps) {
+    const { t } = useI18n();
     return (
         <Card className="conversation-list">
-            <h2>Conversations</h2>
+            <h2>{t('Conversations')}</h2>
             <ul>
                 {conversations.map((conv) => (
                     <li

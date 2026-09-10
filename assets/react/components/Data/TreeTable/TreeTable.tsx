@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useTreeTable } from '../../../hook-components/Data/TreeTable/useTreeTable';
 import { TreeTableNode, TreeTableColumn, TreeTableProps } from '../../../hook-components/Data/TreeTable/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '../../../../styles/components/Data/TreeTable.scss';
 
 const ChevronIcon = () => (
@@ -36,8 +37,9 @@ export function TreeTable<T>({
                                  variant = 'default',
                                  hoverable = false,
                                  showLines = false,
-                                 className,
-                             }: TreeTableProps<T>) {
+                             className,
+                         }: TreeTableProps<T>) {
+    const { t } = useI18n();
     const {
         expandedMap,
         toggleNode,
@@ -117,7 +119,7 @@ export function TreeTable<T>({
                                                     e.stopPropagation();
                                                     toggleNode(node);
                                                 }}
-                                                aria-label={isExpanded ? 'Replier' : 'Déplier'}
+                                                aria-label={isExpanded ? t('Replier') : t('Déplier')}
                                             >
                                                 <ChevronIcon />
                                             </button>
@@ -207,7 +209,7 @@ export function TreeTable<T>({
                 ) : (
                     <tr>
                         <td colSpan={columns.length} className="tree-table__empty">
-                            Aucune donnée disponible.
+                            {t('Aucune donnée disponible.')}
                         </td>
                     </tr>
                 )}

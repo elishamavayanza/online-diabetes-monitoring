@@ -11,6 +11,7 @@ import { RightSidebar } from '@/react/components/Navigation/RightSidebar';
 import { Calendar } from '@/react/components/Calendars/Calendar';
 import type { CalendarMarkedDate } from '@/react/hook-components/Calendars/Calendar';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { RecordEventKind } from '../types';
 import '@/styles/pages/patient/medical-record/_record.scss';
 
@@ -34,6 +35,7 @@ const LEGEND: { label: string; type: CalendarMarkedDate['type'] }[] = [
 ];
 
 export function MedicalRecordPage() {
+    const { t } = useI18n();
     const { data, isLoading, error } = useMedicalRecord();
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -73,14 +75,14 @@ export function MedicalRecordPage() {
     };
 
     if (isLoading) return <Spinner />;
-    if (error || !data) return <Alert variant="error">{error ?? 'Aucune donnée'}</Alert>;
+    if (error || !data) return <Alert variant="error">{error ?? t('Aucune donnée')}</Alert>;
 
     return (
         <div className="medical-record-page">
             <div className="medical-record-page__header">
-                <h1>Mon dossier</h1>
-                <p>Votre carnet de santé : vos informations médicales et notes par date</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Mon dossier')}</h1>
+                <p>{t('Votre carnet de santé : vos informations médicales et notes par date')}</p>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 
             <div className="medical-record-page__body">
@@ -105,8 +107,8 @@ export function MedicalRecordPage() {
                     maxWidth={400}
                     closeThreshold={80}
                     collapsedWidth={35}
-                    title="Carnet"
-                    header={<div>Naviguez par date</div>}
+                    title={t('Carnet')}
+                    header={<div>{t('Naviguez par date')}</div>}
                 >
                     <div className="medical-record-page__right-content">
                         <Calendar
@@ -124,9 +126,9 @@ export function MedicalRecordPage() {
                             ))}
                         </ul>
 
-                        {selectedDate && (
+                            {selectedDate && (
                             <Button variant="secondary" size="small" onClick={clearDate}>
-                                Effacer la sélection
+                                {t('Effacer la sélection')}
                             </Button>
                         )}
                     </div>
@@ -135,7 +137,7 @@ export function MedicalRecordPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Sélectionnez une date dans le calendrier pour afficher les événements de la journée (notes médicales, rendez-vous, mesures). C'est votre carnet de santé.</p>
+                    <p>{t('Sélectionnez une date dans le calendrier pour afficher les événements de la journée (notes médicales, rendez-vous, mesures). C\u2019est votre carnet de santé.')}</p>
                 </Modal>
             )}
         </div>

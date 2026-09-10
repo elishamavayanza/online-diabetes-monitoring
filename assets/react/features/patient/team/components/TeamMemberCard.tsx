@@ -2,6 +2,7 @@ import { Card } from '@/react/components/UI/Card';
 import { Button } from '@/react/components/UI/Button';
 import { CareTeamMember } from '../types';
 import { useNavigate } from 'react-router-dom'; // ✅ import
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface TeamMemberCardProps {
     member: CareTeamMember;
@@ -9,6 +10,7 @@ interface TeamMemberCardProps {
 
 export function TeamMemberCard({ member }: TeamMemberCardProps) {
     const navigate = useNavigate(); // ✅ hook
+    const { t } = useI18n();
 
     return (
         <Card className="team-member-card">
@@ -27,9 +29,9 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
                 {/* Informations à droite */}
                 <div className="team-member-card__info">
                     <h3>{member.nom}</h3>
-                    <p><strong>Rôle :</strong> {member.role}</p>
-                    {member.specialite && <p><strong>Spécialité :</strong> {member.specialite}</p>}
-                    <p><strong>Fonction :</strong> {member.fonction}</p>
+                    <p><strong>{t('Rôle :')}</strong> {member.role}</p>
+                    {member.specialite && <p><strong>{t('Spécialité :')}</strong> {member.specialite}</p>}
+                    <p><strong>{t('Fonction :')}</strong> {member.fonction}</p>
                 </div>
             </div>
 
@@ -39,7 +41,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
                     size="small"
                     onClick={() => navigate('/patient/messages')}
                 >
-                    Envoyer un message
+                    {t('Envoyer un message')}
                 </Button>
             </div>
         </Card>

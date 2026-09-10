@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { useSelect, UseSelectProps } from '@/react/hook-components/Forms/Select';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface SelectOption {
     value: string | number;
@@ -27,6 +28,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         },
         ref
     ) => {
+        const { t } = useI18n();
         const { classes, ariaProps } = useSelect({
             variant,
             fieldSize,
@@ -44,7 +46,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     {...ariaProps}
                     {...rest}
                 >
-                    {placeholder && <option value="">{placeholder}</option>}
+                    {placeholder && <option value="">{t(placeholder)}</option>}
                     {options.map((opt) => (
                         <option key={opt.value} value={opt.value} disabled={opt.disabled}>
                             {opt.label}

@@ -4,6 +4,7 @@ import {
     LineChartDataPoint,
     useLineChart
 } from "@/react/hook-components/Data/LineChart/useLineChart";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface LineChartProps {
     data: LineChartDataPoint[];
@@ -24,6 +25,7 @@ export function LineChart({
                               formatDate = (d) => String(d),
                               formatValue = (p) => p.toFixed(2),
                           }: LineChartProps) {
+    const { t } = useI18n();
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const gradientId = useId();
@@ -66,7 +68,7 @@ export function LineChart({
     });
 
     if (data.length === 0) {
-        return <div className="line-chart__empty">Aucune donnée</div>;
+        return <div className="line-chart__empty">{t('Aucune donnée')}</div>;
     }
 
     const dateLabelStep = Math.max(1, Math.ceil(data.length / 6));

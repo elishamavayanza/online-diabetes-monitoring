@@ -2,13 +2,8 @@ import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { Treatment } from '../types';
-
-function formatDate(dateStr?: string): string {
-    if (!dateStr) return '—';
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
+import { useI18n } from '@/react/i18n/I18nContext';
+import { formatDate } from '@/react/i18n/formatters';
 
 interface TreatmentsListProps {
     treatments: Treatment[];
@@ -17,6 +12,7 @@ interface TreatmentsListProps {
 }
 
 export function TreatmentsList({ treatments, isActiveView, onStopTreatment }: TreatmentsListProps) {
+    const { locale, t } = useI18n();
     return (
         <div className="treatments-list">
             {treatments.map((treatment) => (
@@ -37,26 +33,26 @@ export function TreatmentsList({ treatments, isActiveView, onStopTreatment }: Tr
 
                     {treatment.instructions && (
                         <p className="treatment-card__instructions">
-                            <strong>Instructions :</strong> {treatment.instructions}
+                            <strong>{t('Instructions :')}</strong> {treatment.instructions}
                         </p>
                     )}
 
                     {treatment.quantity && (
                         <p className="treatment-card__quantity">
-                            <strong>Quantité :</strong> {treatment.quantity}
+                            <strong>{t('Quantité :')}</strong> {treatment.quantity}
                         </p>
                     )}
 
                     {(treatment.startDate || treatment.endDate) && (
                         <div className="treatment-card__dates">
-                            {treatment.startDate && <span><strong>Début :</strong> {formatDate(treatment.startDate)}</span>}
-                            {treatment.endDate && <span><strong>Fin :</strong> {formatDate(treatment.endDate)}</span>}
+                            {treatment.startDate && <span><strong>{t('Début :')}</strong> {formatDate(treatment.startDate, locale)}</span>}
+                            {treatment.endDate && <span><strong>{t('Fin :')}</strong> {formatDate(treatment.endDate, locale)}</span>}
                         </div>
                     )}
 
                     {treatment.prescriberName && (
                         <p className="treatment-card__prescriber">
-                            <strong>Prescrit par :</strong> {treatment.prescriberName}
+                            <strong>{t('Prescrit par :')}</strong> {treatment.prescriberName}
                         </p>
                     )}
 
@@ -64,11 +60,11 @@ export function TreatmentsList({ treatments, isActiveView, onStopTreatment }: Tr
                     {!isActiveView && treatment.status && (
                         <div className="treatment-card__status">
                             {treatment.status === 'CANCELLED' ? (
-                                <Badge variant="error">Arrêté</Badge>
+                                <Badge variant="error">{t('Arrêté')}</Badge>
                             ) : treatment.status === 'COMPLETED' ? (
-                                <Badge variant="success">Terminé</Badge>
+                                <Badge variant="success">{t('Terminé')}</Badge>
                             ) : (
-                                <Badge variant="warning">Inactif</Badge>
+                                <Badge variant="warning">{t('Inactif')}</Badge>
                             )}
                         </div>
                     )}
@@ -76,7 +72,7 @@ export function TreatmentsList({ treatments, isActiveView, onStopTreatment }: Tr
                     {/* Motif d'arrêt pour les traitements historiques */}
                     {!isActiveView && treatment.stopReason && (
                         <div className="treatment-card__stop-reason">
-                            <strong>Motif d’arrêt :</strong> {treatment.stopReason}
+                            <strong>{t('Motif d’arrêt :')}</strong> {treatment.stopReason}
                         </div>
                     )}
 
@@ -84,7 +80,7 @@ export function TreatmentsList({ treatments, isActiveView, onStopTreatment }: Tr
                     {isActiveView && onStopTreatment && (
                         <div className="treatment-card__actions">
                             <Button variant="danger" size="small" onClick={() => onStopTreatment(treatment)}>
-                                Arrêter
+                                {t('Arrêter')}
                             </Button>
                         </div>
                     )}

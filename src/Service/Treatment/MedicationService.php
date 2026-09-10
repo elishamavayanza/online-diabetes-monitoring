@@ -8,6 +8,7 @@ use App\Entity\Treatment\Insulin;
 use App\Entity\Treatment\InsulinType;
 use App\Entity\Treatment\Medication;
 use App\Entity\Treatment\MedicationClass;
+use App\Entity\Healthcare\HealthcareOrganization;
 use App\Mapper\Treatment\MedicationMapper;
 use App\Repository\Treatment\MedicationRepository;
 use App\Security\SecurityAction;
@@ -38,6 +39,32 @@ class MedicationService
         }
 
         $this->securityService->checkProfessionalAccess(SecurityAction::MANAGE_MEDICATION);
+    }
+
+    /** Retourne l'organisation active de l'utilisateur, sauf pour le ROOT. */
+    private function currentOrganization(): ?HealthcareOrganization
+    {
+        if ($this->securityService->isSuperAdmin()) {
+            return null;
+        }
+
+        $user = $this->securityService->getCurrentUser();
+        foreach ($user->getOrganizationMemberships() as $membership) {
+            if ($membership->getStatus()?->isActive() && $membership->getOrganization() !== null) {
+                return $membership->getOrganization();
+            }
+        }
+
+        throw new AccessDeniedException('Aucune organisation active n’est associée à cet utilisateur.');
+    }
+
+    /** Empêche toute lecture ou mutation d'un médicament d'une autre organisation. */
+    private function findAccessibleMedication(string $id): ?Medication
+    {
+        $organization = $this->currentOrganization();
+        return $organization === null
+            ? $this->repository->find($id)
+            : $this->repository->findOneByIdAndOrganization($id, $organization);
     }
 
     /**
@@ -79,12 +106,16 @@ class MedicationService
         );
 
         if (!$this->isInsulinRequest($dto)) {
-            $medication->setForm(null);
+            // La forme (comprimé/liquide) appartient aux médicaments généraux.
+            // Elle a déjà été normalisée par le mapper : ne pas l'effacer ici.
             foreach ($medication->getInsulins() as $existing) {
                 $medication->removeInsulin($existing);
             }
             return;
         }
+
+        // Une insuline est définie par son type et sa concentration, pas par la forme générale.
+        $medication->setForm(null);
 
         $insulin = $medication->getInsulins()->first() ?: null;
         if (!$insulin) {
@@ -119,8 +150,10 @@ class MedicationService
         try {
             $this->checkMedicationAccess();
 
-            // Catalogue global : on récupère tous les médicaments sans filtrer par organisation
-            $medications = $this->repository->findAll();
+            $organization = $this->currentOrganization();
+            $medications = $organization === null
+                ? $this->repository->findAll()
+                : $this->repository->findByOrganization($organization);
             $responseDTOs = array_map(fn($m) => $this->mapper->mapEntityToResponse($m), $medications);
 
             return $feedback
@@ -145,7 +178,7 @@ class MedicationService
             // pour l'action VIEW_MEDICATION.
             $this->securityService->checkPermission(SecurityAction::VIEW_MEDICATION->value);
 
-            $medication = $this->repository->find($id);
+            $medication = $this->findAccessibleMedication($id);
             if (!$medication) {
                 return $feedback->setErrorFlushDescription('Médicament introuvable.')->autoInitFlush();
             }
@@ -177,9 +210,9 @@ class MedicationService
             }
 
             $medication = $this->mapper->mapRequestToEntity($dto);
+            $medication->setOrganization($this->currentOrganization());
             $this->syncInsulin($medication, $dto);
 
-            // Pas de setOrganization() puisque le catalogue est global
             $this->entityManager->persist($medication);
             $this->entityManager->flush();
 
@@ -202,7 +235,7 @@ class MedicationService
         try {
             $this->checkMedicationAccess();
 
-            $medication = $this->repository->find($id);
+            $medication = $this->findAccessibleMedication($id);
             if (!$medication) {
                 return $feedback->setErrorFlushDescription('Médicament introuvable.')->autoInitFlush();
             }
@@ -238,7 +271,7 @@ class MedicationService
         try {
             $this->checkMedicationAccess();
 
-            $medication = $this->repository->find($id);
+            $medication = $this->findAccessibleMedication($id);
             if (!$medication) {
                 return $feedback->setErrorFlushDescription('Médicament introuvable.')->autoInitFlush();
             }

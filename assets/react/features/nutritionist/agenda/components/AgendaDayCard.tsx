@@ -1,5 +1,6 @@
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge/Badge';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { AgendaDay, statusToBadgeVariant, statusLabel } from '../types';
 
 interface AgendaDayCardProps {
@@ -7,6 +8,7 @@ interface AgendaDayCardProps {
 }
 
 export function AgendaDayCard({ day }: AgendaDayCardProps) {
+    const { t } = useI18n();
     return (
         <Card className="agenda-day-card">
             <div className="agenda-day-card__header">
@@ -14,7 +16,7 @@ export function AgendaDayCard({ day }: AgendaDayCardProps) {
                 <span className="agenda-day-card__date">{day.date}</span>
             </div>
             {day.appointments.length === 0 ? (
-                <p className="agenda-day-card__empty">Aucun rendez-vous</p>
+                <p className="agenda-day-card__empty">{t('Aucun rendez-vous')}</p>
             ) : (
                 <ul className="agenda-day-card__list">
                     {day.appointments.map((appt) => (
@@ -32,11 +34,11 @@ export function AgendaDayCard({ day }: AgendaDayCardProps) {
                             </div>
                             {appt.status && (
                                 <Badge variant={statusToBadgeVariant(appt.status)} size="small">
-                                    {statusLabel(appt.status)}
+                                    {t(statusLabel(appt.status))}
                                 </Badge>
                             )}
                             <span className={`agenda-appointment__type agenda-appointment__type--${appt.type === 'Consultation' ? 'consultation' : 'suivi'}`}>
-                                {appt.type === 'Consultation' ? 'Consult.' : 'Suivi'}
+                                {appt.type === 'Consultation' ? t('Consult.') : t('Suivi')}
                             </span>
                         </li>
                     ))}

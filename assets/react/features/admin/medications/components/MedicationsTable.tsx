@@ -3,6 +3,7 @@ import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { Medication } from '../types/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface MedicationsTableProps {
     medications: Medication[];
@@ -29,58 +30,59 @@ const INSULIN_TYPE_LABELS: Record<string, string> = {
     OTHER: 'Autre',
 };
 
+function medicationCharacteristics(medication: Medication): string {
+    if (medication.category === 'GENERAL') {
+        return FORM_LABELS[medication.form ?? ''] ?? 'Non renseignée';
+    }
+
+    const insulinType = INSULIN_TYPE_LABELS[medication.insulinType ?? '']
+        ?? medication.insulinType
+        ?? 'Type non renseigné';
+
+    return medication.concentration
+        ? `${insulinType} (${medication.concentration})`
+        : insulinType;
+}
+
 export function MedicationsTable({ medications, onEdit, onDelete }: MedicationsTableProps) {
+    const { t } = useI18n();
     const columns = [
-        { key: 'name', title: 'Nom' },
+        { key: 'name', title: t('Nom') },
         {
             key: 'category',
-            title: 'Classe',
+            title: t('Classe'),
             render: (row: Medication) => (
                 <Badge variant={row.category === 'INSULIN' ? 'info' : 'secondary'}>
-                    {CATEGORY_LABELS[row.category] ?? row.category}
+                    {t(CATEGORY_LABELS[row.category] ?? row.category)}
                 </Badge>
             ),
         },
         {
-            key: 'form',
-            title: 'Forme',
-            render: (row: Medication) =>
-                row.category === 'GENERAL' ? (FORM_LABELS[row.form ?? ''] ?? '—') : '—',
-        },
-        {
-            key: 'insulin',
-            title: 'Type / Concentration',
-            render: (row: Medication) =>
-                row.category === 'INSULIN' ? (
-                    <>
-                        {INSULIN_TYPE_LABELS[row.insulinType ?? ''] ?? row.insulinType ?? '—'}
-                        {row.concentration ? ` (${row.concentration})` : ''}
-                    </>
-                ) : (
-                    '—'
-                ),
+            key: 'characteristics',
+            title: t('Caractéristiques'),
+            render: (row: Medication) => medicationCharacteristics(row),
         },
         {
             key: 'manufacturer',
-            title: 'Fabricant',
+            title: t('Fabricant'),
             render: (row: Medication) => row.manufacturer ?? '—',
         },
         {
             key: 'active',
-            title: 'Statut',
+            title: t('Statut'),
             render: (row: Medication) => (
                 <Badge variant={row.active ? 'success' : 'error'}>
-                    {row.active ? 'Actif' : 'Inactif'}
+                    {row.active ? t('Actif') : t('Inactif')}
                 </Badge>
             ),
         },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: Medication) => (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <Button variant="secondary" size="small" onClick={() => onEdit(row)}>Modifier</Button>
-                    <Button variant="danger" size="small" onClick={() => onDelete(row)}>Supprimer</Button>
+                    <Button variant="secondary" size="small" onClick={() => onEdit(row)}>{t('Modifier')}</Button>
+                    <Button variant="danger" size="small" onClick={() => onDelete(row)}>{t('Supprimer')}</Button>
                 </div>
             ),
         },

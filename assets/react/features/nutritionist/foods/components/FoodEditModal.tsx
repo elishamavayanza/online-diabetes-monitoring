@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Modal } from '@/react/components/UI/Modal';
 import { Form } from '@/react/components/Forms/Form';
 import { FormField } from '@/react/components/Forms/FormField';
@@ -21,6 +22,7 @@ interface FoodEditModalProps {
 }
 
 export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, onSuccess }: FoodEditModalProps) {
+    const { t } = useI18n();
     const { form, updateField, setPhotoFile, submit, isSubmitting, error } = useUpdateFood(foodData, foodId);
 
     const categoryOptions = categories.map((c) => ({ value: c.id, label: c.label }));
@@ -35,15 +37,15 @@ export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, o
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Modifier l'aliment">
+        <Modal isOpen={isOpen} onClose={onClose} title={t("Modifier l'aliment")}>
             <div className="food-form-modal">
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
                     <div className="food-form-grid">
-                        <FormField label="Nom *">
+                        <FormField label={t('Nom *')}>
                             <Input value={form.name} onChange={(e) => updateField('name', e.target.value)} required />
                         </FormField>
-                        <FormField label="Catégorie *">
+                        <FormField label={t('Catégorie *')}>
                             <Select
                                 value={form.categoryId}
                                 onChange={(e) => updateField('categoryId', e.target.value)}
@@ -51,7 +53,7 @@ export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, o
                                 required
                             />
                         </FormField>
-                        <FormField label="Calories (kcal/100g) *">
+                        <FormField label={t('Calories (kcal/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -61,7 +63,7 @@ export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, o
                                 required
                             />
                         </FormField>
-                        <FormField label="Glucides (g/100g) *">
+                        <FormField label={t('Glucides (g/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -71,7 +73,7 @@ export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, o
                                 required
                             />
                         </FormField>
-                        <FormField label="Protéines (g/100g) *">
+                        <FormField label={t('Protéines (g/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -81,7 +83,7 @@ export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, o
                                 required
                             />
                         </FormField>
-                        <FormField label="Lipides (g/100g) *">
+                        <FormField label={t('Lipides (g/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -92,7 +94,7 @@ export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, o
                             />
                         </FormField>
                     </div>
-                    <FormField label="Description">
+                    <FormField label={t('Description')}>
                         <Textarea value={form.description} onChange={(e) => updateField('description', e.target.value)} />
                     </FormField>
                     <FoodPhotoField
@@ -101,9 +103,9 @@ export function FoodEditModal({ isOpen, onClose, foodId, foodData, categories, o
                         onPhotoFileChange={setPhotoFile}
                     />
                     <div className="food-form-modal__actions">
-                        <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('Annuler')}</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+                            {isSubmitting ? t('Enregistrement...') : t('Enregistrer')}
                         </Button>
                     </div>
                 </Form>

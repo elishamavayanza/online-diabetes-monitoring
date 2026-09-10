@@ -1,6 +1,7 @@
 import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { NutritionistNotification, NotificationType } from '../types';
 
 interface NotificationsTableProps {
@@ -16,24 +17,25 @@ const typeVariant: Record<NotificationType, 'success' | 'warning' | 'error' | 'p
 };
 
 export function NotificationsTable({ notifications }: NotificationsTableProps) {
+    const { t } = useI18n();
     const columns = [
-        { key: 'titre', title: 'Titre' },
-        { key: 'message', title: 'Message' },
+        { key: 'titre', title: t('Titre') },
+        { key: 'message', title: t('Message') },
         {
             key: 'type',
-            title: 'Type',
+            title: t('Type'),
             render: (row: NutritionistNotification) => (
                 <Badge variant={typeVariant[row.type]}>{row.type}</Badge>
             ),
         },
         {
             key: 'estLue',
-            title: 'État',
+            title: t('État'),
             render: (row: NutritionistNotification) => (
-                <Badge variant={row.estLue ? 'success' : 'warning'}>{row.estLue ? 'Lue' : 'Non lue'}</Badge>
+                <Badge variant={row.estLue ? 'success' : 'warning'}>{row.estLue ? t('Lue') : t('Non lue')}</Badge>
             ),
         },
-        { key: 'date', title: 'Date' },
+        { key: 'date', title: t('Date') },
     ];
 
     return (

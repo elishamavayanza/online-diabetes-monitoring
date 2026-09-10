@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
 import { getMealTypeLabel } from '../../utils/labelUtils';
 import { RecordAuthor } from '../RecordAuthor';
@@ -10,6 +11,7 @@ import { fetchFoods } from '@/react/features/nutritionist/foods/services/foodsSe
 
 export function NutritionTab() {
     const { data, period, selectedDate } = usePatientDossierContext();
+    const { t } = useI18n();
     const { meals, mealItems } = data;
 
     const [foods, setFoods] = useState<FoodOption[]>([]);
@@ -49,11 +51,11 @@ export function NutritionTab() {
     return (
         <div className="patient-dossier-tab patient-dossier-tab--nutrition">
             <div className="patient-dossier-tab__toolbar">
-                <p className="patient-dossier-tab__hint">Suivi nutritionnel et repas enregistrés.</p>
+                <p className="patient-dossier-tab__hint">{t('Suivi nutritionnel et repas enregistrés.')}</p>
             </div>
 
             {filtered.length === 0 ? (
-                <Card><p>Aucun repas sur la période sélectionnée.</p></Card>
+                <Card><p>{t('Aucun repas sur la période sélectionnée.')}</p></Card>
             ) : (
                 <div className="patient-dossier-tab__grid">
                     {filtered.map((meal) => {
@@ -64,18 +66,18 @@ export function NutritionTab() {
                                 <div className="patient-dossier-tab__card-header">
                                     <h3>{meal.name}</h3>
                                     {meal.mealType && (
-                                        <Badge variant="info">{getMealTypeLabel(meal.mealType)}</Badge>
+                                        <Badge variant="info">{t(getMealTypeLabel(meal.mealType))}</Badge>
                                     )}
                                 </div>
                                 {date && (
-                                    <p><strong>Date :</strong> {formatDisplayDateTime(date)}</p>
+                                    <p><strong>{t('Date :')}</strong> {formatDisplayDateTime(date)}</p>
                                 )}
-                                {meal.description && <p><strong>Description :</strong> {meal.description}</p>}
+                                {meal.description && <p><strong>{t('Description :')}</strong> {meal.description}</p>}
                                 <RecordAuthor record={meal} />
 
                                 {items.length > 0 && (
                                     <div className="patient-dossier-tab__meal-items">
-                                        <strong>Aliments ({items.length}) :</strong>
+                                        <strong>{t('Aliments ({{ count }}) :', { count: items.length })}</strong>
                                         <ul className="patient-dossier-tab__list meal-items-list">
                                             {items.map((item) => {
                                                 const food = foodMap.get(item.foodId);
@@ -94,7 +96,7 @@ export function NutritionTab() {
                                                         </div>
 
                                                         <span className="meal-item-row__name">
-                                                            {food?.name || 'Aliment'}
+                                                            {food?.name || t('Aliment')}
                                                             <RecordAuthor record={item} className="meal-item-row__author" />
                                                         </span>
 

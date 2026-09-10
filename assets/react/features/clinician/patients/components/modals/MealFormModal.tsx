@@ -9,6 +9,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { createMeal } from '../../services/dossierActionsService';
 import { PatientDossierData } from '../../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface MealFormModalProps {
     isOpen: boolean;
@@ -25,6 +26,7 @@ const MEAL_TYPE_OPTIONS = [
 ];
 
 export function MealFormModal({ isOpen, onClose, data, onSuccess }: MealFormModalProps) {
+    const { t } = useI18n();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [form, setForm] = useState({ name: '', mealType: 'LUNCH', description: '' });
@@ -54,31 +56,31 @@ export function MealFormModal({ isOpen, onClose, data, onSuccess }: MealFormModa
             onSuccess();
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de l\'enregistrement.');
+            setError(err instanceof Error ? err.message : t("Erreur lors de l'enregistrement."));
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Enregistrer un repas">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Enregistrer un repas')}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
-                    <FormField label="Nom du repas" htmlFor="name" required>
+                    <FormField label={t('Nom du repas')} htmlFor="name" required>
                         <Input id="name" name="name" value={form.name} onChange={handleChange} required />
                     </FormField>
-                    <FormField label="Type" htmlFor="mealType" required>
-                        <Select id="mealType" name="mealType" value={form.mealType} onChange={handleChange} options={MEAL_TYPE_OPTIONS} />
+                    <FormField label={t('Type')} htmlFor="mealType" required>
+                        <Select id="mealType" name="mealType" value={form.mealType} onChange={handleChange} options={MEAL_TYPE_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))} />
                     </FormField>
-                    <FormField label="Description" htmlFor="description">
+                    <FormField label={t('Description')} htmlFor="description">
                         <Textarea id="description" name="description" rows={3} value={form.description} onChange={handleChange} fullWidth />
                     </FormField>
                 </div>
                 <div className="dossier-form__actions">
-                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>Annuler</Button>
+                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>{t('Annuler')}</Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : 'Enregistrer'}
+                        {isLoading ? <Spinner size="small" /> : t('Enregistrer')}
                     </Button>
                 </div>
             </form>

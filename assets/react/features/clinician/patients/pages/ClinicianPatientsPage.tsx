@@ -6,6 +6,7 @@ import { Tabs } from '@/react/components/Navigation/Tabs';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/clinician/patients/_patients.scss';
 
@@ -13,6 +14,7 @@ export function ClinicianPatientsPage() {
     const { patients, search, setSearch, isLoading, error } = useClinicianPatients();
     const { follows: externalFollows, isLoading: externalLoading } = useMyExternalFollows();
     const { pushAction } = useActionHistory();
+    const { t } = useI18n();
 
     const handleSearchChange = (newSearch: string) => {
         const previousSearch = search;
@@ -24,7 +26,7 @@ export function ClinicianPatientsPage() {
         <div className="clinician-patients-page__search-wrapper">
             <SearchInput
                 fullWidth
-                placeholder="Rechercher un patient..."
+                placeholder={t('Rechercher un patient...')}
                 value={search}
                 onSearch={handleSearchChange}
             />
@@ -45,8 +47,8 @@ export function ClinicianPatientsPage() {
         return (
             <div className="clinician-patients-page">
                 <div className="clinician-patients-page__header">
-                    <h1>Mes patients</h1>
-                    <p>Suivez et gérez vos patients assignés.</p>
+                    <h1>{t('Mes patients')}</h1>
+                    <p>{t('Suivez et gérez vos patients assignés.')}</p>
                 </div>
                 {searchBar}
                 {ownPatientsContent}
@@ -58,8 +60,8 @@ export function ClinicianPatientsPage() {
         return (
             <div className="clinician-patients-page">
                 <div className="clinician-patients-page__header">
-                    <h1>Mes patients</h1>
-                    <p>Suivez et gérez vos patients assignés.</p>
+                    <h1>{t('Mes patients')}</h1>
+                    <p>{t('Suivez et gérez vos patients assignés.')}</p>
                 </div>
                 {searchBar}
                 {ownPatientsContent}
@@ -78,9 +80,9 @@ export function ClinicianPatientsPage() {
                 variant="underline"
                 defaultActiveTabId="all"
                 tabs={[
-                    { id: 'all', label: 'Tout' },
-                    { id: 'own', label: 'Mes patients' },
-                    { id: 'external', label: 'Suivis externes' },
+                    { id: 'all', label: t('Tout') },
+                    { id: 'own', label: t('Mes patients') },
+                    { id: 'external', label: t('Suivis externes') },
                 ]}
                 renderContent={(tabId) => {
                     if (tabId === 'external') {

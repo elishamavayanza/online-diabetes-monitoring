@@ -8,6 +8,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { Medication, MedicationFormValues } from '../types/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/admin/medications/_medications.scss';
 
 function toFormValues(med: Medication): MedicationFormValues {
@@ -28,6 +29,7 @@ export function MedicationsPage() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingMed, setEditingMed] = useState<{ id: string; data: MedicationFormValues } | null>(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
+    const { t } = useI18n();
 
     const handleEdit = (med: Medication) => {
         setEditingMed({ id: med.id, data: toFormValues(med) });
@@ -40,20 +42,20 @@ export function MedicationsPage() {
     return (
         <div className="medications-page">
             <div className="medications-page__header">
-                <h1>Médicaments</h1>
-                <p>Gérez le référentiel médicamenteux de votre organisation</p>
+                <h1>{t('Médicaments')}</h1>
+                <p>{t('Gérez le référentiel médicamenteux de votre organisation')}</p>
             </div>
 
             <div className="medications-page__actions">
                 <div className="medications-page__search">
                     <SearchInput
-                        placeholder="Rechercher un médicament..."
+                        placeholder={t('Rechercher un médicament...')}
                         value={filters.search}
                         onSearch={(value) => setFilters({ ...filters, search: value })}
                     />
                 </div>
                 <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-                    + Ajouter un médicament
+                    + {t('Ajouter un médicament')}
                 </Button>
             </div>
 

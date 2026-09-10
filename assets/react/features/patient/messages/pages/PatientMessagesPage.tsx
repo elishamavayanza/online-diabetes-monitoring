@@ -8,10 +8,12 @@ import { Alert } from '@/react/components/UI/Alert';
 import { useIsCompact } from '@/react/hooks/useIsCompact';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { usePatientMessages } from '../hooks/usePatientMessages';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/clinician/messages/_messages.scss';
 import '@/styles/pages/patient/messages/_messages.scss';
 
 export function PatientMessagesPage() {
+    const { t } = useI18n();
     const {
         conversations,
         selectedConversation,
@@ -82,8 +84,8 @@ export function PatientMessagesPage() {
         <div className="patient-messages-page">
             <div className="messages-page">
                 <div className="messages-page__header">
-                    <h1>Messages</h1>
-                    <p>Vos conversations</p>
+                    <h1>{t('Messages')}</h1>
+                    <p>{t('Vos conversations')}</p>
                     {sendError && <Alert variant="error">{sendError}</Alert>}
                 </div>
 

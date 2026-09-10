@@ -3,6 +3,7 @@ import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { PatientNotification, PatientNotificationType } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface NotificationsTableProps {
     notifications: PatientNotification[];
@@ -19,34 +20,36 @@ const typeVariant: Record<PatientNotificationType, 'success' | 'warning' | 'erro
 };
 
 export function NotificationsTable({ notifications, onMarkAsRead }: NotificationsTableProps) {
+    const { t } = useI18n();
+
     const columns = [
-        { key: 'titre', title: 'Titre' },
-        { key: 'message', title: 'Message' },
+        { key: 'titre', title: t('Titre') },
+        { key: 'message', title: t('Message') },
         {
             key: 'type',
-            title: 'Type',
+            title: t('Type'),
             render: (row: PatientNotification) => (
                 <Badge variant={typeVariant[row.type]}>{row.type}</Badge>
             ),
         },
         {
             key: 'estLue',
-            title: 'État',
+            title: t('État'),
             render: (row: PatientNotification) => (
                 <Badge variant={row.estLue ? 'success' : 'warning'}>
-                    {row.estLue ? 'Lue' : 'Non lue'}
+                    {row.estLue ? t('Lue') : t('Non lue')}
                 </Badge>
             ),
         },
-        { key: 'date', title: 'Date' },
+        { key: 'date', title: t('Date') },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: PatientNotification) => (
                 <div className="notifications-table__actions">
                     {!row.estLue && onMarkAsRead && (
                         <Button variant="outline" size="small" onClick={() => onMarkAsRead(row.id)}>
-                            Marquer lue
+                            {t('Marquer lue')}
                         </Button>
                     )}
                 </div>

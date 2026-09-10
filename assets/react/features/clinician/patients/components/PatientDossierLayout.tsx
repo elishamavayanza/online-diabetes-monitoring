@@ -8,6 +8,7 @@ import { Button } from '@/react/components/UI/Button';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { usePatientDossier } from '../hooks/usePatientDossier';
 import { useMedicalRecord } from '../hooks/useMedicalRecord';
 import { PatientDossierProvider } from '../contexts/PatientDossierContext';
@@ -91,6 +92,7 @@ interface CareTeamMember {
 export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' }: PatientDossierLayoutProps) {
     const navigate = useNavigate();
     const { pushAction } = useActionHistory();
+    const { t } = useI18n();
     const { data, isLoading, error, reload } = usePatientDossier(patientId);
     const { isSaving, reopen } = useMedicalRecord(patientId);
 
@@ -204,7 +206,7 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
     }, [data, mode, navigate, patientId, basePath]);
 
     if (isLoading) return <Spinner />;
-    if (error || !data) return <Alert variant="error">{error ?? 'Dossier introuvable.'}</Alert>;
+    if (error || !data) return <Alert variant="error">{error ?? t('Dossier introuvable.')}</Alert>;
 
     const isReadOnly = mode === 'closed';
 
@@ -301,13 +303,13 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
                         />
                         <div>
                             <h1>{data.profile.fullName}</h1>
-                            <p>Dossier médical — {data.profile.organizationName ?? 'Organisation'}</p>
+                            <p>{t('Dossier médical — {{ org }}', { org: data.profile.organizationName ?? t('Organisation') })}</p>
                             <div className="clinician-record-page__badges">
                                 <Badge variant={isReadOnly ? 'warning' : 'success'}>
-                                    {isReadOnly ? 'Dossier fermé' : 'Dossier ouvert'}
+                                    {isReadOnly ? t('Dossier fermé') : t('Dossier ouvert')}
                                 </Badge>
                                 <Badge variant={data.profile.status?.toUpperCase() === 'ACTIVE' ? 'success' : 'error'}>
-                                    {data.profile.status?.toUpperCase() === 'ACTIVE' ? 'Actif' : 'Inactif'}
+                                    {data.profile.status?.toUpperCase() === 'ACTIVE' ? t('Actif') : t('Inactif')}
                                 </Badge>
                             </div>
                         </div>
@@ -315,29 +317,29 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
 
                     <div className="clinician-record-page__actions">
                         <Button variant="secondary" onClick={() => navigate(`${basePath}/my-patients`)}>
-                            Retour aux patients
+                            {t('Retour aux patients')}
                         </Button>
                         <Button variant="secondary" onClick={() => setFollowUpReportModalOpen(true)}>
-                            Générer un rapport
+                            {t('Générer un rapport')}
                         </Button>
                         {isReadOnly ? (
                             <Button variant="primary" onClick={handleReopen} disabled={isSaving}>
-                                {isSaving ? 'Réouverture...' : 'Rouvrir le dossier'}
+                                {isSaving ? t('Réouverture...') : t('Rouvrir le dossier')}
                             </Button>
                         ) : (
                             canClose && (
                                 <Button variant="danger" onClick={() => setCloseModalOpen(true)}>
-                                    Fermer le dossier
+                                    {t('Fermer le dossier')}
                                 </Button>
                             )
                         )}
                     </div>
                 </div>
 
-                <Tabs tabs={DOSSIER_TABS} defaultActiveTabId={activeTab} onChange={handleTabChange} />
+                <Tabs tabs={DOSSIER_TABS.map((tab) => ({ ...tab, label: t(tab.label) }))} defaultActiveTabId={activeTab} onChange={handleTabChange} />
 
                 {PERIOD_FILTER_TABS.includes(activeTab) && (
-                    <Tabs tabs={PERIOD_TABS} defaultActiveTabId={period} onChange={handlePeriodChange} />
+                    <Tabs tabs={PERIOD_TABS.map((tab) => ({ ...tab, label: t(tab.label) }))} defaultActiveTabId={period} onChange={handlePeriodChange} />
                 )}
 
                 <div className="clinician-record-page__body">
@@ -352,8 +354,8 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
                         maxWidth={400}
                         closeThreshold={80}
                         collapsedWidth={35}
-                        title="Calendrier"
-                        header={<div>Naviguez par date</div>}
+                        title={t('Calendrier')}
+                        header={<div>{t('Naviguez par date')}</div>}
                     >
                         <div className="clinician-record-page__right-content">
                             <PatientDossierCalendar
@@ -368,7 +370,7 @@ export function PatientDossierLayout({ patientId, mode, basePath = '/clinician' 
                                     size="small"
                                     onClick={() => setSelectedDate(null)}
                                 >
-                                    Effacer la sélection
+                                    {t('Effacer la sélection')}
                                 </Button>
                             )}
                         </div>

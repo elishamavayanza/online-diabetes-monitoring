@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ systemName|default('OnlineDIAB') }}{% endblock %}</title>
-    <link rel="icon" type="image/svg+xml" href="{{ logoUrl ?: asset('images/logo.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ logoUrl|default(asset('images/logo.png')) }}">
     {# Applique le thème (clair/sombre) AVANT le rendu pour éviter le flash #}
     <script>
         (function () {

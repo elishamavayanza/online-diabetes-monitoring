@@ -3,6 +3,7 @@ import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { formatDisplayDateTime, getAppointmentStatusBadgeVariant, isInPeriod } from '../../utils/dossierUtils';
 import { isRecordCreator } from '../../utils/ownershipUtils';
 import { AppointmentEditModal } from "@/react/features/clinician/patients/components/modals/AppointmentEditModal";
@@ -14,6 +15,7 @@ export function AppointmentsTab() {
         usePatientDossierContext();
 
     const [editingAppointment, setEditingAppointment] = useState<PatientAppointment | null>(null);
+    const { t } = useI18n();
 
     const currentProfessionalId = getCurrentUserIdFromToken();
 
@@ -28,17 +30,17 @@ export function AppointmentsTab() {
     return (
         <div className="patient-dossier-tab patient-dossier-tab--appointments">
             <div className="patient-dossier-tab__toolbar">
-                <p className="patient-dossier-tab__hint">Rendez-vous planifiés et passés.</p>
+                <p className="patient-dossier-tab__hint">{t('Rendez-vous planifiés et passés.')}</p>
                 {!isReadOnly && (
                     <Button variant="primary" onClick={openAppointmentModal}>
-                        + Nouveau rendez-vous
+                        {t('+ Nouveau rendez-vous')}
                     </Button>
                 )}
             </div>
 
             {appointments.length === 0 ? (
                 <Card>
-                    <p>Aucun rendez-vous sur la période sélectionnée.</p>
+                    <p>{t('Aucun rendez-vous sur la période sélectionnée.')}</p>
                 </Card>
             ) : (
                 <div className="patient-dossier-tab__grid">
@@ -52,12 +54,12 @@ export function AppointmentsTab() {
                             </div>
                             {appt.reason && (
                                 <p>
-                                    <strong>Motif :</strong> {appt.reason}
+                                    <strong>{t('Motif :')}</strong> {appt.reason}
                                 </p>
                             )}
                             {appt.durationMinutes != null && (
                                 <p>
-                                    <strong>Durée :</strong> {appt.durationMinutes} min
+                                    <strong>{t('Durée :')}</strong> {appt.durationMinutes} min
                                 </p>
                             )}
 
@@ -68,7 +70,7 @@ export function AppointmentsTab() {
                                         size="small"
                                         onClick={() => setEditingAppointment(appt)}
                                     >
-                                        Modifier
+                                        {t('Modifier')}
                                     </Button>
                                 </div>
                             )}

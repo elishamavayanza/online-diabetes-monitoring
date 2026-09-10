@@ -96,4 +96,41 @@ export const en: Record<string, string> = {
     'Information 1': 'Information 1',
     'Information 2': 'Information 2',
     'Information 3': 'Information 3',
+
+    // --- Alert / ImageEditor / ConfirmDialog ---
+    'Annuler': 'Cancel',
+    'Zoom': 'Zoom',
+    'Rotation': 'Rotation',
+
+    // --- List ---
+    'Aucun élément': 'No items',
+
+    // --- SearchInput ---
+    'Effacer la recherche': 'Clear search',
+
+    // --- Tree ---
+    'Déplier': 'Expand',
+    'Aucun résultat': 'No results',
+
+    // --- Breadcrumb ---
+    "Fil d'Ariane": 'Breadcrumb',
+
+    // --- ErrorState ---
+    'Retour': 'Back',
+    'ERREUR {{ status }}': 'ERROR {{ status }}',
+    'ERREUR {{ status }} · {{ codeLabel }}': 'ERROR {{ status }} · {{ codeLabel }}',
+
+    // --- ThemeToggle ---
+    'Activer le thème clair': 'Enable light theme',
+    'Activer le thème sombre': 'Enable dark theme',
+    'Thème clair': 'Light theme',
+    'Thème sombre': 'Dark theme',
+    'Clair': 'Light',
+    'Sombre': 'Dark',
+
+    // --- LineChart / CandlestickChart ---
+    'Aucune donnée': 'No data',
+
+    // --- ConfirmDialog ---
+    'Confirmer': 'Confirm',
 };

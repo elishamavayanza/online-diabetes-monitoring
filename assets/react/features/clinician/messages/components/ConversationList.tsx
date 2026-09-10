@@ -5,6 +5,7 @@ import { SearchInput } from '@/react/components/Forms/SearchInput'; // ✅ adapt
 import { resolveAvatarUrl } from '@/react/utils/avatarUrl';
 import { Conversation } from '../types';
 import { BackIcon } from './MessageIcons';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -14,7 +15,7 @@ interface ConversationListProps {
 }
 
 // Formate la date du dernier message : heure si aujourd'hui, "Hier", sinon date courte
-function formatConversationDate(dateStr: string): string {
+function formatConversationDate(dateStr: string, t: (key: string) => string): string {
     const date = new Date(dateStr);
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -24,13 +25,14 @@ function formatConversationDate(dateStr: string): string {
     if (date >= today) {
         return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     } else if (date >= yesterday) {
-        return 'Hier';
+        return t('Hier');
     } else {
         return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
     }
 }
 
 export function ConversationList({ conversations, selectedId, onSelect, onBack }: ConversationListProps) {
+    const { t } = useI18n();
     const [search, setSearch] = useState('');
 
     // Filtrage des conversations selon le terme de recherche
@@ -46,26 +48,26 @@ export function ConversationList({ conversations, selectedId, onSelect, onBack }
                         type="button"
                         className="icon-button conversation-list__back-btn"
                         onClick={onBack}
-                        title="Retour"
-                        aria-label="Retour"
+                        title={t('Retour')}
+                        aria-label={t('Retour')}
                     >
                         <BackIcon />
                     </button>
-                    <span className="conversation-list__nav-title">Conversations</span>
+                    <span className="conversation-list__nav-title">{t('Conversations')}</span>
                 </div>
             )}
             <div className="conversation-list__header">
                 {/* Champ de recherche remplace le titre */}
                 <SearchInput
                     value={search}
-                    placeholder="Rechercher une conversation..."
+                    placeholder={t('Rechercher une conversation...')}
                     onSearch={(value) => setSearch(value)}
                     fullWidth
                 />
             </div>
             <ul className="conversation-list__items">
                 {filtered.length === 0 ? (
-                    <li className="conversation-list__empty">Aucune conversation trouvée</li>
+                    <li className="conversation-list__empty">{t('Aucune conversation trouvée')}</li>
                 ) : (
                     filtered.map((conv) => (
                         <li
@@ -88,7 +90,7 @@ export function ConversationList({ conversations, selectedId, onSelect, onBack }
                                 <div className="conversation-item__header">
                                     <span className="conversation-item__participant">{conv.participant}</span>
                                     <span className="conversation-item__date">
-                                        {formatConversationDate(conv.dateDernierMessage)}
+                                        {formatConversationDate(conv.dateDernierMessage, t)}
                                     </span>
                                 </div>
                                 <div className="conversation-item__preview">

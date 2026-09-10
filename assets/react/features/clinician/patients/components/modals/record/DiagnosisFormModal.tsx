@@ -8,6 +8,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { PatientDiagnosis, PatientDossierData } from '../../../types';
 import {useDiagnosisForm} from "@/react/features/clinician/patients/hooks/record/useDiagnosisForm";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface DiagnosisFormModalProps {
     isOpen: boolean;
@@ -31,6 +32,7 @@ export function DiagnosisFormModal({
                                        diagnosis,
                                        onSuccess,
                                    }: DiagnosisFormModalProps) {
+    const { t } = useI18n();
     const { form, handleChange, handleSubmit, isLoading, error, isEdit } = useDiagnosisForm({
         isOpen,
         onClose,
@@ -40,30 +42,30 @@ export function DiagnosisFormModal({
     });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? 'Modifier le diagnostic' : 'Ajouter un diagnostic'}>
+        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? t('Modifier le diagnostic') : t('Ajouter un diagnostic')}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
-                    <FormField label="Affection" htmlFor="conditionName" required>
+                    <FormField label={t('Affection')} htmlFor="conditionName" required>
                         <Input
                             id="conditionName"
                             name="conditionName"
                             value={form.conditionName}
                             onChange={handleChange}
-                            placeholder="Ex : Diabète de type 2, Hypertension..."
+                            placeholder={t('Ex : Diabète de type 2, Hypertension...')}
                             required
                         />
                     </FormField>
-                    <FormField label="Statut" htmlFor="status" required>
+                    <FormField label={t('Statut')} htmlFor="status" required>
                         <Select
                             id="status"
                             name="status"
                             value={form.status}
                             onChange={handleChange}
-                            options={STATUS_OPTIONS}
+                            options={STATUS_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
                         />
                     </FormField>
-                    <FormField label="Date du diagnostic" htmlFor="diagnosedAt" required>
+                    <FormField label={t('Date du diagnostic')} htmlFor="diagnosedAt" required>
                         <Input
                             id="diagnosedAt"
                             name="diagnosedAt"
@@ -73,22 +75,22 @@ export function DiagnosisFormModal({
                             required
                         />
                     </FormField>
-                    <FormField label="Description" htmlFor="description" className="dossier-form__field--full">
+                    <FormField label={t('Description')} htmlFor="description" className="dossier-form__field--full">
                         <Textarea
                             id="description"
                             name="description"
                             rows={4}
                             value={form.description}
                             onChange={handleChange}
-                            placeholder="Ex : Découverte fortuite lors d'un bilan sanguin..."
+                            placeholder={t("Ex : Découverte fortuite lors d'un bilan sanguin...")}
                             fullWidth
                         />
                     </FormField>
                 </div>
                 <div className="dossier-form__actions">
-                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>Annuler</Button>
+                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>{t('Annuler')}</Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : isEdit ? 'Enregistrer' : 'Ajouter'}
+                        {isLoading ? <Spinner size="small" /> : isEdit ? t('Enregistrer') : t('Ajouter')}
                     </Button>
                 </div>
             </form>

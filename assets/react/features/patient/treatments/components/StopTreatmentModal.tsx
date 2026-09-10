@@ -5,6 +5,7 @@ import { Textarea } from '@/react/components/Forms/Textarea';
 import { Alert } from '@/react/components/UI/Alert';
 import { Treatment } from '../types';
 import {FormField} from "@/react/components/Forms/FormField";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface StopTreatmentModalProps {
     isOpen: boolean;
@@ -15,6 +16,7 @@ interface StopTreatmentModalProps {
 }
 
 export function StopTreatmentModal({ isOpen, onClose, treatment, onConfirm, isSubmitting }: StopTreatmentModalProps) {
+    const { t } = useI18n();
     const [reason, setReason] = useState('');
 
     if (!treatment) return null;
@@ -25,23 +27,23 @@ export function StopTreatmentModal({ isOpen, onClose, treatment, onConfirm, isSu
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Arrêter le traitement">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Arrêter le traitement')}>
             <div className="stop-treatment-modal">
                 <p>
-                    Voulez-vous arrêter <strong>{treatment.nom}</strong> ({treatment.dosage}) ?
+                    {t('Voulez-vous arrêter {{ nom }} ({{ dosage }}) ?', { nom: treatment.nom, dosage: treatment.dosage })}
                 </p>
-                <FormField label="Motif (optionnel)">
+                <FormField label={t('Motif (optionnel)')}>
                     <Textarea
                         value={reason}
                         onChange={(e) => setReason(e.target.value)}
-                        placeholder="Expliquez pourquoi vous arrêtez ce traitement..."
+                        placeholder={t('Expliquez pourquoi vous arrêtez ce traitement...')}
                         rows={4}
                     />
                 </FormField>
                 <div className="stop-treatment-modal__actions">
-                    <Button variant="secondary" onClick={onClose}>Annuler</Button>
+                    <Button variant="secondary" onClick={onClose}>{t('Annuler')}</Button>
                     <Button variant="danger" onClick={handleConfirm} disabled={isSubmitting}>
-                        {isSubmitting ? 'Arrêt...' : 'Confirmer l’arrêt'}
+                        {isSubmitting ? t('Arrêt...') : t('Confirmer l’arrêt')}
                     </Button>
                 </div>
             </div>

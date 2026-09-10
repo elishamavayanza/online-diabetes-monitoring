@@ -3,6 +3,7 @@
 namespace App\Service\Identity;
 
 use App\DTO\Feedback;
+use App\DTO\Request\Identity\UserCreateRequestDTO;
 use App\DTO\Request\Identity\UserUpdateRequestDTO;
 use App\Entity\Common\Gender;
 use App\Entity\Common\UserStatus;

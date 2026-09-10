@@ -11,10 +11,11 @@ import { Calendar } from '@/react/components/Calendars/Calendar';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { MedicationIntake, IntakeStatus } from '../types';
 import { useI18n } from '@/react/i18n/I18nContext';
+import { formatDate } from '@/react/i18n/formatters';
 import '@/styles/pages/patient/doses/_doses.scss';
 
 export function DosesPage() {
-    const { t } = useI18n();
+    const { locale, t } = useI18n();
     const { intakes, selectedDate, setSelectedDate, markedDates, isLoading, error, recordIntake, reload } = useDoses();
     const [selectedIntake, setSelectedIntake] = useState<MedicationIntake | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,13 +47,13 @@ export function DosesPage() {
     const isToday = selectedDate.toDateString() === new Date().toDateString();
     const title = isToday
         ? t("Aujourd'hui")
-        : t('Prises du {{ date }}', { date: selectedDate.toLocaleDateString('fr-FR') });
+        : t('Prises du {{ date }}', { date: formatDate(selectedDate, locale) });
 
     return (
         <div className="doses-page">
             <div className="doses-page__header">
                 <h1>{isToday ? t('Mes prises') : t('Historique des prises')}</h1>
-                <p>{isToday ? t("Ce qui vous est prescrit aujourd'hui") : t('Historique du {{ date }}', { date: selectedDate.toLocaleDateString('fr-FR') })}</p>
+                <p>{isToday ? t("Ce qui vous est prescrit aujourd'hui") : t('Historique du {{ date }}', { date: formatDate(selectedDate, locale) })}</p>
                 <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 

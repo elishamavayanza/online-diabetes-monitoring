@@ -6,9 +6,11 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/patient/team/_team.scss';
 
 export function TeamPage() {
+    const { t } = useI18n();
     const { members, isLoading, error } = useCareTeam();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
@@ -24,9 +26,9 @@ export function TeamPage() {
     return (
         <div className="team-page">
             <div className="team-page__header">
-                <h1>Mon équipe</h1>
-                <p>Les professionnels qui vous accompagnent</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Mon équipe')}</h1>
+                <p>{t('Les professionnels qui vous accompagnent')}</p>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
             <div className="team-page__members">
                 {members.map((member) => (
@@ -36,7 +38,7 @@ export function TeamPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Voici les professionnels qui s'occupent de vous.</p>
+                    <p>{t('Voici les professionnels qui s\u2019occupent de vous.')}</p>
                 </Modal>
             )}
         </div>

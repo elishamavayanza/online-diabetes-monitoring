@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { FileUpload } from '@/react/components/Forms/FileUpload';
 import { ImageEditor } from '@/react/components/UI/ImageEditor/ImageEditor';
 import { Modal } from '@/react/components/UI/Modal';
@@ -13,6 +14,7 @@ interface FoodPhotoFieldProps {
 }
 
 export function FoodPhotoField({ photoUrl, onPhotoUrlChange, onPhotoFileChange }: FoodPhotoFieldProps) {
+    const { t } = useI18n();
     const [preview, setPreview] = useState<string | null>(photoUrl || null);
     const [isEditorOpen, setIsEditorOpen] = useState(false);
 
@@ -46,26 +48,26 @@ export function FoodPhotoField({ photoUrl, onPhotoUrlChange, onPhotoFileChange }
 
     return (
         <>
-            <FormField label="Photo de l'aliment">
+            <FormField label={t("Photo de l'aliment")}>
                 <div className="food-photo-field">
                     <FileUpload
                         accept="image/*"
                         multiple={false}
                         maxFiles={1}
                         maxSizeInMB={5}
-                        label="Cliquez ou déposez une image ici"
-                        hint="PNG ou JPG, max 5 Mo"
+                        label={t('Cliquez ou déposez une image ici')}
+                        hint={t('PNG ou JPG, max 5 Mo')}
                         onFilesSelected={handleFilesSelected}
                     />
                     {preview && (
                         <div className="food-photo-field__preview">
-                            <img src={preview} alt="Aperçu de l'aliment" />
+                            <img src={preview} alt={t("Aperçu de l'aliment")} />
                             <Button type="button" variant="outline" onClick={() => setIsEditorOpen(true)}>
-                                Recadrer
+                                {t('Recadrer')}
                             </Button>
                         </div>
                     )}
-                    <FormField label="Ou URL de l'image">
+                    <FormField label={t("Ou URL de l'image")}>
                         <Input
                             type="url"
                             value={photoUrl}

@@ -115,7 +115,6 @@ export async function createPatient(payload: PatientFormValues, avatarFile?: Fil
             phone: payload.phone,
             gender: payload.gender,
             locale: payload.locale,
-            avatarUrl: payload.avatarUrl,
             address: payload.address,
         };
         const userResponse = await apiClient.post<ApiFeedback<any>>('/users', userPayload, {

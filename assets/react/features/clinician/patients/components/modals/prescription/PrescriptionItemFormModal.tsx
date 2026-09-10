@@ -8,6 +8,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { PatientPrescription } from '../../../types';
 import { usePrescriptionItemForm, medicationDosageHint } from "@/react/features/clinician/patients/hooks/prescription/usePrescriptionItemForm";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface PrescriptionItemFormModalProps {
     isOpen: boolean;
@@ -22,6 +23,7 @@ export function PrescriptionItemFormModal({
                                               prescription,
                                               onSuccess,
                                           }: PrescriptionItemFormModalProps) {
+    const { t } = useI18n();
     const {
         form,
         medications,
@@ -35,54 +37,54 @@ export function PrescriptionItemFormModal({
     const hint = medicationDosageHint(selectedMedication);
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Ajouter un médicament">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Ajouter un médicament')}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
-                    <FormField label="Médicament" htmlFor="medicationId" required>
+                    <FormField label={t('Médicament')} htmlFor="medicationId" required>
                         <Select
                             id="medicationId"
                             name="medicationId"
                             value={form.medicationId}
                             onChange={handleChange}
                             options={medications}
-                            placeholder="Sélectionner un médicament"
+                            placeholder={t('Sélectionner un médicament')}
                         />
                     </FormField>
-                    <FormField label={hint.dosageLabel} htmlFor="dosage" required>
+                    <FormField label={t(hint.dosageLabel)} htmlFor="dosage" required>
                         <Input
                             id="dosage"
                             name="dosage"
                             value={form.dosage}
                             onChange={handleChange}
-                            placeholder={hint.dosagePlaceholder}
+                            placeholder={t(hint.dosagePlaceholder)}
                             required
                         />
                     </FormField>
-                    <FormField label="Quantité" htmlFor="quantity" required>
+                    <FormField label={t('Quantité')} htmlFor="quantity" required>
                         <Input
                             id="quantity"
                             name="quantity"
                             value={form.quantity}
                             onChange={handleChange}
-                            placeholder={hint.quantityPlaceholder}
+                            placeholder={t(hint.quantityPlaceholder)}
                             required
                         />
                     </FormField>
-                    <FormField label="Prises">
+                    <FormField label={t('Prises')}>
                         <div className="dossier-form__checkboxes">
                             <label>
-                                <input type="checkbox" name="morning" checked={form.morning} onChange={handleChange} /> Matin
+                                <input type="checkbox" name="morning" checked={form.morning} onChange={handleChange} /> {t('Matin')}
                             </label>
                             <label>
-                                <input type="checkbox" name="noon" checked={form.noon} onChange={handleChange} /> Midi
+                                <input type="checkbox" name="noon" checked={form.noon} onChange={handleChange} /> {t('Midi')}
                             </label>
                             <label>
-                                <input type="checkbox" name="evening" checked={form.evening} onChange={handleChange} /> Soir
+                                <input type="checkbox" name="evening" checked={form.evening} onChange={handleChange} /> {t('Soir')}
                             </label>
                         </div>
                     </FormField>
-                    <FormField label="Instructions" htmlFor="instructions">
+                    <FormField label={t('Instructions')} htmlFor="instructions">
                         <Textarea
                             id="instructions"
                             name="instructions"
@@ -95,14 +97,14 @@ export function PrescriptionItemFormModal({
                 </div>
                 <div className="dossier-form__actions">
                     <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button
                         type="submit"
                         variant="primary"
                         disabled={isLoading || !form.medicationId}
                     >
-                        {isLoading ? <Spinner size="small" /> : 'Ajouter'}
+                        {isLoading ? <Spinner size="small" /> : t('Ajouter')}
                     </Button>
                 </div>
             </form>
