@@ -9,6 +9,7 @@ import { Button } from '@/react/components/UI/Button';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { useAuth } from '@/react/app/providers/AuthProvider';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/admin/establishments/_establishments.scss';
 import { EstablishmentFormModal } from "@/react/features/root/organisations/components/EstablishmentFormModal";
 import { DepartmentFormModal } from "@/react/features/root/organisations/components/DepartmentFormModal";
@@ -57,6 +58,7 @@ export function EstablishmentsPage() {
 
     const { pushAction } = useActionHistory();
     const { user } = useAuth();
+    const { t } = useI18n();
     const organizationId = user?.organizationId ?? 'current-org';
 
     const openAddModal = () => {
@@ -101,20 +103,20 @@ export function EstablishmentsPage() {
     return (
         <div className="establishments-page">
             <div className="establishments-page__header">
-                <h1>Établissements / Départements</h1>
-                <p>Gérez les établissements de votre organisation</p>
+                <h1>{t('Établissements / Départements')}</h1>
+                <p>{t('Gérez les établissements de votre organisation')}</p>
             </div>
 
             <div className="establishments-page__actions">
                 <div className="establishments-page__search">
                     <SearchInput
-                        placeholder="Rechercher un établissement ou un département..."
+                        placeholder={t('Rechercher un établissement ou un département...')}
                         value={search}
                         onSearch={(value: string) => setSearch(value)}
                     />
                 </div>
                 <Button variant="primary" onClick={openAddModal}>
-                    + Ajouter un établissement
+                    {t('+ Ajouter un établissement')}
                 </Button>
             </div>
 

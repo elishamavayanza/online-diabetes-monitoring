@@ -3,6 +3,7 @@ import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { User } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface UsersTableProps {
     users: User[];
@@ -25,23 +26,24 @@ export function UsersTable({
                                onSort,
                                onViewDetails,
                            }: UsersTableProps) {
+    const { t } = useI18n();
     const columns = [
-        { key: 'nom', title: 'Nom', sortable: true },
-        { key: 'email', title: 'Email', sortable: true },
-        { key: 'type', title: 'Type' },
+        { key: 'nom', title: t('Nom'), sortable: true },
+        { key: 'email', title: t('Email'), sortable: true },
+        { key: 'type', title: t('Type') },
         {
             key: 'organisation',
-            title: 'Organisation',
+            title: t('Organisation'),
             render: (row: User) =>
                 row.organisation ? (
                     <Badge variant="success">{row.organisation}</Badge>
                 ) : (
-                    <Badge variant="warning">Non affecté</Badge>
+                    <Badge variant="warning">{t('Non affecté')}</Badge>
                 ),
         },
         {
             key: 'statut',
-            title: 'Statut',
+            title: t('Statut'),
             render: (row: User) => (
                 <Badge
                     variant={
@@ -53,10 +55,10 @@ export function UsersTable({
                 </Badge>
             ),
         },
-        { key: 'derniereConnexion', title: 'Dernière connexion' },
+        { key: 'derniereConnexion', title: t('Dernière connexion') },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: User) => (
                 <div className="users-table__actions">
                     <Button
@@ -64,7 +66,7 @@ export function UsersTable({
                         size="small"
                         onClick={() => onViewDetails(row)}
                     >
-                        Détails
+                        {t('Détails')}
                     </Button>
                 </div>
             ),

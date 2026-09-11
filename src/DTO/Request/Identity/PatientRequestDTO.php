@@ -3,6 +3,7 @@
 namespace App\DTO\Request\Identity;
 
 use App\Entity\Common\Gender;
+use App\Entity\Identity\DiabetesType;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -31,6 +32,9 @@ class PatientRequestDTO
 
         #[OA\Property(description: 'Genre', type: 'string', example: 'FEMALE', nullable: true)]
         public readonly ?Gender $gender,
+
+        #[OA\Property(description: 'Type de diabète', type: 'string', example: 'TYPE_2', nullable: true, enum: ['TYPE_1', 'TYPE_2', 'GESTATIONAL', 'OTHER'])]
+        public readonly ?DiabetesType $diabetesType,
 
         #[Assert\Length(max: 10)]
         #[OA\Property(description: 'Locale', type: 'string', example: 'fr', nullable: true, maxLength: 10)]

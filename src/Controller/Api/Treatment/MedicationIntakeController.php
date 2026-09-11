@@ -9,6 +9,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,17 +24,20 @@ class MedicationIntakeController extends AbstractController
 
     #[Route('', name: 'api_medication_intakes_list', methods: ['GET'])]
     #[OA\Get(
-        description: 'Récupère la liste de toutes les prises de médicaments.',
-        summary: 'Lister toutes les prises'
+        description: 'Récupère les prises de médicaments d\'un patient (paramètre patientId requis).',
+        summary: 'Lister les prises d\'un patient'
     )]
     #[OA\Response(
         response: 200,
         description: 'Liste récupérée avec succès'
     )]
-    public function all(): JsonResponse
+    public function all(Request $request): JsonResponse
     {
-        $feedback = $this->service->all();
-        return $this->json($feedback, Response::HTTP_OK);
+        $patientId = $request->query->has('patientId') ? $request->query->getInt('patientId') : null;
+        $feedback = $this->service->all($patientId);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
     }
 
     #[Route('/{id}', name: 'api_medication_intakes_get_by_id', methods: ['GET'])]

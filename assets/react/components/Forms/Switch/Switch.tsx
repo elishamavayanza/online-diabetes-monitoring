@@ -1,5 +1,6 @@
 import React, { forwardRef, useMemo } from 'react';
 import { useSwitch, UseSwitchProps } from '@/react/hook-components/Forms/Switch';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement>, UseSwitchProps {
     label?: React.ReactNode;
@@ -17,6 +18,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
         },
         ref
     ) => {
+        const { t } = useI18n();
         const { classes } = useSwitch({ variant, fieldSize, disabled, className });
 
         const wrapperClasses = useMemo(() => {
@@ -40,7 +42,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
                 <span className="switch-field__track" aria-hidden="true">
                     <span className="switch-field__thumb" />
                 </span>
-                {label && <span className="switch-field__label">{label}</span>}
+                {label && <span className="switch-field__label">{typeof label === 'string' ? t(label) : label}</span>}
             </label>
         );
     }

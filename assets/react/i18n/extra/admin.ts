@@ -243,4 +243,79 @@ export const en: Record<string, string> = {
         'This page lets you configure your organization information.',
     "Informations de l\u2019organisation": 'Organization information',
     'Site web': 'Website',
+
+    // --- Establishments page / drawer ---
+    'Établissements / Départements': 'Establishments / Departments',
+    'Départements :': 'Departments:',
+    'Personnel total :': 'Total staff:',
+    'Patients suivis :': 'Patients followed:',
+    'Patients :': 'Patients:',
+    'Personnel :': 'Staff:',
+
+    // --- Members roles ---
+    'Rôle': 'Role',
+
+    // --- External follow statuses ---
+    'Acceptée': 'Accepted',
+    'Refusée': 'Declined',
+    'Coupée': 'Revoked',
+    'Expirée': 'Expired',
+    'Fermée par le professionnel': 'Closed by the professional',
+
+    // --- Logs modal ---
+    "Journal d'activité — {{ professional }}": 'Activity log — {{ professional }}',
+    'Actions de': 'Actions by',
+    'sur le dossier de': 'on the record of',
+    'Les simples consultations ne sont pas journalisées.': 'Simple viewings are not logged.',
+    'Aucune action enregistrée pour le moment.': 'No action recorded for now.',
+
+    // --- Distribution chart / formatted labels ---
+    'Aucune donnée pour cette période.': 'No data for this period.',
+    'Homme': 'Male',
+    'Femme': 'Female',
+    'Pris': 'Taken',
+    'Oublié': 'Skipped',
+    'Retardé': 'Delayed',
+    '{{ count }} pers.': '{{ count }} staff',
+
+    // --- Report download modal ---
+    'Sélectionnez un raccourci ou une plage personnalisée. Le PDF sera généré pour : {{ period }}.':
+        'Select a shortcut or a custom range. The PDF will be generated for: {{ period }}.',
+    '{{ count }} section sélectionnée': '{{ count }} section selected',
+    '{{ count }} sections sélectionnées': '{{ count }} sections selected',
+    'Mois en cours': 'Current month',
+    'Trimestre en cours': 'Current quarter',
+    'Année en cours': 'Current year',
+    'Effectifs, nouveaux patients, répartition par genre et âge':
+        'Headcount, new patients, breakdown by gender and age',
+    'Glycémie, HbA1c, tension artérielle, poids et IMC':
+        'Glucose, HbA1c, blood pressure, weight and BMI',
+    'Rendez-vous, diagnostics et dossiers médicaux': 'Appointments, diagnoses and medical records',
+    'Prescriptions actives et taux de prise des médicaments':
+        'Active prescriptions and medication intake rate',
+    "Repas enregistrés et séances d'activité": 'Logged meals and physical activity sessions',
+    'Suivi des mesures et évolutions dans le temps': 'Measurement tracking and trends over time',
+
+    // --- Stat card ---
+    "Rendez-vous aujourd'hui": "Today's appointments",
+
+    // --- Organization report page ---
+    '{{ name }} — du {{ from }} au {{ to }}': '{{ name }} — from {{ from }} to {{ to }}',
+    'Rendez-vous par statut': 'Appointments by status',
+    'Prises par statut': 'Intakes by status',
+    'Repas par type': 'Meals by type',
+    'Répartition par genre': 'Breakdown by gender',
+    "Tranches d'âge": 'Age groups',
+    'Répartition glycémique': 'Glucose distribution',
+    'au': 'to',
+
+    // --- Report stat card ---
+    'vs période précédente': 'vs previous period',
+
+    // --- Verification page ---
+    'Plateforme OnlineDIAB': 'OnlineDIAB platform',
+
+    // --- Organization settings form ---
+    'Hôpital': 'Hospital',
+    'Réseau': 'Network',
 };

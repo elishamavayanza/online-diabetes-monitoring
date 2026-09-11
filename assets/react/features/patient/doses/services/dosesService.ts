@@ -58,8 +58,10 @@ export async function fetchDoses(date: Date = new Date()): Promise<DosesData> {
 
     const isToday = isSameDay(date, new Date());
 
-    // 1. Récupérer toutes les prises enregistrées
-    const intakeResponse = await apiClient.get<ApiFeedback<BackendIntake[]>>('/medication-intakes');
+    // 1. Récupérer les prises enregistrées pour CE patient (scopées côté serveur)
+    const intakeResponse = await apiClient.get<ApiFeedback<BackendIntake[]>>(
+        `/medication-intakes?patientId=${patientId}`,
+    );
     const allRecordedIntakes = unwrapApiData(intakeResponse.data);
 
     // Calculer les dates marquées de manière fiable (sans conversion ISO)
@@ -113,11 +115,22 @@ export async function fetchDoses(date: Date = new Date()): Promise<DosesData> {
 
     const today: MedicationIntake[] = [];
 
+    // Récupère les éléments des prescriptions actives en UNE requête (batch)
+    const activeIds = active.map((prescription) => prescription.id);
+    const batchResponse = await apiClient.get<ApiFeedback<PrescriptionItemResponse[]>>(
+        `/prescription-items/batch?patientId=${patientId}&prescriptionIds=${activeIds.join(',')}`,
+    );
+    const batchItems = unwrapApiData(batchResponse.data);
+
+    const itemsByPrescription = new Map<string, PrescriptionItemResponse[]>();
+    for (const item of batchItems) {
+        const list = itemsByPrescription.get(item.prescriptionId) ?? [];
+        list.push(item);
+        itemsByPrescription.set(item.prescriptionId, list);
+    }
+
     for (const prescription of active) {
-        const itemsResponse = await apiClient.get<ApiFeedback<PrescriptionItemResponse[]>>(
-            `/prescription-items/prescription/${prescription.id}`
-        );
-        const items = unwrapApiData(itemsResponse.data);
+        const items = itemsByPrescription.get(prescription.id) ?? [];
 
         for (const item of items) {
             const periods: string[] = [];

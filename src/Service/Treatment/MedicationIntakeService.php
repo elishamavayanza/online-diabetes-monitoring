@@ -4,8 +4,10 @@ namespace App\Service\Treatment;
 
 use App\DTO\Feedback;
 use App\DTO\Request\Treatment\MedicationIntakeRequestDTO;
+use App\Entity\Identity\Patient;
 use App\Entity\Treatment\MedicationIntake;
 use App\Mapper\Treatment\MedicationIntakeMapper;
+use App\Repository\Identity\UserRepository;
 use App\Repository\Treatment\MedicationIntakeRepository;
 use App\Repository\Treatment\PrescriptionItemRepository;
 use App\Security\SecurityAction;
@@ -20,21 +22,37 @@ class MedicationIntakeService
         private readonly PrescriptionItemRepository $prescriptionItemRepository,
         private readonly MedicationIntakeMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly UserRepository $userRepository
     ) {
     }
 
-    public function all(): Feedback
+    public function all(?int $patientId = null): Feedback
     {
         $feedback = new Feedback();
 
         try {
-            $intakes = $this->repository->findAll();
+            if ($patientId === null) {
+                return $feedback
+                    ->setErrorFlushDescription('Prise de médicament : identifiant patient requis (patientId).')
+                    ->autoInitFlush();
+            }
+
+            $patient = $this->userRepository->find($patientId);
+            if (!$patient instanceof Patient) {
+                return $feedback
+                    ->setErrorFlushDescription('Patient introuvable.')
+                    ->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PATIENT);
+
+            $intakes = $this->repository->findForPatient($patient);
             $data = array_map(fn(MedicationIntake $intake) => $this->mapper->mapEntityToResponse($intake), $intakes);
 
             return $feedback
                 ->setData($data)
-                ->setFlushDescription('Liste des prises de médicaments récupérée avec succès.')
+                ->setFlushDescription('Liste des prises de médicaments du patient récupérée avec succès.')
                 ->autoInitFlush();
         } catch (\Throwable $e) {
             return $feedback

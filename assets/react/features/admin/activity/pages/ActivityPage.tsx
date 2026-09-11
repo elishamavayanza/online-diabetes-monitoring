@@ -6,12 +6,14 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/admin/activity/_activity.scss';
 
 export function ActivityPage() {
     const { activities, isLoading, error } = useActivity();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
+    const { t } = useI18n();
 
     const openHelp = () => {
         setIsHelpOpen(true);
@@ -24,15 +26,15 @@ export function ActivityPage() {
     return (
         <div className="activity-page">
             <div className="activity-page__header">
-                <h1>Activité</h1>
-                <p>Journal des événements récents</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Activité')}</h1>
+                <p>{t('Journal des événements récents')}</p>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
             <ActivityList activities={activities} />
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Cette page affiche l'activité récente de votre organisation.</p>
+                    <p>{t("Cette page affiche l'activité récente de votre organisation.")}</p>
                 </Modal>
             )}
         </div>

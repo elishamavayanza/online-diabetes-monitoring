@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ReactivateModalProps {
     isOpen: boolean;
@@ -20,6 +21,7 @@ export function ReactivateModal({
     confirmLabel = 'Réactiver',
     onConfirm,
 }: ReactivateModalProps) {
+    const { t } = useI18n();
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,7 +33,7 @@ export function ReactivateModal({
             await onConfirm();
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la réactivation.');
+            setError(err instanceof Error ? err.message : t('Une erreur est survenue lors de la réactivation.'));
         } finally {
             setIsSubmitting(false);
         }
@@ -45,10 +47,10 @@ export function ReactivateModal({
                 {error && <Alert variant="error">{error}</Alert>}
                 <form onSubmit={handleSubmit} className="suspend-modal__actions">
                     <Button type="button" variant="outline" onClick={onClose}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button type="submit" variant="success" isLoading={isSubmitting}>
-                        {isSubmitting ? 'Réactivation...' : confirmLabel}
+                        {isSubmitting ? t('Réactivation...') : t(confirmLabel)}
                     </Button>
                 </form>
             </div>

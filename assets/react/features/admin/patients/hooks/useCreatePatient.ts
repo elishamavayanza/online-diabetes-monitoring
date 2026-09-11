@@ -9,6 +9,7 @@ const initialForm: PatientFormValues = {
     fullName: '',
     phone: '',
     gender: 'UNSPECIFIED',
+    diabetesType: '',
     locale: 'fr',
     avatarUrl: '',
     avatarFile: null,

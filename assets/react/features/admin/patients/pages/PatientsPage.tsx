@@ -29,6 +29,17 @@ const FilterIcon = () => (
 
 // Convertit un Patient (affichage) en PatientFormValues (formulaire)
 function toPatientFormValues(patient: Patient): PatientFormValues {
+    const typeDiabete = String(patient.typeDiabete ?? '');
+    const diabetesType =
+        typeDiabete === 'Type 1' || typeDiabete === 'TYPE_1'
+            ? 'TYPE_1'
+            : typeDiabete === 'Type 2' || typeDiabete === 'TYPE_2'
+              ? 'TYPE_2'
+              : typeDiabete === 'Gestationnel' || typeDiabete === 'GESTATIONAL'
+                ? 'GESTATIONAL'
+                : typeDiabete === 'Autre' || typeDiabete === 'OTHER'
+                  ? 'OTHER'
+                  : typeDiabete;
     return {
         email: patient.email ?? '',
         password: '', // non modifié ici
@@ -40,6 +51,7 @@ function toPatientFormValues(patient: Patient): PatientFormValues {
         placeOfBirth: '',
         bloodType: '',
         heightCm: '',
+        diabetesType,
         avatarUrl: patient.avatarUrl ?? '',
         avatarFile: null,
         address: { street: '', city: '', postalCode: '', country: 'RDC' },

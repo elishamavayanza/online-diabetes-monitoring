@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { useButton, UseButtonProps } from '../../../hook-components/UI/Button';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, UseButtonProps {
     as?: 'button' | 'a';
@@ -31,6 +32,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         },
         ref
     ) => {
+        const { t } = useI18n();
         const { classes, isDisabled, ariaProps } = useButton({
             variant,
             size,
@@ -51,7 +53,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             {icon}
           </span>
                 )}
-                {children && <span className="btn__label">{children}</span>}
+                {children && <span className="btn__label">{typeof children === 'string' ? t(children) : children}</span>}
             </>
         );
 

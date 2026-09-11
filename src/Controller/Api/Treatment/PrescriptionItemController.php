@@ -9,6 +9,7 @@ use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -51,6 +52,27 @@ class PrescriptionItemController extends AbstractController
     {
         $feedback = $this->service->create($dto);
         $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_CREATED;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/batch', name: 'api_prescription_items_batch', methods: ['GET'])]
+    #[OA\Get(
+        description: 'Récupère les éléments de plusieurs prescriptions en une seule requête (patientId + prescriptionIds, liste CSV).',
+        summary: 'Lister les éléments de plusieurs prescriptions'
+    )]
+    #[OA\Response(response: 200, description: 'Éléments récupérés avec succès')]
+    #[OA\Response(response: 400, description: 'Patient ou paramètres invalides')]
+    #[OA\Response(response: 403, description: 'Permission insuffisante')]
+    public function batch(Request $request): JsonResponse
+    {
+        $patientId = $request->query->getInt('patientId', 0);
+        $prescriptionIds = array_values(array_filter(
+            array_map('intval', explode(',', (string) $request->query->get('prescriptionIds', '')))
+        ));
+
+        $feedback = $this->service->getAllByPrescriptionIds($patientId, $prescriptionIds);
+        $status = $feedback->hasErrors() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
     }

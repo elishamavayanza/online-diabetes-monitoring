@@ -13,6 +13,7 @@ use App\Repository\Appointment\AppointmentRepository;
 use App\Repository\Healthcare\CareTeamAssignmentRepository;
 use App\Repository\Identity\HealthcareProfessionalRepository;
 use App\Repository\Identity\UserRepository;
+use App\Repository\Medical\MedicalRecordRepository;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,8 +29,8 @@ class PatientService
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
         private readonly FileUploaderService $fileUploader,
-        private readonly CareTeamAssignmentRepository $careTeamAssignmentRepository
-
+        private readonly CareTeamAssignmentRepository $careTeamAssignmentRepository,
+        private readonly MedicalRecordRepository $medicalRecordRepository
     ) {
     }
 
@@ -202,8 +203,13 @@ class PatientService
                 $this->repository->findWithMembershipsByIds(Patient::class, $patientIds);
             }
 
+            $recordStatuses = $this->medicalRecordRepository->findStatusesByPatientIds($patientIds);
+
             $responseDTOs = array_map(
-                fn (Patient $patient) => PatientResponseDTO::fromEntity($patient),
+                fn (Patient $patient) => PatientResponseDTO::fromEntity(
+                    $patient,
+                    $recordStatuses[(string) $patient->getId()] ?? null
+                ),
                 $patients
             );
 
@@ -297,6 +303,14 @@ class PatientService
 
             if ($dto->gender !== null) {
                 $patient->setGender($dto->gender);
+            }
+
+            if ($dto->diabetesType !== null) {
+                $patient->setDiabetesType($dto->diabetesType);
+            }
+
+            if ($dto->diabetesType !== null) {
+                $patient->setDiabetesType($dto->diabetesType);
             }
 
             if ($dto->avatarFile !== null) {

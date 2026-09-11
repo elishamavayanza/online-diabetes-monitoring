@@ -1,5 +1,6 @@
 import { DistributionItem } from '../types';
 import { formatLabel } from '../utils/formatters';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface DistributionChartProps {
     title: string;
@@ -7,11 +8,13 @@ interface DistributionChartProps {
 }
 
 export function DistributionChart({ title, items }: DistributionChartProps) {
+    const { t } = useI18n();
+
     if (!items.length) {
         return (
             <div className="distribution-chart">
                 <h3>{title}</h3>
-                <p className="distribution-chart__empty">Aucune donnée pour cette période.</p>
+                <p className="distribution-chart__empty">{t('Aucune donnée pour cette période.')}</p>
             </div>
         );
     }
@@ -25,7 +28,7 @@ export function DistributionChart({ title, items }: DistributionChartProps) {
                 {items.map((item) => (
                     <li key={item.label} className="distribution-chart__item">
                         <div className="distribution-chart__meta">
-                            <span>{formatLabel(item.label)}</span>
+                            <span>{t(formatLabel(item.label))}</span>
                             <span>{item.count} ({item.percentage}%)</span>
                         </div>
                         <div className="distribution-chart__bar-track">

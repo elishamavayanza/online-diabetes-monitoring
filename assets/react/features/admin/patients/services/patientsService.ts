@@ -225,6 +225,7 @@ function mapApiToPatientFormValues(apiData: any): PatientFormValues {
         fullName: apiData.fullName ?? '',
         phone: apiData.phone ?? '',
         gender: apiData.gender ?? 'UNSPECIFIED',
+        diabetesType: apiData.diabetesType ?? '',
         locale: apiData.locale ?? 'fr',
         avatarUrl: apiData.avatarUrl ?? '',
         avatarFile: null,
@@ -246,6 +247,7 @@ function buildPatientProfileFormData(payload: PatientFormValues, avatarFile?: Fi
     formData.append('fullName', payload.fullName);
     if (payload.phone) formData.append('phone', payload.phone);
     formData.append('gender', payload.gender);
+    if (payload.diabetesType) formData.append('diabetesType', payload.diabetesType);
     formData.append('locale', payload.locale);
     if (payload.dateOfBirth) formData.append('dateOfBirth', payload.dateOfBirth);
     if (payload.placeOfBirth) formData.append('placeOfBirth', payload.placeOfBirth);

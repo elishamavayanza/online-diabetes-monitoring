@@ -11,6 +11,7 @@ export interface PatientFormValues {
     fullName: string;
     phone: string;
     gender: string;
+    diabetesType: string;
     locale: string;
     avatarUrl?: string;
     avatarFile?: File | null;

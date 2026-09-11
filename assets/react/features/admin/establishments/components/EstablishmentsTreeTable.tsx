@@ -6,6 +6,7 @@ import { Button } from '@/react/components/UI/Button';
 import { Tooltip } from '@/react/components/UI/Tooltip';
 import { EstablishmentTreeNodeData } from '../hooks/useEstablishments';
 import { TreeTableColumn, TreeTableNode } from "@/react/hook-components/Data/TreeTable/types";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const AddIcon = () => (
     <span className="add-icon">
@@ -38,15 +39,17 @@ export function EstablishmentsTreeTable({
                                             onAddDepartment,
                                             onNodeDoubleClick,
                                         }: EstablishmentsTreeTableProps) {
+    const { t } = useI18n();
+
     const columns: TreeTableColumn<EstablishmentTreeNodeData>[] = [
         {
             key: 'nom',
-            title: 'Nom',
+            title: t('Nom'),
             sortable: true,
         },
         {
             key: 'adresse',
-            title: 'Adresse',
+            title: t('Adresse'),
             render: (node) => {
                 if (node.data?.type === 'establishment' && node.data.establishment) {
                     return node.data.establishment.adresse;
@@ -56,20 +59,20 @@ export function EstablishmentsTreeTable({
         },
         {
             key: 'telephone',
-            title: 'Téléphone',
+            title: t('Téléphone'),
             render: (node) => {
                 if (node.data?.type === 'establishment' && node.data.establishment) {
                     return node.data.establishment.telephone;
                 }
                 if (node.data?.type === 'department' && node.data.department) {
-                    return `${node.data.department.personnel} pers.`;
+                    return t('{{ count }} pers.', { count: node.data.department.personnel });
                 }
                 return '—';
             },
         },
         {
             key: 'statut',
-            title: 'Statut',
+            title: t('Statut'),
             render: (node) => {
                 if (node.data?.type === 'establishment' && node.data.establishment) {
                     const statut = node.data.establishment.statut;
@@ -84,11 +87,11 @@ export function EstablishmentsTreeTable({
         },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (node) => (
                 <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
                     {node.data?.type === 'establishment' && (
-                        <Tooltip content="Ajouter un département" position="top">
+                        <Tooltip content={t('Ajouter un département')} position="top">
                             <button
                                 className="tree-action-btn"
                                 onClick={(e) => {
@@ -105,7 +108,7 @@ export function EstablishmentsTreeTable({
                         size="small"
                         onClick={() => onViewDetails?.(node)}
                     >
-                        Détails
+                        {t('Détails')}
                     </Button>
                 </div>
             ),

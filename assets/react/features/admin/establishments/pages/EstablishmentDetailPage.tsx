@@ -10,6 +10,7 @@ import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { Button } from '@/react/components/UI/Button';
 import { Badge } from '@/react/components/UI/Badge';
 import { Modal } from '@/react/components/UI/Modal';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/admin/establishments/_establishment-detail-page.scss';
 
 
@@ -28,6 +29,7 @@ function getRoleBadge(role: MemberRole) {
 export function EstablishmentDetailPage() {
     const { id } = useParams<{ id: string }>();
     const { node, isLoading, error } = useEstablishmentDetail(id || '');
+    const { t } = useI18n();
 
     const [members, setMembers] = useState<Member[]>([]);
     const [isLoadingMembers, setIsLoadingMembers] = useState(false);
@@ -48,7 +50,7 @@ export function EstablishmentDetailPage() {
                 );
                 setMembers(data);
             } catch (err) {
-                setMembersError('Impossible de charger les membres.');
+                setMembersError(t('Impossible de charger les membres.'));
             } finally {
                 setIsLoadingMembers(false);
             }
@@ -59,7 +61,7 @@ export function EstablishmentDetailPage() {
 
     if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
-    if (!node) return <Alert variant="warning">Élément introuvable</Alert>;
+    if (!node) return <Alert variant="warning">{t('Élément introuvable')}</Alert>;
 
     const isEstablishment = node.data?.type === 'establishment';
 
@@ -75,15 +77,15 @@ export function EstablishmentDetailPage() {
     return (
         <div className="establishment-detail-page">
             <div className="establishment-detail-page__header">
-                <h1>Membres de {node.label}</h1>
-                <p>{isEstablishment ? 'Établissement' : 'Département'}</p>
+                <h1>{t('Membres de {{ name }}', { name: node.label })}</h1>
+                <p>{isEstablishment ? t('Établissement') : t('Département')}</p>
             </div>
 
             {/* Barre de recherche + bouton affecter */}
             <div className="establishment-detail-page__actions">
                 <div className="establishment-detail-page__search">
                     <SearchInput
-                        placeholder="Rechercher un membre..."
+                        placeholder={t('Rechercher un membre...')}
                         value={search}
                         onSearch={(value: string) => setSearch(value)}
                     />
@@ -93,7 +95,7 @@ export function EstablishmentDetailPage() {
                     onClick={() => setIsAffectModalOpen(true)}
                     className="establishment-detail-page__affect-btn"
                 >
-                    Affecter un nouveau
+                    {t('Affecter un nouveau')}
                 </Button>
             </div>
 
@@ -118,12 +120,12 @@ export function EstablishmentDetailPage() {
                                         <div className="member-card__header">
                                             <h3>{member.nom}</h3>
                                             <Badge variant={roleBadge.variant}>
-                                                {roleBadge.label}
+                                                {t(roleBadge.label)}
                                             </Badge>
                                         </div>
                                         <p className="member-card__email">{member.email}</p>
                                         <p className="member-card__date">
-                                            Date de naissance : {member.dateNaissance}
+                                            {t('Date de naissance :')} {member.dateNaissance}
                                         </p>
                                     </div>
                                 </div>
@@ -139,7 +141,7 @@ export function EstablishmentDetailPage() {
                 onClose={() => setIsAffectModalOpen(false)}
                 size="medium"
             >
-                <p>Formulaire d'affectation à implémenter.</p>
+                <p>{t("Formulaire d'affectation à implémenter.")}</p>
             </Modal>
         </div>
     );

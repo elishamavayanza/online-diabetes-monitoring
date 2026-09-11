@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -62,6 +63,7 @@ const variantIcon: Record<ToastType, React.ReactNode> = {
 };
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { t } = useI18n();
     const [toasts, setToasts] = useState<ToastOptions[]>([]);
 
     const hideToast = useCallback((id: string) => {
@@ -89,7 +91,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                             {variantIcon[toast.type!]}
                         </div>
                         <div className="toast__message">{toast.message}</div>
-                        <button className="toast__close" onClick={() => hideToast(toast.id!)} aria-label="Fermer">
+                        <button className="toast__close" onClick={() => hideToast(toast.id!)} aria-label={t('Fermer')}>
                             ×
                         </button>
                     </div>

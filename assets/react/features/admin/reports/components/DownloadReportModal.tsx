@@ -17,6 +17,7 @@ import {
     getPeriodSummary,
     validateReportFilters,
 } from '../utils/reportFilters';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface DownloadReportModalProps {
     isOpen: boolean;
@@ -25,6 +26,7 @@ interface DownloadReportModalProps {
 }
 
 export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportModalProps) {
+    const { t } = useI18n();
     const [selectedSections, setSelectedSections] = useState<ReportSectionId[]>(ALL_SECTION_IDS);
     const [downloadFilters, setDownloadFilters] = useState<ReportFilters>(() => getInitialReportFilters(report));
     const [isGenerating, setIsGenerating] = useState(false);
@@ -43,8 +45,10 @@ export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportM
     const allSelected = selectedSections.length === ALL_SECTION_IDS.length;
 
     const selectedCountLabel = useMemo(
-        () => `${selectedSections.length} section${selectedSections.length > 1 ? 's' : ''} sélectionnée${selectedSections.length > 1 ? 's' : ''}`,
-        [selectedSections.length]
+        () => selectedSections.length > 1
+            ? t('{{ count }} sections sélectionnées', { count: selectedSections.length })
+            : t('{{ count }} section sélectionnée', { count: selectedSections.length }),
+        [selectedSections.length, t]
     );
 
     const periodSummary = useMemo(() => getPeriodSummary(downloadFilters), [downloadFilters]);
@@ -77,7 +81,7 @@ export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportM
 
     const handleDownload = async () => {
         if (!selectedSections.length) {
-            setError('Veuillez sélectionner au moins une section.');
+            setError(t('Veuillez sélectionner au moins une section.'));
             return;
         }
 
@@ -96,7 +100,7 @@ export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportM
             await downloadOrganizationReportPdf(reportForDownload, selectedSections, filename);
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Impossible de générer le PDF.');
+            setError(err instanceof Error ? err.message : t('Impossible de générer le PDF.'));
         } finally {
             setIsGenerating(false);
         }
@@ -107,11 +111,11 @@ export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportM
             isOpen={isOpen}
             onClose={onClose}
             size="medium"
-            title="Télécharger le rapport en PDF"
+            title={t('Télécharger le rapport en PDF')}
             footer={(
                 <>
                     <Button variant="secondary" onClick={onClose} disabled={isGenerating}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button
                         variant="primary"
@@ -119,20 +123,20 @@ export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportM
                         isLoading={isGenerating}
                         disabled={!selectedSections.length}
                     >
-                        Télécharger le PDF
+                        {t('Télécharger le PDF')}
                     </Button>
                 </>
             )}
         >
             <div className="download-report-modal">
                 <p className="download-report-modal__intro">
-                    Configurez la période et les sections à inclure dans le document administratif.
+                    {t('Configurez la période et les sections à inclure dans le document administratif.')}
                 </p>
 
                 <section className="download-report-modal__block">
-                    <h3 className="download-report-modal__block-title">Période du rapport</h3>
+                    <h3 className="download-report-modal__block-title">{t('Période du rapport')}</h3>
                     <p className="download-report-modal__block-description">
-                        Sélectionnez un raccourci ou une plage personnalisée. Le PDF sera généré pour : <strong>{periodSummary}</strong>.
+                        {t('Sélectionnez un raccourci ou une plage personnalisée. Le PDF sera généré pour : {{ period }}.', { period: t(periodSummary) })}
                     </p>
                     <PeriodSelector
                         activePeriod={downloadFilters.period}
@@ -145,9 +149,9 @@ export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportM
 
                 <section className="download-report-modal__block">
                     <div className="download-report-modal__toolbar">
-                        <h3 className="download-report-modal__block-title">Sections à exporter</h3>
+                        <h3 className="download-report-modal__block-title">{t('Sections à exporter')}</h3>
                         <button type="button" className="download-report-modal__toggle-all" onClick={toggleAll}>
-                            {allSelected ? 'Tout désélectionner' : 'Tout sélectionner'}
+                            {allSelected ? t('Tout désélectionner') : t('Tout sélectionner')}
                         </button>
                     </div>
                     <p className="download-report-modal__count">{selectedCountLabel}</p>
@@ -160,8 +164,8 @@ export function DownloadReportModal({ isOpen, onClose, report }: DownloadReportM
                                     onChange={(event) => toggleSection(section.id, event.target.checked)}
                                 />
                                 <div className="download-report-modal__section-content">
-                                    <span className="download-report-modal__section-title">{section.label}</span>
-                                    <span className="download-report-modal__section-description">{section.description}</span>
+                                    <span className="download-report-modal__section-title">{t(section.label)}</span>
+                                    <span className="download-report-modal__section-description">{t(section.description)}</span>
                                 </div>
                             </div>
                         ))}

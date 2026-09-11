@@ -4,7 +4,9 @@ namespace App\Service\Treatment;
 
 use App\DTO\Feedback;
 use App\DTO\Request\Treatment\PrescriptionItemRequestDTO;
+use App\Entity\Identity\Patient;
 use App\Mapper\Treatment\PrescriptionItemMapper;
+use App\Repository\Identity\UserRepository;
 use App\Repository\Treatment\MedicationRepository;
 use App\Repository\Treatment\PrescriptionItemRepository;
 use App\Repository\Treatment\PrescriptionRepository;
@@ -23,7 +25,8 @@ class PrescriptionItemService
         private readonly PrescriptionItemMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
         private readonly SecurityServiceInterface $securityService,
-        private readonly OwnershipGuardService $ownershipGuard
+        private readonly OwnershipGuardService $ownershipGuard,
+        private readonly UserRepository $userRepository
     ) {
     }
 
@@ -63,9 +66,37 @@ class PrescriptionItemService
 
         $this->securityService->checkPatientAccess($prescription->getPatient(), SecurityAction::VIEW_PRESCRIPTION);
 
-        $items = $this->repository->findBy(['prescription' => $prescription]);
+        $items = $this->repository->findByPrescription($prescription);
 
         return $feedback->setData($this->mapper->mapEntitiesToResponses($items));
+    }
+
+    /**
+     * Charge les éléments de plusieurs prescriptions en une seule requête
+     * (remplace le waterfall N requêtes côté client).
+     *
+     * @param array<int|string> $prescriptionIds
+     */
+    public function getAllByPrescriptionIds(int $patientId, array $prescriptionIds): Feedback
+    {
+        $feedback = new Feedback();
+
+        try {
+            $patient = $this->userRepository->find($patientId);
+            if (!$patient instanceof Patient) {
+                return $feedback->setErrorFlushDescription('Patient introuvable.')->autoInitFlush();
+            }
+
+            $this->securityService->checkPatientAccess($patient, SecurityAction::VIEW_PRESCRIPTION);
+
+            $items = $this->repository->findByPrescriptionIds($prescriptionIds);
+
+            return $feedback->setData($this->mapper->mapEntitiesToResponses($items));
+        } catch (AccessDeniedException $e) {
+            return $feedback->setErrorFlushDescription('Accès refusé : ' . $e->getMessage())->autoInitFlush();
+        } catch (\Throwable $e) {
+            return $feedback->setErrorFlushDescription('Erreur : ' . $e->getMessage())->autoInitFlush();
+        }
     }
 
     public function create(PrescriptionItemRequestDTO $dto): Feedback

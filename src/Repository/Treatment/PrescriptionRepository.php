@@ -24,6 +24,7 @@ class PrescriptionRepository extends ServiceEntityRepository
     public function findActiveByPatient(Patient $patient): array
     {
         return $this->createQueryBuilder('p')
+            ->leftJoin('p.prescriber', 'prescriber')->addSelect('prescriber')
             ->andWhere('p.patient = :patient')
             ->andWhere('p.status = :status')
             ->andWhere('p.deletedAt IS NULL')
@@ -40,6 +41,7 @@ class PrescriptionRepository extends ServiceEntityRepository
     public function findAllByPatient(Patient $patient): array
     {
         return $this->createQueryBuilder('p')
+            ->leftJoin('p.prescriber', 'prescriber')->addSelect('prescriber')
             ->andWhere('p.patient = :patient')
             ->andWhere('p.deletedAt IS NULL')
             ->setParameter('patient', $patient)

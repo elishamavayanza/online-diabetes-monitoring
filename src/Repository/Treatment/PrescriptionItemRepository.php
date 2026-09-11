@@ -23,6 +23,9 @@ class PrescriptionItemRepository extends ServiceEntityRepository
     public function findByPrescription(Prescription $prescription): array
     {
         return $this->createQueryBuilder('pi')
+            ->leftJoin('pi.medication', 'med')->addSelect('med')
+            ->leftJoin('med.insulins', 'ins')->addSelect('ins')
+            ->leftJoin('pi.createdBy', 'cb')->addSelect('cb')
             ->andWhere('pi.prescription = :prescription')
             ->andWhere('pi.deletedAt IS NULL')
             ->setParameter('prescription', $prescription)
@@ -45,6 +48,7 @@ class PrescriptionItemRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('pi')
             ->leftJoin('pi.createdBy', 'cb')->addSelect('cb')
             ->leftJoin('pi.medication', 'med')->addSelect('med')
+            ->leftJoin('med.insulins', 'ins')->addSelect('ins')
             ->andWhere('pi.prescription IN (:ids)')
             ->andWhere('pi.deletedAt IS NULL')
             ->setParameter('ids', $prescriptionIds)

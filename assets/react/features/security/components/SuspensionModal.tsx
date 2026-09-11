@@ -8,6 +8,7 @@ import { Input } from '@/react/components/Forms/Input';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { SuspensionPayload } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const DURATION_OPTIONS = [
     { value: '15', label: '15 jours' },
@@ -33,6 +34,7 @@ export function SuspensionModal({
     entityLabel,
     onConfirm,
 }: SuspensionModalProps) {
+    const { t } = useI18n();
     const [reason, setReason] = useState('');
     const [duration, setDuration] = useState('indefinite');
     const [startValue, setStartValue] = useState('');
@@ -58,11 +60,11 @@ export function SuspensionModal({
 
     const buildPayload = (): SuspensionPayload | null => {
         if (!reason.trim()) {
-            setError('Veuillez indiquer le motif de la suspension.');
+            setError(t('Veuillez indiquer le motif de la suspension.'));
             return null;
         }
         if (reason.length > 500) {
-            setError('Le motif ne peut pas dépasser 500 caractères.');
+            setError(t('Le motif ne peut pas dépasser 500 caractères.'));
             return null;
         }
 
@@ -70,13 +72,13 @@ export function SuspensionModal({
             const startIso = toIso(startValue);
             const endIso = toIso(endValue);
             if (!endIso) {
-                setError('Veuillez indiquer la date de fin de la suspension.');
+                setError(t('Veuillez indiquer la date de fin de la suspension.'));
                 return null;
             }
             const end = new Date(endIso);
             const start = startIso ? new Date(startIso) : new Date();
             if (end <= start) {
-                setError('La date de fin doit être postérieure à la date de début.');
+                setError(t('La date de fin doit être postérieure à la date de début.'));
                 return null;
             }
             return { reason: reason.trim(), startsAt: startIso ?? start.toISOString(), endsAt: endIso };
@@ -99,7 +101,7 @@ export function SuspensionModal({
             await onConfirm(payload);
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la suspension.');
+            setError(err instanceof Error ? err.message : t('Une erreur est survenue lors de la suspension.'));
         } finally {
             setIsSubmitting(false);
         }
@@ -114,31 +116,31 @@ export function SuspensionModal({
                 </p>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <FormField label="Motif de la suspension *" htmlFor="suspension-reason">
+                    <FormField label={t('Motif de la suspension *')} htmlFor="suspension-reason">
                         <Textarea
                             id="suspension-reason"
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            placeholder="Expliquez la raison de la suspension (manquement, enquête...)"
+                            placeholder={t('Expliquez la raison de la suspension (manquement, enquête...)')}
                             rows={4}
                             required
                             fullWidth
                         />
                     </FormField>
 
-                    <FormField label="Durée" htmlFor="suspension-duration">
+                    <FormField label={t('Durée')} htmlFor="suspension-duration">
                         <Select
                             id="suspension-duration"
                             value={duration}
                             onChange={(e) => setDuration(e.target.value)}
-                            options={DURATION_OPTIONS}
+                            options={DURATION_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
                             fullWidth
                         />
                     </FormField>
 
                     {duration === 'custom' && (
                         <div className="suspend-modal__custom">
-                            <FormField label="Date de début" htmlFor="suspension-start">
+                            <FormField label={t('Date de début')} htmlFor="suspension-start">
                                 <Input
                                     id="suspension-start"
                                     type="datetime-local"
@@ -147,7 +149,7 @@ export function SuspensionModal({
                                     fullWidth
                                 />
                             </FormField>
-                            <FormField label="Date de fin *" htmlFor="suspension-end">
+                            <FormField label={t('Date de fin *')} htmlFor="suspension-end">
                                 <Input
                                     id="suspension-end"
                                     type="datetime-local"
@@ -161,10 +163,10 @@ export function SuspensionModal({
 
                     <div className="suspend-modal__actions">
                         <Button type="button" variant="outline" onClick={onClose}>
-                            Annuler
+                            {t('Annuler')}
                         </Button>
                         <Button type="submit" variant="danger" isLoading={isSubmitting}>
-                            {isSubmitting ? 'Suspension...' : 'Suspendre'}
+                            {isSubmitting ? t('Suspension...') : t('Suspendre')}
                         </Button>
                     </div>
                 </Form>

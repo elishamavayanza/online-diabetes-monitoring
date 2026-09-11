@@ -3,9 +3,11 @@ import { ForgotPasswordForm } from '../components/ForgotPasswordForm';
 import logo from '@/images/logo.png';
 import { Card } from '@/react/components/UI/Card';
 import { useIsMobile } from '@/react/hooks/useIsMobile';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export function ForgotPasswordPage() {
     const isMobile = useIsMobile();
+    const { t } = useI18n();
 
     return (
         <div className="forgot-password-page">
@@ -28,13 +30,13 @@ export function ForgotPasswordPage() {
                         className="forgot-password-page__title"
                         style={{ fontSize: isMobile ? '1.6rem' : '2.25rem' }}
                     >
-                        Mot de passe oublié ?
+                        {t('Mot de passe oublié ?')}
                     </h1>
                     <p
                         className="forgot-password-page__subtitle"
                         style={{ fontSize: isMobile ? '0.9rem' : '1.05rem' }}
                     >
-                        Entrez votre email pour recevoir un lien de réinitialisation.
+                        {t('Entrez votre email pour recevoir un lien de réinitialisation.')}
                     </p>
                 </div>
                 <ForgotPasswordForm />

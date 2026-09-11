@@ -29,6 +29,7 @@ export interface PatientFormValues extends BaseUserFormValues {
     placeOfBirth: string;
     bloodType: string;
     heightCm: string;
+    diabetesType: string;
 }
 
 export type UserFormValues = ProfessionalFormValues | PatientFormValues;

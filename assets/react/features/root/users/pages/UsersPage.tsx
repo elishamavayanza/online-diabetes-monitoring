@@ -13,6 +13,7 @@ import { AffectationModal } from '../components/AffectationModal';
 import { AffectationData } from '../types/affectation';
 import { User, UserType } from '../types';
 import { fetchOrganisations } from '@/react/features/root/organisations/services/organisationsService';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const FilterIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -70,6 +71,7 @@ function mapUserToFormValues(user: User): any {
 }
 
 export function UsersPage() {
+    const { t } = useI18n();
     const {
         users,
         total,
@@ -103,10 +105,10 @@ export function UsersPage() {
     const [affectUserId, setAffectUserId] = useState('');
 
     const tabs = [
-        { id: 'Tous', label: 'Tous' },
-        { id: 'Professionnels', label: 'Professionnels' },
-        { id: 'Patients', label: 'Patients' },
-        { id: 'Administrateurs', label: 'Administrateurs' },
+        { id: 'Tous', label: t('Tous') },
+        { id: 'Professionnels', label: t('Professionnels') },
+        { id: 'Patients', label: t('Patients') },
+        { id: 'Administrateurs', label: t('Administrateurs') },
     ];
 
     // Liste des organisations pour le filtre (source dédiée, indépendante de la page courante).
@@ -201,13 +203,13 @@ export function UsersPage() {
     return (
         <div className="users-page">
             <div className="users-page__header">
-                <h1>Utilisateurs</h1>
-                <p>Gérez les comptes de la plateforme</p>
+                <h1>{t('Utilisateurs')}</h1>
+                <p>{t('Gérez les comptes de la plateforme')}</p>
             </div>
 
             <div className="users-page__actions">
                 <SearchInput
-                    placeholder="Rechercher un utilisateur..."
+                    placeholder={t('Rechercher un utilisateur...')}
                     value={search}
                     onSearch={(value: string) => {
                         setSearch(value);
@@ -221,8 +223,8 @@ export function UsersPage() {
                         <button
                             className={`users-page__filter-btn ${orgFilter ? 'users-page__filter-btn--active' : ''}`}
                             onClick={() => setShowOrgFilter((prev) => !prev)}
-                            aria-label="Filtrer par organisation"
-                            title="Filtrer par organisation"
+                            aria-label={t('Filtrer par organisation')}
+                            title={t('Filtrer par organisation')}
                         >
                             <FilterIcon />
                         </button>
@@ -233,7 +235,7 @@ export function UsersPage() {
                                     className={`users-page__filter-option ${orgFilter === '' ? 'users-page__filter-option--selected' : ''}`}
                                     onClick={() => handleOrgSelect('')}
                                 >
-                                    Toutes les organisations
+                                    {t('Toutes les organisations')}
                                 </div>
                                 {organisations.map((org) => (
                                     <div

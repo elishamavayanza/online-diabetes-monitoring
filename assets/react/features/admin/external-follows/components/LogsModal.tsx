@@ -3,6 +3,7 @@ import { Modal } from '@/react/components/UI/Modal';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { useExternalFollowLogs } from '../hooks/useExternalFollowLogs';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface LogsModalProps {
     isOpen: boolean;
@@ -27,13 +28,14 @@ function formatDate(value: string | null): string {
 
 export function LogsModal({ isOpen, organizationId, invitationId, patientName, professionalName, onClose }: LogsModalProps) {
     const { logs, isLoading, error } = useExternalFollowLogs(organizationId, isOpen ? invitationId : null);
+    const { t } = useI18n();
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={`Journal d'activité — ${professionalName}`} size="large">
+        <Modal isOpen={isOpen} onClose={onClose} title={t("Journal d'activité — {{ professional }}", { professional: professionalName })} size="large">
             <div className="external-follow-logs">
                 <p className="external-follow-logs__intro">
-                    Actions de <strong>{professionalName}</strong> sur le dossier de <strong>{patientName}</strong>.
-                    Les simples consultations ne sont pas journalisées.
+                    {t('Actions de')} <strong>{professionalName}</strong> {t('sur le dossier de')} <strong>{patientName}</strong>.{' '}
+                    {t('Les simples consultations ne sont pas journalisées.')}
                 </p>
                 {isLoading && (
                     <div className="external-follow-logs__empty">
@@ -42,7 +44,7 @@ export function LogsModal({ isOpen, organizationId, invitationId, patientName, p
                 )}
                 {!isLoading && error && <Alert variant="error">{error}</Alert>}
                 {!isLoading && !error && logs.length === 0 && (
-                    <p className="external-follow-logs__empty">Aucune action enregistrée pour le moment.</p>
+                    <p className="external-follow-logs__empty">{t('Aucune action enregistrée pour le moment.')}</p>
                 )}
                 {!isLoading && !error && logs.length > 0 && (
                     <ul className="external-follow-logs__list">

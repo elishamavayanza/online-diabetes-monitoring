@@ -1,5 +1,6 @@
 import React from 'react';
 import { useErrorMessage, UseErrorMessageProps } from '../../../hook-components/Forms/ErrorMessage';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const IconError = () => (
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
@@ -51,6 +52,7 @@ export function ErrorMessage({
                                  children,
                                  icon,
                              }: ErrorMessageProps) {
+    const { t } = useI18n();
     const { classes } = useErrorMessage({ variant, size, className });
 
     return (
@@ -58,7 +60,7 @@ export function ErrorMessage({
       <span className="error-message__icon" aria-hidden="true">
         {icon || variantIcons[variant]}
       </span>
-            <span className="error-message__text">{children}</span>
+            <span className="error-message__text">{typeof children === 'string' ? t(children) : children}</span>
         </div>
     );
 }

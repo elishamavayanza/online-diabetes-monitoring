@@ -4,6 +4,7 @@ import { Avatar } from '@/react/components/UI/Avatar';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { User } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface UserDetailsDrawerProps {
     user: User | null;
@@ -24,6 +25,7 @@ export function UserDetailsDrawer({
                                       onModify,
                                       onSuspend,
                                   }: UserDetailsDrawerProps) {
+    const { t } = useI18n();
     if (!user) return null;
 
     return (
@@ -47,18 +49,18 @@ export function UserDetailsDrawer({
                 </div>
 
                 <div className="user-details__body">
-                    <p><strong>Type :</strong> {user.type}</p>
+                    <p><strong>{t('Type :')}</strong> {user.type}</p>
                     <p>
-                        <strong>Organisation :</strong>{' '}
-                        {user.organisation || 'Non affecté'}
+                        <strong>{t('Organisation :')}</strong>{' '}
+                        {user.organisation || t('Non affecté')}
                     </p>
                     <p>
-                        <strong>Statut :</strong>{' '}
+                        <strong>{t('Statut :')}</strong>{' '}
                         <Badge variant={user.statut === 'Active' ? 'success' : 'warning'}>
                             {user.statut}
                         </Badge>
                     </p>
-                    <p><strong>Dernière connexion :</strong> {user.derniereConnexion}</p>
+                    <p><strong>{t('Dernière connexion :')}</strong> {user.derniereConnexion}</p>
                 </div>
 
                 <div className="user-details__actions">

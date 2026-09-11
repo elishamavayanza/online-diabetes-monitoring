@@ -1,5 +1,6 @@
 import React from 'react';
 import { ErrorState } from '@/react/components/UI/ErrorState';
+import { useI18n, TranslateFn } from '@/react/i18n/I18nContext';
 
 interface ErrorBoundaryState {
     error: Error | null;
@@ -14,7 +15,7 @@ interface ErrorBoundaryProps {
  * React afin de ne jamais afficher de page blanche. L'utilisateur
  * voit un état d'erreur clair avec un bouton « Réessayer ».
  */
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundaryImpl extends React.Component<ErrorBoundaryProps & { t: TranslateFn }, ErrorBoundaryState> {
     state: ErrorBoundaryState = { error: null };
 
     static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -31,7 +32,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
     render() {
         const { error } = this.state;
-        const { children } = this.props;
+        const { children, t } = this.props;
 
         if (error !== null) {
             return (
@@ -47,8 +48,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 >
                     <ErrorState
                         size="full"
-                        title="Une erreur inattendue est survenue"
-                        message="Nous sommes désolés. Une erreur s'est produite pendant l'affichage de cette page. Vous pouvez réessayer."
+                        title={t('Une erreur inattendue est survenue')}
+                        message={t("Nous sommes désolés. Une erreur s'est produite pendant l'affichage de cette page. Vous pouvez réessayer.")}
                         onRetry={this.handleRetry}
                     />
                 </div>
@@ -57,4 +58,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
         return children;
     }
+}
+
+export function ErrorBoundary({ children }: ErrorBoundaryProps) {
+    const { t } = useI18n();
+    return <ErrorBoundaryImpl t={t}>{children}</ErrorBoundaryImpl>;
 }

@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { useCheckbox, UseCheckboxProps } from '@/react/hook-components/Forms/Checkbox';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement>, UseCheckboxProps {
     label?: React.ReactNode;
@@ -17,6 +18,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         },
         ref
     ) => {
+        const { t } = useI18n();
         const { classes, ariaProps } = useCheckbox({
             variant,
             fieldSize,
@@ -35,7 +37,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                     {...rest}
                 />
                 <span className="checkbox-field__visual" aria-hidden="true" />
-                {label && <span className="checkbox-field__label">{label}</span>}
+                {label && <span className="checkbox-field__label">{typeof label === 'string' ? t(label) : label}</span>}
             </label>
         );
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCollapsible, UseCollapsibleProps } from '../../../hook-components/UI/Collapsible';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface CollapsibleProps extends UseCollapsibleProps {
     /** Élément déclencheur (toujours visible) */
@@ -16,6 +17,7 @@ export function Collapsible({
                                 trigger,
                                 children,
                             }: CollapsibleProps) {
+    const { t } = useI18n();
     const { classes, open, toggle } = useCollapsible({
         defaultOpen,
         isOpen,
@@ -38,7 +40,7 @@ export function Collapsible({
                     }
                 }}
             >
-                {trigger}
+                {typeof trigger === 'string' ? t(trigger) : trigger}
             </div>
             {open && <div className="collapsible__content">{children}</div>}
         </div>

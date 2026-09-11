@@ -13,6 +13,7 @@ const initialPatient: PatientFormValues = {
     placeOfBirth: '',
     bloodType: '',
     heightCm: '',
+    diabetesType: '',
     avatarUrl: '',
     avatarFile: null,
     address: { street: '', city: '', postalCode: '', country: 'RDC' },

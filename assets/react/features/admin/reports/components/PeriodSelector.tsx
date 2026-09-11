@@ -1,4 +1,5 @@
 import { PeriodPreset } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface PeriodSelectorProps {
     activePeriod?: PeriodPreset;
@@ -21,6 +22,8 @@ export function PeriodSelector({
     onPeriodChange,
     onCustomRangeChange,
 }: PeriodSelectorProps) {
+    const { t } = useI18n();
+
     return (
         <div className="period-selector">
             <div className="period-selector__presets">
@@ -31,13 +34,13 @@ export function PeriodSelector({
                         className={`period-selector__btn ${activePeriod === preset.id ? 'is-active' : ''}`}
                         onClick={() => onPeriodChange(preset.id)}
                     >
-                        {preset.label}
+                        {t(preset.label)}
                     </button>
                 ))}
             </div>
             <div className="period-selector__custom">
                 <label>
-                    Du
+                    {t('Du')}
                     <input
                         type="date"
                         value={customFrom ?? ''}
@@ -45,7 +48,7 @@ export function PeriodSelector({
                     />
                 </label>
                 <label>
-                    Au
+                    {t('Au')}
                     <input
                         type="date"
                         value={customTo ?? ''}

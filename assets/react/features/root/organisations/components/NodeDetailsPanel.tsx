@@ -6,6 +6,7 @@ import { CreateOrganisationPayload } from '../types';
 import { Establishment } from '../types/establishment';
 import { Department } from '../types/department';
 import { useIsMobile } from '@/react/hooks/useIsMobile';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface NodeDetailsPanelProps {
     isOpen: boolean;
@@ -15,6 +16,7 @@ interface NodeDetailsPanelProps {
 
 export function NodeDetailsPanel({ isOpen, onClose, node }: NodeDetailsPanelProps) {
     const isMobile = useIsMobile();
+    const { t } = useI18n();
     if (!node) return null;
 
     const data = node.data as Record<string, any> | undefined;
@@ -27,33 +29,33 @@ export function NodeDetailsPanel({ isOpen, onClose, node }: NodeDetailsPanelProp
         const org = data as unknown as CreateOrganisationPayload;
         details = (
             <>
-                <p><strong>Nom court :</strong> {org.shortName || '—'}</p>
-                <p><strong>Type :</strong> {org.type}</p>
-                <p><strong>Email :</strong> {org.email || '—'}</p>
-                <p><strong>Téléphone :</strong> {org.phone || '—'}</p>
-                <p><strong>Site Web :</strong> {org.website || '—'}</p>
-                <p><strong>Statut :</strong> {org.active ? 'Actif' : 'Inactif'}</p>
+                <p><strong>{t('Nom court :')}</strong> {org.shortName || '—'}</p>
+                <p><strong>{t('Type :')}</strong> {org.type}</p>
+                <p><strong>{t('Email :')}</strong> {org.email || '—'}</p>
+                <p><strong>{t('Téléphone :')}</strong> {org.phone || '—'}</p>
+                <p><strong>{t('Site Web :')}</strong> {org.website || '—'}</p>
+                <p><strong>{t('Statut :')}</strong> {org.active ? t('Actif') : t('Inactif')}</p>
             </>
         );
     } else if (dataType === 'establishment') {
         const est = data as unknown as Establishment;
         details = (
             <>
-                <p><strong>Organisation :</strong> {est.organizationId}</p>
-                <p><strong>Téléphone :</strong> {est.phone || '—'}</p>
-                <p><strong>Adresse :</strong> {est.address ? `${est.address.street}, ${est.address.city}` : '—'}</p>
+                <p><strong>{t('Organisation :')}</strong> {est.organizationId}</p>
+                <p><strong>{t('Téléphone :')}</strong> {est.phone || '—'}</p>
+                <p><strong>{t('Adresse :')}</strong> {est.address ? `${est.address.street}, ${est.address.city}` : '—'}</p>
             </>
         );
     } else if (dataType === 'department') {
         const dep = data as unknown as Department;
         details = (
             <>
-                <p><strong>Établissement :</strong> {dep.facilityId}</p>
-                <p><strong>Spécialité :</strong> {dep.specialty || '—'}</p>
+                <p><strong>{t('Établissement :')}</strong> {dep.facilityId}</p>
+                <p><strong>{t('Spécialité :')}</strong> {dep.specialty || '—'}</p>
             </>
         );
     } else {
-        details = <p>Aucune information supplémentaire.</p>;
+        details = <p>{t('Aucune information supplémentaire.')}</p>;
     }
 
     return (

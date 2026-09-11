@@ -13,6 +13,12 @@ use Doctrine\ORM\Mapping as ORM;
 class Patient extends User
 {
     /**
+     * @var DiabetesType|null Le type de diabète du patient.
+     */
+    #[ORM\Column(type: 'string', length: 20, enumType: DiabetesType::class, nullable: true)]
+    private ?DiabetesType $diabetesType = null;
+
+    /**
      * @var \DateTimeInterface|null La date de naissance du patient.
      */
     #[ORM\Column(type: 'date', nullable: true)]
@@ -35,6 +41,23 @@ class Patient extends User
      */
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     private ?string $heightCm = null;
+
+    /**
+     * Récupère le type de diabète.
+     */
+    public function getDiabetesType(): ?DiabetesType
+    {
+        return $this->diabetesType;
+    }
+
+    /**
+     * Définit le type de diabète.
+     */
+    public function setDiabetesType(?DiabetesType $diabetesType): static
+    {
+        $this->diabetesType = $diabetesType;
+        return $this;
+    }
 
     /**
      * Récupère la date de naissance.

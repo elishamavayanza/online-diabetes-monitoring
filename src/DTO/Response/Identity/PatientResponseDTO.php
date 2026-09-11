@@ -5,6 +5,8 @@ namespace App\DTO\Response\Identity;
 use App\Entity\Identity\Patient;
 use App\Entity\Common\Gender;
 use App\Entity\Common\UserStatus;
+use App\Entity\Identity\DiabetesType;
+use App\Entity\Medical\MedicalRecordStatus;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -31,6 +33,9 @@ class PatientResponseDTO
 
         #[OA\Property(type: 'string', nullable: true, example: 'FEMALE', description: 'Genre')]
         public readonly ?Gender $gender,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'TYPE_2', description: 'Type de diabète')]
+        public readonly ?DiabetesType $diabetesType,
 
         #[OA\Property(type: 'string', example: 'fr', description: 'Locale')]
         public readonly string $locale,
@@ -75,10 +80,13 @@ class PatientResponseDTO
         public readonly \DateTimeImmutable $createdAt,
 
         #[OA\Property(type: 'string', format: 'date-time', nullable: true, example: null, description: 'Date de mise à jour')]
-        public readonly ?\DateTimeImmutable $updatedAt
+        public readonly ?\DateTimeImmutable $updatedAt,
+
+        #[OA\Property(type: 'string', nullable: true, example: 'OPEN', description: 'Statut du dossier médical (OPEN/CLOSED), renseigné uniquement sur certains endpoints')]
+        public readonly ?string $medicalRecordStatus
     ) {}
 
-    public static function fromEntity(Patient $patient): self
+    public static function fromEntity(Patient $patient, ?MedicalRecordStatus $medicalRecordStatus = null): self
     {
         $address = $patient->getAddress();
         $orgId = null;
@@ -104,6 +112,7 @@ class PatientResponseDTO
             fullName: $patient->getFullName(),
             avatarUrl: AvatarUrl::toPublicUrl($patient->getAvatarUrl()),
             gender: $patient->getGender(),
+            diabetesType: $patient->getDiabetesType(),
             locale: $patient->getLocale() ?? 'fr',
             status: $patient->getStatus(),
             organizationId: $orgId,
@@ -118,7 +127,8 @@ class PatientResponseDTO
             postalCode: $address?->getPostalCode(),
             country: $address?->getCountry(),
             createdAt: $patient->getCreatedAt(),
-            updatedAt: $patient->getUpdatedAt()
+            updatedAt: $patient->getUpdatedAt(),
+            medicalRecordStatus: $medicalRecordStatus?->value
         );
     }
 }

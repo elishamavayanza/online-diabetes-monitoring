@@ -16,17 +16,17 @@ if (container) {
     createRoot(container).render(
         <React.StrictMode>
             <ThemeProvider>
-                <ToastProvider>
-                    <AuthProvider>
-                        <I18nProvider>
+                <AuthProvider>
+                    <I18nProvider>
+                        <ToastProvider>
                             <DeviceProvider>
                                 <ActionHistoryProvider>
                                     <AppRoutes />
                                 </ActionHistoryProvider>
                             </DeviceProvider>
-                        </I18nProvider>
-                    </AuthProvider>
-                </ToastProvider>
+                        </ToastProvider>
+                    </I18nProvider>
+                </AuthProvider>
             </ThemeProvider>
         </React.StrictMode>
     );

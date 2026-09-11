@@ -2,6 +2,7 @@ import React from 'react';
 import { Badge } from '@/react/components/UI/Badge';
 import type { BadgeVariant } from '@/react/hook-components/UI/Badge';
 import { ExternalFollowStatus, EXTERNAL_FOLLOW_STATUS_LABELS } from '../types/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const STATUS_VARIANT: Record<ExternalFollowStatus, BadgeVariant> = {
     PENDING: 'warning',
@@ -13,9 +14,11 @@ const STATUS_VARIANT: Record<ExternalFollowStatus, BadgeVariant> = {
 };
 
 export function StatusBadge({ status }: { status: ExternalFollowStatus }) {
+    const { t } = useI18n();
+
     return (
         <Badge variant={STATUS_VARIANT[status]}>
-            {EXTERNAL_FOLLOW_STATUS_LABELS[status] ?? status}
+            {t(EXTERNAL_FOLLOW_STATUS_LABELS[status] ?? status)}
         </Badge>
     );
 }

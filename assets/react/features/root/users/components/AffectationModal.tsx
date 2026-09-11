@@ -14,6 +14,7 @@ import {
     updateAffectation,
 } from '../services/affectationService';
 import { OrganisationOption, FacilityOption, DepartmentOption, AffectationData } from '../types/affectation';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface AffectationModalProps {
     isOpen: boolean;
@@ -24,6 +25,7 @@ interface AffectationModalProps {
 }
 
 export function AffectationModal({ isOpen, onClose, mode, affectationData, userId }: AffectationModalProps) {
+    const { t } = useI18n();
     const [organisations, setOrganisations] = useState<OrganisationOption[]>([]);
     const [facilities, setFacilities] = useState<FacilityOption[]>([]);
     const [departments, setDepartments] = useState<DepartmentOption[]>([]);
@@ -93,7 +95,7 @@ export function AffectationModal({ isOpen, onClose, mode, affectationData, userI
             }
             onClose();
         } catch (err) {
-            setError('Erreur lors de l’enregistrement.');
+            setError(t('Erreur lors de l\u2019enregistrement.'));
         } finally {
             setIsSubmitting(false);
         }
@@ -102,35 +104,35 @@ export function AffectationModal({ isOpen, onClose, mode, affectationData, userI
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="medium">
             <div className="affectation-modal">
-                <h2>{mode === 'create' ? 'Affecter l’utilisateur' : 'Modifier l’affectation'}</h2>
+                <h2>{mode === 'create' ? t('Affecter l\u2019utilisateur') : t('Modifier l\u2019affectation')}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <FormField label="Organisation *">
+                    <FormField label={t('Organisation *')}>
                         <Select
                             value={form.organizationId}
                             onChange={(e) => updateField('organizationId', e.target.value)}
                             options={organisations.map((org) => ({ value: org.id, label: org.nom }))}
-                            placeholder="Choisir une organisation"
+                            placeholder={t('Choisir une organisation')}
                             required
                         />
                     </FormField>
-                    <FormField label="Établissement">
+                    <FormField label={t('Établissement')}>
                         <Select
                             value={form.facilityId ?? ''}
                             onChange={(e) => updateField('facilityId', e.target.value)}
                             options={facilities.map((fac) => ({ value: fac.id, label: fac.nom }))}
-                            placeholder="Choisir un établissement"
+                            placeholder={t('Choisir un établissement')}
                         />
                     </FormField>
-                    <FormField label="Département">
+                    <FormField label={t('Département')}>
                         <Select
                             value={form.departmentId ?? ''}
                             onChange={(e) => updateField('departmentId', e.target.value)}
                             options={departments.map((dep) => ({ value: dep.id, label: dep.nom }))}
-                            placeholder="Choisir un département"
+                            placeholder={t('Choisir un département')}
                         />
                     </FormField>
-                    <FormField label="Date de début *">
+                    <FormField label={t('Date de début *')}>
                         <Input
                             type="date"
                             value={form.startDate}
@@ -138,28 +140,28 @@ export function AffectationModal({ isOpen, onClose, mode, affectationData, userI
                             required
                         />
                     </FormField>
-                    <FormField label="Date de fin">
+                    <FormField label={t('Date de fin')}>
                         <Input
                             type="date"
                             value={form.endDate ?? ''}
                             onChange={(e) => updateField('endDate', e.target.value)}
                         />
                     </FormField>
-                    <FormField label="Statut">
+                    <FormField label={t('Statut')}>
                         <Select
                             value={form.status}
                             onChange={(e) => updateField('status', e.target.value)}
                             options={[
-                                { value: 'ACTIVE', label: 'Actif' },
-                                { value: 'SUSPENDED', label: 'Suspendu' },
-                                { value: 'ENDED', label: 'Terminé' },
+                                { value: 'ACTIVE', label: t('Actif') },
+                                { value: 'SUSPENDED', label: t('Suspendu') },
+                                { value: 'ENDED', label: t('Terminé') },
                             ]}
                         />
                     </FormField>
                     <div className="affectation-modal__actions">
-                        <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('Annuler')}</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {mode === 'create' ? 'Affecter' : 'Enregistrer'}
+                            {mode === 'create' ? t('Affecter') : t('Enregistrer')}
                         </Button>
                     </div>
                 </Form>

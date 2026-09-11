@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useDrawer, UseDrawerProps } from '@/react/hook-components/UI/Drawer';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface DrawerProps extends UseDrawerProps {
     children: React.ReactNode;
@@ -20,6 +21,7 @@ export function Drawer({
                            header,
                            footer,
                        }: DrawerProps) {
+    const { t } = useI18n();
     const { classes, overlayClick } = useDrawer({
         isOpen,
         onClose,
@@ -35,9 +37,9 @@ export function Drawer({
     return createPortal(
         <div className="drawer__overlay" onClick={overlayClick}>
             <div className={classes} role="dialog" aria-modal="true">
-                {header && <div className="drawer__header">{header}</div>}
-                <div className="drawer__body">{children}</div>
-                {footer && <div className="drawer__footer">{footer}</div>}
+                {header && <div className="drawer__header">{typeof header === 'string' ? t(header) : header}</div>}
+                <div className="drawer__body">{typeof children === 'string' ? t(children) : children}</div>
+                {footer && <div className="drawer__footer">{typeof footer === 'string' ? t(footer) : footer}</div>}
             </div>
         </div>,
         document.body

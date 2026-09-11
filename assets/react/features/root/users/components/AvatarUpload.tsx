@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Avatar } from '@/react/components/UI/Avatar';
 import { Modal } from '@/react/components/UI/Modal';
 import { ImageEditor } from '@/react/components/UI/ImageEditor/ImageEditor';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface AvatarUploadProps {
     value?: string;
@@ -11,6 +12,7 @@ interface AvatarUploadProps {
 }
 
 export function AvatarUpload({ value, name = 'Utilisateur', size = 80, onChange }: AvatarUploadProps) {
+    const { t } = useI18n();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [preview, setPreview] = useState<string | undefined>(value);
     const [editorOpen, setEditorOpen] = useState(false);
@@ -41,12 +43,12 @@ export function AvatarUpload({ value, name = 'Utilisateur', size = 80, onChange 
     return (
         <div className="avatar-upload">
             <div className="avatar-upload__preview" style={{ width: size, height: size }}>
-                <Avatar src={preview} name={name} size="large" shape="circle" />
+                <Avatar src={preview} name={t(name)} size="large" shape="circle" />
                 <button
                     type="button"
                     className="avatar-upload__edit"
                     onClick={() => fileInputRef.current?.click()}
-                    aria-label="Changer la photo"
+                    aria-label={t('Changer la photo')}
                 >
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
@@ -62,7 +64,7 @@ export function AvatarUpload({ value, name = 'Utilisateur', size = 80, onChange 
             />
             {preview && (
                 <button type="button" className="avatar-upload__remove" onClick={handleRemove}>
-                    Supprimer
+                    {t('Supprimer')}
                 </button>
             )}
 

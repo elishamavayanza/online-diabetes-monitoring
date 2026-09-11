@@ -15,6 +15,19 @@ interface PatientFormModalProps {
     onSuccess?: () => void;
 }
 
+function diabetesTypeLabel(value: string): string {
+    switch (value) {
+        case 'TYPE_1':
+            return 'Type 1';
+        case 'TYPE_2':
+            return 'Type 2';
+        case 'GESTATIONAL':
+            return 'Gestationnel';
+        default:
+            return 'Autre';
+    }
+}
+
 export function PatientFormModal({ isOpen, onClose, onSuccess }: PatientFormModalProps) {
     const { t } = useI18n();
     const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } =
@@ -68,6 +81,7 @@ export function PatientFormModal({ isOpen, onClose, onSuccess }: PatientFormModa
                         <p><strong>{t('Email :')}</strong> {form.email}</p>
                         <p><strong>{t('Téléphone :')}</strong> {form.phone || '—'}</p>
                         <p><strong>{t('Genre :')}</strong> {form.gender}</p>
+                        <p><strong>{t('Type de diabète :')}</strong> {form.diabetesType ? t(diabetesTypeLabel(form.diabetesType)) : '—'}</p>
                         <p><strong>{t('Date de naissance :')}</strong> {form.dateOfBirth || '—'}</p>
                         <p><strong>{t('Groupe sanguin :')}</strong> {form.bloodType || '—'}</p>
                         <p><strong>{t('Taille :')}</strong> {form.heightCm ? `${form.heightCm} cm` : '—'}</p>

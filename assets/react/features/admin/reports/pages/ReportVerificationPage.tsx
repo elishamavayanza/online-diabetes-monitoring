@@ -6,6 +6,7 @@ import {
     verifyPatientFollowUpReport,
     PatientReportVerificationResult,
 } from '@/react/features/clinician/patients/services/patientFollowUpReportVerificationService';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/admin/reports/_verification.scss';
 
 function formatFrenchDate(value: string): string {
@@ -30,6 +31,7 @@ export function ReportVerificationPage() {
     const [verification, setVerification] = useState<VerificationState | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { t } = useI18n();
 
     const ref = searchParams.get('ref') ?? '';
     const type = searchParams.get('type') ?? (ref.startsWith('RPT-PAT-') ? 'patient' : 'organization');
@@ -41,7 +43,7 @@ export function ReportVerificationPage() {
     useEffect(() => {
         const verify = async () => {
             if (!ref || !from || !to) {
-                setError('Lien de vérification incomplet.');
+                setError(t('Lien de vérification incomplet.'));
                 setIsLoading(false);
                 return;
             }
@@ -49,7 +51,7 @@ export function ReportVerificationPage() {
             try {
                 if (type === 'patient') {
                     if (!patientId) {
-                        setError('Lien de vérification incomplet.');
+                        setError(t('Lien de vérification incomplet.'));
                         setIsLoading(false);
                         return;
                     }
@@ -63,7 +65,7 @@ export function ReportVerificationPage() {
                     setVerification({ kind: 'patient', result });
                 } else {
                     if (!organizationId) {
-                        setError('Lien de vérification incomplet.');
+                        setError(t('Lien de vérification incomplet.'));
                         setIsLoading(false);
                         return;
                     }
@@ -77,7 +79,7 @@ export function ReportVerificationPage() {
                     setVerification({ kind: 'organization', result });
                 }
             } catch {
-                setError('Impossible de vérifier ce rapport pour le moment.');
+                setError(t('Impossible de vérifier ce rapport pour le moment.'));
             } finally {
                 setIsLoading(false);
             }
@@ -94,45 +96,45 @@ export function ReportVerificationPage() {
                 <div className="report-verification-page__brand">
                     <img src={logo} alt="DiabCare" className="report-verification-page__logo" />
                     <div>
-                        <h1>Vérification de rapport</h1>
-                        <p>Plateforme OnlineDIAB</p>
+                        <h1>{t('Vérification de rapport')}</h1>
+                        <p>{t('Plateforme OnlineDIAB')}</p>
                     </div>
                 </div>
 
-                {isLoading && <p className="report-verification-page__status">Vérification en cours...</p>}
+                {isLoading && <p className="report-verification-page__status">{t('Vérification en cours...')}</p>}
 
                 {!isLoading && error && (
                     <div className="report-verification-page__result report-verification-page__result--error">
-                        <h2>Rapport non vérifiable</h2>
+                        <h2>{t('Rapport non vérifiable')}</h2>
                         <p>{error}</p>
                     </div>
                 )}
 
                 {!isLoading && result && (
                     <div className={`report-verification-page__result report-verification-page__result--${result.authentic ? 'success' : 'error'}`}>
-                        <h2>{result.authentic ? 'Rapport authentique' : 'Rapport non authentique'}</h2>
+                        <h2>{result.authentic ? t('Rapport authentique') : t('Rapport non authentique')}</h2>
                         <p>{result.message}</p>
 
                         {result.authentic && verification?.kind === 'organization' && (
                             <dl className="report-verification-page__details">
                                 <div>
-                                    <dt>Organisation</dt>
+                                    <dt>{t('Organisation')}</dt>
                                     <dd>{verification.result.organizationName}</dd>
                                 </div>
                                 <div>
-                                    <dt>Type de document</dt>
+                                    <dt>{t('Type de document')}</dt>
                                     <dd>{verification.result.documentType}</dd>
                                 </div>
                                 <div>
-                                    <dt>Période couverte</dt>
-                                    <dd>{formatFrenchDate(verification.result.periodFrom)} au {formatFrenchDate(verification.result.periodTo)}</dd>
+                                    <dt>{t('Période couverte')}</dt>
+                                    <dd>{formatFrenchDate(verification.result.periodFrom)} {t('au')} {formatFrenchDate(verification.result.periodTo)}</dd>
                                 </div>
                                 <div>
-                                    <dt>Référence</dt>
+                                    <dt>{t('Référence')}</dt>
                                     <dd>{verification.result.reference}</dd>
                                 </div>
                                 <div>
-                                    <dt>Vérifié le</dt>
+                                    <dt>{t('Vérifié le')}</dt>
                                     <dd>{formatFrenchDate(verification.result.verifiedAt)}</dd>
                                 </div>
                             </dl>
@@ -141,29 +143,29 @@ export function ReportVerificationPage() {
                         {result.authentic && verification?.kind === 'patient' && (
                             <dl className="report-verification-page__details">
                                 <div>
-                                    <dt>Patient</dt>
+                                    <dt>{t('Patient')}</dt>
                                     <dd>{verification.result.patientFullName}</dd>
                                 </div>
                                 {verification.result.organizationName && (
                                     <div>
-                                        <dt>Organisation</dt>
+                                        <dt>{t('Organisation')}</dt>
                                         <dd>{verification.result.organizationName}</dd>
                                     </div>
                                 )}
                                 <div>
-                                    <dt>Type de document</dt>
+                                    <dt>{t('Type de document')}</dt>
                                     <dd>{verification.result.documentType}</dd>
                                 </div>
                                 <div>
-                                    <dt>Période couverte</dt>
-                                    <dd>{formatFrenchDate(verification.result.periodFrom)} au {formatFrenchDate(verification.result.periodTo)}</dd>
+                                    <dt>{t('Période couverte')}</dt>
+                                    <dd>{formatFrenchDate(verification.result.periodFrom)} {t('au')} {formatFrenchDate(verification.result.periodTo)}</dd>
                                 </div>
                                 <div>
-                                    <dt>Référence</dt>
+                                    <dt>{t('Référence')}</dt>
                                     <dd>{verification.result.reference}</dd>
                                 </div>
                                 <div>
-                                    <dt>Vérifié le</dt>
+                                    <dt>{t('Vérifié le')}</dt>
                                     <dd>{formatFrenchDate(verification.result.verifiedAt)}</dd>
                                 </div>
                             </dl>

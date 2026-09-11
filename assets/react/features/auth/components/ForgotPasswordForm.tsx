@@ -5,8 +5,10 @@ import { Input } from '@/react/components/Forms/Input';
 import { ErrorMessage } from '@/react/components/Forms/ErrorMessage';
 import { Button } from '@/react/components/UI/Button';
 import { useForgotPasswordForm } from '@/react/features/auth';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export function ForgotPasswordForm() {
+    const { t } = useI18n();
     const {
         values,
         errors,
@@ -20,7 +22,7 @@ export function ForgotPasswordForm() {
     return (
         <Form layout="vertical" gap="medium" fullWidth onSubmit={handleSubmit} noValidate>
             <FormField
-                label="Adresse email"
+                label={t('Adresse email')}
                 htmlFor="email"
                 required
                 error={errors.email}
@@ -51,12 +53,12 @@ export function ForgotPasswordForm() {
                 fullWidth
                 isLoading={isSubmitting}
             >
-                {isSubmitting ? 'Envoi en cours...' : 'Envoyer le lien'}
+                {isSubmitting ? t('Envoi en cours...') : t('Envoyer le lien')}
             </Button>
 
             <div className="forgot-password__back-row">
                 <a href="/login" className="forgot-password__back-link">
-                    Retour à la connexion
+                    {t('Retour à la connexion')}
                 </a>
             </div>
         </Form>

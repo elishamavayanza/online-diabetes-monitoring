@@ -6,6 +6,7 @@ import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
 import { Button } from '@/react/components/UI/Button';
 import { OrganizationSettings, OrganizationStatus } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface OrganizationSettingsFormProps {
     settings: OrganizationSettings;
@@ -14,6 +15,7 @@ interface OrganizationSettingsFormProps {
 }
 
 export function OrganizationSettingsForm({ settings, onSave, isSaving }: OrganizationSettingsFormProps) {
+    const { t } = useI18n();
     const [form, setForm] = useState<OrganizationSettings>(settings);
 
     const handleChange = (field: keyof OrganizationSettings, value: string | OrganizationStatus) => {
@@ -21,59 +23,59 @@ export function OrganizationSettingsForm({ settings, onSave, isSaving }: Organiz
     };
 
     const typeOptions = [
-        { value: 'Clinic', label: 'Clinique' },
-        { value: 'Hospital', label: 'Hôpital' },
-        { value: 'Network', label: 'Réseau' },
+        { value: 'Clinic', label: t('Clinique') },
+        { value: 'Hospital', label: t('Hôpital') },
+        { value: 'Network', label: t('Réseau') },
     ];
 
     const statutOptions = [
-        { value: 'Active', label: 'Actif' },
-        { value: 'Inactive', label: 'Inactif' },
+        { value: 'Active', label: t('Actif') },
+        { value: 'Inactive', label: t('Inactif') },
     ];
 
     return (
         <Card className="org-settings-card">
-            <h2>Informations de l’organisation</h2>
+            <h2>{t('Informations de l’organisation')}</h2>
             <Form onSubmit={(e: React.FormEvent) => { e.preventDefault(); onSave(form); }}>
-                <FormField label="Nom court">
+                <FormField label={t('Nom court')}>
                     <Input
                         value={form.nomCourt}
                         onChange={(e) => handleChange('nomCourt', e.target.value)}
                     />
                 </FormField>
-                <FormField label="Type">
+                <FormField label={t('Type')}>
                     <Select
                         value={form.type}
                         onChange={(e) => handleChange('type', e.target.value)}
                         options={typeOptions}
                     />
                 </FormField>
-                <FormField label="Email">
+                <FormField label={t('Email')}>
                     <Input
                         type="email"
                         value={form.email}
                         onChange={(e) => handleChange('email', e.target.value)}
                     />
                 </FormField>
-                <FormField label="Téléphone">
+                <FormField label={t('Téléphone')}>
                     <Input
                         value={form.telephone}
                         onChange={(e) => handleChange('telephone', e.target.value)}
                     />
                 </FormField>
-                <FormField label="Site web">
+                <FormField label={t('Site web')}>
                     <Input
                         value={form.siteWeb}
                         onChange={(e) => handleChange('siteWeb', e.target.value)}
                     />
                 </FormField>
-                <FormField label="Adresse">
+                <FormField label={t('Adresse')}>
                     <Input
                         value={form.adresse}
                         onChange={(e) => handleChange('adresse', e.target.value)}
                     />
                 </FormField>
-                <FormField label="Statut">
+                <FormField label={t('Statut')}>
                     <Select
                         value={form.statut}
                         onChange={(e) => handleChange('statut', e.target.value as OrganizationStatus)}
@@ -81,7 +83,7 @@ export function OrganizationSettingsForm({ settings, onSave, isSaving }: Organiz
                     />
                 </FormField>
                 <Button type="submit" disabled={isSaving}>
-                    {isSaving ? 'Enregistrement...' : 'Enregistrer'}
+                    {isSaving ? t('Enregistrement...') : t('Enregistrer')}
                 </Button>
             </Form>
         </Card>

@@ -24,6 +24,9 @@ class InsulinInjectionRepository extends ServiceEntityRepository
     public function findByPatient(Patient $patient): array
     {
         return $this->createQueryBuilder('ii')
+            ->leftJoin('ii.prescriptionItem', 'pitem')->addSelect('pitem')
+            ->leftJoin('ii.insulin', 'ins')->addSelect('ins')
+            ->leftJoin('ii.issuer', 'issuer')->addSelect('issuer')
             ->andWhere('ii.patient = :patient')
             ->andWhere('ii.deletedAt IS NULL')
             ->setParameter('patient', $patient)
@@ -38,6 +41,9 @@ class InsulinInjectionRepository extends ServiceEntityRepository
     public function findByPrescriptionItem(PrescriptionItem $prescriptionItem): array
     {
         return $this->createQueryBuilder('ii')
+            ->leftJoin('ii.prescriptionItem', 'pitem')->addSelect('pitem')
+            ->leftJoin('ii.insulin', 'ins')->addSelect('ins')
+            ->leftJoin('ii.issuer', 'issuer')->addSelect('issuer')
             ->andWhere('ii.prescriptionItem = :prescriptionItem')
             ->andWhere('ii.deletedAt IS NULL')
             ->setParameter('prescriptionItem', $prescriptionItem)

@@ -5,9 +5,11 @@ import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Tabs } from '@/react/components/Navigation/Tabs';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/root/roles/_roles.scss';
 
 export function RolesPage() {
+    const { t } = useI18n();
     const { roles, selectedRole, selectedRoleId, setSelectedRoleId, users, isLoading, error } = useRoles();
     const { pushAction } = useActionHistory();
 
@@ -23,7 +25,7 @@ export function RolesPage() {
     }
 
     if (error || !selectedRole) {
-        return <Alert variant="error">{error ?? 'Aucun rôle sélectionné.'}</Alert>;
+        return <Alert variant="error">{error ?? t('Aucun rôle sélectionné.')}</Alert>;
     }
 
     const tabs = roles.map((role) => ({
@@ -34,8 +36,8 @@ export function RolesPage() {
     return (
         <div className="roles-page">
             <div className="roles-page__header">
-                <h1>Rôles & permissions</h1>
-                <p>Gérez les rôles et leurs permissions</p>
+                <h1>{t('Rôles & permissions')}</h1>
+                <p>{t('Gérez les rôles et leurs permissions')}</p>
             </div>
 
             <Tabs
