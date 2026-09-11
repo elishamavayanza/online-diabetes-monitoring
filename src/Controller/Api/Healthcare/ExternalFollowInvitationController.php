@@ -13,10 +13,7 @@ use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/external-follows')]
-#[OA\Tag(
-    name: 'Healthcare - Suivi externe',
-    description: 'Réponses du professionnel invité aux invitations de suivi'
-)]
+#[OA\Tag(name: 'Healthcare - Suivi externe')]
 class ExternalFollowInvitationController extends AbstractController
 {
     public function __construct(
