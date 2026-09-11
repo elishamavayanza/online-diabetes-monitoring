@@ -1,4 +1,5 @@
 // services/patientAppointmentsService.ts
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import apiClient from '@/services/api/client';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { getCurrentUserIdFromToken, getCurrentUserOrganizationId } from '@/react/utils/authUtils';
@@ -35,12 +36,12 @@ export async function fetchPatientAppointments(): Promise<PatientAppointment[]> 
 
     return appointments.map((appt) => {
         const scheduled = new Date(appt.scheduledAt);
-        const dateStr = scheduled.toLocaleDateString('fr-FR', {
+        const dateStr = scheduled.toLocaleDateString(getDateFormatLocale(), {
             day: '2-digit',
             month: '2-digit',
             year: 'numeric',
         });
-        const timeStr = scheduled.toLocaleTimeString('fr-FR', {
+        const timeStr = scheduled.toLocaleTimeString(getDateFormatLocale(), {
             hour: '2-digit',
             minute: '2-digit',
         });

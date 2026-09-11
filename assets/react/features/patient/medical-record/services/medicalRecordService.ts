@@ -1,5 +1,7 @@
 // services/medicalRecordService.ts
 import { fetchPatientDossier } from '@/react/features/clinician/patients/services/patientDossierService';
+import { localeCode } from '@/react/i18n/dateLocale';
+import { translate } from '@/react/i18n/translations';
 import type {
     PatientAllergy,
     PatientDossierData,
@@ -88,13 +90,14 @@ function buildVitals(dossier: PatientDossierData): VitalsInfo {
 
 function buildEvents(dossier: PatientDossierData): RecordEvent[] {
     const events: RecordEvent[] = [];
+    const loc = localeCode();
 
     dossier.notes.forEach((n) => {
         events.push({
             id: `note-${n.id}`,
             kind: 'note',
             date: noteDate(n),
-            label: 'Note médicale',
+            label: translate('Note médicale', loc),
             meta: n.authorName,
         });
     });
@@ -104,8 +107,8 @@ function buildEvents(dossier: PatientDossierData): RecordEvent[] {
             id: `appt-${a.id}`,
             kind: 'appointment',
             date: a.scheduledAt,
-            label: a.reason || 'Consultation',
-            meta: a.professionalName || 'Professionnel de santé',
+            label: a.reason || translate('Consultation', loc),
+            meta: a.professionalName || translate('Professionnel de santé', loc),
             status: a.status,
         });
     });
@@ -113,19 +116,19 @@ function buildEvents(dossier: PatientDossierData): RecordEvent[] {
     const m = dossier.measurements;
     m.bloodGlucose.forEach((g) => events.push({
         id: `msg-${g.id}`, kind: 'measurement', date: g.createdAt,
-        label: 'Glycémie', meta: `${g.value} ${g.unit ?? 'mg/dL'}`,
+        label: translate('Glycémie', loc), meta: `${g.value} ${g.unit ?? 'mg/dL'}`,
     }));
     m.bloodPressure.forEach((bp) => events.push({
         id: `mbp-${bp.id}`, kind: 'measurement', date: bp.createdAt,
-        label: 'Tension artérielle', meta: `${bp.systolic}/${bp.diastolic} mmHg`,
+        label: translate('Tension artérielle', loc), meta: `${bp.systolic}/${bp.diastolic} mmHg`,
     }));
     m.weight.forEach((w) => events.push({
         id: `mw-${w.id}`, kind: 'measurement', date: w.createdAt,
-        label: 'Poids', meta: `${w.valueKg} kg`,
+        label: translate('Poids', loc), meta: `${w.valueKg} kg`,
     }));
     m.hba1c.forEach((h) => events.push({
         id: `mh-${h.id}`, kind: 'measurement', date: h.createdAt,
-        label: 'HbA1c', meta: `${Number(h.valuePercent).toFixed(1)} %`,
+        label: translate('HbA1c', loc), meta: `${Number(h.valuePercent).toFixed(1)} %`,
     }));
 
     return events.sort(

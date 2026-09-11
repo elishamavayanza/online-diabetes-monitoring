@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import { Card } from '@/react/components/UI/Card';
 import { useI18n } from '@/react/i18n/I18nContext';
 import { RecentNote } from '../types';
@@ -9,7 +10,7 @@ interface RecentNotesCardProps {
 function formatDate(iso: string): string {
     const date = new Date(iso);
     if (isNaN(date.getTime())) return '';
-    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 export function RecentNotesCard({ notes }: RecentNotesCardProps) {

@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import { useState } from 'react';
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
@@ -23,11 +24,11 @@ function formatConversationDate(dateStr: string, t: (key: string) => string): st
     yesterday.setDate(today.getDate() - 1);
 
     if (date >= today) {
-        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        return date.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' });
     } else if (date >= yesterday) {
         return t('Hier');
     } else {
-        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+        return date.toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: 'short' });
     }
 }
 

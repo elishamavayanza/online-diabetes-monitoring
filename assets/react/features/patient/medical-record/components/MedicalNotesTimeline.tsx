@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import { useMemo } from 'react';
 import { MedicalNoteInfo } from '../types';
 import { useI18n } from '@/react/i18n/I18nContext';
@@ -16,7 +17,7 @@ function toDateKey(date: Date): string {
 }
 
 function formatGroupHeader(iso: string): string {
-    return new Date(iso).toLocaleDateString('fr-FR', {
+    return new Date(iso).toLocaleDateString(getDateFormatLocale(), {
         weekday: 'long',
         day: '2-digit',
         month: 'long',
@@ -27,7 +28,7 @@ function formatGroupHeader(iso: string): string {
 function formatTime(iso: string): string {
     const date = new Date(iso);
     if (isNaN(date.getTime())) return '';
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' });
 }
 
 export function MedicalNotesTimeline({ notes, selectedDate, onClearFilter }: MedicalNotesTimelineProps) {

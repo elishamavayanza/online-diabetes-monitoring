@@ -121,7 +121,7 @@ export function MedicalRecordPage() {
                             {LEGEND.map((item) => (
                                 <li key={item.label}>
                                     <span className={`medical-record-page__legend-dot medical-record-page__legend-dot--${item.type}`} />
-                                    {item.label}
+                                    {t(item.label)}
                                 </li>
                             ))}
                         </ul>

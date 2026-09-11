@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import React from 'react';
 import { Modal } from '@/react/components/UI/Modal';
 import { Spinner } from '@/react/components/UI/Spinner';
@@ -17,7 +18,7 @@ interface LogsModalProps {
 function formatDate(value: string | null): string {
     if (!value) return '—';
     const date = new Date(value);
-    return date.toLocaleDateString('fr-FR', {
+    return date.toLocaleDateString(getDateFormatLocale(), {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

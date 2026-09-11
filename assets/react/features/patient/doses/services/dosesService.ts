@@ -1,4 +1,5 @@
 // services/dosesService.ts
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import apiClient from '@/services/api/client';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
@@ -41,7 +42,7 @@ function getPeriodFromTime(time: string): string {
 
 // Convertit une date ISO en "HH:mm" locale
 function formatTime(dateStr: string): string {
-    return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return new Date(dateStr).toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' });
 }
 
 function isSameDay(a: Date, b: Date): boolean {

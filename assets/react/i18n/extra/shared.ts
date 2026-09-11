@@ -133,4 +133,5 @@ export const en: Record<string, string> = {
 
     // --- ConfirmDialog ---
     'Confirmer': 'Confirm',
+    'Fermer le menu': 'Close menu',
 };

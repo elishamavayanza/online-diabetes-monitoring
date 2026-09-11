@@ -2,8 +2,8 @@
   "entrypoints": {
     "app": {
       "js": [
-        "/build/runtime.777bb068.js",
-        "/build/app.36e8b514.js"
+        "/build/runtime.9c94597d.js",
+        "/build/app.c22c6a34.js"
       ],
       "css": [
         "/build/app.4a34df5d.css"
@@ -11,7 +11,7 @@
     },
     "email": {
       "js": [
-        "/build/runtime.777bb068.js",
+        "/build/runtime.9c94597d.js",
         "/build/email.d8fd7045.js"
       ],
       "css": [

@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/react/app/providers/AuthProvider';
@@ -10,7 +11,7 @@ import { useI18n } from '@/react/i18n/I18nContext';
 
 function formatDate(value: string | null): string {
     if (!value) return '—';
-    return new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(value).toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 export function AcceptInvitationPage() {

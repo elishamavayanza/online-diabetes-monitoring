@@ -35,57 +35,6 @@ const TYPE_TO_ID: Record<MeasurementType, MeasurementTypeId> = {
     'Injection': 'insulinInjection',
 };
 
-const MEASUREMENT_TYPES: {
-    id: MeasurementType;
-    label: string;
-    description: string;
-    unit: string;
-    icon: React.ReactNode;
-}[] = [
-    {
-        id: 'Glycémie',
-        label: 'Glycémie',
-        description: 'Taux de sucre dans le sang',
-        unit: 'mg/dL',
-        icon: <BloodGlucoseIcon />,
-    },
-    {
-        id: 'Tension',
-        label: 'Tension',
-        description: 'Pression artérielle',
-        unit: 'mmHg',
-        icon: <BloodPressureIcon />,
-    },
-    {
-        id: 'Poids',
-        label: 'Poids',
-        description: 'Masse corporelle',
-        unit: 'kg',
-        icon: <WeightIcon />,
-    },
-    {
-        id: 'HbA1c',
-        label: 'HbA1c',
-        description: 'Hémoglobine glyquée',
-        unit: '%',
-        icon: <Hba1cIcon />,
-    },
-    {
-        id: 'Activité',
-        label: 'Activité',
-        description: 'Durée d’activité physique',
-        unit: 'min',
-        icon: <PhysicalActivityIcon />,
-    },
-    {
-        id: 'Injection',
-        label: 'Injection',
-        description: 'Injections d’insuline',
-        unit: 'u',
-        icon: <InsulinInjectionIcon />,
-    },
-];
-
 function extractNumericValue(value: string): number | null {
     const normalized = value.replace(',', '.');
     const match = normalized.match(/-?\d+(\.\d+)?/);
@@ -93,7 +42,59 @@ function extractNumericValue(value: string): number | null {
 }
 
 export function MeasurementsPage() {
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
+
+    const MEASUREMENT_TYPES: {
+        id: MeasurementType;
+        label: string;
+        description: string;
+        unit: string;
+        icon: React.ReactNode;
+    }[] = [
+        {
+            id: 'Glycémie',
+            label: t('Glycémie'),
+            description: t('Taux de sucre dans le sang'),
+            unit: 'mg/dL',
+            icon: <BloodGlucoseIcon />,
+        },
+        {
+            id: 'Tension',
+            label: t('Tension'),
+            description: t('Pression artérielle'),
+            unit: 'mmHg',
+            icon: <BloodPressureIcon />,
+        },
+        {
+            id: 'Poids',
+            label: t('Poids'),
+            description: t('Masse corporelle'),
+            unit: 'kg',
+            icon: <WeightIcon />,
+        },
+        {
+            id: 'HbA1c',
+            label: t('HbA1c'),
+            description: t('Hémoglobine glyquée'),
+            unit: '%',
+            icon: <Hba1cIcon />,
+        },
+        {
+            id: 'Activité',
+            label: t('Activité'),
+            description: t('Durée d’activité physique'),
+            unit: 'min',
+            icon: <PhysicalActivityIcon />,
+        },
+        {
+            id: 'Injection',
+            label: t('Injection'),
+            description: t('Injections d’insuline'),
+            unit: 'u',
+            icon: <InsulinInjectionIcon />,
+        },
+    ];
+
     const { type, setType, records, isLoading, error, refetch } = useMeasurements();
     const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid');
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -223,7 +224,9 @@ export function MeasurementsPage() {
                                 data={chartData}
                                 height={300}
                                 formatDate={(timestamp) =>
-                                    new Date(Number(timestamp)).toLocaleDateString('fr-FR')
+                                    new Date(Number(timestamp)).toLocaleDateString(
+                                        locale === 'fr' ? 'fr-FR' : 'en-US'
+                                    )
                                 }
                                 formatValue={(price) => `${price}`}
                             />

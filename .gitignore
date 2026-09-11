@@ -57,3 +57,5 @@ Thumbs.db
 /public/assets/
 /assets/vendor/
 ###< symfony/asset-mapper ###
+.aider*
+.env

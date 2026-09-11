@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '@/styles/pages/admin/external-follows/_external-follows.scss';
@@ -20,7 +21,7 @@ interface ExternalFollowPatientsCardsProps {
 
 function formatDate(value: string | null): string {
     if (!value) return '—';
-    return new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    return new Date(value).toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
 function ExternalFollowCard({ follow, rolePrefix, onCloseClick }: {

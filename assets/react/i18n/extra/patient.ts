@@ -10,6 +10,8 @@ export const en: Record<string, string> = {
     'Vos prochains rendez-vous': 'Your upcoming appointments',
     'Aucun rendez-vous à venir.': 'No upcoming appointments.',
     'Consultation': 'Consultation',
+    'Note médicale': 'Medical note',
+    'Professionnel de santé': 'Healthcare professional',
     'Notes médicales récentes': 'Recent medical notes',
     'Aucune note pour le moment.': 'No notes for now.',
     'Prochain rendez-vous': 'Next appointment',

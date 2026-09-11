@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import apiClient from "@/services/api/client";
 import { AdminDashboardData, AppointmentToday, UpcomingAppointment } from '../types';
 import { tokenStorage } from '@/services/storage/storage.service';
@@ -41,8 +42,8 @@ function dateLabel(date: Date, now: Date): string {
 
     if (diffDays <= 0) return "Aujourd'hui";
     if (diffDays === 1) return 'Demain';
-    if (diffDays < 7) return date.toLocaleDateString('fr-FR', { weekday: 'short' });
-    return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+    if (diffDays < 7) return date.toLocaleDateString(getDateFormatLocale(), { weekday: 'short' });
+    return date.toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: '2-digit' });
 }
 
 export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
@@ -96,7 +97,7 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
             const date = new Date(appt.scheduledAt);
             return {
                 id: String(appt.id ?? ''),
-                time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                time: date.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' }),
                 doctor:
                     professionalNameById.get(String(appt.professionalId)) ??
                     appt.createdByName ??
@@ -136,7 +137,7 @@ export async function fetchAdminDashboardData(): Promise<AdminDashboardData> {
                 message: `Rendez-vous de ${patientNameById.get(String(appt.patientId)) ?? 'patient'} avec ${
                     professionalNameById.get(String(appt.professionalId)) ?? appt.createdByName ?? 'un professionnel'
                 }`,
-                timestamp: new Date(appt.scheduledAt).toLocaleDateString('fr-FR', {
+                timestamp: new Date(appt.scheduledAt).toLocaleDateString(getDateFormatLocale(), {
                     day: '2-digit',
                     month: '2-digit',
                 }),

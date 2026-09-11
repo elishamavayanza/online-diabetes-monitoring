@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import { TrendSeries } from '@/react/features/admin/reports/types';
 import { CalendarMarkedDate } from '@/react/hook-components/Calendars/Calendar';
 import { DossierTabId, MeasurementPeriod, PatientDossierData } from '../types';
@@ -11,7 +12,7 @@ export function toDateKey(date: Date): string {
 }
 
 export function formatDisplayDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('fr-FR', {
+    return new Date(iso).toLocaleDateString(getDateFormatLocale(), {
         day: '2-digit',
         month: 'short',
         year: 'numeric',

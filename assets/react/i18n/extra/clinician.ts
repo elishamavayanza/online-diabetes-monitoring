@@ -455,4 +455,5 @@ export const en: Record<string, string> = {
 
 
 
+'PDF, Word ou image (JPEG, PNG, WebP — max 10 Mo)': 'PDF, Word or image (JPEG, PNG, WebP — 10 MB max)',
 };

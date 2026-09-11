@@ -160,4 +160,6 @@ export const en: Record<string, string> = {
     'Signature URL': 'Signature URL',
     'Dernière connexion :': 'Last login:',
     'Date de fin *': 'End date *',
+    'Suspendre une organisation': 'Suspend an organization',
+    'Réactiver une organisation': 'Reactivate an organization',
 };

@@ -1,4 +1,5 @@
 // services/measurementsService.ts
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import apiClient from '@/services/api/client';
 import { ApiFeedback, unwrapApiData } from '@/react/utils/apiFeedback';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
@@ -72,8 +73,8 @@ const INJECTION_SITE_LABELS: Record<string, string> = {
 };
 
 function formatDate(dateStr?: string): string {
-    if (!dateStr) return new Date().toLocaleDateString('fr-FR');
-    return new Date(dateStr).toLocaleDateString('fr-FR');
+    if (!dateStr) return new Date().toLocaleDateString(getDateFormatLocale());
+    return new Date(dateStr).toLocaleDateString(getDateFormatLocale());
 }
 
 function formatDateTime(dateStr?: string): string {

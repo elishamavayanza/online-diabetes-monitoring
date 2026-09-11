@@ -1,4 +1,6 @@
 // services/patientDashboardService.ts
+import { getDateFormatLocale, localeCode } from '@/react/i18n/dateLocale';
+import { translate } from '@/react/i18n/translations';
 import { fetchPatientDossier } from '@/react/features/clinician/patients/services/patientDossierService';
 import { fetchPatientTeam } from '@/react/features/patient/appointments/services/patientAppointmentsService';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
@@ -23,11 +25,12 @@ function buildMetrics(dossier: PatientDossierData): HealthMetric[] {
     const weight = latest(dossier.measurements.weight);
     const hba1c = latest(dossier.measurements.hba1c);
     const bp = latest(dossier.measurements.bloodPressure);
+    const loc = localeCode();
 
     return [
         {
             id: 'glycemie',
-            label: 'Glycémie',
+            label: translate('Glycémie', loc),
             value: glucose ? String(glucose.value) : '--',
             unit: glucose?.unit ?? 'mg/dL',
             date: glucose?.createdAt,
@@ -36,7 +39,7 @@ function buildMetrics(dossier: PatientDossierData): HealthMetric[] {
         },
         {
             id: 'tension',
-            label: 'Tension',
+            label: translate('Tension', loc),
             value: bp ? `${bp.systolic}/${bp.diastolic}` : '--',
             unit: 'mmHg',
             date: bp?.createdAt,
@@ -44,7 +47,7 @@ function buildMetrics(dossier: PatientDossierData): HealthMetric[] {
         },
         {
             id: 'poids',
-            label: 'Poids',
+            label: translate('Poids', loc),
             value: weight ? String(weight.valueKg) : '--',
             unit: 'kg',
             date: weight?.createdAt,
@@ -52,7 +55,7 @@ function buildMetrics(dossier: PatientDossierData): HealthMetric[] {
         },
         {
             id: 'hba1c',
-            label: 'HbA1c',
+            label: translate('HbA1c', loc),
             value: hba1c ? Number(hba1c.valuePercent).toFixed(1) : '--',
             unit: '%',
             date: hba1c?.createdAt,
@@ -75,9 +78,9 @@ function buildAppointments(
         .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
 
     const formatDate = (iso: string) =>
-        new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+        new Date(iso).toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: 'long', year: 'numeric' });
     const formatTime = (iso: string) =>
-        new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        new Date(iso).toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' });
     const doctorOf = (professionalId?: string, professionalName?: string) =>
         professionalName?.trim()
         || (professionalId ? professionalMap.get(professionalId) : undefined)

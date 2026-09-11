@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/react/app/providers/AuthProvider';
@@ -14,7 +15,7 @@ import { useI18n } from '@/react/i18n/I18nContext';
 
 function formatDate(value: string | null): string {
     if (!value) return '—';
-    return new Date(value).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return new Date(value).toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 const STATUS_VARIANT: Record<string, BadgeVariant> = {

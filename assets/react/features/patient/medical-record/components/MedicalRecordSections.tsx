@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { MedicalRecordData } from '../types';
@@ -7,7 +8,7 @@ function formatDate(dateStr: string): string {
     if (!dateStr) return '—';
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
-    return date.toLocaleDateString('fr-FR', {
+    return date.toLocaleDateString(getDateFormatLocale(), {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

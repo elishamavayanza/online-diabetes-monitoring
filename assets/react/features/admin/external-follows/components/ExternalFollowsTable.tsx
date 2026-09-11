@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import React, { useState } from 'react';
 import { Button } from '@/react/components/UI/Button';
 import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
@@ -22,7 +23,7 @@ interface ExternalFollowsTableProps {
 
 function formatDate(value: string | null): string {
     if (!value) return '—';
-    return new Date(value).toLocaleDateString('fr-FR', {
+    return new Date(value).toLocaleDateString(getDateFormatLocale(), {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',

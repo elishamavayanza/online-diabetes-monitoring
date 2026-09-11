@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import apiClient from '@/services/api/client';
 import { NutritionistDashboardData, FollowUpPatient, UpcomingAppointment } from '../types';
 import { formatDateToApi } from '@/utils/date.utils';
@@ -25,10 +26,10 @@ function dateLabel(date: Date, now: Date): { label: string; isToday: boolean } {
     if (diffDays <= 0) return { label: "Aujourd'hui", isToday: true };
     if (diffDays === 1) return { label: 'Demain', isToday: false };
     if (diffDays < 7) {
-        return { label: date.toLocaleDateString('fr-FR', { weekday: 'short' }), isToday: false };
+        return { label: date.toLocaleDateString(getDateFormatLocale(), { weekday: 'short' }), isToday: false };
     }
     return {
-        label: date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+        label: date.toLocaleDateString(getDateFormatLocale(), { day: '2-digit', month: '2-digit' }),
         isToday: false,
     };
 }
@@ -59,7 +60,7 @@ export async function fetchNutritionistDashboardData(): Promise<NutritionistDash
             const apptDate = new Date(appt.scheduledAt);
             return {
                 id: String(appt.id ?? ''),
-                time: apptDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                time: apptDate.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' }),
                 patient: patientMap.get(String(appt.patientId)) ?? `Patient #${appt.patientId}`,
             };
         });
@@ -73,7 +74,7 @@ export async function fetchNutritionistDashboardData(): Promise<NutritionistDash
             return {
                 id: String(appt.id ?? ''),
                 date: label,
-                time: apptDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                time: apptDate.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' }),
                 patient: patientMap.get(String(appt.patientId)) ?? `Patient #${appt.patientId}`,
                 reason: appt.reason ?? undefined,
                 isToday,
@@ -104,7 +105,7 @@ export async function fetchNutritionistDashboardData(): Promise<NutritionistDash
             id: String(p.id),
             name: p.fullName ?? `Patient #${p.id}`,
             lastVisit:
-                lastVisitByPatient.get(String(p.id))?.toLocaleDateString('fr-FR', {
+                lastVisitByPatient.get(String(p.id))?.toLocaleDateString(getDateFormatLocale(), {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric',

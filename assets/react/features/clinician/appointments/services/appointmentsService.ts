@@ -1,4 +1,5 @@
 // appointmentsService.ts
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import apiClient from '@/services/api/client';
 import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback'; // ✅ Import de ApiFeedback
 import { Appointment, AppointmentFilter } from '../types';
@@ -30,7 +31,7 @@ export async function fetchAppointments(filter: AppointmentFilter): Promise<Appo
     const normalized: Appointment[] = appointments.map((appt) => {
         const scheduled = new Date(appt.scheduledAt);
         const date = scheduled.toISOString().split('T')[0];
-        const time = scheduled.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        const time = scheduled.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' });
 
         const statusMapping: Record<string, Appointment['statut']> = {
             SCHEDULED: 'En attente',

@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import { Badge } from '@/react/components/UI/Badge';
 import { RecordEvent, RecordEventKind } from '../types';
 import { useI18n } from '@/react/i18n/I18nContext';
@@ -16,7 +17,7 @@ function toDateKey(date: Date): string {
 }
 
 function formatDate(date: Date): string {
-    return date.toLocaleDateString('fr-FR', {
+    return date.toLocaleDateString(getDateFormatLocale(), {
         weekday: 'long',
         day: '2-digit',
         month: 'long',
@@ -27,7 +28,7 @@ function formatDate(date: Date): string {
 function formatTime(iso: string): string {
     const date = new Date(iso);
     if (isNaN(date.getTime())) return '';
-    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' });
 }
 
 const KIND_LABEL: Record<RecordEventKind, string> = {

@@ -1,3 +1,4 @@
+import { getDateFormatLocale } from '@/react/i18n/dateLocale';
 import apiClient from '@/services/api/client';
 import { unwrapApiData, ApiFeedback } from '@/react/utils/apiFeedback';
 import {
@@ -54,7 +55,7 @@ export async function fetchAgenda(): Promise<AgendaData> {
         const date = new Date(startOfWeek);
         date.setDate(startOfWeek.getDate() + i);
         const dateStr = formatDateToApi(date);
-        const dayLabel = date.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' });
+        const dayLabel = date.toLocaleDateString(getDateFormatLocale(), { weekday: 'short', day: 'numeric' });
         daysMap.set(dateStr, {
             date: dateStr,
             label: dayLabel,
@@ -78,7 +79,7 @@ export async function fetchAgenda(): Promise<AgendaData> {
                 id: String(appt.id ?? ''),
                 date: formatDateToApi(date),
                 dateTime: appt.scheduledAt,
-                time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                time: date.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' }),
                 patient: patientName(appt.patientId),
                 motif: appt.reason ?? 'Consultation',
                 status: appt.status ?? undefined,
@@ -115,7 +116,7 @@ function toAgendaAppointment(
 
     return {
         id: String(appt.id ?? ''),
-        time: date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        time: date.toLocaleTimeString(getDateFormatLocale(), { hour: '2-digit', minute: '2-digit' }),
         patient: patientName(appt.patientId),
         patientId: String(appt.patientId ?? ''),
         motif: appt.reason ?? 'Consultation',
