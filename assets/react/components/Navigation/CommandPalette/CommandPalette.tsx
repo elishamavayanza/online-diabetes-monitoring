@@ -22,7 +22,7 @@ export function useCommandPalette({
                                       isOpen,
                                       onClose,
                                       commands,
-        placeholder: effectivePlaceholder,
+                                      placeholder, //  Renommé en "placeholder" (plus de doublon)
                                       className = '',
                                   }: UseCommandPaletteProps) {
     const { t } = useI18n();
@@ -30,6 +30,7 @@ export function useCommandPalette({
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    //  Une seule déclaration de effectivePlaceholder
     const effectivePlaceholder = placeholder ?? t('Tapez une commande...');
 
     const filteredCommands = useMemo(() => {
@@ -105,10 +106,10 @@ export function useCommandPalette({
         setQuery,
         filteredCommands,
         selectedIndex,
-        setSelectedIndex,        // <-- AJOUT ICI
+        setSelectedIndex,
         handleKeyDown,
         inputRef,
-        placeholder,
+        placeholder: effectivePlaceholder, //  Retourne la bonne variable
         onClose,
     };
 }
