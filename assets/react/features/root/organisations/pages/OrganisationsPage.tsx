@@ -12,6 +12,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/root/organisations/_organisations.scss';
 import { CreateOrganisationPayload } from '../types';
 import { Establishment } from '../types/establishment';
@@ -28,12 +29,13 @@ import { SuspensionPayload } from '@/react/features/security/types';
 import { ApiError } from '@/services/api/api.types';
 
 export function OrganisationsPage() {
+    const { t } = useI18n();
     const { treeNodes, isLoading, error, refetch } = useOrganisations();
     const { showToast } = useToast();
     const [modalCreateOpen, setModalCreateOpen] = useState(false);
     const [modalEditOpen, setModalEditOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<CreateOrganisationPayload | null>(null);
-    const [editingOrgId, setEditingOrgId] = useState<string>(''); //  ID de l'organisation à modifier
+    const [editingOrgId, setEditingOrgId] = useState<string>('');
     const [modalCreateEstOpen, setModalCreateEstOpen] = useState(false);
     const [modalEditEstOpen, setModalEditEstOpen] = useState(false);
     const [editingEst, setEditingEst] = useState<Establishment | null>(null);
@@ -168,18 +170,18 @@ export function OrganisationsPage() {
     return (
         <div className="organisations-page">
             <div className="organisations-page__header">
-                <h1>Organisations</h1>
-                <p>Liste de toutes les organisations de la plateforme</p>
+                <h1>{t('Organisations')}</h1>
+                <p>{t('Liste de toutes les organisations de la plateforme')}</p>
             </div>
 
             <div className="organisations-page__actions">
                 <SearchInput
-                    placeholder="Rechercher une organisation..."
+                    placeholder={t('Rechercher une organisation...')}
                     value={search}
                     onSearch={(value) => setSearch(value)}
                     className="organisations-page__search"
                 />
-                <Button onClick={openAddModal} className="organisations-page__add-btn">Ajouter une organisation</Button>
+                <Button onClick={openAddModal} className="organisations-page__add-btn">{t('Ajouter une organisation')}</Button>
             </div>
 
             <OrganisationsTable
@@ -207,7 +209,7 @@ export function OrganisationsPage() {
                 />
             )}
 
-            {/* Modales établissement */}
+            {/* Modales \u00e9tablissement */}
             <EstablishmentFormModal
                 isOpen={modalCreateEstOpen}
                 onClose={() => setModalCreateEstOpen(false)}
@@ -221,7 +223,7 @@ export function OrganisationsPage() {
                 />
             )}
 
-            {/* Modales département */}
+            {/* Modales d\u00e9partement */}
             <DepartmentFormModal
                 isOpen={modalCreateDepOpen}
                 onClose={() => setModalCreateDepOpen(false)}
@@ -240,7 +242,7 @@ export function OrganisationsPage() {
                 isOpen={modalAdminOpen}
                 onClose={() => setModalAdminOpen(false)}
                 organizationId={selectedAdminOrgId}
-                onSuccess={refetch}   //  recharge après ajout admin
+                onSuccess={refetch}
             />
 
             <NodeDetailsPanel
@@ -252,7 +254,7 @@ export function OrganisationsPage() {
             <SuspensionModal
                 isOpen={!!suspendingNode}
                 onClose={() => setSuspendingNode(null)}
-                title="Suspendre une organisation"
+                title={t('Suspendre une organisation')}
                 entityLabel={suspendingNode ? `Organisation : ${suspendingNode.label}` : ''}
                 onConfirm={handleConfirmSuspend}
             />
@@ -260,7 +262,7 @@ export function OrganisationsPage() {
             <ReactivateModal
                 isOpen={!!reactivatingNode}
                 onClose={() => setReactivatingNode(null)}
-                title="Réactiver une organisation"
+                title={t('Réactiver une organisation')}
                 message={reactivatingNode ? `Confirmer la réactivation de « ${reactivatingNode.label} » ? L'organisation et ses comptes pourront à nouveau accéder à la plateforme.` : ''}
                 onConfirm={handleConfirmReactivate}
             />

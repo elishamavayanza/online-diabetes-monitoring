@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface DropdownOption {
     value: string;
@@ -23,6 +24,7 @@ export function useDropdown({
                                 disabled = false,
                                 className = '',
                             }: UseDropdownProps) {
+    const { t } = useI18n();
     const [isOpen, setIsOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState<string | undefined>(value);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -66,7 +68,7 @@ export function useDropdown({
         close,
         handleSelect,
         selectedOption,
-        placeholder,
+        placeholder: t(placeholder),
         dropdownRef,
     };
 }

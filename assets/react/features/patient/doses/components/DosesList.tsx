@@ -3,6 +3,7 @@ import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { MedicationIntake, IntakeStatus } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const LockIcon = () => (
     <svg
@@ -49,6 +50,7 @@ function getPeriodFromTime(time: string): string {
 }
 
 export function DosesList({ intakes, onAction, title }: DosesListProps) {
+    const { t } = useI18n();
     const summary = {
         total: intakes.length,
         taken: intakes.filter((i) => i.statut === 'TAKEN').length,
@@ -68,17 +70,17 @@ export function DosesList({ intakes, onAction, title }: DosesListProps) {
             <h2>{title}</h2>
 
             <div className="doses-summary">
-                <span className="doses-summary__total">{summary.total} prises</span>
-                <span className="doses-summary__taken">{summary.taken} prises effectuées</span>
-                <span className="doses-summary__pending">{summary.pending} en attente</span>
-                {summary.skipped > 0 && <span className="doses-summary__skipped">{summary.skipped} ignorées</span>}
-                {summary.delayed > 0 && <span className="doses-summary__delayed">{summary.delayed} retardées</span>}
+                <span className="doses-summary__total">{t('{{ total }} prises', { total: summary.total })}</span>
+                <span className="doses-summary__taken">{t('{{ taken }} prises effectuées', { taken: summary.taken })}</span>
+                <span className="doses-summary__pending">{t('{{ pending }} en attente', { pending: summary.pending })}</span>
+                {summary.skipped > 0 && <span className="doses-summary__skipped">{t('{{ skipped }} ignorées', { skipped: summary.skipped })}</span>}
+                {summary.delayed > 0 && <span className="doses-summary__delayed">{t('{{ delayed }} retardées', { delayed: summary.delayed })}</span>}
             </div>
 
             {groupedByPeriod.map(({ period, intakes }) =>
                 intakes.length > 0 ? (
                     <section key={period} className="dose-period">
-                        <h3 className="dose-period__title">{period}</h3>
+                        <h3 className="dose-period__title">{t(period)}</h3>
                         <div className="dose-period__list">
                             {intakes.map((intake) => {
                                 const isDone = intake.statut !== 'PENDING';
@@ -95,7 +97,7 @@ export function DosesList({ intakes, onAction, title }: DosesListProps) {
                                             )}
 
                                             <Badge variant={statusVariant[intake.statut]}>
-                                                {statusLabel[intake.statut]}
+                                                {t(statusLabel[intake.statut])}
                                             </Badge>
                                         </div>
 
@@ -107,10 +109,10 @@ export function DosesList({ intakes, onAction, title }: DosesListProps) {
                                                     variant="success"
                                                     onClick={() => onAction(intake, 'TAKEN')}
                                                 >
-                                                    Prise
+                                                    {t('Prise')}
                                                 </Button>
                                             ) : (
-                                                <span className="dose-item__locked" title="Prise verrouillée">
+                                                <span className="dose-item__locked" title={t('Prise verrouillée')}>
                                             <LockIcon />
                                         </span>
                                             )}

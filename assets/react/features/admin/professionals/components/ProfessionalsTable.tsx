@@ -3,30 +3,49 @@ import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
 import { Professional } from '../types/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ProfessionalsTableProps {
     professionals: Professional[];
+    total: number;
+    page: number;
+    limit: number;
+    loading: boolean;
+    onPageChange: (page: number) => void;
+    onSort: (key: string, direction: 'asc' | 'desc') => void;
     onViewDetails?: (professional: Professional) => void;
     onSuspend?: (professional: Professional) => void;
     onReactivate?: (professional: Professional) => void;
 }
 
-export function ProfessionalsTable({ professionals, onViewDetails, onSuspend, onReactivate }: ProfessionalsTableProps) {
+export function ProfessionalsTable({
+                                        professionals,
+                                        total,
+                                        page,
+                                        limit,
+                                        loading,
+                                        onPageChange,
+                                        onSort,
+                                        onViewDetails,
+                                        onSuspend,
+                                        onReactivate,
+                                    }: ProfessionalsTableProps) {
+    const { t } = useI18n();
     const columns = [
-        { key: 'nom', title: 'Nom' },
-        { key: 'type', title: 'Type' },
+        { key: 'nom', title: t('Nom'), sortable: true },
+        { key: 'type', title: t('Type') },
         {
             key: 'statut',
-            title: 'Statut',
+            title: t('Statut'),
             render: (row: Professional) => (
                 <Badge variant={row.statut === 'Active' ? 'success' : row.statut === 'Suspended' ? 'warning' : 'error'}>
-                    {row.statut === 'Suspended' ? 'Suspendu' : row.statut}
+                    {row.statut === 'Suspended' ? t('Suspendu') : row.statut}
                 </Badge>
             ),
         },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: Professional) => (
                 <div className="professionals-table__actions">
                     <Button
@@ -34,7 +53,7 @@ export function ProfessionalsTable({ professionals, onViewDetails, onSuspend, on
                         size="small"
                         onClick={() => onViewDetails?.(row)}
                     >
-                        Détails
+                        {t('Détails')}
                     </Button>
                     {row.statut === 'Suspended' ? (
                         <Button
@@ -42,7 +61,7 @@ export function ProfessionalsTable({ professionals, onViewDetails, onSuspend, on
                             size="small"
                             onClick={() => onReactivate?.(row)}
                         >
-                            Réactiver
+                            {t('Réactiver')}
                         </Button>
                     ) : (
                         <Button
@@ -50,7 +69,7 @@ export function ProfessionalsTable({ professionals, onViewDetails, onSuspend, on
                             size="small"
                             onClick={() => onSuspend?.(row)}
                         >
-                            Suspendre
+                            {t('Suspendre')}
                         </Button>
                     )}
                 </div>
@@ -60,7 +79,17 @@ export function ProfessionalsTable({ professionals, onViewDetails, onSuspend, on
 
     return (
         <Card className="professionals-card">
-            <DataTable columns={columns} data={professionals} />
+            <DataTable
+                columns={columns}
+                data={professionals}
+                mode="server"
+                loading={loading}
+                pageSize={limit}
+                totalItems={total}
+                currentPage={page}
+                onPageChange={onPageChange}
+                onSort={onSort}
+            />
         </Card>
     );
 }

@@ -12,8 +12,10 @@ import {PlanTab} from "@/react/features/patient/nutrition/componenets/PlanTab";
 import {PlanCreationModal} from "@/react/features/patient/nutrition/componenets/Forms/PlanCreationModal";
 import {MealFormModal} from "@/react/features/patient/nutrition/componenets/Forms/MealFormModal";
 import {MealItemFormModal} from "@/react/features/patient/nutrition/componenets/Forms/MealItemFormModal";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export function NutritionPage() {
+    const { t } = useI18n();
     const {
         meals,
         mealItems,
@@ -74,14 +76,14 @@ export function NutritionPage() {
     if (error) return <Alert variant="error">{error}</Alert>;
 
     const tabs = [
-        { id: 'foods', label: 'Aliments' },
-        { id: 'plan', label: 'Mon plan' },
+        { id: 'foods', label: t('Aliments') },
+        { id: 'plan', label: t('Mon plan') },
     ];
 
     return (
         <div className="nutrition-page">
             <div className="nutrition-page__header">
-                <h1>Ma nutrition</h1>
+                <h1>{t('Ma nutrition')}</h1>
                 <Tabs
                     tabs={tabs}
                     defaultActiveTabId={activeTab}

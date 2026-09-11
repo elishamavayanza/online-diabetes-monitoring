@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useNutritionistPatients } from '../hooks/useNutritionistPatients';
 import { NutritionistPatientsTable } from '../components/NutritionistPatientsTable';
 import { ExternalFollowPatientsCards } from '@/react/features/admin/external-follows/components/ExternalFollowPatientsCards';
@@ -10,6 +11,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/clinician/patients/_patients.scss';
 
 export function NutritionistPatientsPage() {
+    const { t } = useI18n();
     const { patients, search, setSearch, isLoading, error } = useNutritionistPatients();
     const { follows: externalFollows, isLoading: externalLoading } = useMyExternalFollows();
     const { pushAction } = useActionHistory();
@@ -24,7 +26,7 @@ export function NutritionistPatientsPage() {
         <div className="clinician-patients-page__search-wrapper">
             <SearchInput
                 fullWidth
-                placeholder="Rechercher un patient..."
+                placeholder={t('Rechercher un patient...')}
                 value={search}
                 onSearch={handleSearchChange}
             />
@@ -45,8 +47,8 @@ export function NutritionistPatientsPage() {
         return (
             <div className="clinician-patients-page">
                 <div className="clinician-patients-page__header">
-                    <h1>Mes patients</h1>
-                    <p>Suivez et gérez vos patients assignés.</p>
+                    <h1>{t('Mes patients')}</h1>
+                    <p>{t('Suivez et gérez vos patients assignés.')}</p>
                 </div>
                 {searchBar}
                 {ownPatientsContent}
@@ -58,8 +60,8 @@ export function NutritionistPatientsPage() {
         return (
             <div className="clinician-patients-page">
                 <div className="clinician-patients-page__header">
-                    <h1>Mes patients</h1>
-                    <p>Suivez et gérez vos patients assignés.</p>
+                    <h1>{t('Mes patients')}</h1>
+                    <p>{t('Suivez et gérez vos patients assignés.')}</p>
                 </div>
                 {searchBar}
                 {ownPatientsContent}
@@ -70,17 +72,17 @@ export function NutritionistPatientsPage() {
     return (
         <div className="clinician-patients-page">
             <div className="clinician-patients-page__header">
-                <h1>Mes patients</h1>
-                <p>Suivez et gérez vos patients assignés.</p>
+                <h1>{t('Mes patients')}</h1>
+                <p>{t('Suivez et gérez vos patients assignés.')}</p>
             </div>
 
             <Tabs
                 variant="underline"
                 defaultActiveTabId="all"
                 tabs={[
-                    { id: 'all', label: 'Tout' },
-                    { id: 'own', label: 'Mes patients' },
-                    { id: 'external', label: 'Suivis externes' },
+                    { id: 'all', label: t('Tout') },
+                    { id: 'own', label: t('Mes patients') },
+                    { id: 'external', label: t('Suivis externes') },
                 ]}
                 renderContent={(tabId) => {
                     if (tabId === 'external') {

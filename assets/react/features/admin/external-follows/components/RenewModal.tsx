@@ -7,6 +7,7 @@ import { DateRangePicker } from '@/react/components/Forms/DateRangePicker/DateRa
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { useRenewExternalFollow } from '../hooks/useRenewExternalFollow';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface RenewModalProps {
     isOpen: boolean;
@@ -18,16 +19,17 @@ interface RenewModalProps {
 }
 
 const DURATION_PRESETS = [
-    { value: 30, label: '+ 30 jours' },
-    { value: 90, label: '+ 90 jours' },
-    { value: 180, label: '+ 180 jours' },
-    { value: 365, label: '+ 365 jours' },
+    { value: 30, labelKey: '+ 30 jours' },
+    { value: 90, labelKey: '+ 90 jours' },
+    { value: 180, labelKey: '+ 180 jours' },
+    { value: 365, labelKey: '+ 365 jours' },
 ];
 
 export function RenewModal({ isOpen, organizationId, invitationId, patientName, onClose, onSuccess }: RenewModalProps) {
     const { durationDays, setDurationDays, startDate, setStartDate, endDate, setEndDate, submit, isSubmitting, error } =
         useRenewExternalFollow(organizationId, { onSuccess });
     const [presetMode, setPresetMode] = useState<string>('90');
+    const { t } = useI18n();
 
     const handlePresetChange = (value: string) => {
         setPresetMode(value);
@@ -49,26 +51,25 @@ export function RenewModal({ isOpen, organizationId, invitationId, patientName, 
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Prolonger le délai" size="medium">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Prolonger le délai')} size="medium">
             <div className="external-follow-form">
                 {error && <Alert variant="error">{error}</Alert>}
                 <p className="external-follow-form__intro">
-                    Prolongez l'accès au dossier de <strong>{patientName}</strong>. Chaque jour ajouté
-                    s'applique à partir de la fin du délai courant, ou définissez une nouvelle période.
+                    {t("Prolongez l'accès au dossier de {{ name }}. Chaque jour ajouté s'applique à partir de la fin du délai courant, ou définissez une nouvelle période.", { name: patientName })}
                 </p>
                 <Form onSubmit={handleSubmit}>
-                    <FormField label="Durée ajoutée *">
+                    <FormField label={t('Durée ajoutée *')}>
                         <Select
                             value={presetMode}
                             onChange={(e) => handlePresetChange(e.target.value)}
-                            options={[...DURATION_PRESETS, { value: 'custom', label: 'Période personnalisée (de / à)...' }]}
+                            options={[...DURATION_PRESETS.map(p => ({ value: p.value, label: t(p.labelKey) })), { value: 'custom', label: t('Période personnalisée (de / à)...') }]}
                         />
                     </FormField>
                     {presetMode === 'custom' && (
-                        <FormField label="Nouvelle période (de / à) *">
+                        <FormField label={t('Nouvelle période (de / à) *')}>
                             <DateRangePicker
-                                labelStart="Date de début"
-                                labelEnd="Date de fin"
+                                labelStart={t('Date de début')}
+                                labelEnd={t('Date de fin')}
                                 startDate={startDate}
                                 endDate={endDate}
                                 onChange={(range) => {
@@ -79,9 +80,9 @@ export function RenewModal({ isOpen, organizationId, invitationId, patientName, 
                         </FormField>
                     )}
                     <div className="external-follow-form__actions">
-                        <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('Annuler')}</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Prolongement...' : 'Prolonger'}
+                            {isSubmitting ? t('Prolongement...') : t('Prolonger')}
                         </Button>
                     </div>
                 </Form>

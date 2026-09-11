@@ -1,10 +1,9 @@
-import { useState } from 'react';
-import { useUsers } from '../hooks/useUsers';
+import { useEffect, useState } from 'react';
+import { useUsers, UserFilterTab } from '../hooks/useUsers';
 import { UsersTable } from '../components/UsersTable';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { Alert } from '@/react/components/UI/Alert';
 import { Tabs } from '@/react/components/Navigation/Tabs';
-import { Button } from '@/react/components/UI/Button';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/root/users/_users.scss';
@@ -13,12 +12,18 @@ import { UserDetailsDrawer } from '../components/UserDetailsDrawer';
 import { AffectationModal } from '../components/AffectationModal';
 import { AffectationData } from '../types/affectation';
 import { User, UserType } from '../types';
+import { fetchOrganisations } from '@/react/features/root/organisations/services/organisationsService';
 
 const FilterIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
     </svg>
 );
+
+interface OrganisationOption {
+    id: string;
+    label: string;
+}
 
 // Mapping du type User vers le type du formulaire
 function mapUserTypeToFormType(type: UserType): 'patient' | 'professional' {
@@ -65,13 +70,26 @@ function mapUserToFormValues(user: User): any {
 }
 
 export function UsersPage() {
-    const { users, isLoading, error } = useUsers();
+    const {
+        users,
+        total,
+        page,
+        limit,
+        isLoading,
+        error,
+        filter,
+        setFilter,
+        setQ,
+        setPage,
+        setSort,
+        setOrg,
+    } = useUsers();
     const { pushAction } = useActionHistory();
     const [search, setSearch] = useState('');
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [orgFilter, setOrgFilter] = useState<string>('');
     const [showOrgFilter, setShowOrgFilter] = useState(false);
-    const [activeTab, setActiveTab] = useState<string>('Tous');
+    const [organisations, setOrganisations] = useState<OrganisationOption[]>([]);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [detailsOpen, setDetailsOpen] = useState(false);
     const [formModalOpen, setFormModalOpen] = useState(false);
@@ -91,14 +109,29 @@ export function UsersPage() {
         { id: 'Administrateurs', label: 'Administrateurs' },
     ];
 
-    const organisations = Array.from(
-        new Set(users.map((u) => u.organisation).filter((org): org is string => !!org))
-    );
+    // Liste des organisations pour le filtre (source dédiée, indépendante de la page courante).
+    useEffect(() => {
+        let cancelled = false;
+        fetchOrganisations()
+            .then((nodes) => {
+                if (!cancelled) {
+                    setOrganisations(
+                        nodes.map((node) => ({ id: String(node.id), label: node.label })),
+                    );
+                }
+            })
+            .catch(() => {
+                // Le filtre reste masqué si la liste des organisations est indisponible.
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const handleTabChange = (newTab: string) => {
-        const previousTab = activeTab;
-        setActiveTab(newTab);
-        pushAction(() => setActiveTab(previousTab));
+        const previousTab = filter;
+        setFilter(newTab as UserFilterTab);
+        pushAction(() => setFilter(previousTab as UserFilterTab));
     };
 
     const openCreateModal = () => {
@@ -156,39 +189,14 @@ export function UsersPage() {
         // À implémenter : appeler un service de suspension
     };
 
-    const filteredUsers = users.filter((user) => {
-        const q = search.toLowerCase();
-        const matchSearch =
-            user.nom.toLowerCase().includes(q) ||
-            user.email.toLowerCase().includes(q) ||
-            user.type.toLowerCase().includes(q) ||
-            (user.organisation && user.organisation.toLowerCase().includes(q));
+    const handleOrgSelect = (organisationId: string) => {
+        setOrgFilter(organisationId);
+        setOrg(organisationId || undefined);
+        setShowOrgFilter(false);
+    };
 
-        const matchOrg = orgFilter ? user.organisation === orgFilter : true;
-
-        let matchTab = true;
-        switch (activeTab) {
-            case 'Professionnels':
-                matchTab = user.type === 'Professional';
-                break;
-            case 'Patients':
-                matchTab = user.type === 'Patient';
-                break;
-            case 'Administrateurs':
-                matchTab = user.type === 'Administrator';
-                break;
-            case 'Non affectés':
-                matchTab = !user.organisation;
-                break;
-            default:
-                matchTab = true;
-        }
-
-        return matchSearch && matchOrg && matchTab;
-    });
-
-    if (isLoading) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
+    if (isLoading && users.length === 0) return <Spinner />;
 
     return (
         <div className="users-page">
@@ -201,60 +209,61 @@ export function UsersPage() {
                 <SearchInput
                     placeholder="Rechercher un utilisateur..."
                     value={search}
-                    onSearch={(value: string) => setSearch(value)}
+                    onSearch={(value: string) => {
+                        setSearch(value);
+                        setQ(value);
+                    }}
                     className="users-page__search"
                 />
 
-                <div className="users-page__filter-wrapper">
-                    <button
-                        className={`users-page__filter-btn ${orgFilter ? 'users-page__filter-btn--active' : ''}`}
-                        onClick={() => setShowOrgFilter((prev) => !prev)}
-                        aria-label="Filtrer par organisation"
-                        title="Filtrer par organisation"
-                    >
-                        <FilterIcon />
-                    </button>
+                {organisations.length > 0 && (
+                    <div className="users-page__filter-wrapper">
+                        <button
+                            className={`users-page__filter-btn ${orgFilter ? 'users-page__filter-btn--active' : ''}`}
+                            onClick={() => setShowOrgFilter((prev) => !prev)}
+                            aria-label="Filtrer par organisation"
+                            title="Filtrer par organisation"
+                        >
+                            <FilterIcon />
+                        </button>
 
-                    {showOrgFilter && (
-                        <div className="users-page__filter-dropdown">
-                            <div
-                                className={`users-page__filter-option ${orgFilter === '' ? 'users-page__filter-option--selected' : ''}`}
-                                onClick={() => {
-                                    setOrgFilter('');
-                                    setShowOrgFilter(false);
-                                }}
-                            >
-                                Toutes les organisations
-                            </div>
-                            {organisations.map((org) => (
+                        {showOrgFilter && (
+                            <div className="users-page__filter-dropdown">
                                 <div
-                                    key={org}
-                                    className={`users-page__filter-option ${orgFilter === org ? 'users-page__filter-option--selected' : ''}`}
-                                    onClick={() => {
-                                        setOrgFilter(org);
-                                        setShowOrgFilter(false);
-                                    }}
+                                    className={`users-page__filter-option ${orgFilter === '' ? 'users-page__filter-option--selected' : ''}`}
+                                    onClick={() => handleOrgSelect('')}
                                 >
-                                    {org}
+                                    Toutes les organisations
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/*<Button onClick={openCreateModal} className="users-page__add-btn">*/}
-                {/*    Créer un utilisateur*/}
-                {/*</Button>*/}
+                                {organisations.map((org) => (
+                                    <div
+                                        key={org.id}
+                                        className={`users-page__filter-option ${orgFilter === org.id ? 'users-page__filter-option--selected' : ''}`}
+                                        onClick={() => handleOrgSelect(org.id)}
+                                    >
+                                        {org.label}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
 
             <Tabs
                 tabs={tabs}
-                defaultActiveTabId={activeTab}
+                defaultActiveTabId={filter}
                 onChange={handleTabChange}
             />
 
             <UsersTable
-                users={filteredUsers}
+                users={users}
+                total={total}
+                page={page}
+                limit={limit}
+                loading={isLoading}
+                onPageChange={setPage}
+                onSort={setSort}
                 onViewDetails={(user) => {
                     setSelectedUser(user);
                     setDetailsOpen(true);

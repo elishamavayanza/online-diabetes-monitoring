@@ -6,8 +6,8 @@ import { Collapsible } from '@/react/components/UI/Collapsible';
 import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDate, formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
-import { formatSchedule } from '../../utils/labelUtils';
 import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { PatientPrescription, PrescriptionItem } from '../../types';
 import {
     deletePrescriptionItem,
@@ -34,6 +34,7 @@ export function PrescriptionsTab() {
     } = usePatientDossierContext();
 
     const { showToast } = useToast();
+    const { t } = useI18n();
     const { prescriptions, prescriptionItems, prescriptionVersions } = data;
 
     const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
@@ -71,11 +72,11 @@ export function PrescriptionsTab() {
         setIsDeleting(true);
         try {
             await deletePrescriptionItem(deleteItemId);
-            showToast({ type: 'success', message: 'Médicament retiré.' });
+            showToast({ type: 'success', message: t('Médicament retiré.') });
             reload();
             setDeleteItemId(null);
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'Erreur lors de la suppression.';
+            const message = err instanceof Error ? err.message : t('Erreur lors de la suppression.');
             showToast({ type: 'error', message });
         } finally {
             setIsDeleting(false);
@@ -86,7 +87,7 @@ export function PrescriptionsTab() {
         const prescriberId = getCurrentUserIdFromToken();
         const organizationId = data.profile.organizationId;
         if (!prescriberId || !organizationId) {
-            showToast({ type: 'error', message: 'Prescripteur ou organisation introuvable.' });
+            showToast({ type: 'error', message: t('Prescripteur ou organisation introuvable.') });
             return;
         }
         try {
@@ -99,10 +100,10 @@ export function PrescriptionsTab() {
                 status: 'ACTIVE',
                 notes: rx.notes || undefined,
             });
-            showToast({ type: 'success', message: 'Prescription activée.' });
+            showToast({ type: 'success', message: t('Prescription activée.') });
             reload();
         } catch (err) {
-            const message = err instanceof Error ? err.message : "Erreur lors de l'activation.";
+            const message = err instanceof Error ? err.message : t("Erreur lors de l'activation.");
             showToast({ type: 'error', message });
         }
     };
@@ -113,16 +114,16 @@ export function PrescriptionsTab() {
     return (
         <div className="patient-dossier-tab patient-dossier-tab--prescriptions">
             <div className="patient-dossier-tab__toolbar">
-                <p className="patient-dossier-tab__hint">Ordonnances, médicaments et historique des versions.</p>
+                <p className="patient-dossier-tab__hint">{t('Ordonnances, médicaments et historique des versions.')}</p>
                 {!isReadOnly && (
                     <Button variant="primary" onClick={openPrescriptionModal}>
-                        + Nouvelle prescription
+                        {t('+ Nouvelle prescription')}
                     </Button>
                 )}
             </div>
 
             {filtered.length === 0 ? (
-                <Card><p>Aucune prescription sur la période sélectionnée.</p></Card>
+                <Card><p>{t('Aucune prescription sur la période sélectionnée.')}</p></Card>
             ) : (
                 <div className="patient-dossier-tab__prescriptions">
                     {filtered.map((rx) => {
@@ -136,9 +137,9 @@ export function PrescriptionsTab() {
                                     <h3>Prescription #{rx.id.slice(0, 8)}</h3>
                                     <Badge variant={rx.status === 'ACTIVE' ? 'success' : 'warning'}>{rx.status}</Badge>
                                 </div>
-                                {rx.startDate && <p><strong>Début :</strong> {formatDisplayDate(rx.startDate)}</p>}
-                                {rx.endDate && <p><strong>Fin :</strong> {formatDisplayDate(rx.endDate)}</p>}
-                                {rx.notes && <p><strong>Notes :</strong> {rx.notes}</p>}
+                                {rx.startDate && <p><strong>{t('Début :')}</strong> {formatDisplayDate(rx.startDate)}</p>}
+                                {rx.endDate && <p><strong>{t('Fin :')}</strong> {formatDisplayDate(rx.endDate)}</p>}
+                                {rx.notes && <p><strong>{t('Notes :')}</strong> {rx.notes}</p>}
                                 <RecordAuthor record={rx} />
 
                                 {!isReadOnly && isRecordCreator(rx) && (
@@ -149,28 +150,28 @@ export function PrescriptionsTab() {
                                                 size="small"
                                                 onClick={() => handleActivatePrescription(rx)}
                                             >
-                                                Activer
+                                                {t('Activer')}
                                             </Button>
                                         )}
                                         <Button variant="secondary" size="small" onClick={() => handleEditRx(rx)}>
-                                            Modifier
+                                            {t('Modifier')}
                                         </Button>
                                         {rx.status === 'ACTIVE' && (
                                             <Button variant="secondary" size="small" onClick={() => openPrescriptionItemModal(rx)}>
-                                                + Médicament
+                                                {t('+ Médicament')}
                                             </Button>
                                         )}
                                         <Button variant="secondary" size="small" onClick={() => openPrescriptionVersionModal(rx)}>
-                                            Archiver version
+                                            {t('Archiver version')}
                                         </Button>
                                     </div>
                                 )}
 
                                 <Collapsible
-                                    trigger={<span className="patient-dossier-tab__collapsible-trigger">Médicaments ({items.length})</span>}
+                                    trigger={<span className="patient-dossier-tab__collapsible-trigger">{t('Médicaments ({{ count }})', { count: items.length })}</span>}
                                 >
                                     {items.length === 0 ? (
-                                        <p>Aucun médicament prescrit.</p>
+                                        <p>{t('Aucun médicament prescrit.')}</p>
                                     ) : (
                                         <ul className="patient-dossier-tab__list">
                                             {items.map((item) => (
@@ -181,25 +182,29 @@ export function PrescriptionsTab() {
                                                                 <strong>{item.medicationName}</strong>
                                                                 {item.medicationCategory === 'INSULIN' && (
                                                                     <Badge variant="info" size="small" pill className="patient-dossier-tab__insulin-badge">
-                                                                        Insuline
+                                                                        {t('Insuline')}
                                                                     </Badge>
                                                                 )}
                                                                 <br />
                                                             </>
                                                         )}
-                                                        <strong>{item.dosage}</strong> — Qté: {item.quantity}
+                                                        <strong>{item.dosage}</strong> — {t('Qté: {{ quantity }}', { quantity: item.quantity })}
                                                         <br />
-                                                        <small>{formatSchedule(item.morning, item.noon, item.evening)}</small>
+                                                        <small>{[
+                                                            item.morning ? t('Matin') : '',
+                                                            item.noon ? t('Midi') : '',
+                                                            item.evening ? t('Soir') : '',
+                                                        ].filter(Boolean).join(', ')}</small>
                                                         {item.instructions && <p><em>{item.instructions}</em></p>}
                                                         <RecordAuthor record={item} />
                                                     </div>
                                                     {!isReadOnly && isRecordCreator(item) && (
                                                         <div className="patient-dossier-tab__item-actions">
                                                             <Button variant="secondary" size="small" onClick={() => handleEditItem(item)}>
-                                                                Modifier
+                                                                {t('Modifier')}
                                                             </Button>
                                                             <Button variant="danger" size="small" onClick={() => setDeleteItemId(item.id)}>
-                                                                Retirer
+                                                                {t('Retirer')}
                                                             </Button>
                                                         </div>
                                                     )}
@@ -210,10 +215,10 @@ export function PrescriptionsTab() {
                                 </Collapsible>
 
                                 <Collapsible
-                                    trigger={<span className="patient-dossier-tab__collapsible-trigger">Historique des versions ({versions.length})</span>}
+                                    trigger={<span className="patient-dossier-tab__collapsible-trigger">{t('Historique des versions ({{ count }})', { count: versions.length })}</span>}
                                 >
                                     {versions.length === 0 ? (
-                                        <p>Aucune version archivée.</p>
+                                        <p>{t('Aucune version archivée.')}</p>
                                     ) : (
                                         <ul className="patient-dossier-tab__list">
                                             {versions.map((version) => (
@@ -240,10 +245,10 @@ export function PrescriptionsTab() {
                 isOpen={!!deleteItemId}
                 onClose={() => setDeleteItemId(null)}
                 onConfirm={handleDeleteItem}
-                title="Retirer le médicament"
-                message="Voulez-vous retirer ce médicament de la prescription ?"
-                confirmLabel={isDeleting ? 'Suppression...' : 'Retirer'}
-                cancelLabel="Annuler"
+                title={t('Retirer le médicament')}
+                message={t('Voulez-vous retirer ce médicament de la prescription ?')}
+                confirmLabel={isDeleting ? t('Suppression...') : t('Retirer')}
+                cancelLabel={t('Annuler')}
             />
 
             {editingRx && (

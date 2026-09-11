@@ -10,6 +10,7 @@ use App\Repository\Identity\PatientRepository;
 use App\Security\OwnershipGuardService;
 use App\Security\SecurityAction;
 use App\Security\SecurityServiceInterface;
+use App\Service\Common\ListQueryParams;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -24,9 +25,10 @@ class WeightMeasurementService
         private readonly OwnershipGuardService $ownershipGuard
     ) {}
 
-    public function all(string $patientId): Feedback
+    public function all(string $patientId, ?ListQueryParams $listParams = null): Feedback
     {
         $feedback = new Feedback();
+        $listParams ??= new ListQueryParams();
 
         try {
             $patient = $this->patientRepository->find($patientId);
@@ -37,7 +39,12 @@ class WeightMeasurementService
             // Utilisation de RECORD_WEIGHT ou VIEW_PATIENT selon vos règles de sécurité de lecture
             $this->securityService->checkPatientAccess($patient, SecurityAction::RECORD_WEIGHT);
 
-            $measurements = $this->repository->findBy(['patient' => $patient]);
+            $measurements = $this->repository->findByPatientWithIssuer(
+                $patient,
+                $listParams->from,
+                $listParams->to,
+                $listParams->limit
+            );
             $responseDTOs = array_map(fn($m) => $this->mapper->mapEntityToResponse($m), $measurements);
 
             $feedback->setData($responseDTOs)

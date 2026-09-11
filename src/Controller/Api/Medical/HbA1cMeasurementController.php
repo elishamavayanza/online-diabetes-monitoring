@@ -5,10 +5,12 @@ namespace App\Controller\Api\Medical;
 use App\DTO\Request\Medical\HbA1cMeasurementRequestDTO;
 use App\DTO\Response\Medical\HbA1cMeasurementResponseDTO;
 use App\Service\Medical\HbA1cMeasurementService;
+use App\Service\Common\ListQueryParams;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -50,9 +52,9 @@ class HbA1cMeasurementController extends AbstractController
         )
     )]
     #[OA\Response(response: 404, description: 'Patient non trouvé')]
-    public function getByPatient(string $patientId): JsonResponse
+    public function getByPatient(string $patientId, Request $request): JsonResponse
     {
-        $feedback = $this->service->getByPatient($patientId);
+        $feedback = $this->service->getByPatient($patientId, ListQueryParams::fromRequest($request));
         $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
 
         return $this->json($feedback, $status);

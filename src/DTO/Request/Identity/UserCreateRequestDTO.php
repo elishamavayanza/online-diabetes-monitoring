@@ -3,6 +3,7 @@
 namespace App\DTO\Request\Identity;
 
 use OpenApi\Attributes as OA;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
@@ -62,4 +63,18 @@ class UserCreateRequestDTO
         example: 'fr'
     )]
     public ?string $locale = 'fr';
+
+    #[Assert\Image(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/webp']
+    )]
+    #[OA\Property(description: 'Nouvelle photo de profil (avatar)', type: 'string', format: 'binary', nullable: true)]
+    public ?UploadedFile $avatarFile = null;
+
+    #[OA\Property(
+        description: 'URL ou chemin de la photo de profil existante',
+        type: 'string',
+        nullable: true
+    )]
+    public ?string $avatarUrl = null;
 }

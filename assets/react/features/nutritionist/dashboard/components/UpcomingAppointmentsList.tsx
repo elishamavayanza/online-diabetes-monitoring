@@ -1,5 +1,6 @@
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge/Badge';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { UpcomingAppointment } from '../types';
 
 interface UpcomingAppointmentsListProps {
@@ -7,11 +8,12 @@ interface UpcomingAppointmentsListProps {
 }
 
 export function UpcomingAppointmentsList({ appointments }: UpcomingAppointmentsListProps) {
+    const { t } = useI18n();
     return (
         <Card className="appointments-upcoming">
-            <h2 className="section-title">Prochaines consultations</h2>
+            <h2 className="section-title">{t('Prochaines consultations')}</h2>
             {appointments.length === 0 ? (
-                <p className="appointments-upcoming__empty">Aucun rendez-vous à venir.</p>
+                <p className="appointments-upcoming__empty">{t('Aucun rendez-vous à venir.')}</p>
             ) : (
                 <ul className="appointments-upcoming__items">
                     {appointments.map((appt) => (
@@ -22,8 +24,8 @@ export function UpcomingAppointmentsList({ appointments }: UpcomingAppointmentsL
                             </div>
                             <div className="appointment-item__when">
                                 {appt.isToday
-                                    ? <Badge variant="success">Aujourd'hui</Badge>
-                                    : <span className="appointment-item__date">{appt.date}</span>}
+                                    ? <Badge variant="success">{t("Aujourd'hui")}</Badge>
+                                    : <span className="appointment-item__date">{t(appt.date)}</span>}
                                 <span className="appointment-item__time">{appt.time}</span>
                             </div>
                         </li>

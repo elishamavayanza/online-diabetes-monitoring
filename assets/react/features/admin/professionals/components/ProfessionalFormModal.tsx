@@ -7,6 +7,7 @@ import { useCreateProfessional } from '@/react/features/admin/professionals/hook
 import { ProfessionalFormFields } from "@/react/features/root/users/components/ProfessionalFormFields";
 import { AddressFields } from "@/react/features/root/users/components/AddressFields";
 import { AvatarUpload } from "@/react/features/root/users/components/AvatarUpload";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ProfessionalFormModalProps {
     isOpen: boolean;
@@ -18,12 +19,13 @@ export function ProfessionalFormModal({ isOpen, onClose, onSuccess }: Profession
     const { form, updateField, updateAddress, updateAvatar, submit, isSubmitting, error } =
         useCreateProfessional();
     const [step, setStep] = useState(0);
+    const { t } = useI18n();
 
     const steps = [
-        { id: 'infos', label: 'Informations' },
-        { id: 'address', label: 'Adresse' },
-        { id: 'photo', label: 'Photo' },
-        { id: 'summary', label: 'Récapitulatif' },
+        { id: 'infos', label: t('Informations') },
+        { id: 'address', label: t('Adresse') },
+        { id: 'photo', label: t('Photo') },
+        { id: 'summary', label: t('Récapitulatif') },
     ];
 
     const activeStepId = steps[step].id;
@@ -61,14 +63,14 @@ export function ProfessionalFormModal({ isOpen, onClose, onSuccess }: Profession
             case 3:
                 return (
                     <div className="professional-form-modal__summary">
-                        <h3>Vérifiez les informations</h3>
-                        <p><strong>Nom complet :</strong> {form.fullName}</p>
-                        <p><strong>Email :</strong> {form.email}</p>
-                        <p><strong>Téléphone :</strong> {form.phone || '—'}</p>
-                        <p><strong>Genre :</strong> {form.gender}</p>
-                        <p><strong>Licence :</strong> {form.licenseNumber}</p>
-                        <p><strong>Spécialité :</strong> {form.specialty || '—'}</p>
-                        <p><strong>Adresse :</strong> {form.address.street} {form.address.city} {form.address.postalCode} {form.address.country}</p>
+                        <h3>{t('Vérifiez les informations')}</h3>
+                        <p><strong>{t('Nom complet :')}</strong> {form.fullName}</p>
+                        <p><strong>{t('Email :')}</strong> {form.email}</p>
+                        <p><strong>{t('Téléphone :')}</strong> {form.phone || '—'}</p>
+                        <p><strong>{t('Genre :')}</strong> {form.gender}</p>
+                        <p><strong>{t('Licence :')}</strong> {form.licenseNumber}</p>
+                        <p><strong>{t('Spécialité :')}</strong> {form.specialty || '—'}</p>
+                        <p><strong>{t('Adresse :')}</strong> {form.address.street} {form.address.city} {form.address.postalCode} {form.address.country}</p>
                     </div>
                 );
             default:
@@ -79,7 +81,7 @@ export function ProfessionalFormModal({ isOpen, onClose, onSuccess }: Profession
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="large">
             <div className="professional-form-modal">
-                <h2>Ajouter un professionnel</h2>
+                <h2>{t('Ajouter un professionnel')}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Stepper
                     steps={steps}
@@ -92,16 +94,16 @@ export function ProfessionalFormModal({ isOpen, onClose, onSuccess }: Profession
                 <div className="professional-form-modal__footer">
                     {step > 0 && (
                         <Button variant="outline" onClick={handlePrev}>
-                            Précédent
+                            {t('Précédent')}
                         </Button>
                     )}
                     {step < steps.length - 1 ? (
                         <Button variant="primary" onClick={handleNext}>
-                            Suivant
+                            {t('Suivant')}
                         </Button>
                     ) : (
                         <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
-                            {isSubmitting ? 'Création...' : 'Créer'}
+                            {isSubmitting ? t('Création...') : t('Créer')}
                         </Button>
                     )}
                 </div>

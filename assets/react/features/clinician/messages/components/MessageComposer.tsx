@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { ClipIcon, CameraIcon, SendIcon, MicIcon } from './MessageIcons';
 
 interface MessageComposerProps {
@@ -6,6 +7,7 @@ interface MessageComposerProps {
 }
 
 export function MessageComposer({ onSendMessage }: MessageComposerProps) {
+    const { t } = useI18n();
     const [text, setText] = useState('');
     const [isRecording, setIsRecording] = useState(false);
     const [isSending, setIsSending] = useState(false);
@@ -93,7 +95,7 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
             setIsRecording(true);
         } catch {
             setIsRecording(false);
-            window.alert('L’accès au microphone est nécessaire pour enregistrer un message vocal.');
+            window.alert(t('L\u2019accès au microphone est nécessaire pour enregistrer un message vocal.'));
         }
     };
 
@@ -103,7 +105,7 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
             <input type="file" accept="image/*" ref={photoInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
 
             <div className="message-thread__footer">
-                <button type="button" className="icon-button" title="Joindre un fichier" onClick={() => fileInputRef.current?.click()}>
+                <button type="button" className="icon-button" title={t('Joindre un fichier')} onClick={() => fileInputRef.current?.click()}>
                     <ClipIcon />
                 </button>
 
@@ -111,24 +113,24 @@ export function MessageComposer({ onSendMessage }: MessageComposerProps) {
                     <textarea
                         ref={textareaRef}
                         rows={1}
-                        placeholder={isRecording ? 'Enregistrement du message vocal...' : 'Écrivez un message...'}
+                        placeholder={isRecording ? t('Enregistrement du message vocal...') : t('Écrivez un message...')}
                         value={text}
                         disabled={isRecording || isSending}
                         onChange={handleChange}
                         onKeyDown={handleKeyDown}
                         className="message-thread__textarea"
                     />
-                    <button type="button" className="icon-button" title="Envoyer une photo" onClick={() => photoInputRef.current?.click()}>
+                    <button type="button" className="icon-button" title={t('Envoyer une photo')} onClick={() => photoInputRef.current?.click()}>
                         <CameraIcon />
                     </button>
                 </div>
 
                 {text.trim().length > 0 ? (
-                    <button type="button" className="icon-button icon-button--send" title="Envoyer" onClick={handleSend} disabled={isSending}>
+                    <button type="button" className="icon-button icon-button--send" title={t('Envoyer')} onClick={handleSend} disabled={isSending}>
                         <SendIcon />
                     </button>
                 ) : (
-                    <button type="button" className={`icon-button ${isRecording ? 'icon-button--recording' : ''}`} title="Message vocal" onClick={handleMicClick} disabled={isSending}>
+                    <button type="button" className={`icon-button ${isRecording ? 'icon-button--recording' : ''}`} title={t('Message vocal')} onClick={handleMicClick} disabled={isSending}>
                         <MicIcon />
                     </button>
                 )}

@@ -6,14 +6,14 @@ use App\DTO\Request\Nutrition\FoodRequestDTO;
 use App\DTO\Response\Nutrition\FoodResponseDTO;
 use App\Entity\Nutrition\Food;
 use App\Entity\Nutrition\FoodCategory;
-use App\Entity\Identity\User;
+use App\Entity\Identity\HealthcareProfessional;
 
 class FoodMapper
 {
     public function mapRequestToEntity(
         FoodRequestDTO $dto,
         FoodCategory $category,
-        ?User $createdBy = null,
+        ?HealthcareProfessional $createdBy = null,
         ?Food $food = null
     ): Food {
         $food ??= new Food();

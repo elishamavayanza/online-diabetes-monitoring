@@ -7,6 +7,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { createEmergencyContact, updateEmergencyContact } from '../../../services/dossierActionsService';
 import { PatientDossierData, PatientEmergencyContact } from '../../../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface EmergencyContactFormModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ interface EmergencyContactFormModalProps {
 }
 
 export function EmergencyContactFormModal({ isOpen, onClose, data, contact, onSuccess }: EmergencyContactFormModalProps) {
+    const { t } = useI18n();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [form, setForm] = useState({
@@ -64,34 +66,34 @@ export function EmergencyContactFormModal({ isOpen, onClose, data, contact, onSu
             onSuccess();
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de l\'enregistrement.');
+            setError(err instanceof Error ? err.message : t("Erreur lors de l'enregistrement."));
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? 'Modifier le contact' : 'Ajouter un contact d\'urgence'}>
+        <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? t('Modifier le contact') : t("Ajouter un contact d'urgence")}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
-                    <FormField label="Nom complet" htmlFor="fullName" required>
+                    <FormField label={t('Nom complet')} htmlFor="fullName" required>
                         <Input id="fullName" name="fullName" value={form.fullName} onChange={handleChange} required />
                     </FormField>
-                    <FormField label="Relation" htmlFor="relationship" required>
+                    <FormField label={t('Relation')} htmlFor="relationship" required>
                         <Input id="relationship" name="relationship" value={form.relationship} onChange={handleChange} required />
                     </FormField>
-                    <FormField label="Téléphone" htmlFor="phone" required>
+                    <FormField label={t('Téléphone')} htmlFor="phone" required>
                         <Input id="phone" name="phone" value={form.phone} onChange={handleChange} required />
                     </FormField>
-                    <FormField label="Email" htmlFor="email">
+                    <FormField label={t('Email')} htmlFor="email">
                         <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} />
                     </FormField>
                 </div>
                 <div className="dossier-form__actions">
-                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>Annuler</Button>
+                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>{t('Annuler')}</Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : isEdit ? 'Enregistrer' : 'Ajouter'}
+                        {isLoading ? <Spinner size="small" /> : isEdit ? t('Enregistrer') : t('Ajouter')}
                     </Button>
                 </div>
             </form>

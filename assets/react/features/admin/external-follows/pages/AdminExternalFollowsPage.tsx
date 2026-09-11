@@ -12,9 +12,11 @@ import { CreateInvitationModal } from '../components/CreateInvitationModal';
 import { RenewModal } from '../components/RenewModal';
 import { LogsModal } from '../components/LogsModal';
 import { getOrganizationIdFromToken } from '../services/externalFollowsService';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export function AdminExternalFollowsPage() {
     const { user } = useAuth();
+    const { t } = useI18n();
     const [organizationId] = useState<string | null>(() => getOrganizationIdFromToken());
     const { invitations, isLoading, error, refetch } = useExternalFollows(organizationId);
 
@@ -26,7 +28,7 @@ export function AdminExternalFollowsPage() {
         return (
             <div className="admin-external-follows-page">
                 <Alert variant="error">
-                    Accès réservé aux administrateurs d'organisation.
+                    {t("Accès réservé aux administrateurs d'organisation.")}
                 </Alert>
             </div>
         );
@@ -35,7 +37,7 @@ export function AdminExternalFollowsPage() {
     if (!organizationId) {
         return (
             <div className="admin-external-follows-page">
-                <Alert variant="error">Organisation introuvable dans votre session.</Alert>
+                <Alert variant="error">{t('Organisation introuvable dans votre session.')}</Alert>
             </div>
         );
     }
@@ -44,16 +46,16 @@ export function AdminExternalFollowsPage() {
         <div className="admin-external-follows-page">
             <div className="admin-external-follows-page__header">
                 <div>
-                    <h1>Suivi externe (hors organisation)</h1>
+                    <h1>{t('Suivi externe (hors organisation)')}</h1>
                     <p className="admin-external-follows-page__subtitle">
-                        Partagez le suivi d'un patient avec un professionnel d'une autre organisation pour une durée définie.
+                        {t("Partagez le suivi d'un patient avec un professionnel d'une autre organisation pour une durée définie.")}
                     </p>
                 </div>
                 <div className="admin-external-follows-page__header-actions">
                     <Badge variant="primary" size="medium">
                         {invitations.length} invitation{invitations.length > 1 ? 's' : ''}
                     </Badge>
-                    <Button onClick={() => setCreateOpen(true)}>Nouvelle invitation</Button>
+                    <Button onClick={() => setCreateOpen(true)}>{t('Nouvelle invitation')}</Button>
                 </div>
             </div>
 

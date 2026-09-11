@@ -8,6 +8,7 @@ import { Checkbox } from '@/react/components/Forms/Checkbox';
 import { PatientDossierData } from '../../types';
 import { useAppointmentForm } from "@/react/features/clinician/patients/hooks/appointment/useAppointmentForm";
 import { APPOINTMENT_MOTIFS } from '../../constants/appointmentMotifs';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface AppointmentFormModalProps {
     isOpen: boolean;
@@ -32,6 +33,7 @@ export function AppointmentFormModal({
                                          defaultReason = '',
                                          onSuccess,
                                      }: AppointmentFormModalProps) {
+    const { t } = useI18n();
     const { form, isLoading, handleChange, toggleMotif, handleSubmit } = useAppointmentForm({
         data,
         defaultDate,
@@ -41,13 +43,13 @@ export function AppointmentFormModal({
     });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Nouveau rendez-vous">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Nouveau rendez-vous')}>
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
-                    <FormField label="Patient">
+                    <FormField label={t('Patient')}>
                         <Input value={data.profile.fullName} disabled />
                     </FormField>
-                    <FormField label="Date et heure" htmlFor="scheduledAt" required>
+                    <FormField label={t('Date et heure')} htmlFor="scheduledAt" required>
                         <Input
                             id="scheduledAt"
                             name="scheduledAt"
@@ -57,7 +59,7 @@ export function AppointmentFormModal({
                             required
                         />
                     </FormField>
-                    <FormField label="Durée (min)" htmlFor="durationMinutes" required>
+                    <FormField label={t('Durée (min)')} htmlFor="durationMinutes" required>
                         <Input
                             id="durationMinutes"
                             name="durationMinutes"
@@ -69,46 +71,46 @@ export function AppointmentFormModal({
                             required
                         />
                     </FormField>
-                    <FormField label="Statut" htmlFor="status" required>
+                    <FormField label={t('Statut')} htmlFor="status" required>
                         <Select
                             id="status"
                             name="status"
                             value={form.status}
                             onChange={handleChange}
-                            options={STATUS_OPTIONS}
+                            options={STATUS_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
                         />
                     </FormField>
-                    <FormField label="Motif" htmlFor="reason">
+                    <FormField label={t('Motif')} htmlFor="reason">
                         <Input
                             id="reason"
                             name="reason"
                             value={form.reason}
                             onChange={handleChange}
-                            placeholder="Consultation, suivi..."
+                            placeholder={t('Consultation, suivi...')}
                         />
                     </FormField>
-                    <FormField label="Motifs courants">
+                    <FormField label={t('Motifs courants')}>
                         <div className="motifs-checkboxes">
                             {APPOINTMENT_MOTIFS.map((motif) => (
                                 <Checkbox
                                     key={motif}
-                                    label={motif}
+                                    label={t(motif)}
                                     checked={form.selectedMotifs.includes(motif)}
                                     onChange={() => toggleMotif(motif)}
                                 />
                             ))}
                         </div>
                     </FormField>
-                    <FormField label="Notes" htmlFor="notes">
+                    <FormField label={t('Notes')} htmlFor="notes">
                         <Input id="notes" name="notes" value={form.notes} onChange={handleChange} />
                     </FormField>
                 </div>
                 <div className="dossier-form__actions">
                     <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : 'Créer'}
+                        {isLoading ? <Spinner size="small" /> : t('Créer')}
                     </Button>
                 </div>
             </form>

@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { fetchSettings, saveSettings } from '../services/settingsService';
+import { useToast } from '@/react/app/layouts/MainLayout/contexts/ToastContext';
 import { SettingsData } from '../types';
 
 export function useSettings() {
+    const { showToast } = useToast();
     const [settings, setSettings] = useState<SettingsData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
@@ -14,21 +16,32 @@ export function useSettings() {
                 const data = await fetchSettings();
                 setSettings(data);
             } catch (err) {
-                setError('Impossible de charger les paramètres.');
+                const message = (err as Error)?.message ?? 'Impossible de charger les paramètres.';
+                setError(message);
+                showToast({ type: 'error', message });
             } finally {
                 setIsLoading(false);
             }
         };
         load();
-    }, []);
+    }, [showToast]);
 
-    const save = async (newSettings: SettingsData) => {
+    const save = async (newSettings: SettingsData, logoFile?: File | null) => {
         setIsSaving(true);
+        setError(null);
         try {
-            await saveSettings(newSettings);
-            setSettings(newSettings);
+            const saved = await saveSettings(newSettings, logoFile);
+            setSettings(saved);
+            showToast({
+                type: 'success',
+                message: 'Configuration système enregistrée avec succès.',
+            });
+            return true;
         } catch (err) {
-            setError('Erreur lors de la sauvegarde.');
+            const message = (err as Error)?.message ?? 'Erreur lors de la sauvegarde.';
+            setError(message);
+            showToast({ type: 'error', message });
+            return false;
         } finally {
             setIsSaving(false);
         }

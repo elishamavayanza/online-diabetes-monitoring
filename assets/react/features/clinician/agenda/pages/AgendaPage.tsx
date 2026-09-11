@@ -10,6 +10,7 @@ import { RightSidebar } from '@/react/components/Navigation/RightSidebar';
 import { Calendar } from '@/react/components/Calendars/Calendar';
 import type { CalendarMarkedDate } from '@/react/hook-components/Calendars/Calendar';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/clinician/agenda/_agenda.scss';
 
 function toDateKey(date: Date): string {
@@ -25,6 +26,7 @@ const LEGEND: { label: string; type: CalendarMarkedDate['type'] }[] = [
 ];
 
 export function AgendaPage() {
+    const { t } = useI18n();
     const { data, isLoading, error } = useAgenda();
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -63,14 +65,14 @@ export function AgendaPage() {
     };
 
     if (isLoading) return <Spinner />;
-    if (error || !data) return <Alert variant="error">{error ?? 'Aucune donnée'}</Alert>;
+    if (error || !data) return <Alert variant="error">{error ?? t('Aucune donnée')}</Alert>;
 
     return (
         <div className="agenda-page">
             <div className="agenda-page__header">
-                <h1>Agenda</h1>
+                <h1>{t('Agenda')}</h1>
                 <div className="agenda-page__header-info">
-                    <p>Votre planning de la semaine</p>
+                    <p>{t('Votre planning de la semaine')}</p>
                     <div className="agenda-page__stats">
                         {data.stats.map((stat) => (
                             <span key={stat.id} className="agenda-page__stat">
@@ -79,7 +81,7 @@ export function AgendaPage() {
                         ))}
                     </div>
                 </div>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 
             <div className="agenda-page__body">
@@ -98,8 +100,8 @@ export function AgendaPage() {
                     maxWidth={420}
                     closeThreshold={80}
                     collapsedWidth={35}
-                    title="Historique"
-                    header={<div>Naviguez par date</div>}
+                    title={t('Historique')}
+                    header={<div>{t('Naviguez par date')}</div>}
                 >
                     <div className="agenda-page__right-content">
                         <Calendar
@@ -112,7 +114,7 @@ export function AgendaPage() {
                             {LEGEND.map((item) => (
                                 <li key={item.label}>
                                     <span className={`agenda-page__legend-dot agenda-page__legend-dot--${item.type}`} />
-                                    {item.label}
+                                    {t(item.label)}
                                 </li>
                             ))}
                         </ul>
@@ -130,7 +132,7 @@ export function AgendaPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Votre agenda hebdomadaire. Utilisez le calendrier à droite pour consulter l'historique de vos rendez-vous par date.</p>
+                    <p>{t("Votre agenda hebdomadaire. Utilisez le calendrier à droite pour consulter l'historique de vos rendez-vous par date.")}</p>
                 </Modal>
             )}
         </div>

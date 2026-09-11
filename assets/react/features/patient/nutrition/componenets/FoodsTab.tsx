@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/react/components/UI/Button';
 import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { FoodOption } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const FilterIcon = () => (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
@@ -25,12 +26,13 @@ export function FoodsTab({
                              setSelectedFoods,
                              onCreatePlan,
                          }: FoodsTabProps) {
+    const { t } = useI18n();
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('');
     const [showCategoryFilter, setShowCategoryFilter] = useState(false);
 
     const categoryOptions = [
-        { value: '', label: 'Toutes les catégories' },
+        { value: '', label: t('Toutes les catégories') },
         ...categories.map((cat) => ({ value: cat, label: cat })),
     ];
 
@@ -59,7 +61,7 @@ export function FoodsTab({
                         onClick={onCreatePlan}
                         className="nutrition-page__plan-button"
                     >
-                        Créer un plan ({selectedFoods.length})
+                        {t('Créer un plan ({{ count }})', { count: selectedFoods.length })}
                     </Button>
                 </div>
 
@@ -67,8 +69,8 @@ export function FoodsTab({
                     <button
                         className={`nutrition-page__filter-btn ${category !== '' ? 'nutrition-page__filter-btn--active' : ''}`}
                         onClick={() => setShowCategoryFilter((prev) => !prev)}
-                        aria-label="Filtrer par catégorie"
-                        title="Filtrer par catégorie"
+                        aria-label={t('Filtrer par catégorie')}
+                        title={t('Filtrer par catégorie')}
                     >
                         <FilterIcon />
                     </button>
@@ -95,7 +97,7 @@ export function FoodsTab({
                     <SearchInput
                         value={search}
                         onSearch={setSearch}
-                        placeholder="Rechercher un aliment..."
+                        placeholder={t('Rechercher un aliment...')}
                         fullWidth
                     />
                 </div>
@@ -103,7 +105,7 @@ export function FoodsTab({
 
             <div className="food-selection-grid">
                 {filteredFoods.length === 0 ? (
-                    <p>Aucun aliment trouvé.</p>
+                    <p>{t('Aucun aliment trouvé.')}</p>
                 ) : (
                     filteredFoods.map((food) => (
                         <div

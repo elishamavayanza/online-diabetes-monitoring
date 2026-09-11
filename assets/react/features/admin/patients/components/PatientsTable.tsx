@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
@@ -6,28 +7,47 @@ import { Patient } from '../types';
 
 interface PatientsTableProps {
     patients: Patient[];
+    total: number;
+    page: number;
+    limit: number;
+    loading: boolean;
+    onPageChange: (page: number) => void;
+    onSort: (key: string, direction: 'asc' | 'desc') => void;
     onViewDetails?: (patient: Patient) => void;
     onSuspend?: (patient: Patient) => void;
     onReactivate?: (patient: Patient) => void;
 }
 
-export function PatientsTable({ patients, onViewDetails, onSuspend, onReactivate }: PatientsTableProps) {
+export function PatientsTable({
+                                  patients,
+                                  total,
+                                  page,
+                                  limit,
+                                  loading,
+                                  onPageChange,
+                                  onSort,
+                                  onViewDetails,
+                                  onSuspend,
+                                  onReactivate,
+                              }: PatientsTableProps) {
+    const { t } = useI18n();
+
     const columns = [
-        { key: 'nom', title: 'Nom' },
-        { key: 'dateNaissance', title: 'Date de naissance' },
-        { key: 'typeDiabete', title: 'Type de diabète' },
+        { key: 'nom', title: t('Nom'), sortable: true },
+        { key: 'dateNaissance', title: t('Date de naissance') },
+        { key: 'typeDiabete', title: t('Type de diabète') },
         {
             key: 'statut',
-            title: 'Statut',
+            title: t('Statut'),
             render: (row: Patient) => (
                 <Badge variant={row.statut === 'Active' ? 'success' : row.statut === 'Suspended' ? 'warning' : 'error'}>
-                    {row.statut === 'Suspended' ? 'Suspendu' : row.statut}
+                    {row.statut === 'Suspended' ? t('Suspendu') : row.statut}
                 </Badge>
             ),
         },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: Patient) => (
                 <div className="patients-table__actions">
                     <Button
@@ -35,7 +55,7 @@ export function PatientsTable({ patients, onViewDetails, onSuspend, onReactivate
                         size="small"
                         onClick={() => onViewDetails?.(row)}
                     >
-                        Détails
+                        {t('Détails')}
                     </Button>
                     {row.statut === 'Suspended' ? (
                         <Button
@@ -43,7 +63,7 @@ export function PatientsTable({ patients, onViewDetails, onSuspend, onReactivate
                             size="small"
                             onClick={() => onReactivate?.(row)}
                         >
-                            Réactiver
+                            {t('Réactiver')}
                         </Button>
                     ) : (
                         <Button
@@ -51,7 +71,7 @@ export function PatientsTable({ patients, onViewDetails, onSuspend, onReactivate
                             size="small"
                             onClick={() => onSuspend?.(row)}
                         >
-                            Suspendre
+                            {t('Suspendre')}
                         </Button>
                     )}
                 </div>
@@ -61,7 +81,17 @@ export function PatientsTable({ patients, onViewDetails, onSuspend, onReactivate
 
     return (
         <Card className="patients-card">
-            <DataTable columns={columns} data={patients} />
+            <DataTable
+                columns={columns}
+                data={patients}
+                mode="server"
+                loading={loading}
+                pageSize={limit}
+                totalItems={total}
+                currentPage={page}
+                onPageChange={onPageChange}
+                onSort={onSort}
+            />
         </Card>
     );
 }

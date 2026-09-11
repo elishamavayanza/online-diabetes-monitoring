@@ -141,7 +141,7 @@ class CareTeamAssignment extends BaseEntity
      */
     public function setStartDate(\DateTimeInterface $startDate): static
     {
-        $this->startDate = $startDate;
+        $this->startDate = \DateTimeImmutable::createFromInterface($startDate);
         return $this;
     }
 
@@ -158,7 +158,9 @@ class CareTeamAssignment extends BaseEntity
      */
     public function setEndDate(?\DateTimeInterface $endDate): static
     {
-        $this->endDate = $endDate;
+        $this->endDate = $endDate === null
+            ? null
+            : \DateTimeImmutable::createFromInterface($endDate);
         return $this;
     }
 

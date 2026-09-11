@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Drawer } from '@/react/components/UI/Drawer';
 import { Avatar } from '@/react/components/UI/Avatar';
 import { Badge } from '@/react/components/UI/Badge';
@@ -24,6 +25,8 @@ export function PatientDetailsDrawer({
                                          onSuspend,
                                          onReactivate,
                                      }: PatientDetailsDrawerProps) {
+    const { t } = useI18n();
+
     if (!patient) return null;
 
     return (
@@ -47,32 +50,32 @@ export function PatientDetailsDrawer({
                 </div>
 
                 <div className="patient-details__body">
-                    <p><strong>Date de naissance :</strong> {patient.dateNaissance}</p>
-                    <p><strong>Type de diabète :</strong> {patient.typeDiabete}</p>
-                    <p><strong>Équipe de soins :</strong> {patient.equipeSoins}</p>
-                    {patient.telephone && <p><strong>Téléphone :</strong> {patient.telephone}</p>}
+                    <p><strong>{t('Date de naissance :')}</strong> {patient.dateNaissance}</p>
+                    <p><strong>{t('Type de diabète :')}</strong> {patient.typeDiabete}</p>
+                    <p><strong>{t('Équipe de soins :')}</strong> {patient.equipeSoins}</p>
+                    {patient.telephone && <p><strong>{t('Téléphone :')}</strong> {patient.telephone}</p>}
                     <p>
-                        <strong>Statut :</strong>{' '}
+                        <strong>{t('Statut :')}</strong>{' '}
                         <Badge variant={patient.statut === 'Active' ? 'success' : patient.statut === 'Suspended' ? 'warning' : 'error'}>
-                            {patient.statut === 'Suspended' ? 'Suspendu' : patient.statut}
+                            {patient.statut === 'Suspended' ? t('Suspendu') : patient.statut}
                         </Badge>
                     </p>
                 </div>
 
                 <div className="patient-details__actions">
                     <Button variant="primary" onClick={() => onModify(patient)}>
-                        Modifier
+                        {t('Modifier')}
                     </Button>
                     <Button variant="secondary" onClick={() => onAttachToPeople(patient)}>
-                        Attacher à des personnes
+                        {t('Attacher à des personnes')}
                     </Button>
                     {patient.statut === 'Suspended' ? (
                         <Button variant="success" onClick={() => onReactivate(patient)}>
-                            Réactiver
+                            {t('Réactiver')}
                         </Button>
                     ) : (
                         <Button variant="danger" onClick={() => onSuspend(patient)}>
-                            Suspendre
+                            {t('Suspendre')}
                         </Button>
                     )}
                 </div>

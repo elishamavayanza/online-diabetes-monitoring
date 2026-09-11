@@ -14,6 +14,7 @@ import { MeasurementFormModal } from '@/react/features/clinician/patients/compon
 import { MeasurementType } from '../types';
 import { MeasurementTypeId } from '@/react/features/clinician/patients/types';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
+import { useI18n } from '@/react/i18n/I18nContext';
 import type { LineChartDataPoint } from '@/react/hook-components/Data/LineChart/useLineChart';
 import {
     BloodGlucoseIcon,
@@ -91,19 +92,20 @@ function extractNumericValue(value: string): number | null {
     return match ? parseFloat(match[0]) : null;
 }
 
-// Définition des onglets pour la vue détail
-const detailTabs = [
-    { id: 'table', label: 'Historique' },
-    { id: 'chart', label: 'Graphique' },
-];
-
 export function MeasurementsPage() {
+    const { t } = useI18n();
     const { type, setType, records, isLoading, error, refetch } = useMeasurements();
     const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid');
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [detailTab, setDetailTab] = useState<'table' | 'chart'>('table');
     const [isPrelevementModalOpen, setIsPrelevementModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
+
+    // Définition des onglets pour la vue détail
+    const detailTabs = [
+        { id: 'table', label: t('Historique') },
+        { id: 'chart', label: t('Graphique') },
+    ];
 
     const markedDates = useMemo(() => {
         const dates = new Set<string>();
@@ -184,7 +186,7 @@ export function MeasurementsPage() {
                         <span className="measurement-type-card__icon">{mt.icon}</span>
                         <h3>{mt.label}</h3>
                         <p>{mt.description}</p>
-                        <span className="measurement-type-card__count">Voir</span>
+                        <span className="measurement-type-card__count">{t('Voir')}</span>
                     </Card>
                 ))}
             </div>
@@ -192,12 +194,12 @@ export function MeasurementsPage() {
             <>
                 <div className="measurement-detail__actions">
                     <Button variant="secondary" size="small" onClick={handleBackToGrid}>
-                        ← Retour aux mesures
+                        {t('← Retour aux mesures')}
                     </Button>
 
                     {type !== 'HbA1c' && (
                         <Button variant="primary" size="small" onClick={openPrelevementModal}>
-                            + Prélèvement {MEASUREMENT_TYPES.find((t) => t.id === type)?.label}
+                            {t('+ Prélèvement')} {MEASUREMENT_TYPES.find((t) => t.id === type)?.label}
                         </Button>
                     )}
                 </div>
@@ -212,7 +214,7 @@ export function MeasurementsPage() {
                         activeId === 'table' ? (
                             <>
                                 <h3 className="measurements-page__table-title">
-                                    Historique — {MEASUREMENT_TYPES.find((t) => t.id === type)?.label}
+                                    {t('Historique')} — {MEASUREMENT_TYPES.find((t) => t.id === type)?.label}
                                 </h3>
                                 <MeasurementsTable records={filteredRecords} />
                             </>
@@ -234,8 +236,8 @@ export function MeasurementsPage() {
     return (
         <div className="measurements-page">
             <div className="measurements-page__header">
-                <h1>Mes mesures</h1>
-                <p>{viewMode === 'grid' ? 'Sélectionnez un type de mesure' : 'Historique de vos mesures'}</p>
+                <h1>{t('Mes mesures')}</h1>
+                <p>{viewMode === 'grid' ? t('Sélectionnez un type de mesure') : t('Historique de vos mesures')}</p>
             </div>
 
             <div className="measurements-page__body">
@@ -248,8 +250,8 @@ export function MeasurementsPage() {
                     maxWidth={400}
                     closeThreshold={80}
                     collapsedWidth={35}
-                    title="Calendrier"
-                    header={<div>Naviguez par date</div>}
+                    title={t('Calendrier')}
+                    header={<div>{t('Naviguez par date')}</div>}
                 >
                     <div className="measurements-page__right-content">
                         <Calendar
@@ -263,7 +265,7 @@ export function MeasurementsPage() {
                                 size="small"
                                 onClick={() => setSelectedDate(null)}
                             >
-                                Effacer la sélection
+                                {t('Effacer la sélection')}
                             </Button>
                         )}
                     </div>

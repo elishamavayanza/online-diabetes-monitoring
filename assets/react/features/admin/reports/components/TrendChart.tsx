@@ -1,6 +1,7 @@
 import { LineChart } from '@/react/components/Data/LineChart/LineChart';
 import type { LineChartDataPoint } from '@/react/hook-components/Data/LineChart/useLineChart';
 import { TrendSeries } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface TrendChartProps {
     series: TrendSeries;
@@ -8,12 +9,13 @@ interface TrendChartProps {
 
 export function TrendChart({ series }: TrendChartProps) {
     const points = series.points;
+    const { t } = useI18n();
 
     if (!points.length) {
         return (
             <div className="trend-chart">
                 <h3>{series.label}</h3>
-                <p className="trend-chart__empty">Aucune tendance disponible.</p>
+                <p className="trend-chart__empty">{t('Aucune tendance disponible.')}</p>
             </div>
         );
     }

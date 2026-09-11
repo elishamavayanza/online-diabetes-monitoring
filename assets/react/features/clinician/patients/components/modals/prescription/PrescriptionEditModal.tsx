@@ -8,6 +8,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { PatientDossierData, PatientPrescription } from '../../../types';
 import {useEditPrescriptionForm} from "@/react/features/clinician/patients/hooks/prescription/useEditPrescriptionForm";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface PrescriptionEditModalProps {
     isOpen: boolean;
@@ -29,6 +30,7 @@ export function PrescriptionEditModal({
                                           prescription,
                                           onSuccess,
                                       }: PrescriptionEditModalProps) {
+    const { t } = useI18n();
     const { form, handleChange, handleSubmit, isLoading, error } = useEditPrescriptionForm({
         isOpen,
         onClose,
@@ -38,14 +40,14 @@ export function PrescriptionEditModal({
     });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Modifier la prescription">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Modifier la prescription')}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
-                    <FormField label="Patient">
+                    <FormField label={t('Patient')}>
                         <Input value={data.profile.fullName} disabled />
                     </FormField>
-                    <FormField label="Date de début" htmlFor="startDate" required>
+                    <FormField label={t('Date de début')} htmlFor="startDate" required>
                         <Input
                             id="startDate"
                             name="startDate"
@@ -55,7 +57,7 @@ export function PrescriptionEditModal({
                             required
                         />
                     </FormField>
-                    <FormField label="Date de fin" htmlFor="endDate">
+                    <FormField label={t('Date de fin')} htmlFor="endDate">
                         <Input
                             id="endDate"
                             name="endDate"
@@ -64,16 +66,16 @@ export function PrescriptionEditModal({
                             onChange={handleChange}
                         />
                     </FormField>
-                    <FormField label="Statut" htmlFor="status" required>
+                    <FormField label={t('Statut')} htmlFor="status" required>
                         <Select
                             id="status"
                             name="status"
                             value={form.status}
                             onChange={handleChange}
-                            options={STATUS_OPTIONS}
+                            options={STATUS_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
                         />
                     </FormField>
-                    <FormField label="Notes / Ordonnance" htmlFor="notes">
+                    <FormField label={t('Notes / Ordonnance')} htmlFor="notes">
                         <Textarea
                             id="notes"
                             name="notes"
@@ -86,10 +88,10 @@ export function PrescriptionEditModal({
                 </div>
                 <div className="dossier-form__actions">
                     <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : 'Enregistrer'}
+                        {isLoading ? <Spinner size="small" /> : t('Enregistrer')}
                     </Button>
                 </div>
             </form>

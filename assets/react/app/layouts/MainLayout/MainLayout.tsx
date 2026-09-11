@@ -16,6 +16,21 @@ import { useIsCompact } from '@/react/hooks/useIsCompact';
 import { PanelRightIcon } from "@/react/app/layouts/MainLayout/components/PanelRightIcon";
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useActionHistory } from './contexts/ActionHistoryContext';
+import { OfflineBanner } from '@/react/components/UI/OfflineBanner';
+import { useSystemSettings } from '@/react/hooks/useSystemSettings';
+import { useI18n, TranslateFn } from '@/react/i18n/I18nContext';
+import { SidebarConfig } from '@/react/hook-components/Navigation/Sidebar/types';
+
+function translateSidebarConfig(config: SidebarConfig, t: TranslateFn): SidebarConfig {
+    return config.map((group) => ({
+        ...group,
+        label: typeof group.label === 'string' ? t(group.label) : group.label,
+        items: group.items.map((item) => ({
+            ...item,
+            label: typeof item.label === 'string' ? t(item.label) : item.label,
+        })),
+    }));
+}
 
 // ---------- Icônes hamburger / fermer ----------
 const MenuIcon = () => (
@@ -76,13 +91,24 @@ export function MainLayout({
     const location = useLocation();
     const navigate = useNavigate();
     const { undoLastAction } = useActionHistory();
+    const { t } = useI18n();
 
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [rightSidebarOpen, setRightSidebarOpen] = useState(!isCompact);
 
     const permissions = user?.permissions ?? [];
     const userRole = user?.role as UserRole | undefined;
-    const menuConfig = userRole ? SIDEBAR_CONFIGS[userRole] : SIDEBAR_CONFIGS.ROOT;
+    const menuConfig = translateSidebarConfig(userRole ? SIDEBAR_CONFIGS[userRole] : SIDEBAR_CONFIGS.ROOT, t);
+    const { settings: systemSettings } = useSystemSettings();
+    const brandName = systemSettings?.systemName || 'OnlineDIAB';
+
+    const BrandLogo = () => (
+        <img
+            src={systemSettings?.logoUrl || logo}
+            alt={brandName}
+            className="sidebar-brand__logo"
+        />
+    );
 
     // ---------- Gestion tactile (mobile uniquement) ----------
     const mainTouchStart = useRef<{ x: number; y: number } | null>(null);
@@ -147,13 +173,16 @@ export function MainLayout({
             onTouchEnd={handleMainTouchEnd}
             style={{ touchAction: 'pan-y' }}
         >
+            {/* Bannière hors-ligne globale */}
+            <OfflineBanner />
+
             {/* Bouton hamburger (mobile uniquement) */}
             {isMobile && !mobileSidebarOpen && (
                 <button
                     className="main-layout__floating-toggle-left"
                     onClick={() => setMobileSidebarOpen(true)}
-                    aria-label="Ouvrir le menu"
-                    title="Ouvrir le menu"
+                    aria-label={t('Ouvrir le menu')}
+                    title={t('Ouvrir le menu')}
                 >
                     <MenuIcon />
                 </button>
@@ -164,8 +193,8 @@ export function MainLayout({
                 <button
                     className="main-layout__floating-toggle-right"
                     onClick={() => setRightSidebarOpen((prev) => !prev)}
-                    aria-label={rightSidebarOpen ? 'Fermer le panneau droit' : 'Ouvrir le panneau droit'}
-                    title={rightSidebarOpen ? 'Fermer le panneau droit' : 'Ouvrir le panneau droit'}
+                    aria-label={rightSidebarOpen ? t('Fermer le panneau droit') : t('Ouvrir le panneau droit')}
+                    title={rightSidebarOpen ? t('Fermer le panneau droit') : t('Ouvrir le panneau droit')}
                 >
                     <PanelRightIcon open={rightSidebarOpen} />
                 </button>
@@ -198,8 +227,8 @@ export function MainLayout({
                                 }}
                                 header={
                                     <div className="sidebar-brand">
-                                        <img src={logo} alt="OnlineDIAB" className="sidebar-brand__logo" />
-                                        <span className="sidebar-brand__title">OnlineDIAB</span>
+                                        <BrandLogo />
+                                        <span className="sidebar-brand__title">{brandName}</span>
                                     </div>
                                 }
                                 footer={
@@ -209,7 +238,7 @@ export function MainLayout({
                                             items={[
                                                 {
                                                     id: 'profile',
-                                                    label: 'Mon profil',
+                                                    label: t('Mon profil'),
                                                     icon: <ProfileIcon />,
                                                     onClick: handleProfileClick,
                                                 },
@@ -220,7 +249,7 @@ export function MainLayout({
                                                 },
                                                 {
                                                     id: 'logout',
-                                                    label: 'Déconnexion',
+                                                    label: t('Déconnexion'),
                                                     icon: <LogoutIcon />,
                                                     danger: true,
                                                     onClick: () => {
@@ -239,7 +268,7 @@ export function MainLayout({
                                                     />
                                                     <div className="sidebar-user-menu__info">
                                                         <span className="sidebar-user-menu__name">{user.name}</span>
-                                                        <span className="sidebar-user-menu__role">{user.role || 'Utilisateur'}</span>
+                                                        <span className="sidebar-user-menu__role">{user.role || t('Utilisateur')}</span>
                                                     </div>
                                                 </div>
                                             }
@@ -261,8 +290,8 @@ export function MainLayout({
                                 <button
                                     className="main-layout__back-button"
                                     onClick={handleBack}
-                                    aria-label="Retour à la page précédente"
-                                    title="Retour"
+                                    aria-label={t('Retour à la page précédente')}
+                                    title={t('Retour')}
                                 >
                                     <BackIcon />
                                 </button>

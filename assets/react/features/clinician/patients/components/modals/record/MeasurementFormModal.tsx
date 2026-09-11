@@ -15,6 +15,7 @@ import {
     fetchInsulins,
     fetchPatientPrescriptionItems,
 } from '@/react/features/clinician/patients/services/insulinInjectionService';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface MeasurementFormModalProps {
     isOpen: boolean;
@@ -65,6 +66,7 @@ export function MeasurementFormModal({
                                          initialType,
                                          onSuccess,
                                      }: MeasurementFormModalProps) {
+    const { t } = useI18n();
     const {
         step,
         type,
@@ -77,7 +79,7 @@ export function MeasurementFormModal({
         setStep,
     } = useMeasurementForm({ isOpen, onClose, patientId, initialType, onSuccess });
 
-    const typeLabel = type ? MEASUREMENT_TYPES.find((t) => t.id === type)?.label : '';
+    const typeLabel = type ? (MEASUREMENT_TYPES.find((t) => t.id === type)?.label ?? '') : '';
     const [labFile, setLabFile] = useState<File | null>(null);
     const [insulinOptions, setInsulinOptions] = useState<InsulinOptionsState>({
         insulins: [],
@@ -99,7 +101,7 @@ export function MeasurementFormModal({
             })
             .catch((err) => {
                 if (cancelled) return;
-                const message = err instanceof Error ? err.message : 'Erreur lors du chargement des insulines.';
+                const message = err instanceof Error ? err.message : t('Erreur lors du chargement des insulines.');
                 setInsulinOptions((prev) => ({ ...prev, loading: false, error: message }));
             });
 
@@ -133,7 +135,7 @@ export function MeasurementFormModal({
     }, [type, insulinOptions, form.prescriptionItemId, form.insulinId, handleChange]);
 
     const renderDateTimeField = () => (
-        <FormField label="Date et heure" htmlFor="measuredAt" required>
+        <FormField label={t('Date et heure')} htmlFor="measuredAt" required>
             <Input
                 id="measuredAt"
                 name="measuredAt"
@@ -151,14 +153,14 @@ export function MeasurementFormModal({
                 return (
                     <>
                         {renderDateTimeField()}
-                        <FormField label="Valeur" htmlFor="value" required>
-                            <Input id="value" name="value" type="number" step="0.01" value={form.value ?? ''} onChange={handleChange} placeholder="Ex : 1.26" required />
+                        <FormField label={t('Valeur')} htmlFor="value" required>
+                            <Input id="value" name="value" type="number" step="0.01" value={form.value ?? ''} onChange={handleChange} placeholder={t('Ex : 1.26')} required />
                         </FormField>
-                        <FormField label="Unité" htmlFor="unit" required>
+                        <FormField label={t('Unité')} htmlFor="unit" required>
                             <Select id="unit" name="unit" value={form.unit ?? 'MG_DL'} onChange={handleChange} options={GLUCOSE_UNIT_OPTIONS} />
                         </FormField>
-                        <FormField label="Contexte" htmlFor="context" required>
-                            <Select id="context" name="context" value={form.context ?? 'FASTING'} onChange={handleChange} options={GLUCOSE_CONTEXT_OPTIONS} />
+                        <FormField label={t('Contexte')} htmlFor="context" required>
+                            <Select id="context" name="context" value={form.context ?? 'FASTING'} onChange={handleChange} options={GLUCOSE_CONTEXT_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))} />
                         </FormField>
                     </>
                 );
@@ -166,14 +168,14 @@ export function MeasurementFormModal({
                 return (
                     <>
                         {renderDateTimeField()}
-                        <FormField label="Systolique (mmHg)" htmlFor="systolic" required>
-                            <Input id="systolic" name="systolic" type="number" value={form.systolic ?? ''} onChange={handleChange} placeholder="Ex : 120" required />
+                        <FormField label={t('Systolique (mmHg)')} htmlFor="systolic" required>
+                            <Input id="systolic" name="systolic" type="number" value={form.systolic ?? ''} onChange={handleChange} placeholder={t('Ex : 120')} required />
                         </FormField>
-                        <FormField label="Diastolique (mmHg)" htmlFor="diastolic" required>
-                            <Input id="diastolic" name="diastolic" type="number" value={form.diastolic ?? ''} onChange={handleChange} placeholder="Ex : 80" required />
+                        <FormField label={t('Diastolique (mmHg)')} htmlFor="diastolic" required>
+                            <Input id="diastolic" name="diastolic" type="number" value={form.diastolic ?? ''} onChange={handleChange} placeholder={t('Ex : 80')} required />
                         </FormField>
-                        <FormField label="Pouls (optionnel)" htmlFor="pulse">
-                            <Input id="pulse" name="pulse" type="number" value={form.pulse ?? ''} onChange={handleChange} placeholder="Ex : 72" />
+                        <FormField label={t('Pouls (optionnel)')} htmlFor="pulse">
+                            <Input id="pulse" name="pulse" type="number" value={form.pulse ?? ''} onChange={handleChange} placeholder={t('Ex : 72')} />
                         </FormField>
                     </>
                 );
@@ -181,8 +183,8 @@ export function MeasurementFormModal({
                 return (
                     <>
                         {renderDateTimeField()}
-                        <FormField label="HbA1c (%)" htmlFor="valuePercent" required>
-                            <Input id="valuePercent" name="valuePercent" type="number" step="0.1" value={form.valuePercent ?? ''} onChange={handleChange} placeholder="Ex : 6.5" required />
+                        <FormField label={t('HbA1c (%)')} htmlFor="valuePercent" required>
+                            <Input id="valuePercent" name="valuePercent" type="number" step="0.1" value={form.valuePercent ?? ''} onChange={handleChange} placeholder={t('Ex : 6.5')} required />
                         </FormField>
                     </>
                 );
@@ -190,11 +192,11 @@ export function MeasurementFormModal({
                 return (
                     <>
                         {renderDateTimeField()}
-                        <FormField label="Poids (kg)" htmlFor="valueKg" required>
-                            <Input id="valueKg" name="valueKg" type="number" step="0.1" value={form.valueKg ?? ''} onChange={handleChange} placeholder="Ex : 75.50" required />
+                        <FormField label={t('Poids (kg)')} htmlFor="valueKg" required>
+                            <Input id="valueKg" name="valueKg" type="number" step="0.1" value={form.valueKg ?? ''} onChange={handleChange} placeholder={t('Ex : 75.50')} required />
                         </FormField>
-                        <FormField label="Taille (cm)" htmlFor="heightCm">
-                            <Input id="heightCm" name="heightCm" type="number" step="0.1" value={form.heightCm ?? ''} onChange={handleChange} placeholder="Ex : 175.00" />
+                        <FormField label={t('Taille (cm)')} htmlFor="heightCm">
+                            <Input id="heightCm" name="heightCm" type="number" step="0.1" value={form.heightCm ?? ''} onChange={handleChange} placeholder={t('Ex : 175.00')} />
                         </FormField>
                     </>
                 );
@@ -203,19 +205,19 @@ export function MeasurementFormModal({
                 return (
                     <>
                         {renderDateTimeField()}
-                        <FormField label="Type d'activité" htmlFor="activityType" required>
-                            <Select id="activityType" name="activityType" value={form.activityType ?? 'WALKING'} onChange={handleChange} options={PHYSICAL_ACTIVITY_OPTIONS} required />
+                        <FormField label={t("Type d'activité")} htmlFor="activityType" required>
+                            <Select id="activityType" name="activityType" value={form.activityType ?? 'WALKING'} onChange={handleChange} options={PHYSICAL_ACTIVITY_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))} required />
                         </FormField>
                         {isOther && (
-                            <FormField label="Préciser l'activité" htmlFor="customActivity" required>
-                                <Input id="customActivity" name="activityType" value={form.activityType === 'OTHER' ? '' : form.activityType} onChange={handleChange} placeholder="Ex : Randonnée, Tennis..." required />
+                            <FormField label={t("Préciser l'activité")} htmlFor="customActivity" required>
+                                <Input id="customActivity" name="activityType" value={form.activityType === 'OTHER' ? '' : form.activityType} onChange={handleChange} placeholder={t('Ex : Randonnée, Tennis...')} required />
                             </FormField>
                         )}
-                        <FormField label="Durée (minutes)" htmlFor="durationMinutes" required>
-                            <Input id="durationMinutes" name="durationMinutes" type="number" min="1" value={form.durationMinutes ?? ''} onChange={handleChange} placeholder="Ex : 30" required />
+                        <FormField label={t('Durée (minutes)')} htmlFor="durationMinutes" required>
+                            <Input id="durationMinutes" name="durationMinutes" type="number" min="1" value={form.durationMinutes ?? ''} onChange={handleChange} placeholder={t('Ex : 30')} required />
                         </FormField>
-                        <FormField label="Calories brûlées" htmlFor="caloriesBurned">
-                            <Input id="caloriesBurned" name="caloriesBurned" type="number" value={form.caloriesBurned ?? ''} onChange={handleChange} placeholder="Ex : 300" />
+                        <FormField label={t('Calories brûlées')} htmlFor="caloriesBurned">
+                            <Input id="caloriesBurned" name="caloriesBurned" type="number" value={form.caloriesBurned ?? ''} onChange={handleChange} placeholder={t('Ex : 300')} />
                         </FormField>
                     </>
                 );
@@ -224,15 +226,15 @@ export function MeasurementFormModal({
                 return (
                     <>
                         {renderDateTimeField()}
-                        <FormField label="Nom de l'examen" htmlFor="testName" required>
-                            <Input id="testName" name="testName" value={form.testName ?? ''} onChange={handleChange} placeholder="Ex : Bilan lipidique complet" required />
+                        <FormField label={t("Nom de l'examen")} htmlFor="testName" required>
+                            <Input id="testName" name="testName" value={form.testName ?? ''} onChange={handleChange} placeholder={t('Ex : Bilan lipidique complet')} required />
                         </FormField>
-                        <FormField label="Laboratoire" htmlFor="labName">
-                            <Input id="labName" name="labName" value={form.labName ?? ''} onChange={handleChange} placeholder="Ex : Laboratoire Central Goma" />
+                        <FormField label={t('Laboratoire')} htmlFor="labName">
+                            <Input id="labName" name="labName" value={form.labName ?? ''} onChange={handleChange} placeholder={t('Ex : Laboratoire Central Goma')} />
                         </FormField>
-                        <FormField label="Fichier du résultat" htmlFor="labFile">
+                        <FormField label={t('Fichier du résultat')} htmlFor="labFile">
                             <FileUpload
-                                accept=".pdf,.doc,.docx,.jpg,.png"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
                                 multiple={false}
                                 maxFiles={1}
                                 maxSizeInMB={10}
@@ -241,8 +243,8 @@ export function MeasurementFormModal({
                                         setLabFile(files[0]);
                                     }
                                 }}
-                                label="Cliquez ou déposez le fichier ici"
-                                hint="PDF, Word ou image (max 10 Mo)"
+                                label={t('Cliquez ou déposez le fichier ici')}
+                                hint={t('PDF, Word ou image (JPEG, PNG, WebP — max 10 Mo)')}
                             />
                         </FormField>
                     </>
@@ -260,7 +262,7 @@ export function MeasurementFormModal({
                     return (
                         <div className="injection-options-loading">
                             <Spinner size="small" />
-                            Chargement des insulines et prescriptions…
+                            {t('Chargement des insulines et prescriptions…')}
                         </div>
                     );
                 }
@@ -270,15 +272,14 @@ export function MeasurementFormModal({
                 if (injectableItems.length === 0) {
                     return (
                         <p>
-                            Aucun médicament insulinique prescrit trouvé. Ajoutez d'abord une prescription
-                            d'insuline avant d'enregistrer une injection.
+                            {t("Aucun médicament insulinique prescrit trouvé. Ajoutez d'abord une prescription d'insuline avant d'enregistrer une injection.")}
                         </p>
                     );
                 }
 
                 return (
                     <>
-                        <FormField label="Date et heure" htmlFor="injectedAt" required>
+                        <FormField label={t('Date et heure')} htmlFor="injectedAt" required>
                             <Input
                                 id="injectedAt"
                                 name="injectedAt"
@@ -288,7 +289,7 @@ export function MeasurementFormModal({
                                 required
                             />
                         </FormField>
-                        <FormField label="Médicament prescrit" htmlFor="prescriptionItemId" required>
+                        <FormField label={t('Médicament prescrit')} htmlFor="prescriptionItemId" required>
                             <Select
                                 id="prescriptionItemId"
                                 name="prescriptionItemId"
@@ -296,12 +297,12 @@ export function MeasurementFormModal({
                                 onChange={handleChange}
                                 options={injectableItems.map((item) => ({
                                     value: item.id,
-                                    label: `${item.medicationName ?? 'Insuline'}${item.dosage ? ` — ${item.dosage}` : ''}`,
+                                    label: `${item.medicationName ?? t('Insuline')}${item.dosage ? ` — ${item.dosage}` : ''}`,
                                 }))}
                                 required
                             />
                         </FormField>
-                        <FormField label="Insuline" htmlFor="insulinId" required>
+                        <FormField label={t('Insuline')} htmlFor="insulinId" required>
                             <Select
                                 id="insulinId"
                                 name="insulinId"
@@ -314,7 +315,7 @@ export function MeasurementFormModal({
                                 required
                             />
                         </FormField>
-                        <FormField label="Dose (unités)" htmlFor="doseUnits" required>
+                        <FormField label={t('Dose (unités)')} htmlFor="doseUnits" required>
                             <Input
                                 id="doseUnits"
                                 name="doseUnits"
@@ -323,35 +324,35 @@ export function MeasurementFormModal({
                                 min="0.5"
                                 value={form.doseUnits ?? ''}
                                 onChange={handleChange}
-                                placeholder="Ex : 12"
+                                placeholder={t('Ex : 12')}
                                 required
                             />
                         </FormField>
-                        <FormField label="Site d'injection" htmlFor="injectionSite" required>
+                        <FormField label={t("Site d'injection")} htmlFor="injectionSite" required>
                             <Select
                                 id="injectionSite"
                                 name="injectionSite"
                                 value={form.injectionSite ?? 'ABDOMEN'}
                                 onChange={handleChange}
-                                options={INJECTION_SITE_OPTIONS}
+                                options={INJECTION_SITE_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
                             />
                         </FormField>
-                        <FormField label="Statut" htmlFor="status" required>
+                        <FormField label={t('Statut')} htmlFor="status" required>
                             <Select
                                 id="status"
                                 name="status"
                                 value={form.status ?? 'TAKEN'}
                                 onChange={handleChange}
-                                options={INJECTION_STATUS_OPTIONS}
+                                options={INJECTION_STATUS_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
                             />
                         </FormField>
-                        <FormField label="Notes" htmlFor="notes">
+                        <FormField label={t('Notes')} htmlFor="notes">
                             <Input
                                 id="notes"
                                 name="notes"
                                 value={form.notes ?? ''}
                                 onChange={handleChange}
-                                placeholder="Observations éventuelles"
+                                placeholder={t('Observations éventuelles')}
                             />
                         </FormField>
                     </>
@@ -371,7 +372,7 @@ export function MeasurementFormModal({
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={step === 'type' ? 'Nouveau prélèvement' : `Prélèvement — ${typeLabel}`}
+            title={step === 'type' ? t('Nouveau prélèvement') : t('Prélèvement — {{ type }}', { type: t(typeLabel) })}
         >
             {error && <Alert variant="error">{error}</Alert>}
 
@@ -385,8 +386,8 @@ export function MeasurementFormModal({
                             onClick={() => handleSelectType(item.id)}
                         >
                             <span className="measurement-type-picker__icon">{item.icon}</span>
-                            <span className="measurement-type-picker__label">{item.label}</span>
-                            <span className="measurement-type-picker__desc">{item.description}</span>
+                            <span className="measurement-type-picker__label">{t(item.label)}</span>
+                            <span className="measurement-type-picker__desc">{t(item.description)}</span>
                         </button>
                     ))}
                 </div>
@@ -396,14 +397,14 @@ export function MeasurementFormModal({
                     <div className="dossier-form__actions">
                         {!initialType && (
                             <Button type="button" variant="secondary" onClick={() => setStep('type')}>
-                                Retour
+                                {t('Retour')}
                             </Button>
                         )}
                         <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-                            Annuler
+                            {t('Annuler')}
                         </Button>
                         <Button type="submit" variant="primary" disabled={isLoading}>
-                            {isLoading ? <Spinner size="small" /> : 'Enregistrer'}
+                            {isLoading ? <Spinner size="small" /> : t('Enregistrer')}
                         </Button>
                     </div>
                 </form>

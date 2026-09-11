@@ -9,6 +9,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { useAttachPatient } from '../hooks/useAttachPatient';
 import { SearchableSelect } from '@/react/components/Forms/SearchableSelect/SearchableSelect';
 import { Select } from "@/react/components/Forms/Select";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface AttachPatientModalProps {
     isOpen: boolean;
@@ -19,6 +20,7 @@ interface AttachPatientModalProps {
 
 export function AttachPatientModal({ isOpen, onClose, professionalId, onSuccess }: AttachPatientModalProps) {
     const { patients, form, updateField, submit, isSubmitting, error } = useAttachPatient(professionalId);
+    const { t } = useI18n();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,33 +36,33 @@ export function AttachPatientModal({ isOpen, onClose, professionalId, onSuccess 
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="medium">
             <div className="attach-patient-modal">
-                <h2>Attacher un patient</h2>
+                <h2>{t('Attacher un patient')}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit} className="attach-patient-modal__form">
                     <div className="attach-patient-modal__grid">
-                        <FormField label="Patient *">
+                        <FormField label={t('Patient *')}>
                             <SearchableSelect
                                 value={form.patientId}
                                 onChange={(value) => updateField('patientId', Number(value))} //  conversion en number
                                 options={patientOptions}
-                                placeholder="Rechercher un patient..."
+                                placeholder={t('Rechercher un patient...')}
                                 required
                             />
                         </FormField>
 
-                        <FormField label="Rôle *">
+                        <FormField label={t('Rôle *')}>
                             <Select
                                 value={form.role}
                                 onChange={(e) => updateField('role', e.target.value as any)}
                                 options={[
-                                    { value: 'PRIMARY_CLINICIAN', label: 'Médecin principal' },
-                                    { value: 'SPECIALIST', label: 'Spécialiste' },
-                                    { value: 'NUTRITIONIST', label: 'Nutritionniste' },
+                                    { value: 'PRIMARY_CLINICIAN', label: t('Médecin principal') },
+                                    { value: 'SPECIALIST', label: t('Spécialiste') },
+                                    { value: 'NUTRITIONIST', label: t('Nutritionniste') },
                                 ]}
                             />
                         </FormField>
 
-                        <FormField label="Date de début *">
+                        <FormField label={t('Date de début *')}>
                             <Input
                                 type="date"
                                 value={form.startDate}
@@ -69,7 +71,7 @@ export function AttachPatientModal({ isOpen, onClose, professionalId, onSuccess 
                             />
                         </FormField>
 
-                        <FormField label="Date de fin">
+                        <FormField label={t('Date de fin')}>
                             <Input
                                 type="date"
                                 value={form.endDate ?? ''}
@@ -77,7 +79,7 @@ export function AttachPatientModal({ isOpen, onClose, professionalId, onSuccess 
                             />
                         </FormField>
 
-                        <FormField label="Actif">
+                        <FormField label={t('Actif')}>
                             <Switch
                                 checked={form.active}
                                 onChange={(e) => updateField('active', e.target.checked)}
@@ -86,9 +88,9 @@ export function AttachPatientModal({ isOpen, onClose, professionalId, onSuccess 
                     </div>
 
                     <div className="attach-patient-modal__actions">
-                        <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('Annuler')}</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Affectation...' : 'Attacher'}
+                            {isSubmitting ? t('Affectation...') : t('Attacher')}
                         </Button>
                     </div>
                 </Form>

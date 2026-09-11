@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface CommandItem {
     id: string;
@@ -21,12 +22,16 @@ export function useCommandPalette({
                                       isOpen,
                                       onClose,
                                       commands,
-                                      placeholder = 'Tapez une commande...',
+                                      placeholder, //  Renommé en "placeholder" (plus de doublon)
                                       className = '',
                                   }: UseCommandPaletteProps) {
+    const { t } = useI18n();
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    //  Une seule déclaration de effectivePlaceholder
+    const effectivePlaceholder = placeholder ?? t('Tapez une commande...');
 
     const filteredCommands = useMemo(() => {
         if (!query.trim()) return commands;
@@ -101,10 +106,10 @@ export function useCommandPalette({
         setQuery,
         filteredCommands,
         selectedIndex,
-        setSelectedIndex,        // <-- AJOUT ICI
+        setSelectedIndex,
         handleKeyDown,
         inputRef,
-        placeholder,
+        placeholder: effectivePlaceholder, //  Retourne la bonne variable
         onClose,
     };
 }

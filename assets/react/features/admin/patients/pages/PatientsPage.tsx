@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { usePatients } from '../hooks/usePatients';
 import { PatientsTable } from '../components/PatientsTable';
 import { PatientDetailsDrawer } from '../components/PatientDetailsDrawer';
@@ -10,7 +11,7 @@ import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import '@/styles/pages/admin/patients/_patients.scss';
 import { PatientFormModal } from '../components/PatientFormModal';
-import { Patient } from '../types';
+import { Patient, PatientsFilters } from '../types';
 import { PatientFormValues } from "@/react/features/root/users/types/userForm.types";
 import { AttachPeopleModal } from '../components/AttachPeopleModal';
 import { suspendPatient, reactivatePatient } from '../services/patientsService';
@@ -46,10 +47,11 @@ function toPatientFormValues(patient: Patient): PatientFormValues {
 }
 
 export function PatientsPage() {
-    const { patients, isLoading, error, refetch } = usePatients(); // récupération de refetch
+    const { t } = useI18n();
+    const { patients, total, page, limit, isLoading, error, refetch, setFilters, setPage, setSort } = usePatients(); // récupération de refetch
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [search, setSearch] = useState('');
-    const [diabeteFilter, setDiabeteFilter] = useState<string>('Tous');
+    const [diabeteFilter, setDiabeteFilter] = useState<string>(t('Tous'));
     const [showFilter, setShowFilter] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -107,7 +109,7 @@ export function PatientsPage() {
             await suspendPatient(suspendingPatient.id, payload);
             showToast({
                 type: 'success',
-                message: `Le patient « ${suspendingPatient.nom} » a été suspendu.`,
+                message: t('Le patient « {{ name }} » a été suspendu.', { name: suspendingPatient.nom }),
             });
             await refetch();
         } catch (err) {
@@ -127,7 +129,7 @@ export function PatientsPage() {
             await reactivatePatient(reactivatingPatient.id);
             showToast({
                 type: 'success',
-                message: `Le patient « ${reactivatingPatient.nom} » a été réactivé.`,
+                message: t('Le patient « {{ name }} » a été réactivé.', { name: reactivatingPatient.nom }),
             });
             await refetch();
         } catch (err) {
@@ -137,42 +139,36 @@ export function PatientsPage() {
         }
     };
 
-    if (isLoading) return <Spinner />;
+    if (isLoading && patients.length === 0) return <Spinner />;
     if (error) return <Alert variant="error">{error}</Alert>;
 
-    const filteredPatients = patients.filter((patient) => {
-        const q = search.toLowerCase();
-        const matchSearch =
-            patient.nom.toLowerCase().includes(q) ||
-            patient.equipeSoins.toLowerCase().includes(q);
-        const matchDiabete = diabeteFilter === 'Tous' || patient.typeDiabete === diabeteFilter;
-        return matchSearch && matchDiabete;
-    });
-
-    const diabeteOptions = ['Tous', 'Type 1', 'Type 2', 'Gestationnel'];
+    const diabeteOptions = [t('Tous'), t('Type 1'), t('Type 2'), t('Gestationnel')];
 
     return (
         <div className="patients-page">
             <div className="patients-page__header">
-                <h1>Patients</h1>
-                <p>Gérez les patients de votre organisation</p>
+                <h1>{t('Patients')}</h1>
+                <p>{t('Gérez les patients de votre organisation')}</p>
             </div>
 
             <div className="patients-page__actions">
                 <div className="patients-page__search">
                     <SearchInput
-                        placeholder="Rechercher un patient..."
+                        placeholder={t('Rechercher un patient...')}
                         value={search}
-                        onSearch={(value: string) => setSearch(value)}
+                        onSearch={(value: string) => {
+                            setSearch(value);
+                            setFilters({ search: value, typeDiabete: diabeteFilter as PatientsFilters['typeDiabete'] });
+                        }}
                     />
                 </div>
 
                 <div className="patients-page__filter-wrapper">
                     <button
-                        className={`patients-page__filter-btn ${diabeteFilter !== 'Tous' ? 'patients-page__filter-btn--active' : ''}`}
+                        className={`patients-page__filter-btn ${diabeteFilter !== t('Tous') ? 'patients-page__filter-btn--active' : ''}`}
                         onClick={() => setShowFilter((prev) => !prev)}
-                        aria-label="Filtrer par type de diabète"
-                        title="Filtrer par type de diabète"
+                        aria-label={t('Filtrer par type de diabète')}
+                        title={t('Filtrer par type de diabète')}
                     >
                         <FilterIcon />
                     </button>
@@ -196,12 +192,18 @@ export function PatientsPage() {
                 </div>
 
                 <Button variant="primary" onClick={openAddModal} className="patients-page__add-btn">
-                    + Ajouter un patient
+                    {t('+ Ajouter un patient')}
                 </Button>
             </div>
 
             <PatientsTable
-                patients={filteredPatients}
+                patients={patients}
+                total={total}
+                page={page}
+                limit={limit}
+                loading={isLoading}
+                onPageChange={setPage}
+                onSort={setSort}
                 onViewDetails={openDetails}
                 onSuspend={handleSuspend}
                 onReactivate={handleReactivate}
@@ -250,16 +252,16 @@ export function PatientsPage() {
             <SuspensionModal
                 isOpen={!!suspendingPatient}
                 onClose={() => setSuspendingPatient(null)}
-                title="Suspendre un patient"
-                entityLabel={suspendingPatient ? `Patient : ${suspendingPatient.nom}` : ''}
+                title={t('Suspendre un patient')}
+                entityLabel={suspendingPatient ? t('Patient : {{ name }}', { name: suspendingPatient.nom }) : ''}
                 onConfirm={handleConfirmSuspend}
             />
 
             <ReactivateModal
                 isOpen={!!reactivatingPatient}
                 onClose={() => setReactivatingPatient(null)}
-                title="Réactiver un patient"
-                message={reactivatingPatient ? `Confirmer la réactivation de « ${reactivatingPatient.nom} » ?` : ''}
+                title={t('Réactiver un patient')}
+                message={reactivatingPatient ? t('Confirmer la réactivation de « {{ name }} » ?', { name: reactivatingPatient.nom }) : ''}
                 onConfirm={handleConfirmReactivate}
             />
         </div>

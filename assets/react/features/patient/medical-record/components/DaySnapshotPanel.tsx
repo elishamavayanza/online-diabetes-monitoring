@@ -1,5 +1,6 @@
 import { Badge } from '@/react/components/UI/Badge';
 import { RecordEvent, RecordEventKind } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface DaySnapshotPanelProps {
     date: Date;
@@ -36,6 +37,7 @@ const KIND_LABEL: Record<RecordEventKind, string> = {
 };
 
 export function DaySnapshotPanel({ date, events, onClear }: DaySnapshotPanelProps) {
+    const { t } = useI18n();
     const key = toDateKey(date);
     const dayEvents = events.filter((e) => toDateKey(new Date(e.date)) === key);
 
@@ -46,14 +48,14 @@ export function DaySnapshotPanel({ date, events, onClear }: DaySnapshotPanelProp
             <div className="day-snapshot__header">
                 <h2>{formatDate(date)}</h2>
                 <button type="button" className="day-snapshot__clear" onClick={onClear}>
-                    Effacer la sélection
+                    {t('Effacer la sélection')}
                 </button>
             </div>
 
             {dayEvents.length === 0 ? (
                 <p className="day-snapshot__empty">
-                    Aucun événement enregistré à cette date.
-                    Sélectionnez une des dates marquées dans le calendrier.
+                    {t('Aucun événement enregistré à cette date.')}
+                    {t('Sélectionnez une des dates marquées dans le calendrier.')}
                 </p>
             ) : (
                 <div className="day-snapshot__body">
@@ -73,7 +75,7 @@ export function DaySnapshotPanel({ date, events, onClear }: DaySnapshotPanelProp
                                             <span className="day-snapshot__label">{item.label}</span>
                                             {item.meta && <span className="day-snapshot__meta">{item.meta}</span>}
                                             {item.kind === 'appointment' && item.status && (
-                                                <Badge variant="info">{item.status}</Badge>
+                                                <Badge variant="info">{t(item.status)}</Badge>
                                             )}
                                         </li>
                                     ))}

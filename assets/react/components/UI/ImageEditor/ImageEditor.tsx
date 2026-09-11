@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import '@/styles/components/UI/_imageEditor.scss';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ImageEditorProps {
     src: string;
@@ -10,6 +11,7 @@ interface ImageEditorProps {
 }
 
 export function ImageEditor({ src, onCancel, onApply, aspect = 1, outputSize = 300 }: ImageEditorProps) {
+    const { t } = useI18n();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);
@@ -68,7 +70,7 @@ export function ImageEditor({ src, onCancel, onApply, aspect = 1, outputSize = 3
 
             <div className="image-editor__controls">
                 <div className="image-editor__control">
-                    <label>Zoom</label>
+                    <label>{t('Zoom')}</label>
                     <input
                         type="range"
                         min={0.5}
@@ -79,15 +81,15 @@ export function ImageEditor({ src, onCancel, onApply, aspect = 1, outputSize = 3
                     />
                 </div>
                 <div className="image-editor__control">
-                    <label>Rotation</label>
+                    <label>{t('Rotation')}</label>
                     <button onClick={() => setRotation((prev) => prev - 90)}>-90°</button>
                     <button onClick={() => setRotation((prev) => prev + 90)}>+90°</button>
                 </div>
             </div>
 
             <div className="image-editor__actions">
-                <button onClick={onCancel}>Annuler</button>
-                <button onClick={handleApply}>Appliquer</button>
+                <button onClick={onCancel}>{t('Annuler')}</button>
+                <button onClick={handleApply}>{t('Appliquer')}</button>
             </div>
         </div>
     );

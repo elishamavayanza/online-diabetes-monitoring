@@ -40,6 +40,9 @@ class JWTCreatedListener
         // recevoir leur chemin public, y compris dans le JWT restauré au boot.
         $payload['photoUrl'] = AvatarUrl::toPublicUrl($user->getAvatarUrl());
 
+        // Langue de l'interface choisie par l'utilisateur (i18n).
+        $payload['locale'] = $user->getLocale() ?? 'fr';
+
         // Organisations actives
         $payload['organizations'] = $this->getActiveOrganizations($user);
 

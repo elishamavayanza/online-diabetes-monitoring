@@ -1,5 +1,6 @@
 import React from 'react';
 import { useHeader, UseHeaderProps, HeaderNavItem } from '../../../hook-components/Navigation/Header';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const MenuIcon = ({ open }: { open: boolean }) => (
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -29,7 +30,7 @@ export function Header({
                            mobileBreakpoint,
                            onNavItemClick,
                            className,
-                       }: HeaderProps) {
+                        }: HeaderProps) {
     const {
         classes,
         isMobileMenuOpen,
@@ -45,6 +46,7 @@ export function Header({
         onNavItemClick,
         className,
     });
+    const { t } = useI18n();
 
     const handleNavItemClick = (item: HeaderNavItem) => {
         onNavItemClick?.(item);
@@ -55,7 +57,7 @@ export function Header({
         <header className={classes}>
             <div className="header__inner">
                 {logo && <div className="header__logo">{logo}</div>}
-                <nav className="header__nav" aria-label="Navigation principale">
+                <nav className="header__nav" aria-label={t('Navigation principale')}>
                     {navItems.map((item) => (
                         <a
                             key={item.id}
@@ -72,7 +74,7 @@ export function Header({
                 <button
                     className="header__toggle"
                     onClick={toggleMobileMenu}
-                    aria-label="Menu"
+                    aria-label={t('Menu')}
                     aria-expanded={isMobileMenuOpen}
                 >
                     <MenuIcon open={isMobileMenuOpen} />

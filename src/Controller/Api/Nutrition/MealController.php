@@ -5,6 +5,7 @@ namespace App\Controller\Api\Nutrition;
 use App\DTO\Request\Nutrition\MealRequestDTO;
 use App\DTO\Response\Nutrition\MealResponseDTO;
 use App\Service\Nutrition\MealService;
+use App\Service\Common\ListQueryParams;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -45,7 +46,8 @@ class MealController extends AbstractController
     public function list(Request $request): JsonResponse
     {
         $patientId = $request->query->get('patientId') ? (int)$request->query->get('patientId') : null;
-        $feedback = $this->service->list($patientId);
+        $includeItems = filter_var($request->query->get('includeItems', 'true'), FILTER_VALIDATE_BOOLEAN);
+        $feedback = $this->service->list($patientId, ListQueryParams::fromRequest($request), $includeItems);
 
         return $this->json($feedback, Response::HTTP_OK);
     }

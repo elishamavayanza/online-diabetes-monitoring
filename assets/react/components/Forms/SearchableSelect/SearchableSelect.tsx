@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../../../../styles/components/Form/SearchableSelect.scss';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export interface SearchableSelectOption {
     value: string | number;
@@ -20,11 +21,13 @@ export function SearchableSelect({
                                      options,
                                      value,
                                      onChange,
-                                     placeholder = 'Rechercher...',
+                                     placeholder,
                                      disabled = false,
                                      required = false,
                                      className,
                                  }: SearchableSelectProps) {
+    const { t } = useI18n();
+    const effectivePlaceholder = placeholder ?? t('Rechercher...');
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const [displayValue, setDisplayValue] = useState('');
@@ -81,7 +84,7 @@ export function SearchableSelect({
             <input
                 type="text"
                 className="searchable-select__input"
-                placeholder={placeholder}
+                placeholder={effectivePlaceholder}
                 value={isOpen ? search : displayValue}
                 onClick={() => setIsOpen((prev) => !prev)}
                 onChange={handleInputChange}
@@ -105,7 +108,7 @@ export function SearchableSelect({
                             </div>
                         ))
                     ) : (
-                        <div className="searchable-select__empty">Aucun résultat</div>
+                        <div className="searchable-select__empty">{t('Aucun résultat')}</div>
                     )}
                 </div>
             )}

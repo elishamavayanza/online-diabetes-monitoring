@@ -1,6 +1,7 @@
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
 
@@ -14,6 +15,7 @@ function isConsultation(reason?: string): boolean {
 
 export function ConsultationsTab() {
     const { data, period, selectedDate, isReadOnly, openAppointmentModal, openNoteModal } = usePatientDossierContext();
+    const { t } = useI18n();
 
     const consultations = data.appointments
         .filter((appt) => isConsultation(appt.reason))
@@ -28,23 +30,23 @@ export function ConsultationsTab() {
     return (
             <div className="patient-dossier-tab patient-dossier-tab--consultations">
                 <div className="patient-dossier-tab__toolbar">
-                    <p className="patient-dossier-tab__hint">Consultations et comptes-rendus cliniques.</p>
+                    <p className="patient-dossier-tab__hint">{t('Consultations et comptes-rendus cliniques.')}</p>
                     {!isReadOnly && (
                         <div className="consultations-tab__actions">
                             <Button variant="secondary" onClick={() => openAppointmentModal()}>
-                                + Planifier consultation
+                                {t('+ Planifier consultation')}
                             </Button>
                             <Button variant="primary" onClick={openNoteModal}>
-                                + Note de consultation
+                                {t('+ Note de consultation')}
                             </Button>
                         </div>
                     )}
                 </div>
 
             <div className="patient-dossier-tab__section">
-                <h3>Consultations</h3>
+                <h3>{t('Consultations')}</h3>
                 {consultations.length === 0 ? (
-                    <Card><p>Aucune consultation sur la période.</p></Card>
+                    <Card><p>{t('Aucune consultation sur la période.')}</p></Card>
                 ) : (
                     <div className="patient-dossier-tab__grid">
                         {consultations.map((appt) => (
@@ -53,8 +55,8 @@ export function ConsultationsTab() {
                                     <h4>{formatDisplayDateTime(appt.scheduledAt)}</h4>
                                     <Badge variant={appt.status === 'COMPLETED' ? 'success' : 'info'}>{appt.status}</Badge>
                                 </div>
-                                <p><strong>Motif :</strong> {appt.reason || 'Consultation'}</p>
-                                {appt.durationMinutes != null && <p><strong>Durée :</strong> {appt.durationMinutes} min</p>}
+                                <p><strong>{t('Motif :')}</strong> {appt.reason || t('Consultation')}</p>
+                                {appt.durationMinutes != null && <p><strong>{t('Durée :')}</strong> {appt.durationMinutes} min</p>}
                             </Card>
                         ))}
                     </div>
@@ -62,9 +64,9 @@ export function ConsultationsTab() {
             </div>
 
             <div className="patient-dossier-tab__section">
-                <h3>Notes associées</h3>
+                <h3>{t('Notes associées')}</h3>
                 {relatedNotes.length === 0 ? (
-                    <Card><p>Aucune note sur la période.</p></Card>
+                    <Card><p>{t('Aucune note sur la période.')}</p></Card>
                 ) : (
                     <div className="patient-dossier-tab__notes">
                         {relatedNotes.map((note) => (

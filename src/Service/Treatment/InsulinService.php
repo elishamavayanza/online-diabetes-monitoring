@@ -2,6 +2,7 @@
 
 namespace App\Service\Treatment;
 
+use App\Cache\CatalogCache;
 use App\DTO\Feedback;
 use App\DTO\Request\Treatment\InsulinRequestDTO;
 use App\Mapper\Treatment\InsulinMapper;
@@ -19,7 +20,8 @@ class InsulinService
         private readonly MedicationRepository $medicationRepository,
         private readonly InsulinMapper $mapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SecurityServiceInterface $securityService
+        private readonly SecurityServiceInterface $securityService,
+        private readonly CatalogCache $catalogCache
     ) {}
 
     public function all(): Feedback
@@ -29,8 +31,11 @@ class InsulinService
         try {
             $this->securityService->checkPermission(SecurityAction::VIEW_MEDICATION->value);
 
-            $insulins = $this->repository->findAll();
-            $data = array_map(fn($i) => $this->mapper->mapEntityToResponse($i), $insulins);
+            $data = $this->catalogCache->get('insulins', function () {
+                $insulins = $this->repository->findAll();
+
+                return array_map(fn($i) => $this->mapper->mapEntityToResponse($i), $insulins);
+            });
 
             return $feedback
                 ->setData($data)
@@ -82,6 +87,7 @@ class InsulinService
 
             $this->entityManager->persist($insulin);
             $this->entityManager->flush();
+            $this->catalogCache->evict('insulins');
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($insulin))
@@ -114,6 +120,7 @@ class InsulinService
             $insulin = $this->mapper->mapRequestToEntity($dto, $medication, $insulin);
 
             $this->entityManager->flush();
+            $this->catalogCache->evict('insulins');
 
             return $feedback
                 ->setData($this->mapper->mapEntityToResponse($insulin))
@@ -140,6 +147,7 @@ class InsulinService
 
             $this->entityManager->remove($insulin);
             $this->entityManager->flush();
+            $this->catalogCache->evict('insulins');
 
             return $feedback
                 ->setData(null)

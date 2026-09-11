@@ -1,5 +1,6 @@
 // AppointmentsPage.tsx
 import { useState, useMemo } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useAppointments } from '../hooks/useAppointments';
 import { AppointmentsTable } from '../components/AppointmentsTable';
 import { AppointmentsCalendar } from '../components/AppointmentsCalendar';
@@ -22,6 +23,7 @@ const toDateKey = (date: Date): string => {
 };
 
 export function AppointmentsPage() {
+    const { t } = useI18n();
     const {allAppointments, appointments, period, setPeriod, isLoading, error } = useAppointments();
     const { pushAction } = useActionHistory();
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -31,10 +33,10 @@ export function AppointmentsPage() {
 
     // Ajout de l'onglet historique
     const tabs = [
-        { id: 'today', label: "Aujourd'hui" },
-        { id: 'week', label: 'Cette semaine' },
-        { id: 'month', label: 'Ce mois' },
-        { id: 'history', label: 'Historique' },
+        { id: 'today', label: t("Aujourd'hui") },
+        { id: 'week', label: t('Cette semaine') },
+        { id: 'month', label: t('Ce mois') },
+        { id: 'history', label: t('Historique') },
     ];
 
     // Les rendez-vous passés ne sont pas affichés dans les autres onglets,
@@ -78,13 +80,13 @@ export function AppointmentsPage() {
     return (
         <div className="appointments-page">
             <div className="appointments-page__header">
-                <h1>Rendez-vous</h1>
-                <p>Gérez les rendez-vous de votre organisation</p>
+                <h1>{t('Rendez-vous')}</h1>
+                <p>{t('Gérez les rendez-vous de votre organisation')}</p>
             </div>
 
             <div className="appointments-page__actions">
                 <Button variant="primary" onClick={handleNewAppointmentClick}>
-                    + Nouveau rendez-vous
+                    {t('+ Nouveau rendez-vous')}
                 </Button>
             </div>
 
@@ -112,8 +114,8 @@ export function AppointmentsPage() {
                     maxWidth={400}
                     closeThreshold={80}
                     collapsedWidth={35}
-                    title="Calendrier"
-                    header={<div> Choisissez une date</div>}
+                    title={t('Calendrier')}
+                    header={<div> {t('Choisissez une date')}</div>}
                 >
                     <div className="appointments-page__right-content">
                         <AppointmentsCalendar

@@ -33,22 +33,14 @@ class CareTeamAssignmentMapper
             $assignment->setRole($role);
         }
 
-        // Conversion de startDate (DateTimeImmutable -> DateTime)
+        // L'entité persiste des dates immuables ; normaliser toute valeur du DTO.
         if ($dto->startDate !== null) {
-            $startDate = $dto->startDate instanceof \DateTimeImmutable
-                ? \DateTime::createFromImmutable($dto->startDate)
-                : ($dto->startDate instanceof \DateTime ? $dto->startDate : new \DateTime($dto->startDate));
-
-            $assignment->setStartDate($startDate);
+            $assignment->setStartDate(\DateTimeImmutable::createFromInterface($dto->startDate));
         }
 
-        // Conversion de endDate (DateTimeImmutable -> DateTime)
+        // Même règle pour la date de fin.
         if ($dto->endDate !== null) {
-            $endDate = $dto->endDate instanceof \DateTimeImmutable
-                ? \DateTime::createFromImmutable($dto->endDate)
-                : ($dto->startDate instanceof \DateTime ? $dto->endDate : new \DateTime($dto->endDate));
-
-            $assignment->setEndDate($endDate);
+            $assignment->setEndDate(\DateTimeImmutable::createFromInterface($dto->endDate));
         } else {
             $assignment->setEndDate(null);
         }

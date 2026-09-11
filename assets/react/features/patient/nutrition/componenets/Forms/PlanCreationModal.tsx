@@ -5,6 +5,7 @@ import { FormField } from '@/react/components/Forms/FormField';
 import { Select } from '@/react/components/Forms/Select';
 import { Input } from '@/react/components/Forms/Input';
 import { FoodOption } from '../../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface PlanCreationModalProps {
     isOpen: boolean;
@@ -23,13 +24,7 @@ interface PlanCreationModalProps {
     isSubmitting: boolean;
 }
 
-const MEAL_TYPE_OPTIONS = [
-    { value: 'BREAKFAST', label: 'Petit-déjeuner' },
-    { value: 'LUNCH', label: 'Déjeuner' },
-    { value: 'DINNER', label: 'Dîner' },
-    { value: 'SNACK', label: 'Collation' },
-    { value: 'OTHER', label: 'Autre (personnalisé)' },
-];
+const MEAL_TYPE_VALUES = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK', 'OTHER'] as const;
 
 const UNIT_OPTIONS = [
     { value: 'g', label: 'g' },
@@ -52,6 +47,7 @@ export function PlanCreationModal({
                                       onSubmit,
                                       isSubmitting,
                                   }: PlanCreationModalProps) {
+    const { t } = useI18n();
     const [mealType, setMealType] = useState<string>('LUNCH');
     const [customMealType, setCustomMealType] = useState('');
     const [name, setName] = useState('');
@@ -61,6 +57,16 @@ export function PlanCreationModal({
     const [units, setUnits] = useState<Record<string, string>>({});
 
     const isCustomType = mealType === 'OTHER';
+
+    const mealTypeOptions = MEAL_TYPE_VALUES.map((value) => ({
+        value,
+        label: t(value === 'OTHER' ? 'Autre (personnalisé)' : value === 'BREAKFAST' ? 'Petit-déjeuner' : value === 'LUNCH' ? 'Déjeuner' : value === 'DINNER' ? 'Dîner' : 'Collation'),
+    }));
+
+    const unitOptions = UNIT_OPTIONS.map((o) => ({
+        ...o,
+        label: t(o.label),
+    }));
 
     const handleQuantityChange = (foodId: string, value: string) => {
         setQuantities((prev) => ({ ...prev, [foodId]: value }));
@@ -95,7 +101,7 @@ export function PlanCreationModal({
         });
 
         onSubmit({
-            name: name.trim() || `Repas ${finalMealType}`,
+            name: name.trim() || t('Repas {{ type }}', { type: finalMealType }),
             description: description.trim() || undefined,
             mealType: finalMealType,
             items,
@@ -111,39 +117,39 @@ export function PlanCreationModal({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Créer un plan repas">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Créer un plan repas')}>
             <form onSubmit={handleSubmit} className="dossier-form">
-                <FormField label="Nom du repas">
+                <FormField label={t('Nom du repas')}>
                     <Input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Ex: Déjeuner du lundi"
+                        placeholder={t('Ex: Déjeuner du lundi')}
                     />
                 </FormField>
 
-                <FormField label="Description">
+                <FormField label={t('Description')}>
                     <Input
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Optionnel"
+                        placeholder={t('Optionnel')}
                     />
                 </FormField>
 
-                <FormField label="Type de repas *">
+                <FormField label={t('Type de repas *')}>
                     <Select
                         value={mealType}
                         onChange={(e) => setMealType(e.target.value)}
-                        options={MEAL_TYPE_OPTIONS}
+                        options={mealTypeOptions}
                         required
                     />
                 </FormField>
 
                 {isCustomType && (
-                    <FormField label="Type personnalisé *">
+                    <FormField label={t('Type personnalisé *')}>
                         <Input
                             value={customMealType}
                             onChange={(e) => setCustomMealType(e.target.value)}
-                            placeholder="Ex: Brunch, Collation soir"
+                            placeholder={t('Ex: Brunch, Collation soir')}
                             required
                         />
                     </FormField>
@@ -162,13 +168,13 @@ export function PlanCreationModal({
                                     step="1"
                                     value={quantities[food.id] || '100'}
                                     onChange={(e) => handleQuantityChange(food.id, e.target.value)}
-                                    placeholder="Quantité"
+                                    placeholder={t('Quantité')}
                                     required
                                 />
                                 <Select
                                     value={units[food.id] || 'g'}
                                     onChange={(e) => handleUnitChange(food.id, e.target.value)}
-                                    options={UNIT_OPTIONS}
+                                    options={unitOptions}
                                     required
                                 />
                             </div>
@@ -180,16 +186,16 @@ export function PlanCreationModal({
                                 step="0.1"
                                 value={breadUnitsMap[food.id] || ''}
                                 onChange={(e) => handleBreadUnitsChange(food.id, e.target.value)}
-                                placeholder="Unités pain"
+                                placeholder={t('Unités pain')}
                             />
                         </div>
                     ))}
                 </div>
 
                 <div className="dossier-form__actions">
-                    <Button type="button" variant="secondary" onClick={onClose}>Annuler</Button>
+                    <Button type="button" variant="secondary" onClick={onClose}>{t('Annuler')}</Button>
                     <Button type="submit" variant="primary" disabled={isSubmitting}>
-                        {isSubmitting ? 'Création...' : 'Créer le plan'}
+                        {isSubmitting ? t('Création...') : t('Créer le plan')}
                     </Button>
                 </div>
             </form>

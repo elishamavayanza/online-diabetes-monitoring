@@ -1,19 +1,18 @@
 framework:
     cache:
-        # Unique name of your app: used to compute stable namespaces for cache keys.
-        #prefix_seed: your_vendor_name/app_name
+        prefix_seed: diabcare/diabcare_api
 
-        # The "app" cache stores to the filesystem by default.
-        # The data in this cache should persist between deploys.
-        # Other options include:
-
-        # Redis
-        #app: cache.adapter.redis
-        #default_redis_provider: redis://localhost
-
-        # APCu (not recommended with heavy random-write workloads as memory fragmentation can cause perf issues)
-        #app: cache.adapter.apcu
-
-        # Namespaced pools use the above "app" backend by default
-        #pools:
-            #my.dedicated.cache: null
+        # Pool applicatif pour les données de catalogue (aliments, insulines,
+        # etc.) quasi-statiques, lues par de nombreux utilisateurs.
+        # Par défaut : système de fichiers. Pour monter en charge sur Redis,
+        # décommenter et répartir les pools sur un provider partagé :
+        #
+        #   app: cache.adapter.redis
+        #   default_redis_provider: '%env(resolve:REDIS_DSN)%'
+        #
+        # (ex: REDIS_DSN=redis://127.0.0.1:6379)
+        pools:
+            api.catalog:
+                adapter: cache.adapter.filesystem
+                # TTL par défaut des entrées du catalogue (300 s).
+                default_lifetime: 300

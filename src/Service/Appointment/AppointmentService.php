@@ -37,7 +37,7 @@ class AppointmentService
     {
         $feedback = new Feedback();
         try {
-            $appointments = $this->repository->findBy(['patient' => $patient], ['scheduledAt' => 'DESC']);
+            $appointments = $this->repository->findByPatientOrderedByScheduledAt($patient);
             $responseDTOs = array_map(fn($app) => $this->mapper->mapEntityToResponse($app), $appointments);
 
             $feedback->setData($responseDTOs)
@@ -55,7 +55,7 @@ class AppointmentService
         try {
             $this->securityService->checkOrganizationAccess($organization, SecurityAction::VIEW_APPOINTMENT);
 
-            $appointments = $this->repository->findBy(['organization' => $organization], ['scheduledAt' => 'DESC']);
+            $appointments = $this->repository->findByOrganizationOrderedByScheduledAt($organization);
             $responseDTOs = array_map(fn($app) => $this->mapper->mapEntityToResponse($app), $appointments);
 
             $feedback->setData($responseDTOs)
@@ -83,7 +83,7 @@ class AppointmentService
             }
 
             // Filtrer les rendez-vous par ce professionnel
-            $appointments = $this->repository->findBy(['professional' => $professional], ['scheduledAt' => 'DESC']);
+            $appointments = $this->repository->findByProfessionalOrderedByScheduledAt($professional);
             $responseDTOs = array_map(fn($app) => $this->mapper->mapEntityToResponse($app), $appointments);
 
             $feedback->setData($responseDTOs)

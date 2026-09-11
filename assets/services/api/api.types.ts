@@ -33,6 +33,15 @@ export interface RequestConfig {
     skipTokenRefresh?: boolean;
     /** Empêche une boucle après une nouvelle tentative suivant un 401. */
     hasRetriedAfterRefresh?: boolean;
+    /**
+     * Nombre de nouvelles tentatives pour CETTE requête.
+     * Sans valeur : retry uniquement pour les requêtes idempotentes
+     * (GET/PUT/DELETE). Pour rejouer un POST (idempotent métier),
+     * passer explicitement `retries`.
+     */
+    retries?: number;
+    /** Délai de base du backoff exponentiel en ms (défaut : 300) */
+    retryDelay?: number;
 }
 
 // ─────────────────────────────────────────
@@ -93,6 +102,21 @@ export class ApiError extends Error {
     get isServerError(): boolean {
         return this.status >= 500;
     }
+
+    /** Vérifie si l'erreur est une erreur réseau (aucune réponse reçue) */
+    get isNetworkError(): boolean {
+        return this.status === 0;
+    }
+
+    /** Vérifie si l'erreur est un timeout */
+    get isTimeout(): boolean {
+        return this.status === 408;
+    }
+
+    /** Vérifie si la requête a échoué car le navigateur est hors-ligne */
+    get isOffline(): boolean {
+        return this.status === 0 && typeof navigator !== 'undefined' && navigator.onLine === false;
+    }
 }
 
 // ─────────────────────────────────────────
@@ -120,6 +144,8 @@ export interface ClientConfig {
     defaultHeaders?: Record<string, string>;
     /** Nombre de tentatives automatiques sur erreur réseau */
     retries?: number;
+    /** Délai de base du backoff exponentiel en ms (défaut : 300) */
+    retryDelay?: number;
 }
 
 // ─────────────────────────────────────────

@@ -8,6 +8,7 @@ import type {
     ApiResponse,
     ClientConfig,
     ApiErrorData,
+    HttpMethod,
 } from './api.types';
 import { ApiError } from './api.types';
 import {
@@ -27,7 +28,9 @@ import { isJsonContentType } from '../security/security.utils';
 
 const DEFAULT_TIMEOUT    = 30_000; // 30 secondes
 const DEFAULT_BASE_URL   = '/api';
-const DEFAULT_RETRIES    = 1;
+const DEFAULT_RETRIES    = 2;
+const DEFAULT_RETRY_DELAY = 300; // base du backoff exponentiel (ms)
+const MAX_RETRY_DELAY    = 10_000; // plafond du backoff (ms)
 
 // ─────────────────────────────────────────
 // Classe principale
@@ -47,6 +50,7 @@ class HttpClient {
             timeout:        config.timeout        ?? DEFAULT_TIMEOUT,
             defaultHeaders: config.defaultHeaders ?? {},
             retries:        config.retries        ?? DEFAULT_RETRIES,
+            retryDelay:     config.retryDelay     ?? DEFAULT_RETRY_DELAY,
         };
 
         // Enregistrement des intercepteurs par défaut
@@ -150,20 +154,20 @@ class HttpClient {
             const body = await this.parseBody(raw);
 
             if (!raw.ok) {
-                // Retry sur erreurs réseau serveur (5xx) si tentatives restantes
-                const isServerError = raw.status >= 500;
-                if (isServerError && attempt < this.config.retries) {
-                    await this.delay(500 * (attempt + 1));
-                    return this.executeRequest<T>(config, attempt + 1);
-                }
-
-                throw new ApiError(
+                // Erreur HTTP : retry contrôlé (backoff exponentiel) si rejouable
+                const apiError = new ApiError(
                     (body as ApiErrorData)?.message ?? raw.statusText,
                     raw.status,
                     raw.statusText,
                     (body as ApiErrorData) ?? {},
                     config,
                 );
+                if (this.isRetryableError(apiError) && attempt < this.maxRetries(config)) {
+                    await this.delay(this.backoff(attempt, config.retryDelay ?? this.config.retryDelay));
+                    return this.executeRequest<T>(config, attempt + 1);
+                }
+                this.throwOfflineIfNeeded(apiError, config);
+                throw apiError;
             }
 
             return {
@@ -179,32 +183,83 @@ class HttpClient {
 
             if (err instanceof ApiError) throw err;
 
-            // Erreur réseau / timeout
+            // Timeout explicite (n'attend pas la réponse du serveur)
             if (err instanceof DOMException && err.name === 'TimeoutError') {
-                throw new ApiError('La requête a expiré', 408, 'Request Timeout', {}, config);
+                const timeoutError = new ApiError('La requête a expiré', 408, 'Request Timeout', {}, config);
+                if (attempt < this.maxRetries(config)) {
+                    await this.delay(this.backoff(attempt, config.retryDelay ?? this.config.retryDelay));
+                    return this.executeRequest<T>(config, attempt + 1);
+                }
+                throw timeoutError;
             }
             if (err instanceof DOMException && err.name === 'AbortError') {
                 throw new ApiError('Requête annulée', 0, 'Aborted', {}, config);
             }
 
-            // Retry sur erreur réseau
-            if (attempt < this.config.retries) {
-                await this.delay(500 * (attempt + 1));
-                return this.executeRequest<T>(config, attempt + 1);
-            }
-
-            throw new ApiError(
+            // Erreur réseau : retry uniquement si connecté (backoff exponentiel)
+            const networkError = new ApiError(
                 (err as Error)?.message ?? 'Erreur réseau inconnue',
                 0,
                 'Network Error',
                 {},
                 config,
             );
+            if (this.isRetryableError(networkError) && attempt < this.maxRetries(config)) {
+                await this.delay(this.backoff(attempt, config.retryDelay ?? this.config.retryDelay));
+                return this.executeRequest<T>(config, attempt + 1);
+            }
+            this.throwOfflineIfNeeded(networkError, config);
+            throw networkError;
         }
     }
 
     private delay(ms: number): Promise<void> {
         return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    // ── Helpers de retry ────────────────────────
+
+    /**
+     * Backoff exponentiel avec jitter (+/-50% du slot).
+     * Ex. base 300 → ~300, ~600, ~1200, ... plafonné à 10s.
+     */
+    private backoff(attempt: number, base: number): number {
+        const slot = Math.min(MAX_RETRY_DELAY, base * 2 ** attempt);
+        return slot / 2 + Math.random() * slot;
+    }
+
+    /** Méthodes idempotentes : rejouées automatiquement sans risque. */
+    private isIdempotent(method?: HttpMethod): boolean {
+        return method === undefined || method === 'GET' || method === 'PUT' || method === 'DELETE';
+    }
+
+    /** Nombre maximal de tentatives pour une requête. */
+    private maxRetries(config: RequestConfig): number {
+        if (config.retries !== undefined) return config.retries;
+        return this.isIdempotent(config.method) ? this.config.retries : 0;
+    }
+
+    /** Une erreur est-elle rejouable ? */
+    private isRetryableError(error: ApiError): boolean {
+        if (error.status >= 500) return true;          // erreur serveur temporaire
+        if (error.status === 408) return true;         // timeout
+        if (error.status === 429) return true;         // rate limit
+        if (error.status === 0) return navigator.onLine !== false; // réseau : seulement si connecté
+        return false;
+    }
+
+    /** Une erreur réseau est-elle un simple état hors-ligne ? */
+    private throwOfflineIfNeeded(error: ApiError, config: RequestConfig): never {
+        if (error.isOffline) {
+            throw new ApiError(
+                'Vous êtes hors-ligne. Vérifiez votre connexion.',
+                0,
+                'Offline',
+                {},
+                config,
+            );
+        }
+        throw error;
     }
 
     // ── Méthode principale ───────────────────────

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEmptyState, UseEmptyStateProps } from '../../../hook-components/Data/EmptyState';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 // Icône par défaut – une boîte vide stylisée
 const DefaultIcon = () => (
@@ -28,6 +29,7 @@ export function EmptyState({
                                description,
                                action,
                            }: EmptyStateProps) {
+    const { t } = useI18n();
     const { classes } = useEmptyState({ variant, size, fullWidth, className });
 
     return (
@@ -35,8 +37,8 @@ export function EmptyState({
             <div className="empty-state__icon" aria-hidden="true">
                 {icon || <DefaultIcon />}
             </div>
-            <h3 className="empty-state__title">{title}</h3>
-            {description && <p className="empty-state__description">{description}</p>}
+            <h3 className="empty-state__title">{typeof title === 'string' ? t(title) : title}</h3>
+            {description && <p className="empty-state__description">{typeof description === 'string' ? t(description) : description}</p>}
             {action && <div className="empty-state__action">{action}</div>}
         </div>
     );

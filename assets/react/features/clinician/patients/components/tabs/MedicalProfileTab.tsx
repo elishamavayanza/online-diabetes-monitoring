@@ -16,10 +16,12 @@ import {
 } from '../../types';
 import { useMedicalProfileTab } from "@/react/features/clinician/patients/hooks/useMedicalProfileTab";
 import { useAuth } from '@/react/app/providers/AuthProvider';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { RecordAuthor } from '../RecordAuthor';
 import { RecordOwnershipInfo, isRecordCreator } from '../../utils/ownershipUtils';
 
 export function MedicalProfileTab() {
+    const { t } = useI18n();
     const {
         data,
         isReadOnly,
@@ -53,9 +55,9 @@ export function MedicalProfileTab() {
         return (
             <div className="patient-dossier-tab__item-actions">
                 {extraActions}
-                <Button variant="secondary" size="small" onClick={onEdit}>Modifier</Button>
+                <Button variant="secondary" size="small" onClick={onEdit}>{t('Modifier')}</Button>
                 <Button variant="danger" size="small" onClick={() => setDeleteTarget({ type, id, label })}>
-                    Supprimer
+                    {t('Supprimer')}
                 </Button>
             </div>
         );
@@ -66,15 +68,15 @@ export function MedicalProfileTab() {
             {/* Section Allergies */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
-                    <h3>Allergies</h3>
+                    <h3>{t('Allergies')}</h3>
                     {!isReadOnly && (
                         <Button variant="primary" size="small" onClick={() => openAllergyModal()}>
-                            + Ajouter une allergie
+                            {t('+ Ajouter une allergie')}
                         </Button>
                     )}
                 </div>
                 {allergies.length === 0 ? (
-                    <Card><p>Aucune allergie enregistrée.</p></Card>
+                    <Card><p>{t('Aucune allergie enregistrée.')}</p></Card>
                 ) : (
                     <div className="patient-dossier-tab__grid">
                         {allergies.map((allergy: PatientAllergy) => (
@@ -83,12 +85,12 @@ export function MedicalProfileTab() {
                                     <h4>{allergy.name}</h4>
                                     {allergy.severity && (
                                         <Badge variant={allergy.severity === 'SEVERE' ? 'error' : 'warning'}>
-                                            {getAllergySeverityLabel(allergy.severity)}
+                                            {t(getAllergySeverityLabel(allergy.severity))}
                                         </Badge>
                                     )}
                                 </div>
-                                {allergy.reaction && <p><strong>Réaction :</strong> {allergy.reaction}</p>}
-                                {allergy.notes && <p><strong>Notes :</strong> {allergy.notes}</p>}
+                                {allergy.reaction && <p><strong>{t('Réaction :')}</strong> {allergy.reaction}</p>}
+                                {allergy.notes && <p><strong>{t('Notes :')}</strong> {allergy.notes}</p>}
                                 <RecordAuthor record={allergy} />
                                 {renderActions('allergy', allergy, allergy.id, allergy.name, () => openAllergyModal(allergy))}
                             </Card>
@@ -100,25 +102,25 @@ export function MedicalProfileTab() {
             {/* Section Diagnostics */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
-                    <h3>Diagnostics</h3>
+                    <h3>{t('Diagnostics')}</h3>
                     {!isReadOnly && (
                         <Button variant="primary" size="small" onClick={() => openDiagnosisModal()}>
-                            + Ajouter un diagnostic
+                            {t('+ Ajouter un diagnostic')}
                         </Button>
                     )}
                 </div>
                 {diagnoses.length === 0 ? (
-                    <Card><p>Aucun diagnostic enregistré.</p></Card>
+                    <Card><p>{t('Aucun diagnostic enregistré.')}</p></Card>
                 ) : (
                     <div className="patient-dossier-tab__grid">
                         {diagnoses.map((diag: PatientDiagnosis) => (
                             <Card key={diag.id}>
                                 <div className="patient-dossier-tab__card-header">
                                     <h4>{diag.conditionName}</h4>
-                                    {diag.status && <Badge variant="info">{getDiagnosisStatusLabel(diag.status)}</Badge>}
+                                    {diag.status && <Badge variant="info">{t(getDiagnosisStatusLabel(diag.status))}</Badge>}
                                 </div>
-                                {diag.diagnosedAt && <p><strong>Date :</strong> {formatDisplayDate(diag.diagnosedAt)}</p>}
-                                {diag.description && <p><strong>Description :</strong> {diag.description}</p>}
+                                {diag.diagnosedAt && <p><strong>{t('Date :')}</strong> {formatDisplayDate(diag.diagnosedAt)}</p>}
+                                {diag.description && <p><strong>{t('Description :')}</strong> {diag.description}</p>}
                                 <RecordAuthor record={diag} />
                                 {renderActions('diagnosis', diag, diag.id, diag.conditionName, () => openDiagnosisModal(diag))}
                             </Card>
@@ -130,32 +132,32 @@ export function MedicalProfileTab() {
             {/* Section Consentements médicaux (lecture seule pour clinicien/nutritionniste) */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
-                    <h3>Consentements médicaux</h3>
+                    <h3>{t('Consentements médicaux')}</h3>
                     {!isReadOnly && !isClinician && ( // ✅ pas de bouton pour clinicien
                         <Button variant="primary" size="small" onClick={() => openConsentModal()}>
-                            + Enregistrer un consentement
+                            {t('+ Enregistrer un consentement')}
                         </Button>
                     )}
                 </div>
                 {consents.length === 0 ? (
-                    <Card><p>Aucun consentement enregistré.</p></Card>
+                    <Card><p>{t('Aucun consentement enregistré.')}</p></Card>
                 ) : (
                     <div className="patient-dossier-tab__grid">
                         {consents.map((consent: PatientMedicalConsent) => (
                             <Card key={consent.id}>
                                 <div className="patient-dossier-tab__card-header">
-                                    <h4>{getConsentTypeLabel(consent.consentType)}</h4>
+                                    <h4>{t(getConsentTypeLabel(consent.consentType))}</h4>
                                     <Badge variant={consent.revokedAt ? 'error' : 'success'}>
-                                        {consent.revokedAt ? 'Révoqué' : 'Actif'}
+                                        {consent.revokedAt ? t('Révoqué') : t('Actif')}
                                     </Badge>
                                 </div>
-                                <p><strong>Accordé le :</strong> {formatDisplayDateTime(consent.grantedAt)}</p>
+                                <p><strong>{t('Accordé le :')}</strong> {formatDisplayDateTime(consent.grantedAt)}</p>
                                 {consent.revokedAt && (
-                                    <p><strong>Révoqué le :</strong> {formatDisplayDateTime(consent.revokedAt)}</p>
+                                    <p><strong>{t('Révoqué le :')}</strong> {formatDisplayDateTime(consent.revokedAt)}</p>
                                 )}
                                 {consent.documentUrl && (
                                     <p className="patient-dossier-tab__document">
-                                        <strong>Document :</strong>{' '}
+                                        <strong>{t('Document :')}</strong>{' '}
                                         <button
                                             type="button"
                                             className="download-button"
@@ -176,7 +178,7 @@ export function MedicalProfileTab() {
                                                 <polyline points="7 10 12 15 17 10" />
                                                 <line x1="12" y1="15" x2="12" y2="3" />
                                             </svg>
-                                            Télécharger le document
+                                            {t('Télécharger le document')}
                                         </button>
                                     </p>
                                 )}
@@ -190,7 +192,7 @@ export function MedicalProfileTab() {
                                         () => openConsentModal(consent),
                                         !consent.revokedAt ? (
                                             <Button variant="outline" size="small" onClick={() => handleRevokeConsent(consent)}>
-                                                Révoquer
+                                                {t('Révoquer')}
                                             </Button>
                                         ) : null,
                                     )
@@ -204,22 +206,22 @@ export function MedicalProfileTab() {
             {/* Section Contacts d'urgence (lecture seule pour clinicien/nutritionniste) */}
             <div className="patient-dossier-tab__section">
                 <div className="patient-dossier-tab__toolbar">
-                    <h3>Contacts d'urgence</h3>
+                    <h3>{t("Contacts d'urgence")}</h3>
                     {!isReadOnly && !isClinician && ( // ✅ pas de bouton pour clinicien
                         <Button variant="primary" size="small" onClick={() => openEmergencyContactModal()}>
-                            + Ajouter un contact
+                            {t('+ Ajouter un contact')}
                         </Button>
                     )}
                 </div>
                 {emergencyContacts.length === 0 ? (
-                    <Card><p>Aucun contact d'urgence.</p></Card>
+                    <Card><p>{t("Aucun contact d'urgence.")}</p></Card>
                 ) : (
                     <div className="patient-dossier-tab__grid">
                         {emergencyContacts.map((contact: PatientEmergencyContact) => (
                             <Card key={contact.id}>
                                 <h4>{contact.fullName}</h4>
-                                {contact.relationship && <p><strong>Relation :</strong> {contact.relationship}</p>}
-                                {contact.phone && <p><strong>Téléphone :</strong> {contact.phone}</p>}
+                                {contact.relationship && <p><strong>{t('Relation :')}</strong> {contact.relationship}</p>}
+                                {contact.phone && <p><strong>{t('Téléphone :')}</strong> {contact.phone}</p>}
                                 <RecordAuthor record={contact} />
                                 {!isReadOnly && !isClinician && ( //  actions masquées pour clinicien
                                     renderActions('contact', contact, contact.id, contact.fullName, () => openEmergencyContactModal(contact))
@@ -234,10 +236,10 @@ export function MedicalProfileTab() {
                 isOpen={!!deleteTarget}
                 onClose={() => setDeleteTarget(null)}
                 onConfirm={handleDelete}
-                title="Confirmer la suppression"
-                message={`Voulez-vous vraiment supprimer « ${deleteTarget?.label} » ?`}
-                confirmLabel={isDeleting ? 'Suppression...' : 'Supprimer'}
-                cancelLabel="Annuler"
+                title={t('Confirmer la suppression')}
+                message={t('Voulez-vous vraiment supprimer « {{ label }} » ?', { label: deleteTarget?.label ?? '' })}
+                confirmLabel={isDeleting ? t('Suppression...') : t('Supprimer')}
+                cancelLabel={t('Annuler')}
             />
         </div>
     );

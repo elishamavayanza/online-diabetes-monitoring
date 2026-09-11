@@ -9,6 +9,7 @@ import { Spinner } from '@/react/components/UI/Spinner';
 import { createPrescriptionVersion } from '../../../services/dossierActionsService';
 import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 import { PatientPrescription } from '../../../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface PrescriptionVersionFormModalProps {
     isOpen: boolean;
@@ -25,6 +26,7 @@ export function PrescriptionVersionFormModal({
     currentVersionCount,
     onSuccess,
 }: PrescriptionVersionFormModalProps) {
+    const { t } = useI18n();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [form, setForm] = useState({ changesSummary: '' });
@@ -45,7 +47,7 @@ export function PrescriptionVersionFormModal({
         if (!prescription) return;
         const modifiedById = getCurrentUserIdFromToken();
         if (!modifiedById) {
-            setError('Impossible d\'identifier l\'auteur.');
+            setError(t("Impossible d'identifier l'auteur."));
             return;
         }
         setIsLoading(true);
@@ -67,21 +69,21 @@ export function PrescriptionVersionFormModal({
             onSuccess();
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erreur lors de la création de la version.');
+            setError(err instanceof Error ? err.message : t('Erreur lors de la création de la version.'));
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Archiver une version">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Archiver une version')}>
             {error && <Alert variant="error">{error}</Alert>}
             <p className="dossier-form__hint">
-                Crée un instantané de la prescription actuelle (version {currentVersionCount + 1}).
+                {t('Crée un instantané de la prescription actuelle (version {{ number }}).', { number: currentVersionCount + 1 })}
             </p>
             <form onSubmit={handleSubmit} className="dossier-form">
                 <div className="dossier-form__grid">
-                    <FormField label="Résumé des modifications" htmlFor="changesSummary">
+                    <FormField label={t('Résumé des modifications')} htmlFor="changesSummary">
                         <Textarea
                             id="changesSummary"
                             name="changesSummary"
@@ -89,17 +91,17 @@ export function PrescriptionVersionFormModal({
                             value={form.changesSummary}
                             onChange={handleChange}
                             fullWidth
-                            placeholder="ex: Modification de la posologie de l'insuline..."
+                            placeholder={t("ex: Modification de la posologie de l'insuline...")}
                         />
                     </FormField>
-                    <FormField label="Version">
+                    <FormField label={t('Version')}>
                         <Input value={`v${currentVersionCount + 1}`} disabled />
                     </FormField>
                 </div>
                 <div className="dossier-form__actions">
-                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>Annuler</Button>
+                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>{t('Annuler')}</Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : 'Archiver'}
+                        {isLoading ? <Spinner size="small" /> : t('Archiver')}
                     </Button>
                 </div>
             </form>

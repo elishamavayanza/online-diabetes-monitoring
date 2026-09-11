@@ -5,12 +5,14 @@ import { usePatientDossierContext } from '../../contexts/PatientDossierContext';
 import { formatDisplayDateTime, isInPeriod } from '../../utils/dossierUtils';
 import { isRecordCreator } from '../../utils/ownershipUtils';
 import { PatientMedicalNote } from '../../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 import {MedicalNoteEditModal} from "@/react/features/clinician/patients/components/modals/MedicalNoteEditModal";
 
 export function NotesTab() {
     const { data, period, selectedDate, isReadOnly, openNoteModal, reload } =
         usePatientDossierContext();
 
+    const { t } = useI18n();
     const [editingNote, setEditingNote] = useState<PatientMedicalNote | null>(null);
 
     const notes = data.notes
@@ -20,17 +22,17 @@ export function NotesTab() {
     return (
         <div className="patient-dossier-tab patient-dossier-tab--notes">
             <div className="patient-dossier-tab__toolbar">
-                <p className="patient-dossier-tab__hint">Notes et observations cliniques.</p>
+                <p className="patient-dossier-tab__hint">{t('Notes et observations cliniques.')}</p>
                 {!isReadOnly && (
                     <Button variant="primary" onClick={openNoteModal}>
-                        + Nouvelle note
+                        {t('+ Nouvelle note')}
                     </Button>
                 )}
             </div>
 
             {notes.length === 0 ? (
                 <Card>
-                    <p>Aucune note sur la période sélectionnée.</p>
+                    <p>{t('Aucune note sur la période sélectionnée.')}</p>
                 </Card>
             ) : (
                 <div className="patient-dossier-tab__notes">
@@ -49,7 +51,7 @@ export function NotesTab() {
                                         size="small"
                                         onClick={() => setEditingNote(note)}
                                     >
-                                        Modifier
+                                        {t('Modifier')}
                                     </Button>
                                 </div>
                             )}

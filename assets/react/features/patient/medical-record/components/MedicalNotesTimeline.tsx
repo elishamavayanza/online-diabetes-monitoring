@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { MedicalNoteInfo } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface MedicalNotesTimelineProps {
     notes: MedicalNoteInfo[];
@@ -30,6 +31,7 @@ function formatTime(iso: string): string {
 }
 
 export function MedicalNotesTimeline({ notes, selectedDate, onClearFilter }: MedicalNotesTimelineProps) {
+    const { t } = useI18n();
     const filtered = useMemo(() => {
         if (!selectedDate) return notes;
         const key = toDateKey(selectedDate);
@@ -58,14 +60,14 @@ export function MedicalNotesTimeline({ notes, selectedDate, onClearFilter }: Med
     return (
         <div className="medical-notes-timeline">
             <div className="medical-notes-timeline__header">
-                <h2>Notes médicales</h2>
+                <h2>{t('Notes médicales')}</h2>
                 {selectedDate && (
                     <button
                         type="button"
                         className="medical-notes-timeline__clear"
                         onClick={onClearFilter}
                     >
-                        Afficher toutes les dates
+                        {t('Afficher toutes les dates')}
                     </button>
                 )}
             </div>
@@ -73,8 +75,8 @@ export function MedicalNotesTimeline({ notes, selectedDate, onClearFilter }: Med
             {filtered.length === 0 ? (
                 <p className="medical-notes-timeline__empty">
                     {selectedDate
-                        ? 'Aucune note médicale enregistrée à cette date.'
-                        : 'Aucune note médicale pour le moment.'}
+                        ? t('Aucune note médicale enregistrée à cette date.')
+                        : t('Aucune note médicale pour le moment.')}
                 </p>
             ) : (
                 <ol className="medical-notes-timeline__list">
@@ -93,7 +95,7 @@ export function MedicalNotesTimeline({ notes, selectedDate, onClearFilter }: Med
                                             </span>
                                             {note.authorName && (
                                                 <span className="medical-notes-timeline__note-author">
-                                                    Par {note.authorName}
+                                                    {t('Par {{ authorName }}', { authorName: note.authorName })}
                                                 </span>
                                             )}
                                         </div>

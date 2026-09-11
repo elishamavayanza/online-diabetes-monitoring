@@ -22,8 +22,12 @@ export function useUpdateMedication(initialData: MedicationFormValues, medicatio
             showToast({ type: 'error', message: 'Le nom et la classe sont obligatoires.' });
             return false;
         }
-        if (form.category === 'INSULIN' && (!form.insulinType || !form.concentration)) {
-            showToast({ type: 'error', message: 'Le type et la concentration sont obligatoires pour une insuline.' });
+        if (form.category === 'INSULIN' && !form.insulinType) {
+            showToast({ type: 'error', message: "Sélectionnez le type d'insuline." });
+            return false;
+        }
+        if (form.category === 'INSULIN' && !form.concentration?.trim()) {
+            showToast({ type: 'error', message: "Saisissez la concentration de l'insuline." });
             return false;
         }
         if (form.category === 'GENERAL' && !form.form) {

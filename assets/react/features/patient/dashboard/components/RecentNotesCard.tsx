@@ -1,4 +1,5 @@
 import { Card } from '@/react/components/UI/Card';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { RecentNote } from '../types';
 
 interface RecentNotesCardProps {
@@ -12,18 +13,20 @@ function formatDate(iso: string): string {
 }
 
 export function RecentNotesCard({ notes }: RecentNotesCardProps) {
+    const { t } = useI18n();
+
     if (notes.length === 0) {
         return (
             <Card className="recent-notes-card">
-                <h3>Notes médicales récentes</h3>
-                <p className="recent-notes-card__empty">Aucune note pour le moment.</p>
+                <h3>{t('Notes médicales récentes')}</h3>
+                <p className="recent-notes-card__empty">{t('Aucune note pour le moment.')}</p>
             </Card>
         );
     }
 
     return (
         <Card className="recent-notes-card">
-            <h3>Notes médicales récentes</h3>
+            <h3>{t('Notes médicales récentes')}</h3>
             <ul>
                 {notes.map((note) => (
                     <li key={note.id} className="recent-notes-card__item">

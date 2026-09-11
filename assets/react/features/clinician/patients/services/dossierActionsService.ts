@@ -8,6 +8,7 @@ export async function createBloodGlucose(patientId: string, data: {
     value: string;
     unit: string;
     context: string;
+    measuredAt?: string;
 }) {
     const response = await apiClient.post<ApiFeedback<unknown>>(
         `/patients/${patientId}/blood-glucose-measurements`,
@@ -81,7 +82,7 @@ export async function createMeasurement(
 ) {
     switch (type) {
         case 'bloodGlucose':
-            return createBloodGlucose(patientId, payload as { value: string; unit: string; context: string });
+            return createBloodGlucose(patientId, payload as { value: string; unit: string; context: string; measuredAt?: string });
         case 'bloodPressure':
             return createBloodPressure(patientId, payload as { systolic: string; diastolic: string; pulse?: string });
         case 'hba1c':

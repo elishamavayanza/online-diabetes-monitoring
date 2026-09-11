@@ -89,6 +89,61 @@ export async function fetchProfessionals(): Promise<Professional[]> {
     }
 }
 
+export interface PaginatedProfessionals {
+    items: Professional[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export interface ProfessionalsQuery {
+    q?: string;
+    page?: number;
+    limit?: number;
+    sort?: string;
+    order?: 'asc' | 'desc';
+    org?: string;
+}
+
+/**
+ * Liste paginée des professionnels avec recherche / tri serveur.
+ */
+export async function fetchPaginatedProfessionals(query: ProfessionalsQuery = {}): Promise<PaginatedProfessionals> {
+    const { q, page = 1, limit = 10, sort, order = 'desc', org } = query;
+
+    const params: Record<string, string | number | undefined> = {
+        page,
+        limit,
+        q: q || undefined,
+        sort,
+        order,
+        org: org || undefined,
+    };
+
+    const response = await apiClient.get<ApiFeedback<any>>('/professionals', { params });
+
+    if (response.data.error) {
+        throw new Error(response.data.message || 'Erreur lors du chargement des professionnels.');
+    }
+
+    const payload = response.data.data;
+
+    // Fallback : tableau (ancien contrat) traité comme une seule page.
+    const items = Array.isArray(payload) ? payload.slice(0, limit) : (payload?.items ?? []);
+    const total = Array.isArray(payload) ? payload.length : (payload?.total ?? items.length);
+
+    return {
+        items: items.map(mapApiToProfessional),
+        total,
+        page: Array.isArray(payload) ? 1 : (payload?.page ?? page),
+        limit: Array.isArray(payload) ? limit : (payload?.limit ?? limit),
+        totalPages: Array.isArray(payload)
+            ? Math.ceil(total / limit)
+            : (payload?.totalPages ?? Math.ceil(total / limit)),
+    };
+}
+
 export async function getProfessionalById(id: string): Promise<ProfessionalFormValues> {
     try {
         const response = await apiClient.get<ApiFeedback<any>>(`/professionals/${id}`);

@@ -61,6 +61,8 @@ export const SIDEBAR_CONFIGS: Record<UserRole, SidebarConfig> = {
             label: "Paramètres",
             items: [
                 { id: "root-settings", label: "Configuration", icon: <SettingsIcon />, route: "/root/settings", permission: "SETTINGS_VIEW" },
+                { id: "root-settings-general", label: "Identité & logo", icon: <ConfigIcon />, route: "/root/settings?tab=general", permission: "SETTINGS_VIEW" },
+                { id: "root-settings-home", label: "Page d’accueil", icon: <ActivityIcon />, route: "/root/settings?tab=home", permission: "SETTINGS_VIEW" },
             ],
         },
     ],

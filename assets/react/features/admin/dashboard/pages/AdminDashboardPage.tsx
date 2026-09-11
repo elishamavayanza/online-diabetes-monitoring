@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import { StatCard } from '../components/StatCard';
 import { RecentActivityList } from '../components/RecentActivityList';
@@ -13,6 +14,7 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/admin/dashboard/_dashboard.scss';
 
 export function AdminDashboardPage() {
+    const { t } = useI18n();
     const { data, isLoading, error, reload } = useAdminDashboard();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
@@ -29,8 +31,8 @@ export function AdminDashboardPage() {
         ) : (
             <ErrorState
                 size="full"
-                title="Aucune donnée disponible"
-                message="Le tableau de bord est vide pour le moment."
+                title={t('Aucune donnée disponible')}
+                message={t('Le tableau de bord est vide pour le moment.')}
                 onRetry={reload}
             />
         );
@@ -39,9 +41,9 @@ export function AdminDashboardPage() {
     return (
         <div className="admin-dashboard-page">
             <div className="admin-dashboard-page__header">
-                <h1>Vue générale</h1>
-                <p>Tableau de bord de votre organisation</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Vue générale')}</h1>
+                <p>{t('Tableau de bord de votre organisation')}</p>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 
             <div className="admin-dashboard-page__stats">
@@ -62,7 +64,7 @@ export function AdminDashboardPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Vue d'ensemble de votre organisation : patients, professionnels, établissements et rendez-vous.</p>
+                    <p>{t("Vue d'ensemble de votre organisation : patients, professionnels, établissements et rendez-vous.")}</p>
                 </Modal>
             )}
         </div>

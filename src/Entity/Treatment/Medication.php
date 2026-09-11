@@ -3,6 +3,7 @@
 namespace App\Entity\Treatment;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Healthcare\HealthcareOrganization;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,6 +15,22 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'treatment_medications')]
 class Medication extends BaseEntity
 {
+    /** Organisation propriétaire du médicament. Null uniquement pour les anciens médicaments globaux. */
+    #[ORM\ManyToOne(targetEntity: HealthcareOrganization::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    private ?HealthcareOrganization $organization = null;
+
+    public function getOrganization(): ?HealthcareOrganization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(?HealthcareOrganization $organization): static
+    {
+        $this->organization = $organization;
+        return $this;
+    }
+
     /**
      * @var string|null Le nom du médicament.
      */

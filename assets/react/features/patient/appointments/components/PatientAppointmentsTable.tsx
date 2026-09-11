@@ -2,6 +2,7 @@ import { Card } from '@/react/components/UI/Card';
 import { DataTable } from '@/react/components/Data/DataTable';
 import { Badge } from '@/react/components/UI/Badge';
 import { Button } from '@/react/components/UI/Button';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { PatientAppointment } from '../types';
 
 interface PatientAppointmentsTableProps {
@@ -19,28 +20,30 @@ const statusVariant: Record<string, 'success' | 'warning' | 'error' | 'primary'>
 };
 
 export function PatientAppointmentsTable({ appointments, onCancel }: PatientAppointmentsTableProps) {
+    const { t } = useI18n();
+
     const baseColumns: Array<{
         key: string;
         title: string;
         render?: (row: PatientAppointment) => React.ReactElement;
     }> = [
-        { key: 'date', title: 'Date' },
-        { key: 'heure', title: 'Heure' },
-        { key: 'professionnel', title: 'Professionnel' },
-        { key: 'motif', title: 'Motif' },
+        { key: 'date', title: t('Date') },
+        { key: 'heure', title: t('Heure') },
+        { key: 'professionnel', title: t('Professionnel') },
+        { key: 'motif', title: t('Motif') },
         // Nouvelle colonne Notes
         {
             key: 'notes',
-            title: 'Notes',
+            title: t('Notes'),
             render: (row: PatientAppointment) => (
                 <span>{row.notes || '—'}</span>
             ),
         },
         {
             key: 'statut',
-            title: 'Statut',
+            title: t('Statut'),
             render: (row: PatientAppointment) => (
-                <Badge variant={statusVariant[row.statut]}>{row.statut}</Badge>
+                <Badge variant={statusVariant[row.statut]}>{t(row.statut)}</Badge>
             ),
         },
     ];
@@ -49,7 +52,7 @@ export function PatientAppointmentsTable({ appointments, onCancel }: PatientAppo
     if (onCancel) {
         baseColumns.push({
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (row: PatientAppointment) =>
                 row.statut === 'Confirmé' ? (
                     <Button
@@ -57,7 +60,7 @@ export function PatientAppointmentsTable({ appointments, onCancel }: PatientAppo
                         size="small"
                         onClick={() => onCancel(row)}
                     >
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                 ) : (
                     <></>

@@ -10,6 +10,7 @@ import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
 import { usePublishSystemNotification } from '../hooks/usePublishSystemNotification';
 import { CreateSystemNotificationPayload, PUBLICATION_ROLES } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface PublishNotificationModalProps {
     isOpen: boolean;
@@ -18,13 +19,14 @@ interface PublishNotificationModalProps {
 }
 
 export function PublishNotificationModal({ isOpen, onClose, onPublished }: PublishNotificationModalProps) {
+    const { t } = useI18n();
     const { form, updateField, submit, isSubmitting, error } = usePublishSystemNotification();
 
     const scopeOptions = [
-        { value: 'GLOBAL', label: 'Tous les utilisateurs' },
-        { value: 'ROLE', label: 'Par niveau (rôle)' },
-        { value: 'ORGANIZATION', label: 'Une organisation' },
-        { value: 'USER', label: 'Un utilisateur' },
+        { value: 'GLOBAL', label: t('Tous les utilisateurs') },
+        { value: 'ROLE', label: t('Par niveau (rôle)') },
+        { value: 'ORGANIZATION', label: t('Une organisation') },
+        { value: 'USER', label: t('Un utilisateur') },
     ];
 
     const channelOptions = [
@@ -46,10 +48,10 @@ export function PublishNotificationModal({ isOpen, onClose, onPublished }: Publi
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="medium">
             <div className="publish-notification-modal">
-                <h2>Publier une notification système</h2>
+                <h2>{t('Publier une notification système')}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <FormField label="Niveau de publication *">
+                    <FormField label={t('Niveau de publication *')}>
                         <Select
                             value={form.scope}
                             onChange={(e) => updateField('scope', e.target.value as CreateSystemNotificationPayload['scope'])}
@@ -58,7 +60,7 @@ export function PublishNotificationModal({ isOpen, onClose, onPublished }: Publi
                     </FormField>
 
                     {form.scope === 'ROLE' && (
-                        <FormField label="Rôle cible *">
+                        <FormField label={t('Rôle cible *')}>
                             <Select
                                 value={form.role ?? 'ROLE_PATIENT'}
                                 onChange={(e) => updateField('role', e.target.value)}
@@ -68,17 +70,17 @@ export function PublishNotificationModal({ isOpen, onClose, onPublished }: Publi
                     )}
 
                     {form.scope === 'USER' && (
-                        <FormField label="Rechercher un utilisateur (par email) *">
+                        <FormField label={t('Rechercher un utilisateur (par email) *')}>
                             <SearchInput
-                                placeholder="Entrez l'email de l'utilisateur..."
+                                placeholder={t('Entrez l\u2019email de l\u2019utilisateur...')}
                                 value={form.userId ?? ''}
                                 onSearch={(value) => updateField('userId', value)}
-                                inputProps={{ required: true }}   // ✅ required passé via inputProps
+                                inputProps={{ required: true }}
                             />
                         </FormField>
                     )}
                     {form.scope === 'ORGANIZATION' && (
-                        <FormField label="ID Organisation *">
+                        <FormField label={t('ID Organisation *')}>
                             <Input
                                 value={form.organizationId ?? ''}
                                 onChange={(e) => updateField('organizationId', e.target.value)}
@@ -87,17 +89,17 @@ export function PublishNotificationModal({ isOpen, onClose, onPublished }: Publi
                         </FormField>
                     )}
 
-                    <FormField label="Type *">
+                    <FormField label={t('Type *')}>
                         <Select
                             value={form.type}
                             onChange={(e) => updateField('type', e.target.value as CreateSystemNotificationPayload['type'])}
                             options={[
-                                { value: 'SYSTEM_ALERT', label: 'Alerte système' },
+                                { value: 'SYSTEM_ALERT', label: t('Alerte système') },
                             ]}
                         />
                     </FormField>
 
-                    <FormField label="Canal *">
+                    <FormField label={t('Canal *')}>
                         <Select
                             value={form.channel}
                             onChange={(e) => updateField('channel', e.target.value as CreateSystemNotificationPayload['channel'])}
@@ -105,11 +107,11 @@ export function PublishNotificationModal({ isOpen, onClose, onPublished }: Publi
                         />
                     </FormField>
 
-                    <FormField label="Titre *">
+                    <FormField label={t('Titre *')}>
                         <Input value={form.title} onChange={(e) => updateField('title', e.target.value)} required />
                     </FormField>
 
-                    <FormField label="Message *">
+                    <FormField label={t('Message *')}>
                         <Textarea
                             value={form.body}
                             onChange={(e) => updateField('body', e.target.value)}
@@ -118,9 +120,9 @@ export function PublishNotificationModal({ isOpen, onClose, onPublished }: Publi
                     </FormField>
 
                     <div className="publish-notification-modal__actions">
-                        <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('Annuler')}</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Publication...' : 'Publier'}
+                            {isSubmitting ? t('Publication...') : t('Publier')}
                         </Button>
                     </div>
                 </Form>

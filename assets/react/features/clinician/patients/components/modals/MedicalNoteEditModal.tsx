@@ -6,6 +6,7 @@ import { Textarea } from '@/react/components/Forms/Textarea';
 import { Spinner } from '@/react/components/UI/Spinner';
 import { PatientDossierData, PatientMedicalNote } from '../../types';
 import {useMedicalNoteEditForm} from "@/react/features/clinician/patients/hooks/Note/useMedicalNoteEditForm";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface MedicalNoteEditModalProps {
     isOpen: boolean;
@@ -22,6 +23,7 @@ export function MedicalNoteEditModal({
                                          note,
                                          onSuccess,
                                      }: MedicalNoteEditModalProps) {
+    const { t } = useI18n();
     const { form, isLoading, handleChange, handleSubmit } = useMedicalNoteEditForm({
         data,
         note,
@@ -30,9 +32,9 @@ export function MedicalNoteEditModal({
     });
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Modifier la note médicale">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Modifier la note médicale')}>
             <form onSubmit={handleSubmit} className="dossier-form">
-                <FormField label="Date de la note" htmlFor="notedAt" required>
+                <FormField label={t('Date de la note')} htmlFor="notedAt" required>
                     <Input
                         id="notedAt"
                         name="notedAt"
@@ -42,7 +44,7 @@ export function MedicalNoteEditModal({
                         required
                     />
                 </FormField>
-                <FormField label="Contenu" htmlFor="content" required>
+                <FormField label={t('Contenu')} htmlFor="content" required>
                     <Textarea
                         id="content"
                         name="content"
@@ -55,10 +57,10 @@ export function MedicalNoteEditModal({
                 </FormField>
                 <div className="dossier-form__actions">
                     <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button type="submit" variant="primary" disabled={isLoading}>
-                        {isLoading ? <Spinner size="small" /> : 'Enregistrer'}
+                        {isLoading ? <Spinner size="small" /> : t('Enregistrer')}
                     </Button>
                 </div>
             </form>

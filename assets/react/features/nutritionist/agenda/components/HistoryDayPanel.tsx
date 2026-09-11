@@ -1,4 +1,6 @@
 import { Badge } from '@/react/components/UI/Badge/Badge';
+import { useI18n } from '@/react/i18n/I18nContext';
+import { formatDate } from '@/react/i18n/formatters';
 import { AgendaRecord, statusToBadgeVariant, statusLabel } from '../types';
 
 interface HistoryDayPanelProps {
@@ -14,16 +16,8 @@ function toDateKey(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
-function formatDate(date: Date): string {
-    return date.toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-    });
-}
-
 export function HistoryDayPanel({ date, records, onClear }: HistoryDayPanelProps) {
+    const { locale, t } = useI18n();
     const key = toDateKey(date);
     const dayRecords = records
         .filter((record) => record.date === key)
@@ -32,15 +26,15 @@ export function HistoryDayPanel({ date, records, onClear }: HistoryDayPanelProps
     return (
         <section className="agenda-history-day">
             <div className="agenda-history-day__header">
-                <h2>{formatDate(date)}</h2>
+                <h2>{formatDate(date, locale, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</h2>
                 <button className="agenda-history-day__clear" onClick={onClear}>
-                    Effacer la sélection
+                    {t('Effacer la sélection')}
                 </button>
             </div>
 
             {dayRecords.length === 0 ? (
                 <p className="agenda-history-day__empty">
-                    Aucun rendez-vous à cette date. Sélectionnez une date marquée dans le calendrier.
+                    {t("Aucun rendez-vous à cette date. Sélectionnez une date marquée dans le calendrier.")}
                 </p>
             ) : (
                 <ul className="agenda-history-day__list">
@@ -56,13 +50,13 @@ export function HistoryDayPanel({ date, records, onClear }: HistoryDayPanelProps
                             </div>
                             <div className="agenda-history-item__badges">
                                 {record.isPast ? (
-                                    <Badge variant="info">Passé</Badge>
+                                    <Badge variant="info">{t('Passé')}</Badge>
                                 ) : (
-                                    <Badge variant="success">À venir</Badge>
+                                    <Badge variant="success">{t('À venir')}</Badge>
                                 )}
                                 {record.status && (
                                     <Badge variant={statusToBadgeVariant(record.status)}>
-                                        {statusLabel(record.status)}
+                                        {t(statusLabel(record.status))}
                                     </Badge>
                                 )}
                             </div>

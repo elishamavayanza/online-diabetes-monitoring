@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useNutritionistDashboard } from '../hooks/useNutritionistDashboard';
 import { StatCard } from '../components/StatCard';
 import { TodayAppointmentsList } from '../components/TodayAppointmentsList';
@@ -14,6 +15,7 @@ import { useAuth } from '@/react/app/providers/AuthProvider';
 import '@/styles/pages/nutritionist/dashboard/_dashboard.scss';
 
 export function NutritionistDashboardPage() {
+    const { t } = useI18n();
     const { data, isLoading, error, reload } = useNutritionistDashboard();
     const { user } = useAuth();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -31,8 +33,8 @@ export function NutritionistDashboardPage() {
         ) : (
             <ErrorState
                 size="full"
-                title="Aucune donnée disponible"
-                message="Le tableau de bord est vide pour le moment."
+                title={t("Aucune donnée disponible")}
+                message={t("Le tableau de bord est vide pour le moment.")}
                 onRetry={reload}
             />
         );
@@ -41,9 +43,9 @@ export function NutritionistDashboardPage() {
     return (
         <div className="nutritionist-dashboard-page">
             <div className="nutritionist-dashboard-page__header">
-                <h1>Vue générale</h1>
-                <p>{user?.name ? `Bienvenue, ${user.name}` : 'Bienvenue'}</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Vue générale')}</h1>
+                <p>{user?.name ? t('Bienvenue, {{ name }}', { name: user.name }) : t('Bienvenue')}</p>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 
             <div className="nutritionist-dashboard-page__stats">
@@ -62,7 +64,7 @@ export function NutritionistDashboardPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Tableau de bord résumant vos rendez-vous, vos patients et les suivis nutritionnels à planifier.</p>
+                    <p>{t('Tableau de bord résumant vos rendez-vous, vos patients et les suivis nutritionnels à planifier.')}</p>
                 </Modal>
             )}
         </div>

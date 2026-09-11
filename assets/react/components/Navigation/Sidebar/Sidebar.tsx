@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSidebar, UseSidebarProps, SidebarItem, SidebarSubItem, SidebarGroup } from '../../../hook-components/Navigation/Sidebar';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const CollapseIcon = () => (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
@@ -57,6 +58,7 @@ export function Sidebar({
         mobileOpen,
         onMobileClose,
     });
+    const { t } = useI18n();
 
     // Forcer l’affichage des textes sur mobile (collapsible=false)
     const displayCollapsed = collapsible ? isCollapsed : false;
@@ -156,9 +158,9 @@ export function Sidebar({
                     onKeyDown={isBrandInteractive ? handleBrandKeyDown : undefined}
                     title={
                         collapsible
-                            ? (displayCollapsed ? 'Déplier le menu' : 'Replier le menu')
+                            ? (displayCollapsed ? t('Déplier le menu') : t('Replier le menu'))
                             : onMobileClose
-                                ? 'Fermer le menu'
+                                ? t('Fermer le menu')
                                 : undefined
                     }
                 >
@@ -168,15 +170,15 @@ export function Sidebar({
                     <button
                         className="sidebar__collapse"
                         onClick={toggleCollapse}
-                        aria-label="Replier le menu"
-                        title="Replier"
+                        aria-label={t('Replier le menu')}
+                        title={t('Replier')}
                     >
                         <CollapseIcon />
                     </button>
                 )}
             </div>
 
-            <nav className="sidebar__nav" aria-label="Navigation latérale">
+            <nav className="sidebar__nav" aria-label={t('Navigation latérale')}>
                 {renderContent()}
             </nav>
 

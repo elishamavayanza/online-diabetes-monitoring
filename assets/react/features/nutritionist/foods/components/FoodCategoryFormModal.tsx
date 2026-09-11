@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Modal } from '@/react/components/UI/Modal';
 import { Form } from '@/react/components/Forms/Form';
 import { FormField } from '@/react/components/Forms/FormField';
@@ -15,6 +16,7 @@ interface FoodCategoryFormModalProps {
 }
 
 export function FoodCategoryFormModal({ isOpen, onClose, onSuccess }: FoodCategoryFormModalProps) {
+    const { t } = useI18n();
     const { label, description, setLabel, setDescription, isSubmitting, error, submit } = useCreateFoodCategory();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -27,29 +29,29 @@ export function FoodCategoryFormModal({ isOpen, onClose, onSuccess }: FoodCatego
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Nouvelle catégorie">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Nouvelle catégorie')}>
             <div className="food-form-modal">
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <FormField label="Libellé *">
+                    <FormField label={t('Libellé *')}>
                         <Input
                             value={label}
                             onChange={(e) => setLabel(e.target.value)}
-                            placeholder="Ex: Fruits secs"
+                            placeholder={t('Ex: Fruits secs')}
                             required
                         />
                     </FormField>
-                    <FormField label="Description">
+                    <FormField label={t('Description')}>
                         <Textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Description optionnelle..."
+                            placeholder={t('Description optionnelle...')}
                         />
                     </FormField>
                     <div className="food-form-modal__actions">
-                        <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('Annuler')}</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Création...' : 'Créer'}
+                            {isSubmitting ? t('Création...') : t('Créer')}
                         </Button>
                     </div>
                 </Form>

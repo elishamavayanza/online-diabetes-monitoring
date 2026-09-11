@@ -1,6 +1,7 @@
 // PatientDossierCalendar.tsx
 import { useMemo } from 'react';
 import { Calendar } from '@/react/components/Calendars/Calendar';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { DossierTabId, PatientDossierData } from '../types';
 import { collectMarkedDatesForTab } from '../utils/dossierUtils';
 
@@ -22,6 +23,7 @@ interface PatientDossierCalendarProps {
 }
 
 export function PatientDossierCalendar({ data, activeTab, selectedDate, onDateSelect }: PatientDossierCalendarProps) {
+    const { t } = useI18n();
     const markedDates = useMemo(
         () => collectMarkedDatesForTab(activeTab, data),
         [activeTab, data],
@@ -31,7 +33,7 @@ export function PatientDossierCalendar({ data, activeTab, selectedDate, onDateSe
 
     return (
         <div className="patient-dossier-calendar">
-            {hint && <p className="patient-dossier-calendar__hint">{hint}</p>}
+            {hint && <p className="patient-dossier-calendar__hint">{t(hint)}</p>}
             <Calendar
                 selectedDate={selectedDate}
                 onDateSelect={onDateSelect}

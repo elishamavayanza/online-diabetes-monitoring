@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Modal } from '@/react/components/UI/Modal';
 import { Form } from '@/react/components/Forms/Form';
 import { FormField } from '@/react/components/Forms/FormField';
@@ -21,6 +22,7 @@ interface FoodFormModalProps {
 }
 
 export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCategoryCreated }: FoodFormModalProps) {
+    const { t } = useI18n();
     const { form, updateField, setPhotoFile, submit, isSubmitting, error, reset } = useCreateFood();
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
@@ -47,40 +49,40 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCatego
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} title="Ajouter un aliment">
+        <Modal isOpen={isOpen} onClose={handleClose} title={t('Ajouter un aliment')}>
             <div className="food-form-modal">
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
                     <div className="food-form-grid">
-                        <FormField label="Nom *">
+                        <FormField label={t('Nom *')}>
                             <Input
                                 value={form.name}
                                 onChange={(e) => updateField('name', e.target.value)}
-                                placeholder="Ex: Pomme"
+                                placeholder={t('Ex: Pomme')}
                                 required
                             />
                         </FormField>
-                        <FormField label="Catégorie *">
+                        <FormField label={t('Catégorie *')}>
                             <div className="food-category-select-container">
                                 <Select
                                     value={form.categoryId}
                                     onChange={(e) => updateField('categoryId', e.target.value)}
-                                    options={[{ value: '', label: 'Sélectionner...' }, ...categoryOptions]}
+                                    options={[{ value: '', label: t('Sélectionner...') }, ...categoryOptions]}
                                     required
                                 />
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => setIsCategoryModalOpen(true)}
-                                    title="Créer une nouvelle catégorie"
-                                    aria-label="Créer une nouvelle catégorie"
+                                    title={t('Créer une nouvelle catégorie')}
+                                    aria-label={t('Créer une nouvelle catégorie')}
                                     className="food-category-add-btn"
                                 >
                                     +
                                 </Button>
                             </div>
                         </FormField>
-                        <FormField label="Calories (kcal/100g) *">
+                        <FormField label={t('Calories (kcal/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -90,7 +92,7 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCatego
                                 required
                             />
                         </FormField>
-                        <FormField label="Glucides (g/100g) *">
+                        <FormField label={t('Glucides (g/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -100,7 +102,7 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCatego
                                 required
                             />
                         </FormField>
-                        <FormField label="Protéines (g/100g) *">
+                        <FormField label={t('Protéines (g/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -110,7 +112,7 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCatego
                                 required
                             />
                         </FormField>
-                        <FormField label="Lipides (g/100g) *">
+                        <FormField label={t('Lipides (g/100g) *')}>
                             <Input
                                 type="number"
                                 step="0.01"
@@ -121,11 +123,11 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCatego
                             />
                         </FormField>
                     </div>
-                    <FormField label="Description">
+                    <FormField label={t('Description')}>
                         <Textarea
                             value={form.description}
                             onChange={(e) => updateField('description', e.target.value)}
-                            placeholder="Description optionnelle..."
+                            placeholder={t('Description optionnelle...')}
                         />
                     </FormField>
                     <FoodPhotoField
@@ -134,9 +136,9 @@ export function FoodFormModal({ isOpen, onClose, onSuccess, categories, onCatego
                         onPhotoFileChange={setPhotoFile}
                     />
                     <div className="food-form-modal__actions">
-                        <Button type="button" variant="outline" onClick={handleClose}>Annuler</Button>
+                        <Button type="button" variant="outline" onClick={handleClose}>{t('Annuler')}</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? 'Création...' : 'Créer'}
+                            {isSubmitting ? t('Création...') : t('Créer')}
                         </Button>
                     </div>
                 </Form>

@@ -8,9 +8,11 @@ import { ErrorState } from '@/react/components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/root/dashboard/_dashboard.scss';
 
 export function DashboardPage() {
+    const { t } = useI18n();
     const { data, isLoading, error, reload } = useDashboard();
     const [modalOpen, setModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
@@ -31,8 +33,8 @@ export function DashboardPage() {
         ) : (
             <ErrorState
                 size="full"
-                title="Aucune donnée disponible"
-                message="Le tableau de bord est vide pour le moment."
+                title={t('Aucune donnée disponible')}
+                message={t('Le tableau de bord est vide pour le moment.')}
                 onRetry={reload}
             />
         );
@@ -41,11 +43,11 @@ export function DashboardPage() {
     return (
         <div className="dashboard-page">
             <div className="dashboard-page__header">
-                <h1>Bonjour, Administrateur</h1>
-                <p>Vue générale de la plateforme</p>
+                <h1>{t('Bonjour, Administrateur')}</h1>
+                <p>{t('Vue générale de la plateforme')}</p>
             </div>
 
-            <Button onClick={openModal}>Ouvrir une action</Button>
+            <Button onClick={openModal}>{t('Ouvrir une action')}</Button>
 
             <div className="dashboard-page__stats">
                 {data.stats.map((stat) => (
@@ -62,7 +64,7 @@ export function DashboardPage() {
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
             >
-                <p>Ceci est une modale. Utilisez le bouton retour pour la fermer d'abord.</p>
+                <p>{t('Ceci est une modale. Utilisez le bouton retour pour la fermer d\u2019abord.')}</p>
             </Modal>
         </div>
     );

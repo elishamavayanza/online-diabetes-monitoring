@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useNotifications } from '../hooks/useNotifications';
 import { NotificationsTable } from '../components/NotificationsTable';
 import { Spinner } from '@/react/components/UI/Spinner';
@@ -7,12 +8,13 @@ import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/Action
 import '@/styles/pages/nutritionist/notifications/_notifications.scss';
 
 export function NotificationPages() {
+    const { t } = useI18n();
     const { notifications, filter, setFilter, isLoading, error } = useNotifications();
     const { pushAction } = useActionHistory();
 
     const tabs = [
-        { id: 'Toutes', label: 'Toutes' },
-        { id: 'Non lues', label: 'Non lues' },
+        { id: 'Toutes', label: t('Toutes') },
+        { id: 'Non lues', label: t('Non lues') },
     ];
 
     const handleFilterChange = (newFilter: string) => {
@@ -28,8 +30,8 @@ export function NotificationPages() {
     return (
         <div className="notifications-page">
             <div className="notifications-page__header">
-                <h1>Notifications</h1>
-                <p>Vos alertes et rappels</p>
+                <h1>{t('Notifications')}</h1>
+                <p>{t('Vos alertes et rappels')}</p>
             </div>
             <Tabs
                 tabs={tabs}

@@ -12,4 +12,5 @@ export interface ProfileUpdatePayload {
     name: string;
     phone?: string;
     avatarUrl?: string;
+    locale?: string;
 }

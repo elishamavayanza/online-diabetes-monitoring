@@ -4,6 +4,7 @@ import {
     LineChartDataPoint,
     useLineChart
 } from "@/react/hook-components/Data/LineChart/useLineChart";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface LineChartProps {
     data: LineChartDataPoint[];
@@ -24,6 +25,7 @@ export function LineChart({
                               formatDate = (d) => String(d),
                               formatValue = (p) => p.toFixed(2),
                           }: LineChartProps) {
+    const { t } = useI18n();
     const containerRef = useRef<HTMLDivElement>(null);
     const svgRef = useRef<SVGSVGElement>(null);
     const gradientId = useId();
@@ -66,7 +68,7 @@ export function LineChart({
     });
 
     if (data.length === 0) {
-        return <div className="line-chart__empty">Aucune donnée</div>;
+        return <div className="line-chart__empty">{t('Aucune donnée')}</div>;
     }
 
     const dateLabelStep = Math.max(1, Math.ceil(data.length / 6));
@@ -98,9 +100,9 @@ export function LineChart({
                 {/* Lignes de grille horizontales */}
                 {showAxis && (
                     <g className="line-chart__grid">
-                        {[maxValue, midValue, minValue].map((value) => (
+                        {[maxValue, midValue, minValue].map((value, index) => (
                             <line
-                                key={value}
+                                key={`grid-${index}`}
                                 x1={m.left}
                                 x2={w - m.right}
                                 y1={getY(value)}
@@ -113,9 +115,9 @@ export function LineChart({
                 {/* Étiquettes verticales (valeurs) */}
                 {showAxis && (
                     <g className="line-chart__axis">
-                        {[maxValue, midValue, minValue].map((value) => (
+                        {[maxValue, midValue, minValue].map((value, index) => (
                             <text
-                                key={value}
+                                key={`axis-${index}`}
                                 x={m.left - 8}
                                 y={getY(value) + 4}
                                 textAnchor="end"

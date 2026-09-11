@@ -47,4 +47,38 @@ class MessageReadReceiptRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Pré-charge les accusés de lecture de tous les messages fournis en une
+     * seule requête, groupés par id de message (évite le N+1 des listes).
+     *
+     * @param Message[] $messages
+     *
+     * @return array<int|string, MessageReadReceipt[]>
+     */
+    public function findReceiptsByMessages(array $messages): array
+    {
+        if ($messages === []) {
+            return [];
+        }
+
+        $ids = array_map(static fn (Message $m): mixed => $m->getId(), $messages);
+
+        $receipts = $this->createQueryBuilder('mrr')
+            ->addSelect('u')
+            ->join('mrr.user', 'u')
+            ->where('mrr.message IN (:ids)')
+            ->andWhere('mrr.deletedAt IS NULL')
+            ->setParameter('ids', $ids)
+            ->orderBy('mrr.readAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $grouped = [];
+        foreach ($receipts as $receipt) {
+            $grouped[(string) $receipt->getMessage()?->getId()][] = $receipt;
+        }
+
+        return $grouped;
+    }
 }

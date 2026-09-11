@@ -5,10 +5,12 @@ namespace App\Controller\Api\Medical;
 use App\DTO\Request\Medical\BloodPressureMeasurementRequestDTO;
 use App\DTO\Response\Medical\BloodPressureMeasurementResponseDTO;
 use App\Service\Medical\BloodPressureMeasurementService;
+use App\Service\Common\ListQueryParams;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -29,9 +31,9 @@ class BloodPressureMeasurementController extends AbstractController
     #[OA\Parameter(name: 'patientId', description: 'Identifiant unique du patient', in: 'path', required: true, schema: new OA\Schema(type: 'string'))]
     #[OA\Response(response: 200, description: 'Liste des mesures récupérée avec succès')]
     #[OA\Response(response: 404, description: 'Patient non trouvé')]
-    public function index(string $patientId): JsonResponse
+    public function index(string $patientId, Request $request): JsonResponse
     {
-        $feedback = $this->service->index($patientId);
+        $feedback = $this->service->index($patientId, ListQueryParams::fromRequest($request));
         $status = $feedback->hasErrors() ? Response::HTTP_NOT_FOUND : Response::HTTP_OK;
 
         return $this->json($feedback, $status);

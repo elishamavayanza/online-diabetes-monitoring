@@ -1,4 +1,5 @@
 import { Card } from '@/react/components/UI/Card';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { ActiveTreatment } from '../types';
 
 interface ActiveTreatmentsCardProps {
@@ -10,18 +11,20 @@ function ScheduleDot({ active }: { active: boolean }) {
 }
 
 export function ActiveTreatmentsCard({ treatments }: ActiveTreatmentsCardProps) {
+    const { t } = useI18n();
+
     if (treatments.length === 0) {
         return (
             <Card className="active-treatments-card">
-                <h3>Traitements en cours</h3>
-                <p className="active-treatments-card__empty">Aucun traitement actif.</p>
+                <h3>{t('Traitements en cours')}</h3>
+                <p className="active-treatments-card__empty">{t('Aucun traitement actif.')}</p>
             </Card>
         );
     }
 
     return (
         <Card className="active-treatments-card">
-            <h3>Traitements en cours</h3>
+            <h3>{t('Traitements en cours')}</h3>
             <ul>
                 {treatments.map((treatment) => (
                     <li key={treatment.id} className="active-treatments-card__item">
@@ -30,9 +33,9 @@ export function ActiveTreatmentsCard({ treatments }: ActiveTreatmentsCardProps) 
                             {treatment.dosage && <span className="active-treatments-card__dosage">{treatment.dosage}</span>}
                         </div>
                         <div className="active-treatments-card__schedule">
-                            <span><ScheduleDot active={treatment.morning} /> Matin</span>
-                            <span><ScheduleDot active={treatment.noon} /> Midi</span>
-                            <span><ScheduleDot active={treatment.evening} /> Soir</span>
+                            <span><ScheduleDot active={treatment.morning} /> {t('Matin')}</span>
+                            <span><ScheduleDot active={treatment.noon} /> {t('Midi')}</span>
+                            <span><ScheduleDot active={treatment.evening} /> {t('Soir')}</span>
                         </div>
                         {treatment.instructions && (
                             <p className="active-treatments-card__instructions">{treatment.instructions}</p>

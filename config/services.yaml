@@ -8,6 +8,10 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     frontend_base_url: '%env(FRONTEND_BASE_URL)%'
+    env(SLOW_QUERY_THRESHOLD_MS): '150'
+    env(SLOW_HTTP_THRESHOLD_MS): '1000'
+    slow_query_threshold_ms: '%env(int:SLOW_QUERY_THRESHOLD_MS)%'
+    slow_http_threshold_ms: '%env(int:SLOW_HTTP_THRESHOLD_MS)%'
 
 
 services:
@@ -31,6 +35,22 @@ services:
                 method: 'onJWTCreated'
 
     # Définition explicite pour injecter le chemin du projet Symfony
+    App\Cache\CatalogCache:
+        arguments:
+            $pool: '@api.catalog'
+
+    App\Observability\SlowQueryMiddleware:
+        arguments:
+            $logger: '@monolog.logger.performance'
+            $thresholdMs: '%slow_query_threshold_ms%'
+        tags:
+            - { name: 'doctrine.middleware' }
+
+    App\Observability\RequestTimingListener:
+        arguments:
+            $logger: '@monolog.logger.performance'
+            $thresholdMs: '%slow_http_threshold_ms%'
+
     App\Service\File\FileUploaderService:
         arguments:
             $projectDir: '%kernel.project_dir%'

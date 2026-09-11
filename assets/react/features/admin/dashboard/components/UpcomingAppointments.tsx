@@ -1,3 +1,4 @@
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Card } from '@/react/components/UI/Card';
 import { UpcomingAppointment } from '../types';
 
@@ -6,11 +7,13 @@ interface UpcomingAppointmentsProps {
 }
 
 export function UpcomingAppointments({ appointments }: UpcomingAppointmentsProps) {
+    const { t } = useI18n();
+
     return (
         <Card className="appointments-card">
-            <h2 className="section-title">Prochains rendez-vous</h2>
+            <h2 className="section-title">{t('Prochains rendez-vous')}</h2>
             {appointments.length === 0 ? (
-                <p className="appointments-card__empty">Aucun rendez-vous à venir.</p>
+                <p className="appointments-card__empty">{t('Aucun rendez-vous à venir.')}</p>
             ) : (
                 <ul className="appointments-card__list">
                     {appointments.map((appt) => (

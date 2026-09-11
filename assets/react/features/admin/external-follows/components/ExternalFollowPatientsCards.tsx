@@ -10,6 +10,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { useMyExternalFollows } from '../hooks/useMyExternalFollows';
 import { CloseFollowModal } from './CloseFollowModal';
 import { ExternalFollowInvitation, EXTERNAL_FOLLOW_STATUS_LABELS } from '../types/types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ExternalFollowPatientsCardsProps {
     rolePrefix: 'clinician' | 'nutritionist';
@@ -28,6 +29,7 @@ function ExternalFollowCard({ follow, rolePrefix, onCloseClick }: {
     onCloseClick: (follow: ExternalFollowInvitation) => void;
 }) {
     const hasAccess = follow.status === 'ACCEPTED' || follow.status === 'PENDING';
+    const { t } = useI18n();
 
     return (
         <Card className="clinician-patient-card external-follow-patient-card" interactive={hasAccess}>
@@ -43,11 +45,11 @@ function ExternalFollowCard({ follow, rolePrefix, onCloseClick }: {
             <div className="clinician-patient-card__info">
                 <h3 className="clinician-patient-card__name">{follow.patientName}</h3>
                 <p className="clinician-patient-card__detail">
-                    <span className="clinician-patient-card__label">Organisation :</span>{' '}
+                    <span className="clinician-patient-card__label">{t('Organisation :')}</span>{' '}
                     {follow.organizationName}
                 </p>
                 <p className="clinician-patient-card__detail">
-                    <span className="clinician-patient-card__label">Accès jusqu'au :</span>{' '}
+                    <span className="clinician-patient-card__label">{t("Accès jusqu\u2019au :")}</span>{' '}
                     {formatDate(follow.endDate)}
                 </p>
             </div>
@@ -61,11 +63,11 @@ function ExternalFollowCard({ follow, rolePrefix, onCloseClick }: {
             {hasAccess && (
                 <div className="clinician-patient-card__action">
                     <Link to={`/${rolePrefix}/patients/${follow.patientId}/record`}>
-                        <Button variant="primary" size="small">Voir le dossier</Button>
+                        <Button variant="primary" size="small">{t('Voir le dossier')}</Button>
                     </Link>
                     {follow.status === 'ACCEPTED' && (
                         <Button variant="danger" size="small" onClick={() => onCloseClick(follow)}>
-                            Fermer mon suivi
+                            {t('Fermer mon suivi')}
                         </Button>
                     )}
                 </div>
@@ -77,6 +79,7 @@ function ExternalFollowCard({ follow, rolePrefix, onCloseClick }: {
 export function ExternalFollowPatientsCards({ rolePrefix, search = '', showEmptyState = true }: ExternalFollowPatientsCardsProps) {
     const { follows, isLoading, error, refetch } = useMyExternalFollows();
     const [selectedToClose, setSelectedToClose] = React.useState<ExternalFollowInvitation | null>(null);
+    const { t } = useI18n();
 
     const filtered = search.trim()
         ? follows.filter((follow) => follow.patientName.toLowerCase().includes(search.trim().toLowerCase()))
@@ -102,9 +105,9 @@ export function ExternalFollowPatientsCards({ rolePrefix, search = '', showEmpty
         if (!showEmptyState) return null;
         return (
             <div className="external-follow-patients__empty">
-                <p>Aucun patient suivi en externe pour le moment.</p>
+                <p>{t('Aucun patient suivi en externe pour le moment.')}</p>
                 <p className="external-follow-patients__empty-hint">
-                    Lorsqu'une organisation vous invitera à suivre un de ses patients, il apparaîtra ici.
+                    {t("Lorsqu\u2019une organisation vous invitera à suivre un de ses patients, il apparaîtra ici.")}
                 </p>
             </div>
         );
@@ -113,7 +116,7 @@ export function ExternalFollowPatientsCards({ rolePrefix, search = '', showEmpty
     return (
         <div className="external-follow-patients">
             <p className="external-follow-patients__count">
-                {filtered.length} patient{filtered.length > 1 ? 's' : ''} suivi{filtered.length > 1 ? 's' : ''} depuis une autre organisation
+                {t('{{ count }} patient(s) suivi(s) depuis une autre organisation', { count: filtered.length })}
             </p>
             <div className="clinician-patients-cards">
                 {filtered.map((follow) => (

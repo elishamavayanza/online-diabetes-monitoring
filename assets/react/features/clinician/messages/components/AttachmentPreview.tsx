@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { tokenStorage } from '@/services/storage/storage.service';
 import { MessageAttachment } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 import {
     DownloadIcon,
     ZoomInIcon,
@@ -15,6 +16,7 @@ interface AttachmentPreviewProps {
 }
 
 export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
+    const { t } = useI18n();
     const [objectUrl, setObjectUrl] = useState<string | null>(null);
     const [loadError, setLoadError] = useState(false);
     const [showFullImage, setShowFullImage] = useState(false);
@@ -96,7 +98,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
         })
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error('Téléchargement impossible');
+                    throw new Error(t('Téléchargement impossible'));
                 }
 
                 return response.blob();
@@ -126,7 +128,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                 return null;
             });
         };
-    }, [attachment.fileUrl]);
+    }, [attachment.fileUrl, t]);
 
     // ============================================================
     // GESTION AUDIO
@@ -355,7 +357,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                 <FileIcon />
 
                 <span>
-                    Pièce jointe indisponible
+                    {t('Pièce jointe indisponible')}
                 </span>
             </div>
         );
@@ -365,7 +367,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
         return (
             <div className="attachment-loading">
                 <span>
-                    Chargement de {attachment.fileName}…
+                    {t('Chargement de {{ fileName }}…', { fileName: attachment.fileName })}
                 </span>
             </div>
         );
@@ -391,7 +393,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                     <button
                         type="button"
                         className="attachment-action-btn"
-                        title="Agrandir"
+                        title={t('Agrandir')}
                         onClick={() =>
                             setShowFullImage(true)
                         }
@@ -403,7 +405,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                         className="attachment-action-btn"
                         href={objectUrl}
                         download={attachment.fileName}
-                        title="Télécharger"
+                        title={t('Télécharger')}
                     >
                         <DownloadIcon />
                     </a>
@@ -433,7 +435,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                                 onClick={() =>
                                     setShowFullImage(false)
                                 }
-                                title="Fermer"
+                                title={t('Fermer')}
                             >
                                 ×
                             </button>
@@ -442,7 +444,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                                 className="attachment-download-btn"
                                 href={objectUrl}
                                 download={attachment.fileName}
-                                title="Télécharger"
+                                title={t('Télécharger')}
                             >
                                 <DownloadIcon />
                             </a>
@@ -497,8 +499,8 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                     onClick={toggleAudio}
                     title={
                         isAudioPlaying
-                            ? 'Pause'
-                            : 'Lecture'
+                            ? t('Pause')
+                            : t('Lecture')
                     }
                 >
                     {isAudioPlaying ? (
@@ -553,7 +555,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                     className="attachment-action-btn whatsapp-download-icon"
                     href={objectUrl}
                     download={attachment.fileName}
-                    title="Télécharger"
+                    title={t('Télécharger')}
                 >
                     <DownloadIcon />
                 </a>
@@ -592,7 +594,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                     <button
                         type="button"
                         className="attachment-action-btn"
-                        title="Agrandir / Plein écran"
+                        title={t('Agrandir / Plein écran')}
                         onClick={() =>
                             setShowFullVideo(true)
                         }
@@ -604,7 +606,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                         className="attachment-action-btn"
                         href={objectUrl}
                         download={attachment.fileName}
-                        title="Télécharger"
+                        title={t('Télécharger')}
                     >
                         <DownloadIcon />
                     </a>
@@ -637,7 +639,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                                 onClick={() =>
                                     setShowFullVideo(false)
                                 }
-                                title="Fermer"
+                                title={t('Fermer')}
                             >
                                 ×
                             </button>
@@ -646,7 +648,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                                 className="attachment-download-btn"
                                 href={objectUrl}
                                 download={attachment.fileName}
-                                title="Télécharger"
+                                title={t('Télécharger')}
                             >
                                 <DownloadIcon />
                             </a>
@@ -673,7 +675,7 @@ export function AttachmentPreview({ attachment }: AttachmentPreviewProps) {
                 className="attachment-action-btn"
                 href={objectUrl}
                 download={attachment.fileName}
-                title="Télécharger"
+                title={t('Télécharger')}
             >
                 <DownloadIcon />
             </a>

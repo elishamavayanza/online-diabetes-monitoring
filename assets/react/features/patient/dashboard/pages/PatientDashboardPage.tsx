@@ -11,9 +11,11 @@ import { ErrorState } from '@/react/components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/patient/dashboard/_dashboard.scss';
 
 export function PatientDashboardPage() {
+    const { t } = useI18n();
     const { data, isLoading, error, reload } = usePatientDashboard();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const { pushAction } = useActionHistory();
@@ -30,8 +32,8 @@ export function PatientDashboardPage() {
         ) : (
             <ErrorState
                 size="full"
-                title="Aucune donnée disponible"
-                message="Le résumé de santé est vide pour le moment."
+                title={t('Aucune donnée disponible')}
+                message={t('Le résumé de santé est vide pour le moment.')}
                 onRetry={reload}
             />
         );
@@ -40,8 +42,8 @@ export function PatientDashboardPage() {
     return (
         <div className="patient-dashboard-page">
             <div className="patient-dashboard-page__header">
-                <h1>Bonjour {data.patientName}</h1>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Bonjour {{ name }}', { name: data.patientName })}</h1>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 
             <HealthSummaryCard metrics={data.metrics} />
@@ -59,7 +61,7 @@ export function PatientDashboardPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Ceci est votre espace de suivi : dernières mesures, rendez-vous à venir, traitements en cours et notes médicales récentes.</p>
+                    <p>{t('Ceci est votre espace de suivi : dernières mesures, rendez-vous à venir, traitements en cours et notes médicales récentes.')}</p>
                 </Modal>
             )}
         </div>

@@ -10,6 +10,7 @@ import { RequestAppointmentModal } from '../components/RequestAppointmentModal';
 import { CancelAppointmentModal } from '../components/CancelAppointmentModal';
 import { cancelAppointment } from '../services/patientAppointmentsService';
 import { PatientAppointment } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/patient/appointments/_appointments.scss';
 
 
@@ -21,6 +22,7 @@ const HistoryIcon = () => (
 );
 
 export function PatientAppointmentsPage() {
+    const { t } = useI18n();
     const { appointments, isLoading, error, reload } = usePatientAppointments();
     const [viewMode, setViewMode] = useState<'upcoming' | 'history'>('upcoming');
     const [appointmentTab, setAppointmentTab] = useState<'today' | 'pending' | 'confirmed' | 'upcoming'>('today');
@@ -84,10 +86,10 @@ export function PatientAppointmentsPage() {
     if (error) return <Alert variant="error">{error}</Alert>;
 
     const tabs = [
-        { id: 'today', label: "Aujourd'hui" },
-        { id: 'pending', label: 'En attente' },
-        { id: 'confirmed', label: 'Confirmés' },
-        { id: 'upcoming', label: 'À venir' },
+        { id: 'today', label: t("Aujourd'hui") },
+        { id: 'pending', label: t('En attente') },
+        { id: 'confirmed', label: t('Confirmés') },
+        { id: 'upcoming', label: t('À venir') },
     ];
 
     // Passer onCancel seulement pour l'onglet "À venir"
@@ -96,7 +98,7 @@ export function PatientAppointmentsPage() {
     return (
         <div className="patient-appointments-page">
             <div className="patient-appointments-page__header">
-                <h1>{viewMode === 'upcoming' ? 'Mes rendez-vous' : 'Historique des rendez-vous'}</h1>
+                <h1>{viewMode === 'upcoming' ? t('Mes rendez-vous') : t('Historique des rendez-vous')}</h1>
 
                 {viewMode === 'upcoming' && (
                     <Tabs
@@ -108,8 +110,8 @@ export function PatientAppointmentsPage() {
 
                 <p>
                     {viewMode === 'upcoming'
-                        ? 'Vos prochaines consultations'
-                        : 'Rendez-vous passés ou annulés'}
+                        ? t('Vos prochaines consultations')
+                        : t('Rendez-vous passés ou annulés')}
                 </p>
 
                 <div className="patient-appointments-page__actions-row">
@@ -118,13 +120,13 @@ export function PatientAppointmentsPage() {
                         onClick={() => setIsRequestModalOpen(true)}
                         className="patient-appointments-page__request-btn"
                     >
-                        Demander un rendez-vous
+                        {t('Demander un rendez-vous')}
                     </Button>
                     <button
                         className="patient-appointments-page__history-btn"
                         onClick={toggleViewMode}
-                        title={viewMode === 'upcoming' ? 'Voir l’historique' : 'Voir les rendez-vous à venir'}
-                        aria-label="Basculer l’affichage"
+                        title={viewMode === 'upcoming' ? t('Voir l\u2019historique') : t('Voir les rendez-vous à venir')}
+                        aria-label={t('Basculer l\u2019affichage')}
                     >
                         <HistoryIcon />
                     </button>

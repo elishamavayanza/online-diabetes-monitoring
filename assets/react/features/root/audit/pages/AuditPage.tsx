@@ -7,9 +7,11 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/root/audit/_audit.scss';
 
 export function AuditPage() {
+    const { t } = useI18n();
     const { auditLogs, dataAccessLogs, isLoading, error } = useAudit();
     const [modalOpen, setModalOpen] = useState(false);
     const { pushAction } = useActionHistory();
@@ -31,9 +33,9 @@ export function AuditPage() {
     return (
         <div className="audit-page">
             <div className="audit-page__header">
-                <h1>Journaux d’audit</h1>
-                <p>Consultez les actions et accès sensibles</p>
-                <Button onClick={openDetails}>Ouvrir détails</Button>
+                <h1>{t('Journaux d\u2019audit')}</h1>
+                <p>{t('Consultez les actions et accès sensibles')}</p>
+                <Button onClick={openDetails}>{t('Ouvrir détails')}</Button>
             </div>
             <div className="audit-page__content">
                 <AuditLogsTable logs={auditLogs} />
@@ -42,7 +44,7 @@ export function AuditPage() {
 
             {modalOpen && (
                 <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-                    <p>Détails de l'audit (exemple).</p>
+                    <p>{t("Détails de l'audit (exemple).")}</p>
                 </Modal>
             )}
         </div>

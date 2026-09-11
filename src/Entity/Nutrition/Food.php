@@ -3,6 +3,7 @@
 namespace App\Entity\Nutrition;
 
 use App\Entity\Common\BaseEntity;
+use App\Entity\Healthcare\HealthcareOrganization;
 use App\Entity\Identity\HealthcareProfessional;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,6 +14,22 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'nutrition_foods')]
 class Food extends BaseEntity
 {
+    /** Organisation propriétaire de cet aliment. */
+    #[ORM\ManyToOne(targetEntity: HealthcareOrganization::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'RESTRICT')]
+    private ?HealthcareOrganization $organization = null;
+
+    public function getOrganization(): ?HealthcareOrganization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(?HealthcareOrganization $organization): static
+    {
+        $this->organization = $organization;
+        return $this;
+    }
+
     /**
      * @var FoodCategory|null La catégorie à laquelle appartient l'aliment.
      */

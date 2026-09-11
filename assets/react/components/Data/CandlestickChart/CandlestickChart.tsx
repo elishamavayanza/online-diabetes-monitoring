@@ -5,6 +5,7 @@ import {
     CandlestickDataPoint,
     useCandlestickChart
 } from "@/react/hook-components/Data/CandlestickChart/useCandlestickChart";
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface CandlestickChartProps {
     data: CandlestickDataPoint[];
@@ -27,6 +28,7 @@ export function CandlestickChart({
                                      formatDate = (d) => String(d),
                                      formatPrice = (p) => p.toFixed(2),
                                  }: CandlestickChartProps) {
+    const { t } = useI18n();
     const containerRef = useRef<HTMLDivElement>(null);
     const [chartWidth, setChartWidth] = useState<number>(0);
 
@@ -72,7 +74,7 @@ export function CandlestickChart({
     });
 
     if (data.length === 0) {
-        return <div className="candlestick-chart__empty">Aucune donnée</div>;
+        return <div className="candlestick-chart__empty">{t('Aucune donnée')}</div>;
     }
 
     return (

@@ -10,6 +10,24 @@ interface ApiFeedback<T> {
     data: T;
 }
 
+export interface PaginatedList<T> {
+    items: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export interface UsersQuery {
+    tab?: 'Tous' | 'Professionnels' | 'Patients' | 'Administrateurs';
+    q?: string;
+    page?: number;
+    limit?: number;
+    sort?: string;
+    order?: 'asc' | 'desc';
+    org?: string;
+}
+
 // Convertit les données API en objet User
 function mapApiToUser(apiData: any, fallbackType?: UserType): User {
     const fullName =
@@ -63,49 +81,55 @@ function mapApiToUser(apiData: any, fallbackType?: UserType): User {
 }
 
 /**
- * Récupère la liste des utilisateurs selon le filtre.
+ * Récupère la liste paginée des utilisateurs avec recherche / tri serveur.
  */
-export async function fetchUsers(
-    filter: 'Tous' | 'Professionnels' | 'Patients' | 'Administrateurs'
-): Promise<User[]> {
-    try {
-        let users: User[] = [];
+export async function fetchPaginatedUsers(query: UsersQuery = {}): Promise<PaginatedList<User>> {
+    const { tab = 'Tous', q, page = 1, limit = 10, sort, order = 'desc', org } = query;
 
-        switch (filter) {
-            case 'Professionnels': {
-                const response = await apiClient.get<ApiFeedback<any[]>>('/professionals');
-                const data = response.data.data ?? [];
-                users = data.map((item) => mapApiToUser(item, 'Professional'));
-                break;
-            }
-            case 'Patients': {
-                const response = await apiClient.get<ApiFeedback<any[]>>('/patients');
-                const data = response.data.data ?? [];
-                users = data.map((item) => mapApiToUser(item, 'Patient'));
-                break;
-            }
-            case 'Administrateurs': {
-                const response = await apiClient.get<ApiFeedback<any[]>>('/users');
-                const data = response.data.data ?? [];
-                users = data
-                    .filter((item) => item.role === 'ROLE_ADMIN' || item.role === 'ROLE_ROOT')
-                    .map((item) => mapApiToUser(item, 'Administrator'));
-                break;
-            }
-            case 'Tous':
-            default: {
-                const response = await apiClient.get<ApiFeedback<any[]>>('/users');
-                const data = response.data.data ?? [];
-                users = data.map((item) => mapApiToUser(item));
-                break;
-            }
-        }
+    const params: Record<string, string | number | undefined> = {
+        page,
+        limit,
+        q: q || undefined,
+        sort,
+        order,
+        org: org || undefined,
+    };
 
-        return users;
-    } catch (error) {
-        console.error('Erreur fetchUsers:', error);
-        throw error;
+    let endpoint = '/users';
+    let fallbackType: UserType = 'Patient';
+
+    if (tab === 'Professionnels') {
+        endpoint = '/professionals';
+        fallbackType = 'Professional';
+    } else if (tab === 'Patients') {
+        endpoint = '/patients';
+        fallbackType = 'Patient';
+    } else if (tab === 'Administrateurs') {
+        params.role = 'admin';
     }
+
+    const response = await apiClient.get<ApiFeedback<PaginatedList<any>>>(endpoint, { params });
+
+    if (response.data.error) {
+        throw new Error(response.data.message || 'Erreur lors du chargement des utilisateurs.');
+    }
+
+    const payload = response.data.data;
+
+    // Fallback : si le serveur renvoie un simple tableau (ancien contrat),
+    // on l'utilise tel quel sur la première page.
+    const items = Array.isArray(payload) ? payload.slice(0, limit) : (payload?.items ?? []);
+    const total = Array.isArray(payload) ? payload.length : (payload?.total ?? items.length);
+
+    return {
+        items: items.map((item) => mapApiToUser(item, fallbackType)),
+        total,
+        page: Array.isArray(payload) ? 1 : (payload?.page ?? page),
+        limit: Array.isArray(payload) ? limit : (payload?.limit ?? limit),
+        totalPages: Array.isArray(payload)
+            ? Math.ceil(total / limit)
+            : (payload?.totalPages ?? Math.ceil(total / limit)),
+    };
 }
 
 /**

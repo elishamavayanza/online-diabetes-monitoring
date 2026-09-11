@@ -3,15 +3,20 @@
 namespace App\Controller\Api\Identity;
 
 use App\DTO\Request\Identity\UserCreateRequestDTO;
+use App\DTO\Request\Identity\UserUpdateRequestDTO;
 use App\DTO\Response\Identity\UserResponseDTO;
 use App\Service\Identity\UserService;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Security\SecurityServiceInterface;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users')]
 #[OA\Tag(
@@ -21,15 +26,24 @@ use Symfony\Component\Routing\Attribute\Route;
 class UserController extends AbstractController
 {
     public function __construct(
-        private readonly UserService $userService
+        private readonly UserService $userService,
+        private readonly SecurityServiceInterface $securityService,
+        private readonly SerializerInterface $serializer,
+        private readonly ValidatorInterface $validator
     ) {
     }
 
     #[Route('', name: 'api_users_list', methods: ['GET'])]
     #[OA\Get(
-        description: 'Récupère la liste de tous les utilisateurs (ou administrateurs).',
+        description: 'Récupère la liste de tous les utilisateurs (ou administrateurs). Supporte la pagination (page, limit), la recherche (q), le tri (sort, order) et un filtre par type de rôle (role).',
         summary: 'Lister les utilisateurs'
     )]
+    #[OA\Parameter(name: 'page', in: 'query', description: 'Numéro de page (active la pagination)', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'limit', in: 'query', description: 'Nombre d\'éléments par page', schema: new OA\Schema(type: 'integer'))]
+    #[OA\Parameter(name: 'q', in: 'query', description: 'Recherche sur nom / e-mail', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'sort', in: 'query', description: 'Champ de tri (createdAt, fullName, email)', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'order', in: 'query', description: 'Sens de tri (asc|desc)', schema: new OA\Schema(type: 'string'))]
+    #[OA\Parameter(name: 'role', in: 'query', description: 'Filtre par rôle (admin, professional, patient)', schema: new OA\Schema(type: 'string'))]
     #[OA\Response(
         response: 200,
         description: 'Liste des utilisateurs récupérée avec succès',
@@ -48,9 +62,17 @@ class UserController extends AbstractController
     )]
     #[OA\Response(response: 401, description: 'Non authentifié')]
     #[OA\Response(response: 403, description: 'Permission insuffisante')]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $feedback = $this->userService->getAll();
+        $feedback = $this->userService->getAll(
+            $request->query->has('page') ? max(1, $request->query->getInt('page')) : null,
+            $request->query->has('limit') ? min(100, max(1, $request->query->getInt('limit'))) : 20,
+            $request->query->get('q'),
+            $request->query->get('sort'),
+            $request->query->get('order', 'desc'),
+            $request->query->get('role'),
+            $request->query->get('org'),
+        );
 
         return $this->json(
             $feedback,
@@ -58,12 +80,43 @@ class UserController extends AbstractController
         );
     }
 
-    #[Route('/profile', name: 'api_users_update_profile', methods: ['PUT', 'PATCH'])]
+    #[Route('/profile', name: 'api_users_get_profile', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Récupérer son propre profil utilisateur',
+        description: 'Permet à un utilisateur (root, admin, …) de récupérer ses propres informations, y compris sa photo de profil.'
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Profil récupéré avec succès',
+        content: new OA\JsonContent(ref: new Model(type: UserResponseDTO::class))
+    )]
+    public function getProfile(): JsonResponse
+    {
+        $currentUser = $this->securityService->getCurrentUser();
+
+        if (!$currentUser) {
+            return $this->json([
+                'status' => 401,
+                'error' => true,
+                'message' => 'Non authentifié.'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $feedback = $this->userService->getProfile((string) $currentUser->getId());
+
+        $status = $feedback->hasErrors()
+            ? Response::HTTP_BAD_REQUEST
+            : Response::HTTP_OK;
+
+        return $this->json($feedback, $status);
+    }
+
+    #[Route('/profile', name: 'api_users_update_profile', methods: ['PUT', 'PATCH', 'POST'])]
     #[OA\Put(summary: 'Modifier son propre profil utilisateur')]
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            ref: new Model(type: UserCreateRequestDTO::class)
+            ref: new Model(type: UserUpdateRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -79,7 +132,7 @@ class UserController extends AbstractController
         )
     )]
     public function updateProfile(
-        #[MapRequestPayload] UserCreateRequestDTO $dto
+        Request $request
     ): JsonResponse {
         $currentUser = $this->securityService->getCurrentUser();
 
@@ -89,6 +142,25 @@ class UserController extends AbstractController
                 'error' => true,
                 'message' => 'Non authentifié.'
             ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $formData = $this->resolvePayload($request);
+
+        $dto = $this->serializer->denormalize(
+            $formData,
+            UserUpdateRequestDTO::class,
+            null,
+            ['allow_extra_attributes' => true]
+        );
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Données invalides',
+                'errors' => (string) $errors
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $feedback = $this->userService->update((string) $currentUser->getId(), $dto);
@@ -181,7 +253,7 @@ DESC,
         );
     }
 
-    #[Route('/{id}', name: 'api_users_update', methods: ['PUT', 'PATCH'])]
+    #[Route('/{id}', name: 'api_users_update', methods: ['PUT', 'POST', 'PATCH'])]
     #[OA\Put(summary: 'Modifier un utilisateur')]
     #[OA\Patch(summary: 'Modifier partiellement un utilisateur')]
     #[OA\Parameter(
@@ -194,7 +266,7 @@ DESC,
     #[OA\RequestBody(
         required: true,
         content: new OA\JsonContent(
-            ref: new Model(type: UserCreateRequestDTO::class)
+            ref: new Model(type: UserUpdateRequestDTO::class)
         )
     )]
     #[OA\Response(
@@ -213,8 +285,27 @@ DESC,
     #[OA\Response(response: 404, description: 'Utilisateur introuvable')]
     public function update(
         int $id,
-        #[MapRequestPayload] UserCreateRequestDTO $dto
+        Request $request
     ): JsonResponse {
+        $formData = $this->resolvePayload($request);
+
+        $dto = $this->serializer->denormalize(
+            $formData,
+            UserUpdateRequestDTO::class,
+            null,
+            ['allow_extra_attributes' => true]
+        );
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            return $this->json([
+                'status' => 400,
+                'error' => true,
+                'message' => 'Données invalides',
+                'errors' => (string) $errors
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $feedback = $this->userService->update($id, $dto);
 
         $status = $feedback->hasErrors()
@@ -222,5 +313,22 @@ DESC,
             : Response::HTTP_OK;
 
         return $this->json($feedback, $status);
+    }
+
+    /**
+     * Fusionne les données de la requête (form-data ou JSON) et les fichiers uploadés.
+     */
+    private function resolvePayload(Request $request): array
+    {
+        $payload = $request->request->all();
+
+        if ($request->getContentTypeFormat() === 'json') {
+            $decoded = json_decode($request->getContent() ?: '{}', true);
+            if (is_array($decoded)) {
+                $payload = array_merge($payload, $decoded);
+            }
+        }
+
+        return array_merge($payload, $request->files->all());
     }
 }

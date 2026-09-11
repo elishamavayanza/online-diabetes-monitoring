@@ -11,9 +11,11 @@ import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { useAuth } from '@/react/app/providers/AuthProvider';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/clinician/dashboard/_dashboard.scss';
 
 export function ClinicianDashboardPage() {
+    const { t } = useI18n();
     const { data, isLoading, error, reload } = useClinicianDashboard();
     const { user } = useAuth();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -31,8 +33,8 @@ export function ClinicianDashboardPage() {
         ) : (
             <ErrorState
                 size="full"
-                title="Aucune donnée disponible"
-                message="Le tableau de bord est vide pour le moment."
+                title={t('Aucune donnée disponible')}
+                message={t('Le tableau de bord est vide pour le moment.')}
                 onRetry={reload}
             />
         );
@@ -41,9 +43,9 @@ export function ClinicianDashboardPage() {
     return (
         <div className="clinician-dashboard-page">
             <div className="clinician-dashboard-page__header">
-                <h1>Vue générale</h1>
-                <p>{user?.name ? `Bienvenue, ${user.name}` : 'Bienvenue'}</p>
-                <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                <h1>{t('Vue générale')}</h1>
+                <p>{user?.name ? t('Bienvenue, {{ name }}', { name: user.name }) : t('Bienvenue')}</p>
+                <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
             </div>
 
             <div className="clinician-dashboard-page__stats">
@@ -64,7 +66,7 @@ export function ClinicianDashboardPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Tableau de bord résumant vos rendez-vous, vos patients et les suivis à planifier.</p>
+                    <p>{t('Tableau de bord résumant vos rendez-vous, vos patients et les suivis à planifier.')}</p>
                 </Modal>
             )}
         </div>

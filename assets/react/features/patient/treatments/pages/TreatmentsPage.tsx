@@ -8,6 +8,7 @@ import { Button } from '@/react/components/UI/Button';
 import { Modal } from '@/react/components/UI/Modal';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
 import { Treatment } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/patient/treatments/_treatments.scss';
 
 const HistoryIcon = () => (
@@ -18,6 +19,7 @@ const HistoryIcon = () => (
 );
 
 export function TreatmentsPage() {
+    const { t } = useI18n();
     const { treatments, pastTreatments, stopTreatment, isLoading, error } = useTreatments();
     const [viewMode, setViewMode] = useState<'active' | 'history'>('active');
     const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -54,15 +56,15 @@ export function TreatmentsPage() {
     return (
         <div className="treatments-page">
             <div className="treatments-page__header">
-                <h1>{viewMode === 'active' ? 'Mes traitements' : 'Historique des traitements'}</h1>
-                <p>{viewMode === 'active' ? 'Ce qui vous est prescrit actuellement' : 'Traitements terminés ou arrêtés'}</p>
+                <h1>{viewMode === 'active' ? t('Mes traitements') : t('Historique des traitements')}</h1>
+                <p>{viewMode === 'active' ? t('Ce qui vous est prescrit actuellement') : t('Traitements terminés ou arrêtés')}</p>
                 <div className="treatments-page__header-actions">
-                    <Button variant="secondary" onClick={openHelp}>Aide</Button>
+                    <Button variant="secondary" onClick={openHelp}>{t('Aide')}</Button>
                     <button
                         className="treatments-page__history-btn"
                         onClick={toggleView}
-                        title={viewMode === 'active' ? 'Voir l’historique' : 'Voir les traitements actifs'}
-                        aria-label="Basculer historique"
+                        title={viewMode === 'active' ? t('Voir l’historique') : t('Voir les traitements actifs')}
+                        aria-label={t('Basculer historique')}
                     >
                         <HistoryIcon />
                     </button>
@@ -77,7 +79,7 @@ export function TreatmentsPage() {
 
             {isHelpOpen && (
                 <Modal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)}>
-                    <p>Cette page liste vos traitements prescrits.</p>
+                    <p>{t('Cette page liste vos traitements prescrits.')}</p>
                 </Modal>
             )}
 

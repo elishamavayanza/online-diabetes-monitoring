@@ -53,6 +53,7 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
         permissions: decoded.permissions ?? [],
         role: (decoded.role as UserRole) ?? mapSymfonyRoleToUserRole(decoded.roles ?? []),
         photoUrl: resolveAvatarUrl(decoded.photoUrl ?? decoded.avatarUrl),
+        locale: (decoded.locale as string) ?? 'fr',
     };
 
     return {

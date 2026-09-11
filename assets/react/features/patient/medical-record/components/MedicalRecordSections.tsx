@@ -1,6 +1,7 @@
 import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { MedicalRecordData } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 function formatDate(dateStr: string): string {
     if (!dateStr) return '—';
@@ -18,36 +19,37 @@ interface MedicalRecordSectionsProps {
 }
 
 export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
+    const { t } = useI18n();
     return (
         <div className="medical-record-sections">
             <Card>
-                <h3>Informations personnelles</h3>
+                <h3>{t('Informations personnelles')}</h3>
                 <div className="medical-record-info">
-                    <p><strong>Nom :</strong> {data.personalInfo.nom}</p>
-                    <p><strong>Date de naissance :</strong> {formatDate(data.personalInfo.dateNaissance)}</p>
-                    <p><strong>Email :</strong> {data.personalInfo.email}</p>
-                    <p><strong>Téléphone :</strong> {data.personalInfo.telephone}</p>
+                    <p><strong>{t('Nom :')}</strong> {data.personalInfo.nom}</p>
+                    <p><strong>{t('Date de naissance :')}</strong> {formatDate(data.personalInfo.dateNaissance)}</p>
+                    <p><strong>{t('Email :')}</strong> {data.personalInfo.email}</p>
+                    <p><strong>{t('Téléphone :')}</strong> {data.personalInfo.telephone}</p>
                     {data.personalInfo.bloodType && (
-                        <p><strong>Groupe sanguin :</strong> {data.personalInfo.bloodType}</p>
+                        <p><strong>{t('Groupe sanguin :')}</strong> {data.personalInfo.bloodType}</p>
                     )}
                     {data.personalInfo.heightCm != null && (
-                        <p><strong>Taille :</strong> {data.personalInfo.heightCm} cm</p>
+                        <p><strong>{t('Taille :')}</strong> {data.personalInfo.heightCm} cm</p>
                     )}
                 </div>
             </Card>
 
             <Card>
-                <h3>Diabète</h3>
+                <h3>{t('Diabète')}</h3>
                 <div className="medical-record-info">
-                    <p><strong>Type :</strong> {data.diabetesInfo.type}</p>
-                    <p><strong>Date du diagnostic :</strong> {formatDate(data.diabetesInfo.dateDiagnostic)}</p>
+                    <p><strong>{t('Type :')}</strong> {data.diabetesInfo.type}</p>
+                    <p><strong>{t('Date du diagnostic :')}</strong> {formatDate(data.diabetesInfo.dateDiagnostic)}</p>
                 </div>
             </Card>
 
             <Card>
-                <h3>Allergies</h3>
+                <h3>{t('Allergies')}</h3>
                 {data.allergies.length === 0 ? (
-                    <p className="medical-record-sections__empty">Aucune allergie connue.</p>
+                    <p className="medical-record-sections__empty">{t('Aucune allergie connue.')}</p>
                 ) : (
                     <ul className="allergy-list">
                         {data.allergies.map((allergy) => (
@@ -75,9 +77,9 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
             </Card>
 
             <Card>
-                <h3>Diagnostics</h3>
+                <h3>{t('Diagnostics')}</h3>
                 {data.diagnostics.length === 0 ? (
-                    <p className="medical-record-sections__empty">Aucun diagnostic enregistré.</p>
+                    <p className="medical-record-sections__empty">{t('Aucun diagnostic enregistré.')}</p>
                 ) : (
                     <ul className="diagnostics-list">
                         {data.diagnostics.map((diag) => (
@@ -87,7 +89,7 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
                                     <span>{formatDate(diag.date)}</span>
                                 </div>
                                 {diag.description && <p className="diagnostics-list__desc">{diag.description}</p>}
-                                {diag.status && <Badge variant="info">{diag.status}</Badge>}
+                                {diag.status && <Badge variant="info">{t(diag.status)}</Badge>}
                             </li>
                         ))}
                     </ul>
@@ -95,9 +97,9 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
             </Card>
 
             <Card>
-                <h3>Contacts d'urgence</h3>
+                <h3>{t('Contacts d\u2019urgence')}</h3>
                 {data.emergencyContacts.length === 0 ? (
-                    <p className="medical-record-sections__empty">Aucun contact d'urgence.</p>
+                    <p className="medical-record-sections__empty">{t('Aucun contact d\u2019urgence.')}</p>
                 ) : (
                     <ul className="emergency-contacts-list">
                         {data.emergencyContacts.map((contact, idx) => (
@@ -112,9 +114,9 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
             </Card>
 
             <Card>
-                <h3>Consentements</h3>
+                <h3>{t('Consentements')}</h3>
                 {data.consentements.length === 0 ? (
-                    <p className="medical-record-sections__empty">Aucun consentement enregistré.</p>
+                    <p className="medical-record-sections__empty">{t('Aucun consentement enregistré.')}</p>
                 ) : (
                     <ul className="consents-list">
                         {data.consentements.map((consent) => (
@@ -124,7 +126,7 @@ export function MedicalRecordSections({ data }: MedicalRecordSectionsProps) {
                                     {consent.date && <span className="consents-list__date">{formatDate(consent.date)}</span>}
                                 </div>
                                 <Badge variant={consent.statut === 'Accepté' ? 'success' : 'error'}>
-                                    {consent.statut}
+                                    {t(consent.statut)}
                                 </Badge>
                             </li>
                         ))}

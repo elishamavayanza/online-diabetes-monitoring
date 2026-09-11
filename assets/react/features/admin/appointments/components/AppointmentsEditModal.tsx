@@ -1,5 +1,6 @@
 // components/AppointmentsEditModal.tsx
 import React, { useState, useEffect } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Modal } from '@/react/components/UI/Modal';
 import { Input } from '@/react/components/Forms/Input';
 import { Select } from '@/react/components/Forms/Select';
@@ -44,6 +45,7 @@ export function AppointmentsEditModal({
                                           appointment,
                                           onUpdated,
                                       }: AppointmentsEditModalProps) {
+    const { t } = useI18n();
     const { updateAppointment, isUpdating, error } = useUpdateAppointment();
     const [formData, setFormData] = useState<AppointmentFormData>(emptyFormData);
 
@@ -91,43 +93,43 @@ export function AppointmentsEditModal({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Modifier le rendez-vous">
+        <Modal isOpen={isOpen} onClose={onClose} title={t('Modifier le rendez-vous')}>
             {error && <Alert variant="error">{error}</Alert>}
             <form onSubmit={handleSubmit}>
                 <div className="appointment-form-grid">
-                    <FormField label="Patient" htmlFor="patientId" required>
+                    <FormField label={t('Patient')} htmlFor="patientId" required>
                         <SearchableSelect
                             options={patientOptions}
                             value={formData.patientId}
                             onChange={(value) => handleSearchableSelectChange('patientId', value)}
-                            placeholder="Sélectionner un patient"
+                            placeholder={t('Sélectionner un patient')}
                             required
                         />
                     </FormField>
 
-                    <FormField label="Professionnel" htmlFor="professionalId" required>
+                    <FormField label={t('Professionnel')} htmlFor="professionalId" required>
                         <SearchableSelect
                             options={professionalOptions}
                             value={formData.professionalId}
                             onChange={(value) => handleSearchableSelectChange('professionalId', value)}
-                            placeholder="Sélectionner un professionnel"
+                            placeholder={t('Sélectionner un professionnel')}
                             required
                         />
                     </FormField>
 
-                    <FormField label="Organisation" htmlFor="organizationId" required>
+                    <FormField label={t('Organisation')} htmlFor="organizationId" required>
                         <Select
                             id="organizationId"
                             name="organizationId"
                             value={formData.organizationId}
                             onChange={handleSelectChange}
                             options={organizationOptions}
-                            placeholder="Sélectionner une organisation"
+                            placeholder={t('Sélectionner une organisation')}
                             required
                         />
                     </FormField>
 
-                    <FormField label="Établissement (optionnel)" htmlFor="facilityId">
+                    <FormField label={t('Établissement (optionnel)')} htmlFor="facilityId">
                         <Select
                             id="facilityId"
                             name="facilityId"
@@ -137,7 +139,7 @@ export function AppointmentsEditModal({
                         />
                     </FormField>
 
-                    <FormField label="Date et heure" htmlFor="scheduledAt" required>
+                    <FormField label={t('Date et heure')} htmlFor="scheduledAt" required>
                         <Input
                             type="datetime-local"
                             id="scheduledAt"
@@ -148,7 +150,7 @@ export function AppointmentsEditModal({
                         />
                     </FormField>
 
-                    <FormField label="Durée (minutes)" htmlFor="durationMinutes" required>
+                    <FormField label={t('Durée (minutes)')} htmlFor="durationMinutes" required>
                         <Input
                             type="number"
                             id="durationMinutes"
@@ -161,7 +163,7 @@ export function AppointmentsEditModal({
                         />
                     </FormField>
 
-                    <FormField label="Statut" htmlFor="status" required>
+                    <FormField label={t('Statut')} htmlFor="status" required>
                         <Select
                             id="status"
                             name="status"
@@ -172,35 +174,35 @@ export function AppointmentsEditModal({
                         />
                     </FormField>
 
-                    <FormField label="Motif" htmlFor="reason">
+                    <FormField label={t('Motif')} htmlFor="reason">
                         <Input
                             type="text"
                             id="reason"
                             name="reason"
                             value={formData.reason || ''}
                             onChange={handleChange}
-                            placeholder="Motif du rendez-vous"
+                            placeholder={t('Motif du rendez-vous')}
                         />
                     </FormField>
                 </div>
 
-                <FormField label="Notes" htmlFor="notes">
+                <FormField label={t('Notes')} htmlFor="notes">
                     <Input
                         type="text"
                         id="notes"
                         name="notes"
                         value={formData.notes || ''}
                         onChange={handleChange}
-                        placeholder="Notes supplémentaires"
+                        placeholder={t('Notes supplémentaires')}
                     />
                 </FormField>
 
                 <div className="appointment-form-actions">
                     <Button type="button" variant="secondary" onClick={onClose} disabled={isUpdating}>
-                        Annuler
+                        {t('Annuler')}
                     </Button>
                     <Button type="submit" variant="primary" disabled={isUpdating}>
-                        {isUpdating ? <Spinner size="small" /> : 'Enregistrer'}
+                        {isUpdating ? <Spinner size="small" /> : t('Enregistrer')}
                     </Button>
                 </div>
             </form>

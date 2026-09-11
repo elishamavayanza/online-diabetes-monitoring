@@ -11,6 +11,7 @@ import { FileUpload } from '@/react/components/Forms/FileUpload';
 import { ImageEditor } from '@/react/components/UI/ImageEditor/ImageEditor';
 import { useUpdateOrganisation } from '../hooks/useUpdateOrganisation';
 import { CreateOrganisationPayload } from '../types';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface OrganisationEditModalProps {
     isOpen: boolean;
@@ -27,6 +28,7 @@ export function OrganisationEditModal({
                                           organisationData,
                                           onSuccess,
                                       }: OrganisationEditModalProps) {
+    const { t } = useI18n();
     const { form, updateField, updateAddress, submit, isSubmitting, error, setLogo } =
         useUpdateOrganisation(organisationId, organisationData);
 
@@ -39,9 +41,9 @@ export function OrganisationEditModal({
     }, [organisationData]);
 
     const typeOptions = [
-        { value: 'HOSPITAL', label: 'Hôpital' },
-        { value: 'CLINIC', label: 'Clinique' },
-        { value: 'NETWORK', label: 'Réseau' },
+        { value: 'HOSPITAL', label: t('H\u00f4pital') },
+        { value: 'CLINIC', label: t('Clinique') },
+        { value: 'NETWORK', label: t('R\u00e9seau') },
     ];
 
     const handleFilesSelected = (files: File[]) => {
@@ -81,65 +83,65 @@ export function OrganisationEditModal({
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <div className="organisation-form-modal">
-                <h2>Modifier l'organisation</h2>
+                <h2>{t("Modifier l\u2019organisation")}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
                 <Form onSubmit={handleSubmit}>
-                    <FormField label="Nom complet *">
+                    <FormField label={t('Nom complet *')}>
                         <Input
                             value={form.name}
                             onChange={(e) => updateField('name', e.target.value)}
                             required
                         />
                     </FormField>
-                    <FormField label="Nom court">
+                    <FormField label={t('Nom court')}>
                         <Input
                             value={form.shortName}
                             onChange={(e) => updateField('shortName', e.target.value)}
                         />
                     </FormField>
-                    <FormField label="Type *">
+                    <FormField label={t('Type *')}>
                         <Select
                             value={form.type}
                             onChange={(e) => updateField('type', e.target.value as any)}
                             options={typeOptions}
                         />
                     </FormField>
-                    <FormField label="Email">
+                    <FormField label={t('Email')}>
                         <Input
                             type="email"
                             value={form.email}
                             onChange={(e) => updateField('email', e.target.value)}
                         />
                     </FormField>
-                    <FormField label="Téléphone">
+                    <FormField label={t('T\u00e9l\u00e9phone')}>
                         <Input
                             value={form.phone}
                             onChange={(e) => updateField('phone', e.target.value)}
                         />
                     </FormField>
-                    <FormField label="Site Web">
+                    <FormField label={t('Site Web')}>
                         <Input
                             value={form.website}
                             onChange={(e) => updateField('website', e.target.value)}
                         />
                     </FormField>
 
-                    <FormField label="Logo de l'organisation">
+                    <FormField label={t("Logo de l\u2019organisation")}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <FileUpload
                                 accept="image/*"
                                 multiple={false}
                                 maxFiles={1}
                                 maxSizeInMB={5}
-                                label="Cliquez ou déposez le logo ici"
-                                hint="PNG, JPG ou SVG recommandé"
+                                label={t('Cliquez ou d\u00e9posez le logo ici')}
+                                hint={t('PNG, JPG ou SVG recommand\u00e9')}
                                 onFilesSelected={handleFilesSelected}
                             />
                             {logoPreview && (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                     <img
                                         src={logoPreview}
-                                        alt="Aperçu du logo"
+                                        alt={t('Aper\u00e7u du logo')}
                                         style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover' }}
                                     />
                                     <Button
@@ -147,7 +149,7 @@ export function OrganisationEditModal({
                                         variant="outline"
                                         onClick={() => setIsEditorOpen(true)}
                                     >
-                                        Éditer l'image
+                                        {t("\u00c9diter l\u2019image")}
                                     </Button>
                                 </div>
                             )}
@@ -155,21 +157,21 @@ export function OrganisationEditModal({
                     </FormField>
 
                     <div className="organisation-form-modal__address">
-                        <FormField label="Rue">
+                        <FormField label={t('Rue')}>
                             <Input value={form.address?.street ?? ''} onChange={(e) => updateAddress('street', e.target.value)} />
                         </FormField>
-                        <FormField label="Ville">
+                        <FormField label={t('Ville')}>
                             <Input value={form.address?.city ?? ''} onChange={(e) => updateAddress('city', e.target.value)} />
                         </FormField>
-                        <FormField label="Code postal">
+                        <FormField label={t('Code postal')}>
                             <Input value={form.address?.postalCode ?? ''} onChange={(e) => updateAddress('postalCode', e.target.value)} />
                         </FormField>
-                        <FormField label="Pays">
+                        <FormField label={t('Pays')}>
                             <Input value={form.address?.country ?? ''} onChange={(e) => updateAddress('country', e.target.value)} />
                         </FormField>
                     </div>
 
-                    <FormField label="Actif">
+                    <FormField label={t('Actif')}>
                         <Switch
                             checked={form.active}
                             onChange={(e) => updateField('active', e.target.checked)}
@@ -177,8 +179,8 @@ export function OrganisationEditModal({
                     </FormField>
 
                     <div className="organisation-form-modal__actions">
-                        <Button type="button" variant="outline" onClick={onClose}>Annuler</Button>
-                        <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Mise à jour...' : 'Enregistrer'}</Button>
+                        <Button type="button" variant="outline" onClick={onClose}>{t('Annuler')}</Button>
+                        <Button type="submit" disabled={isSubmitting}>{isSubmitting ? t('Mise \u00e0 jour...') : t('Enregistrer')}</Button>
                     </div>
                 </Form>
             </div>

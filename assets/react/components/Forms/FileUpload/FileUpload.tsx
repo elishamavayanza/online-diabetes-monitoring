@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFileUpload, UseFileUploadProps } from '../../../hook-components/Forms/FileUpload';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 const UploadIcon = () => (
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -39,9 +40,11 @@ export function FileUpload({
                                maxSizeInMB = 10,
                                onFilesSelected,
                                className,
-                               label = 'Cliquez ou déposez des fichiers ici',
+                               label,
                                hint,
                            }: FileUploadProps) {
+    const { t } = useI18n();
+    const effectiveLabel = label ?? t('Cliquez ou déposez des fichiers ici');
     const {
         classes,
         files,
@@ -83,7 +86,7 @@ export function FileUpload({
                 }}
             >
                 <UploadIcon />
-                <span className="fileupload__label">{label}</span>
+                <span className="fileupload__label">{effectiveLabel}</span>
                 {hint && <span className="fileupload__hint">{hint}</span>}
                 <input
                     ref={inputRef}
@@ -107,7 +110,7 @@ export function FileUpload({
                                 type="button"
                                 className="fileupload__remove"
                                 onClick={() => removeFile(file.id)}
-                                aria-label={`Supprimer ${file.file.name}`}
+                                aria-label={t('Supprimer {{ nom }}', { nom: file.file.name })}
                             >
                                 <RemoveIcon />
                             </button>

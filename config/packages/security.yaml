@@ -35,6 +35,8 @@ security:
         - { path: ^/api/forgot-password, roles: PUBLIC_ACCESS }
         - { path: ^/api/reset-password, roles: PUBLIC_ACCESS }
         - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
+        - { path: ^/api/settings, methods: [GET], roles: PUBLIC_ACCESS }
+        - { path: ^/api/settings, methods: [PUT, POST, PATCH], roles: ROLE_ROOT }
 
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { useErrorState, UseErrorStateProps } from '../../../hook-components/UI/ErrorState';
 import { Button } from '@/react/components/UI/Button';
 import { ApiErrorKind } from '@/services/api/errorDisplay';
+import { useI18n, TranslateFn } from '@/react/i18n/I18nContext';
 
 // ─────────────────────────────────────────
 // Icônes d'illustration
@@ -110,8 +111,8 @@ export interface ErrorStateProps extends UseErrorStateProps {
     onHome?: () => void;
 }
 
-function renderActions(props: ErrorStateProps) {
-    const { onRetry, onLogin, onBack, onHome } = props;
+function renderActions(props: ErrorStateProps & { t: TranslateFn }) {
+    const { onRetry, onLogin, onBack, onHome, t } = props;
     const hasActions = !!(onRetry || onLogin || onBack || onHome);
     if (!hasActions) return null;
 
@@ -119,22 +120,22 @@ function renderActions(props: ErrorStateProps) {
         <div className="error-state__actions">
             {onRetry && (
                 <Button variant="primary" onClick={onRetry}>
-                    Réessayer
+                    {t('Réessayer')}
                 </Button>
             )}
             {onLogin && (
                 <Button variant="primary" onClick={onLogin}>
-                    Se connecter
+                    {t('Se connecter')}
                 </Button>
             )}
             {onBack && (
                 <Button variant="secondary" onClick={onBack}>
-                    Retour
+                    {t('Retour')}
                 </Button>
             )}
             {onHome && (
                 <Button variant="secondary" onClick={onHome}>
-                    Accueil
+                    {t('Accueil')}
                 </Button>
             )}
         </div>
@@ -156,6 +157,7 @@ export function ErrorState({
                                compact,
                                className,
                            }: ErrorStateProps) {
+    const { t } = useI18n();
     const { classes } = useErrorState({
         size,
         tone: tone ?? pickTone(status, kind),
@@ -163,9 +165,12 @@ export function ErrorState({
         className,
     });
 
-    const displayedTitle = title ?? 'Une erreur est survenue';
+    const displayedTitle = title ? (typeof title === 'string' ? t(title) : title) : t('Une erreur est survenue');
+    const displayedMessage = message ? (typeof message === 'string' ? t(message) : message) : undefined;
     const displayedCode = status !== undefined
-        ? `ERREUR ${status}${codeLabel ? ` · ${codeLabel}` : ''}`
+        ? (codeLabel
+            ? t('ERREUR {{ status }} · {{ codeLabel }}', { status: String(status), codeLabel })
+            : t('ERREUR {{ status }}', { status: String(status) }))
         : codeLabel;
 
     return (
@@ -176,13 +181,13 @@ export function ErrorState({
 
             <h2 className="error-state__title">{displayedTitle}</h2>
 
-            {message && <p className="error-state__message">{message}</p>}
+            {displayedMessage && <p className="error-state__message">{displayedMessage}</p>}
 
             {displayedCode && (
                 <span className="error-state__code">{displayedCode}</span>
             )}
 
-            {renderActions({ status, codeLabel, kind, title, message, onRetry, onLogin, onBack, onHome })}
+            {renderActions({ status, codeLabel, kind, title, message: displayedMessage, onRetry, onLogin, onBack, onHome, t })}
         </div>
     );
 }

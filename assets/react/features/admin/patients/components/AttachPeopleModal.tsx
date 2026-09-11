@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { Modal } from '@/react/components/UI/Modal';
 import { Button } from '@/react/components/UI/Button';
 import { Alert } from '@/react/components/UI/Alert';
@@ -24,6 +25,7 @@ export function AttachPeopleModal({
                                       mode = 'create',
                                       onSuccess,
                                   }: AttachPeopleModalProps) {
+    const { t } = useI18n();
     const {
         professionals,
         assignments,
@@ -50,36 +52,36 @@ export function AttachPeopleModal({
     }));
 
     const roleOptions = [
-        { value: 'PRIMARY_CLINICIAN', label: 'Médecin principal' },
-        { value: 'SPECIALIST', label: 'Spécialiste' },
-        { value: 'NUTRITIONIST', label: 'Nutritionniste' },
+        { value: 'PRIMARY_CLINICIAN', label: t('Médecin principal') },
+        { value: 'SPECIALIST', label: t('Spécialiste') },
+        { value: 'NUTRITIONIST', label: t('Nutritionniste') },
     ];
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="large">
             <div className="attach-people-modal">
-                <h2>{mode === 'create' ? 'Attacher des professionnels' : "Modifier l'équipe de soins"}</h2>
+                <h2>{mode === 'create' ? t("Attacher des professionnels") : t("Modifier l'équipe de soins")}</h2>
                 {error && <Alert variant="error">{error}</Alert>}
 
                 <form onSubmit={handleSubmit}>
                     {assignments.length === 0 ? (
-                        <p>Aucune affectation ajoutée. Cliquez sur « Ajouter ».</p>
+                        <p>{t("Aucune affectation ajoutée. Cliquez sur « Ajouter ».")}</p>
                     ) : (
                         <div className="attach-people-modal__list">
                             {assignments.map((assignment, index) => (
                                 <div key={assignment.id} className="attach-people-modal__row">
-                                    <FormField label={`Professionnel ${index + 1} *`}>
+                                    <FormField label={`${t('Professionnel {{ index }}', { index: index + 1 })} *`}>
                                         <SearchableSelect
                                             options={professionalOptions}
                                             value={assignment.professionalId}
                                             onChange={(value) =>
                                                 updateAssignment(assignment.id, 'professionalId', value)
                                             }
-                                            placeholder="Rechercher un professionnel..."
+                                            placeholder={t('Rechercher un professionnel...')}
                                             required
                                         />
                                     </FormField>
-                                    <FormField label="Rôle *">
+                                    <FormField label={t('Rôle *')}>
                                         <Select
                                             value={assignment.role}
                                             onChange={(e) =>
@@ -88,7 +90,7 @@ export function AttachPeopleModal({
                                             options={roleOptions}
                                         />
                                     </FormField>
-                                    <FormField label="Début *">
+                                    <FormField label={t('Début *')}>
                                         <Input
                                             type="date"
                                             value={assignment.startDate}
@@ -98,7 +100,7 @@ export function AttachPeopleModal({
                                             required
                                         />
                                     </FormField>
-                                    <FormField label="Fin">
+                                    <FormField label={t('Fin')}>
                                         <Input
                                             type="date"
                                             value={assignment.endDate}
@@ -107,7 +109,7 @@ export function AttachPeopleModal({
                                             }
                                         />
                                     </FormField>
-                                    <FormField label="Actif">
+                                    <FormField label={t('Actif')}>
                                         <Switch
                                             checked={assignment.active}
                                             onChange={(e) =>
@@ -121,7 +123,7 @@ export function AttachPeopleModal({
                                         size="small"
                                         onClick={() => removeAssignment(assignment.id)}
                                     >
-                                        Supprimer
+                                        {t('Supprimer')}
                                     </Button>
                                 </div>
                             ))}
@@ -130,13 +132,13 @@ export function AttachPeopleModal({
 
                     <div className="attach-people-modal__actions">
                         <Button type="button" variant="outline" onClick={addAssignment}>
-                            + Ajouter
+                            {t('+ Ajouter')}
                         </Button>
                         <Button type="button" variant="outline" onClick={onClose}>
-                            Annuler
+                            {t('Annuler')}
                         </Button>
                         <Button type="submit" disabled={isSubmitting || assignments.length === 0}>
-                            {isSubmitting ? 'Enregistrement...' : 'Attacher'}
+                            {isSubmitting ? t('Enregistrement...') : t('Attacher')}
                         </Button>
                     </div>
                 </form>

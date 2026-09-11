@@ -7,6 +7,7 @@ import { Alert } from '@/react/components/UI/Alert';
 import { Button } from '@/react/components/UI/Button';
 import { Card } from '@/react/components/UI/Card';
 import { useActionHistory } from '@/react/app/layouts/MainLayout/contexts/ActionHistoryContext';
+import { useI18n } from '@/react/i18n/I18nContext';
 import '@/styles/pages/clinician/patients/_record.scss';
 
 interface PatientRecordInitPageProps {
@@ -20,6 +21,7 @@ export function PatientRecordInitPage({ basePath = '/clinician' }: PatientRecord
     const [organizationId, setOrganizationId] = useState<string | undefined>();
     const [profileError, setProfileError] = useState<string | null>(null);
     const { pushAction } = useActionHistory();
+    const { t } = useI18n();
 
     const isClosed = record?.status === 'closed';
     const hasNoRecord = !record || record.status === 'none';
@@ -33,7 +35,7 @@ export function PatientRecordInitPage({ basePath = '/clinician' }: PatientRecord
                     setOrganizationId(String(profile.organizationId));
                 }
             })
-            .catch(() => setProfileError('Impossible de charger le profil patient.'));
+            .catch(() => setProfileError(t('Impossible de charger le profil patient.')));
     }, [patientId]);
 
     useEffect(() => {
@@ -64,29 +66,29 @@ export function PatientRecordInitPage({ basePath = '/clinician' }: PatientRecord
 
     return (
         <div className="clinician-record-init-page">
-            <h1>Dossier médical</h1>
+            <h1>{t('Dossier médical')}</h1>
             <Card>
                 {hasNoRecord && (
                     <>
-                        <p>Aucun dossier médical n'a été créé pour ce patient.</p>
+                        <p>{t("Aucun dossier médical n'a été créé pour ce patient.")}</p>
                         <Button
                             variant="primary"
                             onClick={handleCreate}
                             disabled={isSaving}
                         >
-                            {isSaving ? 'Création...' : 'Créer un dossier'}
+                            {isSaving ? t('Création...') : t('Créer un dossier')}
                         </Button>
                     </>
                 )}
                 {isClosed && (
                     <>
-                        <p>Le dossier médical de ce patient est fermé.</p>
+                        <p>{t('Le dossier médical de ce patient est fermé.')}</p>
                         <Button
                             variant="primary"
                             onClick={handleReopen}
                             disabled={isSaving}
                         >
-                            {isSaving ? 'Réouverture...' : 'Rouvrir le dossier'}
+                            {isSaving ? t('Réouverture...') : t('Rouvrir le dossier')}
                         </Button>
                     </>
                 )}

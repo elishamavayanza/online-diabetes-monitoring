@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 export type SearchInputVariant = 'default' | 'error' | 'success';
 export type SearchInputSize = 'small' | 'medium' | 'large';
@@ -28,6 +29,7 @@ export function useSearchInput({
                                    onClear,
                                    className = '',
                                }: UseSearchInputProps) {
+    const { t } = useI18n();
     const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
     const isControlled = controlledValue !== undefined;
     const value = isControlled ? controlledValue : uncontrolledValue;
@@ -60,6 +62,6 @@ export function useSearchInput({
         value,
         handleChange,
         handleClear,
-        placeholder,
+        placeholder: t(placeholder),
     };
 }

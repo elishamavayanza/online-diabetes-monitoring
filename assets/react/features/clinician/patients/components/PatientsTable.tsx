@@ -3,6 +3,7 @@ import { Card } from '@/react/components/UI/Card';
 import { Badge } from '@/react/components/UI/Badge';
 import { Avatar } from '@/react/components/UI/Avatar';
 import { Button } from '@/react/components/UI/Button';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { ClinicianPatient } from '../types';
 
 interface PatientsTableProps {
@@ -12,6 +13,7 @@ interface PatientsTableProps {
 
 export function PatientsTable({ patients, basePath = '/clinician' }: PatientsTableProps) {
     const navigate = useNavigate();
+    const { t } = useI18n();
 
     const handleOpenRecord = (patient: ClinicianPatient) => {
         navigate(`${basePath}/patients/${patient.id}/record`);
@@ -61,12 +63,12 @@ export function PatientsTable({ patients, basePath = '/clinician' }: PatientsTab
                         <div className="clinician-patient-card__info">
                             <h3 className="clinician-patient-card__name">{patient.nom}</h3>
                             <p className="clinician-patient-card__detail">
-                                <span className="clinician-patient-card__label">Date de naissance :</span>{' '}
-                                {patient.dateNaissance ?? 'Non renseignée'}
+                                <span className="clinician-patient-card__label">{t('Date de naissance :')}</span>{' '}
+                                {patient.dateNaissance ?? t('Non renseignée')}
                             </p>
                             <p className="clinician-patient-card__detail">
-                                <span className="clinician-patient-card__label">Téléphone :</span>{' '}
-                                {patient.telephone ?? 'Non renseigné'}
+                                <span className="clinician-patient-card__label">{t('Téléphone :')}</span>{' '}
+                                {patient.telephone ?? t('Non renseigné')}
                             </p>
                         </div>
 
@@ -86,14 +88,14 @@ export function PatientsTable({ patients, basePath = '/clinician' }: PatientsTab
                                         handleInitRecord(patient);
                                     }}
                                 >
-                                    Ouvrir un dossier
+                                    {t('Ouvrir un dossier')}
                                 </Button>
                             </div>
                         )}
 
                         {isClosed && (
                             <div className="clinician-patient-card__closed-badge">
-                                <Badge variant="warning">Dossier fermé</Badge>
+                                <Badge variant="warning">{t('Dossier fermé')}</Badge>
                             </div>
                         )}
                     </Card>

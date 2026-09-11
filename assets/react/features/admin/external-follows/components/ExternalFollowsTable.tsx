@@ -8,6 +8,7 @@ import { DataTable } from '@/react/components/Data/DataTable';
 import { ExternalFollowInvitation } from '../types/types';
 import { StatusBadge } from './StatusBadge';
 import { useRevokeExternalFollow } from '../hooks/useRevokeExternalFollow';
+import { useI18n } from '@/react/i18n/I18nContext';
 
 interface ExternalFollowsTableProps {
     invitations: ExternalFollowInvitation[];
@@ -39,6 +40,7 @@ export function ExternalFollowsTable({
                                      }: ExternalFollowsTableProps) {
     const { submit: revoke, isSubmitting: isRevoking } = useRevokeExternalFollow(organizationId, { onSuccess: onRefresh });
     const [revokeTarget, setRevokeTarget] = useState<ExternalFollowInvitation | null>(null);
+    const { t } = useI18n();
 
     const handleRevokeConfirm = async () => {
         if (!revokeTarget) return;
@@ -48,10 +50,10 @@ export function ExternalFollowsTable({
 
     // Définition des colonnes pour la DataTable
     const columns = [
-        { key: 'patientName', title: 'Patient' },
+        { key: 'patientName', title: t('Patient') },
         {
             key: 'professionalName',
-            title: 'Professionnel',
+            title: t('Professionnel'),
             render: (inv: ExternalFollowInvitation) => (
                 <>
                     {inv.professionalName}
@@ -61,13 +63,13 @@ export function ExternalFollowsTable({
         },
         {
             key: 'status',
-            title: 'Statut',
+            title: t('Statut'),
             render: (inv: ExternalFollowInvitation) => (
                 <>
                     <StatusBadge status={inv.status} />
                     {inv.status === 'CLOSED_BY_PROFESSIONAL' && inv.closureReason && (
                         <span className="external-follows-table__closure-reason" title={inv.closureReason}>
-                            Motif : {inv.closureReason}
+                            {t('Motif :')} {inv.closureReason}
                         </span>
                     )}
                 </>
@@ -75,21 +77,21 @@ export function ExternalFollowsTable({
         },
         {
             key: 'startDate',
-            title: 'Début',
+            title: t('Début'),
             render: (inv: ExternalFollowInvitation) => formatDate(inv.startDate),
         },
         {
             key: 'endDate',
-            title: 'Fin',
+            title: t('Fin'),
             render: (inv: ExternalFollowInvitation) => formatDate(inv.endDate),
         },
         {
             key: 'invitedByName',
-            title: 'Invité par',
+            title: t('Invité par'),
         },
         {
             key: 'actions',
-            title: 'Actions',
+            title: t('Actions'),
             render: (inv: ExternalFollowInvitation) => {
                 const isActive = inv.status === 'ACCEPTED' || inv.status === 'PENDING';
                 const isExpired = inv.status === 'EXPIRED';
@@ -99,13 +101,13 @@ export function ExternalFollowsTable({
                             variant="ghost"
                             size="small"
                             onClick={() => onOpenLogs(inv)}
-                            title="Voir le journal d’activité"
+                            title={t("Voir le journal d\u2019activité")}
                         >
-                            Journal
+                            {t('Journal')}
                         </Button>
                         {isActive && (
                             <Button variant="ghost" size="small" onClick={() => onRenew(inv)}>
-                                Renouveler
+                                {t('Renouveler')}
                             </Button>
                         )}
                         {isActive && (
@@ -115,11 +117,11 @@ export function ExternalFollowsTable({
                                 className="external-follows-table__revoke"
                                 onClick={() => setRevokeTarget(inv)}
                             >
-                                Couper l’accès
+                                {t("Couper l\u2019accès")}
                             </Button>
                         )}
                         {isExpired && (
-                            <span className="external-follows-table__expired-note">Délai écoulé</span>
+                            <span className="external-follows-table__expired-note">{t('Délai écoulé')}</span>
                         )}
                     </div>
                 );
@@ -145,9 +147,9 @@ export function ExternalFollowsTable({
     } else if (invitations.length === 0) {
         content = (
             <div className="external-follows-table__empty">
-                <p>Aucune invitation pour le moment.</p>
+                <p>{t('Aucune invitation pour le moment.')}</p>
                 <p className="external-follows-table__empty-hint">
-                    Utilisez « Nouvelle invitation » pour partager le suivi d'un patient.
+                    {t("Utilisez « Nouvelle invitation » pour partager le suivi d\u2019un patient.")}
                 </p>
             </div>
         );
@@ -164,14 +166,14 @@ export function ExternalFollowsTable({
                 isOpen={revokeTarget !== null}
                 onClose={() => setRevokeTarget(null)}
                 onConfirm={handleRevokeConfirm}
-                title="Couper l'accès"
+                title={t("Couper l\u2019accès")}
                 message={
                     revokeTarget
-                        ? `L'accès de ${revokeTarget.professionalName} au dossier de ${revokeTarget.patientName} sera coupé immédiatement. Cette action est irréversible.`
+                        ? t("L\u2019accès de {{ professional }} au dossier de {{ patient }} sera coupé immédiatement. Cette action est irréversible.", { professional: revokeTarget.professionalName, patient: revokeTarget.patientName })
                         : ''
                 }
-                confirmLabel={isRevoking ? 'Coupure...' : 'Couper l’accès'}
-                cancelLabel="Annuler"
+                confirmLabel={isRevoking ? t('Coupure...') : t("Couper l\u2019accès")}
+                cancelLabel={t('Annuler')}
             />
         </>
     );

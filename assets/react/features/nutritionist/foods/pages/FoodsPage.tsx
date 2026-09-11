@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '@/react/i18n/I18nContext';
 import { useFoods } from '../hooks/useFoods';
 import { FoodsTable } from '../components/FoodsTable';
 import { FoodFormModal } from '../components/FoodFormModal';
@@ -10,6 +11,7 @@ import { SearchInput } from '@/react/components/Forms/SearchInput';
 import { ConfirmDialog } from '@/react/components/UI/ConfirmDialog';
 import {Food, FoodCategory} from '../types';
 import { foodToFormValues } from '../services/foodsService';
+import { getCurrentUserIdFromToken } from '@/react/utils/authUtils';
 import '@/styles/pages/nutritionist/foods/_foods.scss';
 
 const FilterIcon = () => (
@@ -19,6 +21,8 @@ const FilterIcon = () => (
 );
 
 export function FoodsPage() {
+    const { t } = useI18n();
+    const currentUserId = getCurrentUserIdFromToken();
     const { foods, categories, filters, setFilters, isLoading, error, refetch, removeFood } = useFoods();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingFood, setEditingFood] = useState<Food | null>(null);
@@ -27,7 +31,7 @@ export function FoodsPage() {
     const [showCategoryFilter, setShowCategoryFilter] = useState(false);
 
     const categoryOptions = [
-        { value: '', label: 'Toutes les catégories' },
+        { value: '', label: t('Toutes les catégories') },
         ...categories.map((c) => ({ value: c.id, label: c.label })),
     ];
 
@@ -53,14 +57,14 @@ export function FoodsPage() {
     return (
         <div className="foods-page" onClick={closeFilter}>
             <div className="foods-page__header">
-                <h1>Aliments</h1>
-                <p>Base de données alimentaire pour vos plans nutritionnels</p>
+                <h1>{t('Aliments')}</h1>
+                <p>{t('Base de données alimentaire pour vos plans nutritionnels')}</p>
             </div>
 
             <div className="foods-page__actions">
                 <div className="foods-page__search">
                     <SearchInput
-                        placeholder="Rechercher un aliment..."
+                        placeholder={t('Rechercher un aliment...')}
                         value={filters.search}
                         onSearch={(value) => setFilters({ ...filters, search: value })}
                     />
@@ -70,8 +74,8 @@ export function FoodsPage() {
                     <button
                         className={`foods-page__filter-btn ${filters.categoryId !== '' ? 'foods-page__filter-btn--active' : ''}`}
                         onClick={() => setShowCategoryFilter((prev) => !prev)}
-                        aria-label="Filtrer par catégorie"
-                        title="Filtrer par catégorie"
+                        aria-label={t('Filtrer par catégorie')}
+                        title={t('Filtrer par catégorie')}
                     >
                         <FilterIcon />
                     </button>
@@ -95,13 +99,14 @@ export function FoodsPage() {
                 </div>
 
                 <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-                    + Ajouter un aliment
+                    {t('+ Ajouter un aliment')}
                 </Button>
             </div>
 
             <FoodsTable
                 foods={foods}
                 categories={categories}
+                currentUserId={currentUserId}
                 onEdit={setEditingFood}
                 onDelete={setDeletingFood}
             />
@@ -129,10 +134,10 @@ export function FoodsPage() {
                 isOpen={!!deletingFood}
                 onClose={() => setDeletingFood(null)}
                 onConfirm={handleDelete}
-                title="Supprimer l'aliment"
-                message={`Voulez-vous supprimer « ${deletingFood?.name} » ? Cette action est irréversible.`}
-                confirmLabel={isDeleting ? 'Suppression...' : 'Supprimer'}
-                cancelLabel="Annuler"
+                title={t("Supprimer l'aliment")}
+                message={t('Voulez-vous supprimer « {{ name }} » ? Cette action est irréversible.', { name: deletingFood?.name ?? '' })}
+                confirmLabel={isDeleting ? t('Suppression...') : t('Supprimer')}
+                cancelLabel={t('Annuler')}
             />
         </div>
     );

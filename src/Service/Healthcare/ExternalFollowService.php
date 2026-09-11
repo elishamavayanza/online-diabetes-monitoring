@@ -581,7 +581,11 @@ class ExternalFollowService
 
             $query = $this->entityManager->createQueryBuilder()
                 ->select('log')
+                ->addSelect('pat')
+                ->addSelect('pro')
                 ->from(ExternalFollowLog::class, 'log')
+                ->leftJoin('log.patient', 'pat')
+                ->leftJoin('log.professional', 'pro')
                 ->andWhere('log.organization = :organization')
                 ->andWhere('log.deletedAt IS NULL')
                 ->setParameter('organization', $organization)
